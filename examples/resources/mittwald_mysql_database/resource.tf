@@ -3,7 +3,7 @@ variable "database_password" {
   sensitive = true
 }
 
-resource "mittwald_mysql_database" "martin_test" {
+resource "mittwald_mysql_database" "foobar_database" {
   project_id  = mittwald_project.foobar.id
   version     = "8.0"
   description = "Foo"
