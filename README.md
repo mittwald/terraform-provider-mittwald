@@ -9,6 +9,14 @@ This repository contains a [Terraform](https://www.terraform.io) provider for re
 
 ## Usage
 
+Have a look at the [general provider usage](./docs/index.md) to see how to get started with this provider.
+
+This provider offers the following resources:
+
+- [`mittwald_project`](./docs/resources/project.md)
+- [`mittwald_app`](./docs/resources/app.md)
+- [`mittwald_mysql_database`](./docs/resources/mysql_database.md)
+
 ## Contributing
 
 ### Requirements
