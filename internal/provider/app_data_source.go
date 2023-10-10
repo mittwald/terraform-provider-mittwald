@@ -99,7 +99,7 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 
 	if !data.Name.IsNull() {
 		for _, app := range apps {
-			if strings.ToLower(app.Name) == strings.ToLower(data.Name.ValueString()) {
+			if strings.EqualFold(app.Name, data.Name.ValueString()) {
 				data.Id = types.StringValue(app.ID)
 				break
 			}
