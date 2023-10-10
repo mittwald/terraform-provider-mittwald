@@ -3,12 +3,12 @@
 page_title: "mittwald_project Resource - terraform-provider-mittwald"
 subcategory: ""
 description: |-
-  Example resource
+  This resource models a project on the mittwald cloud platform; a project is either provisioned on a server (in which case a server_id is required), or as a stand-alone project (currently not supported).
 ---
 
 # mittwald_project (Resource)
 
-Example resource
+This resource models a project on the mittwald cloud platform; a project is either provisioned on a server (in which case a `server_id` is required), or as a stand-alone project (currently not supported).
 
 ## Example Usage
 
@@ -37,4 +37,4 @@ resource "mittwald_project" "foobar" {
 ### Read-Only
 
 - `directories` (Map of String) Contains a map of data directories within the project
-- `id` (String) Example identifier
+- `id` (String) The generated project ID

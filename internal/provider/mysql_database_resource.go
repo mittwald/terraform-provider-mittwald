@@ -96,7 +96,7 @@ func (d *MySQLDatabaseResource) Schema(ctx context.Context, request resource.Sch
 			},
 			"hostname": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Hostname of the database",
+				MarkdownDescription: "Hostname of the database; this is the hostname that you should use within the platform to connect to the database.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -110,7 +110,7 @@ func (d *MySQLDatabaseResource) Schema(ctx context.Context, request resource.Sch
 					},
 					"character_set": schema.StringAttribute{
 						Optional:            true,
-						MarkdownDescription: "Charset of the database, e.g. `utf8mb4`",
+						MarkdownDescription: "Character set of the database, e.g. `utf8mb4`",
 					},
 				},
 			},

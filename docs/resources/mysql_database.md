@@ -52,7 +52,7 @@ resource "mittwald_mysql_database" "martin_test" {
 
 ### Read-Only
 
-- `hostname` (String) Hostname of the database
+- `hostname` (String) Hostname of the database; this is the hostname that you should use within the platform to connect to the database.
 - `id` (String) ID of this database
 - `name` (String) Name of the database, e.g. `db-XXXXX`
 
@@ -76,5 +76,5 @@ Read-Only:
 
 Optional:
 
-- `character_set` (String) Charset of the database, e.g. `utf8mb4`
+- `character_set` (String) Character set of the database, e.g. `utf8mb4`
 - `collation` (String) Collation of the database, e.g. `utf8mb4_general_ci`
