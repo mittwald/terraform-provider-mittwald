@@ -5,7 +5,9 @@ This repository contains a [Terraform](https://www.terraform.io) provider for re
 ## Installation
 
 > [!IMPORTANT]
-> This provider is not yet available on the Terraform registry. You have to build it yourself; have a look at the [Contributing](#contributing) section for more information.
+> This provider is an *experimental proof-of-concept*; we do not recommend using it in production environments, as it is not yet feature-complete and may contain bugs. However, we are happy to receive feedback and contributions!
+> 
+> Also, this provider is not yet available on the Terraform registry. You have to build it yourself; have a look at the [Contributing](#contributing) section for more information.
 
 ## Usage
 
