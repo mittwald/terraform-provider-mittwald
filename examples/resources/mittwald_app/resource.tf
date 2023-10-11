@@ -18,7 +18,6 @@ resource "mittwald_app" "wordpress" {
     "admin_user"  = "martin"
     "admin_pass"  = var.admin_password
     "admin_email" = "martin@mittwald.example"
-
   }
 }
 

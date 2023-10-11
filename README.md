@@ -19,6 +19,17 @@ This provider offers the following resources:
 - [`mittwald_app`](./docs/resources/app.md)
 - [`mittwald_mysql_database`](./docs/resources/mysql_database.md)
 
+Coming soon:
+
+- `mittwald_mysql_user`
+- `mittwald_redis_database`
+- `mittwald_cronjob`
+- `mittwald_ssh_user`
+- `mittwald_ingress`
+- `mittwald_dns_zone`
+- `mittwald_email_address`
+- `mittwald_email_deliverybox`
+
 ## Contributing
 
 ### Requirements
