@@ -11,8 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2"
-	databasev2 "github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2/models/database"
+	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -24,7 +23,7 @@ func NewMySQLDatabaseResource() resource.Resource {
 }
 
 type MySQLDatabaseResource struct {
-	client *mittwaldv2.Client
+	client mittwaldv2.ClientBuilder
 }
 
 // ProjectResourceModel describes the resource data model.
@@ -155,7 +154,7 @@ func (d *MySQLDatabaseResource) Configure(_ context.Context, req resource.Config
 		return
 	}
 
-	client, ok := req.ProviderData.(*mittwaldv2.Client)
+	client, ok := req.ProviderData.(mittwaldv2.ClientBuilder)
 
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -187,33 +186,32 @@ func (d *MySQLDatabaseResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	createURL := fmt.Sprintf("/projects/%s/mysql-databases", data.ProjectID.ValueString())
-	createReq := databasev2.CreateMySQLDatabaseRequest{
-		Database: databasev2.CreateMySQLDatabaseRequestDatabase{
+	createReq := mittwaldv2.DatabaseCreateMysqlDatabaseJSONRequestBody{
+		Database: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlDatabase{
 			Description: data.Description.ValueString(),
 			Version:     data.Version.ValueString(),
-			CharacterSettings: databasev2.CreateMySQLDatabaseRequestDatabaseCharacterSettings{
+			CharacterSettings: &mittwaldv2.DeMittwaldV1DatabaseCharacterSettings{
 				CharacterSet: dataCharset.Charset.ValueString(),
 				Collation:    dataCharset.Collation.ValueString(),
 			},
 		},
-		User: databasev2.CreateMySQLDatabaseRequestUser{
+		User: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlUserWithDatabase{
 			Password:    dataUser.Password.ValueString(),
-			AccessLevel: dataUser.AccessLevel.ValueString(),
+			AccessLevel: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
 		},
 	}
-	createRes := databasev2.CreateMySQLDatabaseResponse{}
 
-	if err := d.client.Post(ctx, createURL, &createReq, &createRes); err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create database (%s), got error: %s", createURL, err))
+	dbID, userID, err := d.client.Database().CreateMySQLDatabase(ctx, data.ProjectID.ValueString(), createReq)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	data.ID = types.StringValue(createRes.ID)
-	dataUser.ID = types.StringValue(createRes.UserID)
+	data.ID = types.StringValue(dbID)
+	dataUser.ID = types.StringValue(userID)
 
 	resp.Diagnostics.Append(d.read(ctx, &data, &dataCharset)...)
-	resp.Diagnostics.Append(d.readUser(ctx, createRes.ID, &dataUser)...)
+	resp.Diagnostics.Append(d.readUser(ctx, dbID, &dataUser)...)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -241,11 +239,9 @@ func (d *MySQLDatabaseResource) Read(ctx context.Context, req resource.ReadReque
 }
 
 func (d *MySQLDatabaseResource) read(ctx context.Context, data *MySQLDatabaseResourceModel, charset *MySQLDatabaseCharsetModel) (res diag.Diagnostics) {
-	database := databasev2.MySQLDatabase{}
-	databaseURL := fmt.Sprintf("/mysql-databases/%s", data.ID.ValueString())
-
-	if err := d.client.Poll(ctx, databaseURL, &database); err != nil {
-		res.AddError("Client Error", fmt.Sprintf("Unable to read database (%s), got error: %s", databaseURL, err))
+	database, err := d.client.Database().PollMySQLDatabase(ctx, data.ID.ValueString())
+	if err != nil {
+		res.AddError("Client Error", err.Error())
 		return
 	}
 
@@ -253,7 +249,7 @@ func (d *MySQLDatabaseResource) read(ctx context.Context, data *MySQLDatabaseRes
 	data.Hostname = types.StringValue(database.Hostname)
 	data.Description = types.StringValue(database.Description)
 	data.Version = types.StringValue(database.Version)
-	data.ProjectID = types.StringValue(database.ProjectID)
+	data.ProjectID = types.StringValue(database.ProjectId.String())
 
 	charset.Charset = types.StringValue(database.CharacterSettings.CharacterSet)
 	charset.Collation = types.StringValue(database.CharacterSettings.Collation)
@@ -263,32 +259,28 @@ func (d *MySQLDatabaseResource) read(ctx context.Context, data *MySQLDatabaseRes
 
 func (d *MySQLDatabaseResource) readUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (res diag.Diagnostics) {
 	if data.ID.IsNull() {
-		databaseUserList := make([]databasev2.MySQLUser, 0)
-		databaseUserListURL := fmt.Sprintf("/mysql-databases/%s/users", databaseID)
-
-		if err := d.client.Poll(ctx, databaseUserListURL, &databaseUserList); err != nil {
-			res.AddError("Client Error", fmt.Sprintf("Unable to read database user list (%s), got error: %s", databaseUserListURL, err))
+		databaseUserList, err := d.client.Database().PollMySQLUsersForDatabase(ctx, databaseID)
+		if err != nil {
+			res.AddError("Client Error", err.Error())
 			return
 		}
 
 		for _, user := range databaseUserList {
 			if user.MainUser {
-				data.ID = types.StringValue(user.ID)
+				data.ID = types.StringValue(user.Id.String())
 				break
 			}
 		}
 	}
 
-	databaseUser := databasev2.MySQLUser{}
-	databaseUserURL := fmt.Sprintf("/mysql-users/%s", data.ID.ValueString())
-
-	if err := d.client.Poll(ctx, databaseUserURL, &databaseUser); err != nil {
-		res.AddError("Client Error", fmt.Sprintf("Unable to read database user (%s), got error: %s", databaseUserURL, err))
+	databaseUser, err := d.client.Database().PollMySQLUser(ctx, data.ID.ValueString())
+	if err != nil {
+		res.AddError("Client Error", err.Error())
 		return
 	}
 
 	data.Name = types.StringValue(databaseUser.Name)
-	data.AccessLevel = types.StringValue(databaseUser.AccessLevel)
+	data.AccessLevel = types.StringValue(string(databaseUser.AccessLevel))
 	data.ExternalAccess = types.BoolValue(databaseUser.ExternalAccess)
 
 	return
@@ -309,20 +301,14 @@ func (d *MySQLDatabaseResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	if !planData.Description.Equal(stateData.Description) {
-		descrURL := fmt.Sprintf("/mysql-databases/%s/description", planData.ID.ValueString())
-		descrBody := map[string]any{"description": planData.Description.ValueString()}
-
-		if err := d.client.Patch(ctx, descrURL, &descrBody, nil); err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update database description (%s), got error: %s", descrURL, err))
+		if err := d.client.Database().SetMySQLDatabaseDescription(ctx, planData.ID.ValueString(), planData.Description.ValueString()); err != nil {
+			resp.Diagnostics.AddError("Client Error", err.Error())
 			return
 		}
 	}
 
-	passwordURL := fmt.Sprintf("/mysql-users/%s/password", dataUser.ID.ValueString())
-	passwordBody := map[string]any{"password": dataUser.Password.ValueString()}
-
-	if err := d.client.Patch(ctx, passwordURL, &passwordBody, nil); err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update database user password (%s), got error: %s", passwordURL, err))
+	if err := d.client.Database().SetMySQLUserPassword(ctx, dataUser.ID.ValueString(), dataUser.Password.ValueString()); err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
@@ -345,9 +331,8 @@ func (d *MySQLDatabaseResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	url := fmt.Sprintf("/mysql-databases/%s", data.ID.ValueString())
-	if err := d.client.Delete(ctx, url); err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete database (%s), got error: %s", url, err))
+	if err := d.client.Database().DeleteMySQLDatabase(ctx, data.ID.ValueString()); err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 }

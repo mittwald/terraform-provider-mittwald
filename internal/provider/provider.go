@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -78,9 +78,10 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 	}
 
 	// Example client configuration for data sources and resources
-	client := mittwaldv2.New(mittwaldv2.WithAPIKey(apiKey))
 
 	fmt.Println("found API key", apiKey)
+
+	client := mittwaldv2.NewWithAPIToken(apiKey)
 
 	resp.DataSourceData = client
 	resp.ResourceData = client

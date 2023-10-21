@@ -11,8 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2"
-	projectsv2 "github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2/models/project"
+	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -25,7 +24,7 @@ func NewProjectResource() resource.Resource {
 
 // ProjectResource defines the resource implementation.
 type ProjectResource struct {
-	client *mittwaldv2.Client
+	client mittwaldv2.ClientBuilder
 }
 
 // ProjectResourceModel describes the resource data model.
@@ -75,7 +74,7 @@ func (r *ProjectResource) Configure(ctx context.Context, req resource.ConfigureR
 		return
 	}
 
-	client, ok := req.ProviderData.(*mittwaldv2.Client)
+	client, ok := req.ProviderData.(mittwaldv2.ClientBuilder)
 
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -104,18 +103,20 @@ func (r *ProjectResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	projectInput := projectsv2.Project{
-		Description: data.Description.ValueString(),
-	}
-	projectOutput := projectsv2.Project{}
+	projectID, err := r.client.Project().CreateProjectOnServer(
+		ctx,
+		data.ServerID.ValueString(),
+		mittwaldv2.ProjectCreateProjectJSONRequestBody{
+			Description: data.Description.ValueString(),
+		},
+	)
 
-	url := fmt.Sprintf("/servers/%s/projects", data.ServerID.ValueString())
-	if err := r.client.Post(ctx, url, &projectInput, &projectOutput); err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create project (%s), got error: %s", url, err))
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	data.ID = types.StringValue(projectOutput.ID)
+	data.ID = types.StringValue(projectID)
 
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
@@ -144,15 +145,13 @@ func (r *ProjectResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *ProjectResource) read(ctx context.Context, data *ProjectResourceModel) (res diag.Diagnostics) {
-	project := projectsv2.Project{}
-
-	url := fmt.Sprintf("/projects/%s", data.ID.ValueString())
-	if err := r.client.Poll(ctx, url, &project); err != nil {
-		res.AddError("API error", fmt.Sprintf("unable to read project (%s), got error: %v", url, err))
+	project, err := r.client.Project().PollProject(ctx, data.ID.ValueString())
+	if err != nil {
+		res.AddError("API error", err.Error())
 		return
 	}
 
-	data.ID = types.StringValue(project.ID)
+	data.ID = types.StringValue(project.Id.String())
 	data.Description = types.StringValue(project.Description)
 
 	if dirs, d := types.MapValueFrom(ctx, types.StringType, project.Directories); d.HasError() {
@@ -162,8 +161,8 @@ func (r *ProjectResource) read(ctx context.Context, data *ProjectResourceModel) 
 		data.Directories = dirs
 	}
 
-	if project.ServerID != "" {
-		data.ServerID = types.StringValue(project.ServerID)
+	if project.ServerId != nil {
+		data.ServerID = types.StringValue(project.ServerId.String())
 	} else {
 		data.ServerID = types.StringNull()
 	}
@@ -197,9 +196,8 @@ func (r *ProjectResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	url := fmt.Sprintf("/projects/%s", data.ID.ValueString())
-	if err := r.client.Delete(ctx, url); err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete project (%s), got error: %s", url, err))
+	if err := r.client.Project().DeleteProject(ctx, data.ID.ValueString()); err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 }

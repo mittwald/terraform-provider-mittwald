@@ -10,9 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2"
-	"github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2/clients/apps"
-	appsv2 "github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2/models/apps"
+	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -34,7 +32,7 @@ func NewAppResource() resource.Resource {
 }
 
 type AppResource struct {
-	client *mittwaldv2.Client
+	client mittwaldv2.ClientBuilder
 }
 
 type AppResourceModel struct {
@@ -119,7 +117,7 @@ func (r *AppResource) Configure(_ context.Context, req resource.ConfigureRequest
 		return
 	}
 
-	client, ok := req.ProviderData.(*mittwaldv2.Client)
+	client, ok := req.ProviderData.(mittwaldv2.ClientBuilder)
 
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -144,16 +142,16 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	appClient := apps.NewClient(r.client)
-	appInput := appsv2.CreateAppInstallationRequest{
+	appClient := r.client.App()
+	appInput := mittwaldv2.AppRequestAppinstallationJSONRequestBody{
 		Description:  data.Description.ValueString(),
-		UpdatePolicy: data.UpdatePolicy.ValueString(),
+		UpdatePolicy: mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(data.UpdatePolicy.ValueString()),
 	}
 
-	appVersions := ErrorValueToDiag(appClient.GetAppVersions(ctx, appID))(&resp.Diagnostics, "API Error")
+	appVersions := ErrorValueToDiag(appClient.ListAppVersions(ctx, appID))(&resp.Diagnostics, "API Error")
 	for _, appVersion := range appVersions {
 		if appVersion.InternalVersion == data.Version.ValueString() {
-			appInput.AppVersionID = appVersion.ID
+			appInput.AppVersionId = appVersion.Id
 		}
 	}
 
@@ -161,10 +159,15 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	appResponse := ErrorValueToDiag(appClient.CreateAppInstallation(ctx, data.ProjectID.ValueString(), &appInput))(&resp.Diagnostics, "API Error")
-	data.ID = types.StringValue(appResponse.ID)
+	appID, err := appClient.RequestAppInstallation(ctx, data.ProjectID.ValueString(), appInput)
+	if err != nil {
+		resp.Diagnostics.AddError("API Error", err.Error())
+		return
+	}
 
-	ErrorToDiag(appClient.WaitUntilAppInstallationIsReady(ctx, appResponse.ID))(&resp.Diagnostics, "API Error")
+	data.ID = types.StringValue(appID)
+
+	ErrorToDiag(appClient.WaitUntilAppInstallationIsReady(ctx, appID))(&resp.Diagnostics, "API Error")
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -184,31 +187,31 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 }
 
 func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res diag.Diagnostics) {
-	appClient := apps.NewClient(r.client)
+	appClient := r.client.App()
 
 	appInstallation := ErrorValueToDiag(appClient.GetAppInstallation(ctx, data.ID.ValueString()))(&res, "API Error")
 	if res.HasError() {
 		return
 	}
 
-	appDesiredVersion := ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppID, appInstallation.AppVersion.Desired))(&res, "API Error")
+	appDesiredVersion := ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))(&res, "API Error")
 	if res.HasError() {
 		return
 	}
 
-	data.ProjectID = types.StringValue(appInstallation.ProjectID)
+	data.ProjectID = types.StringValue(appInstallation.ProjectId.String())
 	data.InstallationPath = types.StringValue(appInstallation.InstallationPath)
 	data.App = func() types.String {
 		for key, appID := range appNames {
-			if appID == appInstallation.AppID {
+			if appID == appInstallation.AppId.String() {
 				return types.StringValue(key)
 			}
 		}
 		return types.StringNull()
 	}()
 
-	if appInstallation.CustomDocumentRoot != "" {
-		data.DocumentRoot = types.StringValue(appInstallation.CustomDocumentRoot)
+	if appInstallation.CustomDocumentRoot != nil {
+		data.DocumentRoot = types.StringValue(*appInstallation.CustomDocumentRoot)
 	} else {
 		data.DocumentRoot = types.StringNull()
 	}
@@ -222,16 +225,20 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 	data.Version = types.StringValue(appDesiredVersion.InternalVersion)
 
 	data.DatabaseID = func() types.String {
-		for _, link := range appInstallation.LinkedDatabases {
+		if appInstallation.LinkedDatabases == nil {
+			return types.StringNull()
+		}
+
+		for _, link := range *appInstallation.LinkedDatabases {
 			if link.Purpose == "primary" {
-				return types.StringValue(link.DatabaseID)
+				return types.StringValue(link.DatabaseId.String())
 			}
 		}
 		return types.StringNull()
 	}()
 
-	if appInstallation.AppVersion.Current != "" {
-		if appDesiredVersion := ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppID, appInstallation.AppVersion.Desired))(&res, "API Error"); appDesiredVersion != nil {
+	if appInstallation.AppVersion.Current != nil {
+		if appDesiredVersion := ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))(&res, "API Error"); appDesiredVersion != nil {
 			data.VersionCurrent = types.StringValue(appDesiredVersion.InternalVersion)
 		}
 	}
@@ -246,7 +253,6 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data AppResourceModel
-	appClient := apps.NewClient(r.client)
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -255,7 +261,7 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	ErrorToDiag(appClient.DeleteAppInstallation(ctx, data.ID.ValueString()))(&resp.Diagnostics, "API Error")
+	ErrorToDiag(r.client.App().UninstallApp(ctx, data.ID.ValueString()))(&resp.Diagnostics, "API Error")
 }
 
 func (r *AppResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
