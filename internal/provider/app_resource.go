@@ -46,6 +46,7 @@ type AppResourceModel struct {
 	DocumentRoot     types.String `tfsdk:"document_root"`
 	InstallationPath types.String `tfsdk:"installation_path"`
 	UpdatePolicy     types.String `tfsdk:"update_policy"`
+	UserInputs       types.Map    `tfsdk:"user_inputs"`
 }
 
 func (r *AppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -108,6 +109,10 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				MarkdownDescription: "The update policy of the app; one of `none`, `patchLevel` or `all`",
 				Required:            true,
 			},
+			"user_inputs": schema.MapAttribute{
+				MarkdownDescription: "The user inputs of the app",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -153,6 +158,13 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		if appVersion.InternalVersion == data.Version.ValueString() {
 			appInput.AppVersionId = appVersion.Id
 		}
+	}
+
+	for key, value := range data.UserInputs.Elements() {
+		appInput.UserInputs = append(appInput.UserInputs, mittwaldv2.DeMittwaldV1AppSavedUserInput{
+			Name:  key,
+			Value: value.String(),
+		})
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -254,7 +266,6 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data AppResourceModel
 
-	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
