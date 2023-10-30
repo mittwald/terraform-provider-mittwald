@@ -1,3 +1,6 @@
+//go:build generate
+// +build generate
+
 package mittwaldv2
 
 // NOTE: This needs a patched version of oapi-codegen; PR #1178 [1] is
@@ -5,4 +8,5 @@ package mittwaldv2
 //
 //   [1]: https://github.com/deepmap/oapi-codegen/pull/1178
 
-//go:generate wget api.mittwald.de/openapi -O openapi.json && oapi-codegen -package mittwaldv2 openapi.json > mittwald.gen.go
+//go:generate wget https://api.mittwald.de/openapi -Oopenapi.json
+//go:generate oapi-codegen -package mittwaldv2 -o mittwald.gen.go openapi.json

@@ -294,9 +294,9 @@ const (
 	DeMittwaldV1InvoiceInvoiceSettingsStatusSeverityWarning DeMittwaldV1InvoiceInvoiceSettingsStatusSeverity = "warning"
 )
 
-// Defines values for DeMittwaldV1InvoiceInvoiceSettingsStatusStatusType.
+// Defines values for DeMittwaldV1InvoiceInvoiceSettingsStatusType.
 const (
-	ReturnDebitNote DeMittwaldV1InvoiceInvoiceSettingsStatusStatusType = "returnDebitNote"
+	ReturnDebitNote DeMittwaldV1InvoiceInvoiceSettingsStatusType = "returnDebitNote"
 )
 
 // Defines values for DeMittwaldV1InvoicePaymentSettingsDebitMethod.
@@ -329,10 +329,10 @@ const (
 
 // Defines values for DeMittwaldV1MembershipProjectRoles.
 const (
-	Emailadmin DeMittwaldV1MembershipProjectRoles = "emailadmin"
-	External   DeMittwaldV1MembershipProjectRoles = "external"
-	Notset     DeMittwaldV1MembershipProjectRoles = "notset"
-	Owner      DeMittwaldV1MembershipProjectRoles = "owner"
+	DeMittwaldV1MembershipProjectRolesEmailadmin DeMittwaldV1MembershipProjectRoles = "emailadmin"
+	DeMittwaldV1MembershipProjectRolesExternal   DeMittwaldV1MembershipProjectRoles = "external"
+	DeMittwaldV1MembershipProjectRolesNotset     DeMittwaldV1MembershipProjectRoles = "notset"
+	DeMittwaldV1MembershipProjectRolesOwner      DeMittwaldV1MembershipProjectRoles = "owner"
 )
 
 // Defines values for DeMittwaldV1MessagingNotificationSeverity.
@@ -434,6 +434,26 @@ const (
 	InvoiceListCustomerInvoicesParamsInvoiceTypesREISSUE      InvoiceListCustomerInvoicesParamsInvoiceTypes = "REISSUE"
 )
 
+// Defines values for DnsUpdateRecordSetParamsRecordSet.
+const (
+	DnsUpdateRecordSetParamsRecordSetA     DnsUpdateRecordSetParamsRecordSet = "a"
+	DnsUpdateRecordSetParamsRecordSetCname DnsUpdateRecordSetParamsRecordSet = "cname"
+	DnsUpdateRecordSetParamsRecordSetMx    DnsUpdateRecordSetParamsRecordSet = "mx"
+	DnsUpdateRecordSetParamsRecordSetSrv   DnsUpdateRecordSetParamsRecordSet = "srv"
+	DnsUpdateRecordSetParamsRecordSetTxt   DnsUpdateRecordSetParamsRecordSet = "txt"
+)
+
+// Defines values for DnsSetRecordSetManagedParamsRecordSet.
+const (
+	DnsSetRecordSetManagedParamsRecordSetA  DnsSetRecordSetManagedParamsRecordSet = "a"
+	DnsSetRecordSetManagedParamsRecordSetMx DnsSetRecordSetManagedParamsRecordSet = "mx"
+)
+
+// Defines values for DomainUpdateDomainContactParamsContact.
+const (
+	DomainUpdateDomainContactParamsContactOwner DomainUpdateDomainContactParamsContact = "owner"
+)
+
 // Defines values for FileGetFileTypeRulesParamsName.
 const (
 	Avatar       FileGetFileTypeRulesParamsName = "avatar"
@@ -447,10 +467,16 @@ const (
 	Ocr    FileGetFileParamsAccept = "ocr"
 )
 
-// Defines values for MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolder.
+// Defines values for MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolder.
 const (
-	MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolderInbox MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolder = "inbox"
-	MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolderSpam  MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolder = "spam"
+	MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolderInbox MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolder = "inbox"
+	MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolderSpam  MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolder = "spam"
+)
+
+// Defines values for PutV2MailaddressesMailAddressIdSpamprotectionJSONBodySpamProtectionFolder.
+const (
+	Inbox PutV2MailaddressesMailAddressIdSpamprotectionJSONBodySpamProtectionFolder = "inbox"
+	Spam  PutV2MailaddressesMailAddressIdSpamprotectionJSONBodySpamProtectionFolder = "spam"
 )
 
 // Defines values for DatabaseUpdateMysqlUserJSONBodyAccessLevel.
@@ -483,6 +509,12 @@ const (
 const (
 	Tar BackupCreateProjectBackupExportJSONBodyFormat = "tar"
 	Zip BackupCreateProjectBackupExportJSONBodyFormat = "zip"
+)
+
+// Defines values for MailUpdateProjectMailSettingParamsSetting.
+const (
+	Blacklist MailUpdateProjectMailSettingParamsSetting = "blacklist"
+	Whitelist MailUpdateProjectMailSettingParamsSetting = "whitelist"
 )
 
 // Defines values for SftpUserCreateSftpUserJSONBodyAccessLevel.
@@ -1067,6 +1099,7 @@ type DeMittwaldV1ContractContractItem struct {
 	Articles           []DeMittwaldV1ContractArticle           `json:"articles"`
 	ContractPeriod     float32                                 `json:"contractPeriod"`
 	Description        string                                  `json:"description"`
+	FreeTrialDays      float32                                 `json:"freeTrialDays"`
 	GroupByProjectId   *openapi_types.UUID                     `json:"groupByProjectId,omitempty"`
 	InvoicingPeriod    float32                                 `json:"invoicingPeriod"`
 	IsActivated        bool                                    `json:"isActivated"`
@@ -1895,16 +1928,16 @@ type DeMittwaldV1InvoiceInvoiceSettings struct {
 
 // DeMittwaldV1InvoiceInvoiceSettingsStatus defines model for de.mittwald.v1.invoice.InvoiceSettingsStatus.
 type DeMittwaldV1InvoiceInvoiceSettingsStatus struct {
-	Message    string                                              `json:"message"`
-	Severity   DeMittwaldV1InvoiceInvoiceSettingsStatusSeverity    `json:"severity"`
-	StatusType *DeMittwaldV1InvoiceInvoiceSettingsStatusStatusType `json:"statusType,omitempty"`
+	Message  string                                           `json:"message"`
+	Severity DeMittwaldV1InvoiceInvoiceSettingsStatusSeverity `json:"severity"`
+	Type     DeMittwaldV1InvoiceInvoiceSettingsStatusType     `json:"type"`
 }
 
 // DeMittwaldV1InvoiceInvoiceSettingsStatusSeverity defines model for DeMittwaldV1InvoiceInvoiceSettingsStatus.Severity.
 type DeMittwaldV1InvoiceInvoiceSettingsStatusSeverity string
 
-// DeMittwaldV1InvoiceInvoiceSettingsStatusStatusType defines model for DeMittwaldV1InvoiceInvoiceSettingsStatus.StatusType.
-type DeMittwaldV1InvoiceInvoiceSettingsStatusStatusType string
+// DeMittwaldV1InvoiceInvoiceSettingsStatusType defines model for DeMittwaldV1InvoiceInvoiceSettingsStatus.Type.
+type DeMittwaldV1InvoiceInvoiceSettingsStatusType string
 
 // DeMittwaldV1InvoicePaymentSettings defines model for de.mittwald.v1.invoice.PaymentSettings.
 type DeMittwaldV1InvoicePaymentSettings struct {
@@ -3016,98 +3049,170 @@ type OrderListCustomerOrdersParams struct {
 	TemplateNames  *[]string                       `form:"templateNames,omitempty" json:"templateNames,omitempty"`
 }
 
-// MailDeliveryboxUpdateDescriptionJSONBody defines parameters for MailDeliveryboxUpdateDescription.
-type MailDeliveryboxUpdateDescriptionJSONBody struct {
+// MailUpdateDeliveryBoxDescriptionJSONBody defines parameters for MailUpdateDeliveryBoxDescription.
+type MailUpdateDeliveryBoxDescriptionJSONBody struct {
 	Description string `json:"description"`
 }
 
-// MailDeliveryboxUpdatePasswordJSONBody defines parameters for MailDeliveryboxUpdatePassword.
-type MailDeliveryboxUpdatePasswordJSONBody struct {
+// MailUpdateDeliveryBoxPasswordJSONBody defines parameters for MailUpdateDeliveryBoxPassword.
+type MailUpdateDeliveryBoxPasswordJSONBody struct {
 	Password string `json:"password"`
 }
 
-// DnsSubZoneCreateJSONBody defines parameters for DnsSubZoneCreate.
-type DnsSubZoneCreateJSONBody struct {
+// MailDeliveryboxUpdateDescriptionDeprecatedJSONBody defines parameters for MailDeliveryboxUpdateDescriptionDeprecated.
+type MailDeliveryboxUpdateDescriptionDeprecatedJSONBody struct {
+	Description string `json:"description"`
+}
+
+// MailDeliveryboxUpdatePasswordDeprecatedJSONBody defines parameters for MailDeliveryboxUpdatePasswordDeprecated.
+type MailDeliveryboxUpdatePasswordDeprecatedJSONBody struct {
+	Password string `json:"password"`
+}
+
+// DnsCreateDnsZoneJSONBody defines parameters for DnsCreateDnsZone.
+type DnsCreateDnsZoneJSONBody struct {
 	Name         string             `json:"name"`
 	ParentZoneId openapi_types.UUID `json:"parentZoneId"`
 }
 
-// DnsRecordASetCustomJSONBody defines parameters for DnsRecordASetCustom.
-type DnsRecordASetCustomJSONBody struct {
+// DnsUpdateRecordSetJSONBody defines parameters for DnsUpdateRecordSet.
+type DnsUpdateRecordSetJSONBody struct {
 	union json.RawMessage
 }
 
-// DnsRecordASetManagedByIngressJSONBody defines parameters for DnsRecordASetManagedByIngress.
-type DnsRecordASetManagedByIngressJSONBody = map[string]interface{}
+// DnsUpdateRecordSetParamsRecordSet defines parameters for DnsUpdateRecordSet.
+type DnsUpdateRecordSetParamsRecordSet string
 
-// DnsRecordCnameSetJSONBody defines parameters for DnsRecordCnameSet.
-type DnsRecordCnameSetJSONBody struct {
+// DnsSetRecordSetManagedJSONBody defines parameters for DnsSetRecordSetManaged.
+type DnsSetRecordSetManagedJSONBody = map[string]interface{}
+
+// DnsSetRecordSetManagedParamsRecordSet defines parameters for DnsSetRecordSetManaged.
+type DnsSetRecordSetManagedParamsRecordSet string
+
+// PostV2DnsZonesJSONBody defines parameters for PostV2DnsZones.
+type PostV2DnsZonesJSONBody struct {
+	Name         string             `json:"name"`
+	ParentZoneId openapi_types.UUID `json:"parentZoneId"`
+}
+
+// DnsRecordASetCustomDeprecatedJSONBody defines parameters for DnsRecordASetCustomDeprecated.
+type DnsRecordASetCustomDeprecatedJSONBody struct {
 	union json.RawMessage
 }
 
-// DnsRecordMxSetCustomJSONBody defines parameters for DnsRecordMxSetCustom.
-type DnsRecordMxSetCustomJSONBody struct {
+// DnsRecordASetManagedByIngressDeprecatedJSONBody defines parameters for DnsRecordASetManagedByIngressDeprecated.
+type DnsRecordASetManagedByIngressDeprecatedJSONBody = map[string]interface{}
+
+// DnsRecordCnameSetDeprecatedJSONBody defines parameters for DnsRecordCnameSetDeprecated.
+type DnsRecordCnameSetDeprecatedJSONBody struct {
 	union json.RawMessage
 }
 
-// DnsRecordMxSetManagedJSONBody defines parameters for DnsRecordMxSetManaged.
-type DnsRecordMxSetManagedJSONBody = map[string]interface{}
-
-// DnsRecordSrvSetJSONBody defines parameters for DnsRecordSrvSet.
-type DnsRecordSrvSetJSONBody struct {
+// DnsRecordMxSetCustomDeprecatedJSONBody defines parameters for DnsRecordMxSetCustomDeprecated.
+type DnsRecordMxSetCustomDeprecatedJSONBody struct {
 	union json.RawMessage
 }
 
-// DnsRecordTxtSetJSONBody defines parameters for DnsRecordTxtSet.
-type DnsRecordTxtSetJSONBody struct {
+// DnsRecordMxSetManagedDeprecatedJSONBody defines parameters for DnsRecordMxSetManagedDeprecated.
+type DnsRecordMxSetManagedDeprecatedJSONBody = map[string]interface{}
+
+// DnsRecordSrvSetDeprecatedJSONBody defines parameters for DnsRecordSrvSetDeprecated.
+type DnsRecordSrvSetDeprecatedJSONBody struct {
 	union json.RawMessage
 }
+
+// DnsRecordTxtSetDeprecatedJSONBody defines parameters for DnsRecordTxtSetDeprecated.
+type DnsRecordTxtSetDeprecatedJSONBody struct {
+	union json.RawMessage
+}
+
+// PostV2DomainOwnershipsDomainOwnershipIdJSONBody defines parameters for PostV2DomainOwnershipsDomainOwnershipId.
+type PostV2DomainOwnershipsDomainOwnershipIdJSONBody interface{}
 
 // DomainVerifyDomainOwnershipJSONBody defines parameters for DomainVerifyDomainOwnership.
 type DomainVerifyDomainOwnershipJSONBody = interface{}
 
-// DomainCheckDomainAvailabilityJSONBody defines parameters for DomainCheckDomainAvailability.
-type DomainCheckDomainAvailabilityJSONBody struct {
+// DomainCheckDomainRegistrabilityJSONBody defines parameters for DomainCheckDomainRegistrability.
+type DomainCheckDomainRegistrabilityJSONBody struct {
+	Domain string `json:"domain"`
+}
+
+// DomainCheckDomainRegistrabilityV2DeprecatedJSONBody defines parameters for DomainCheckDomainRegistrabilityV2Deprecated.
+type DomainCheckDomainRegistrabilityV2DeprecatedJSONBody struct {
 	Domain string `json:"domain"`
 }
 
 // DomainDeleteDomainJSONBody defines parameters for DomainDeleteDomain.
 type DomainDeleteDomainJSONBody struct {
-	// Transit If true, Domain is in grace period.
+	// Transit Only for .de Domains.
 	Transit *bool `json:"transit,omitempty"`
 }
 
-// DomainCreateAuthcodeForDomainJSONBody defines parameters for DomainCreateAuthcodeForDomain.
-type DomainCreateAuthcodeForDomainJSONBody = interface{}
+// DomainCreateDomainAuthCodeJSONBody defines parameters for DomainCreateDomainAuthCode.
+type DomainCreateDomainAuthCodeJSONBody = interface{}
 
-// DomainCreateAuthcode2ForDomainJSONBody defines parameters for DomainCreateAuthcode2ForDomain.
-type DomainCreateAuthcode2ForDomainJSONBody = interface{}
+// DomainCreateDomainAuthCode2JSONBody defines parameters for DomainCreateDomainAuthCode2.
+type DomainCreateDomainAuthCode2JSONBody = interface{}
+
+// PostV2DomainsDomainIdActionsCreateAuthcodeJSONBody defines parameters for PostV2DomainsDomainIdActionsCreateAuthcode.
+type PostV2DomainsDomainIdActionsCreateAuthcodeJSONBody interface{}
+
+// PostV2DomainsDomainIdActionsCreateAuthcode2JSONBody defines parameters for PostV2DomainsDomainIdActionsCreateAuthcode2.
+type PostV2DomainsDomainIdActionsCreateAuthcode2JSONBody interface{}
 
 // DomainResendDomainEmailJSONBody defines parameters for DomainResendDomainEmail.
 type DomainResendDomainEmailJSONBody = interface{}
 
-// DomainDeclareProcessChangeAuthcodeJSONBody defines parameters for DomainDeclareProcessChangeAuthcode.
-type DomainDeclareProcessChangeAuthcodeJSONBody struct {
+// DomainUpdateDomainAuthCodeJSONBody defines parameters for DomainUpdateDomainAuthCode.
+type DomainUpdateDomainAuthCodeJSONBody struct {
 	AuthCode string `json:"authCode"`
 }
 
-// DomainDeclareProcessChangeHandlesJSONBody defines parameters for DomainDeclareProcessChangeHandles.
-type DomainDeclareProcessChangeHandlesJSONBody struct {
+// PatchV2DomainsDomainIdAuthcodeJSONBody defines parameters for PatchV2DomainsDomainIdAuthcode.
+type PatchV2DomainsDomainIdAuthcodeJSONBody struct {
+	AuthCode string `json:"authCode"`
+}
+
+// DomainUpdateDomainContactJSONBody defines parameters for DomainUpdateDomainContact.
+type DomainUpdateDomainContactJSONBody struct {
+	Contact []DeMittwaldV1DomainHandleField `json:"contact"`
+}
+
+// DomainUpdateDomainContactParamsContact defines parameters for DomainUpdateDomainContact.
+type DomainUpdateDomainContactParamsContact string
+
+// DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONBody defines parameters for DomainDeclareProcessChangeAuthcodeV2Deprecated.
+type DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONBody struct {
+	AuthCode string `json:"authCode"`
+}
+
+// DomainDeclareProcessChangeHandlesV2DeprecatedJSONBody defines parameters for DomainDeclareProcessChangeHandlesV2Deprecated.
+type DomainDeclareProcessChangeHandlesV2DeprecatedJSONBody struct {
 	OwnerC []DeMittwaldV1DomainHandleField `json:"ownerC"`
 }
 
-// DomainChangeOwnercOfDomainJSONBody defines parameters for DomainChangeOwnercOfDomain.
-type DomainChangeOwnercOfDomainJSONBody struct {
+// DomainChangeOwnercOfDomainV2DeprecatedJSONBody defines parameters for DomainChangeOwnercOfDomainV2Deprecated.
+type DomainChangeOwnercOfDomainV2DeprecatedJSONBody struct {
 	OwnerC []DeMittwaldV1DomainHandleField `json:"ownerC"`
 }
 
-// DomainDeclareNameserversJSONBody defines parameters for DomainDeclareNameservers.
-type DomainDeclareNameserversJSONBody struct {
+// DomainUpdateDomainNameserversJSONBody defines parameters for DomainUpdateDomainNameservers.
+type DomainUpdateDomainNameserversJSONBody struct {
 	Nameservers *[]string `json:"nameservers,omitempty"`
 }
 
-// DomainChangeProjectOfDomainJSONBody defines parameters for DomainChangeProjectOfDomain.
-type DomainChangeProjectOfDomainJSONBody struct {
+// DomainDeclareNameserversV2DeprecatedJSONBody defines parameters for DomainDeclareNameserversV2Deprecated.
+type DomainDeclareNameserversV2DeprecatedJSONBody struct {
+	Nameservers *[]string `json:"nameservers,omitempty"`
+}
+
+// DomainUpdateDomainProjectIdJSONBody defines parameters for DomainUpdateDomainProjectId.
+type DomainUpdateDomainProjectIdJSONBody struct {
+	ProjectId *openapi_types.UUID `json:"projectId,omitempty"`
+}
+
+// DomainChangeProjectOfDomainV2DeprecatedJSONBody defines parameters for DomainChangeProjectOfDomainV2Deprecated.
+type DomainChangeProjectOfDomainV2DeprecatedJSONBody struct {
 	ProjectId *openapi_types.UUID `json:"projectId,omitempty"`
 }
 
@@ -3160,13 +3265,13 @@ type RelocationCreateLegacyTariffChangeJSONBody struct {
 // UserLogoutJSONBody defines parameters for UserLogout.
 type UserLogoutJSONBody = map[string]interface{}
 
-// MailMailaddressUpdateAddressJSONBody defines parameters for MailMailaddressUpdateAddress.
-type MailMailaddressUpdateAddressJSONBody struct {
+// MailUpdateMailAddressAddressJSONBody defines parameters for MailUpdateMailAddressAddress.
+type MailUpdateMailAddressAddressJSONBody struct {
 	Address openapi_types.Email `json:"address"`
 }
 
-// MailMailaddressUpdateAutoresponderJSONBody defines parameters for MailMailaddressUpdateAutoresponder.
-type MailMailaddressUpdateAutoresponderJSONBody struct {
+// MailUpdateMailAddressAutoresponderJSONBody defines parameters for MailUpdateMailAddressAutoresponder.
+type MailUpdateMailAddressAutoresponderJSONBody struct {
 	AutoResponder *struct {
 		Active    bool       `json:"active"`
 		ExpiresAt *time.Time `json:"expiresAt,omitempty"`
@@ -3175,38 +3280,86 @@ type MailMailaddressUpdateAutoresponderJSONBody struct {
 	} `json:"autoResponder"`
 }
 
-// MailMailaddressUpdateCatchallJSONBody defines parameters for MailMailaddressUpdateCatchall.
-type MailMailaddressUpdateCatchallJSONBody struct {
+// MailUpdateMailAddressCatchallJSONBody defines parameters for MailUpdateMailAddressCatchall.
+type MailUpdateMailAddressCatchallJSONBody struct {
 	Active bool `json:"active"`
 }
 
-// MailMailaddressUpdateForwardaddressesJSONBody defines parameters for MailMailaddressUpdateForwardaddresses.
-type MailMailaddressUpdateForwardaddressesJSONBody struct {
+// MailUpdateMailAddressForwardAddressesJSONBody defines parameters for MailUpdateMailAddressForwardAddresses.
+type MailUpdateMailAddressForwardAddressesJSONBody struct {
 	ForwardAddresses []openapi_types.Email `json:"forwardAddresses"`
 }
 
-// MailMailaddressUpdatePasswordJSONBody defines parameters for MailMailaddressUpdatePassword.
-type MailMailaddressUpdatePasswordJSONBody struct {
+// MailUpdateMailAddressPasswordJSONBody defines parameters for MailUpdateMailAddressPassword.
+type MailUpdateMailAddressPasswordJSONBody struct {
 	Password string `json:"password"`
 }
 
-// MailMailaddressUpdateQuotaJSONBody defines parameters for MailMailaddressUpdateQuota.
-type MailMailaddressUpdateQuotaJSONBody struct {
+// MailUpdateMailAddressQuotaJSONBody defines parameters for MailUpdateMailAddressQuota.
+type MailUpdateMailAddressQuotaJSONBody struct {
 	QuotaInBytes float32 `json:"quotaInBytes"`
 }
 
-// MailMailaddressUpdateSpamprotectionJSONBody defines parameters for MailMailaddressUpdateSpamprotection.
-type MailMailaddressUpdateSpamprotectionJSONBody struct {
+// MailUpdateMailAddressSpamProtectionJSONBody defines parameters for MailUpdateMailAddressSpamProtection.
+type MailUpdateMailAddressSpamProtectionJSONBody struct {
 	SpamProtection struct {
 		Active                 bool                                                            `json:"active"`
 		AutoDeleteSpam         bool                                                            `json:"autoDeleteSpam"`
-		Folder                 MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolder `json:"folder"`
+		Folder                 MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolder `json:"folder"`
 		RelocationMinSpamScore int                                                             `json:"relocationMinSpamScore"`
 	} `json:"spamProtection"`
 }
 
-// MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolder defines parameters for MailMailaddressUpdateSpamprotection.
-type MailMailaddressUpdateSpamprotectionJSONBodySpamProtectionFolder string
+// MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolder defines parameters for MailUpdateMailAddressSpamProtection.
+type MailUpdateMailAddressSpamProtectionJSONBodySpamProtectionFolder string
+
+// MailMailaddressUpdateAddressDeprecatedJSONBody defines parameters for MailMailaddressUpdateAddressDeprecated.
+type MailMailaddressUpdateAddressDeprecatedJSONBody struct {
+	Address openapi_types.Email `json:"address"`
+}
+
+// PutV2MailaddressesMailAddressIdAutoResponderJSONBody defines parameters for PutV2MailaddressesMailAddressIdAutoResponder.
+type PutV2MailaddressesMailAddressIdAutoResponderJSONBody struct {
+	AutoResponder *struct {
+		Active    bool       `json:"active"`
+		ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+		Message   string     `json:"message"`
+		StartsAt  *time.Time `json:"startsAt,omitempty"`
+	} `json:"autoResponder"`
+}
+
+// PutV2MailaddressesMailAddressIdCatchAllJSONBody defines parameters for PutV2MailaddressesMailAddressIdCatchAll.
+type PutV2MailaddressesMailAddressIdCatchAllJSONBody struct {
+	Active bool `json:"active"`
+}
+
+// PutV2MailaddressesMailAddressIdForwardaddressesJSONBody defines parameters for PutV2MailaddressesMailAddressIdForwardaddresses.
+type PutV2MailaddressesMailAddressIdForwardaddressesJSONBody struct {
+	ForwardAddresses []openapi_types.Email `json:"forwardAddresses"`
+}
+
+// PutV2MailaddressesMailAddressIdPasswordJSONBody defines parameters for PutV2MailaddressesMailAddressIdPassword.
+type PutV2MailaddressesMailAddressIdPasswordJSONBody struct {
+	Password string `json:"password"`
+}
+
+// PutV2MailaddressesMailAddressIdQuotaJSONBody defines parameters for PutV2MailaddressesMailAddressIdQuota.
+type PutV2MailaddressesMailAddressIdQuotaJSONBody struct {
+	QuotaInBytes float32 `json:"quotaInBytes"`
+}
+
+// PutV2MailaddressesMailAddressIdSpamprotectionJSONBody defines parameters for PutV2MailaddressesMailAddressIdSpamprotection.
+type PutV2MailaddressesMailAddressIdSpamprotectionJSONBody struct {
+	SpamProtection struct {
+		Active                 bool                                                                      `json:"active"`
+		AutoDeleteSpam         bool                                                                      `json:"autoDeleteSpam"`
+		Folder                 PutV2MailaddressesMailAddressIdSpamprotectionJSONBodySpamProtectionFolder `json:"folder"`
+		RelocationMinSpamScore int                                                                       `json:"relocationMinSpamScore"`
+	} `json:"spamProtection"`
+}
+
+// PutV2MailaddressesMailAddressIdSpamprotectionJSONBodySpamProtectionFolder defines parameters for PutV2MailaddressesMailAddressIdSpamprotection.
+type PutV2MailaddressesMailAddressIdSpamprotectionJSONBodySpamProtectionFolder string
 
 // DatabaseListMysqlCharsetsParams defines parameters for DatabaseListMysqlCharsets.
 type DatabaseListMysqlCharsetsParams struct {
@@ -3463,8 +3616,14 @@ type CronjobListCronjobsParams struct {
 	Page  *int `form:"page,omitempty" json:"page,omitempty"`
 }
 
-// MailDeliveryboxCreateJSONBody defines parameters for MailDeliveryboxCreate.
-type MailDeliveryboxCreateJSONBody struct {
+// MailCreateDeliveryboxJSONBody defines parameters for MailCreateDeliverybox.
+type MailCreateDeliveryboxJSONBody struct {
+	Description string `json:"description"`
+	Password    string `json:"password"`
+}
+
+// PostV2ProjectsProjectIdDeliveryboxesJSONBody defines parameters for PostV2ProjectsProjectIdDeliveryboxes.
+type PostV2ProjectsProjectIdDeliveryboxesJSONBody struct {
 	Description string `json:"description"`
 	Password    string `json:"password"`
 }
@@ -3534,18 +3693,41 @@ type ProjectListInvitesForProjectParams struct {
 // ProjectLeaveProjectJSONBody defines parameters for ProjectLeaveProject.
 type ProjectLeaveProjectJSONBody = interface{}
 
-// MailMailaddressCreateJSONBody defines parameters for MailMailaddressCreate.
-type MailMailaddressCreateJSONBody struct {
+// MailCreateMailAddressJSONBody defines parameters for MailCreateMailAddress.
+type MailCreateMailAddressJSONBody struct {
 	union json.RawMessage
 }
 
-// MailProjectsettingUpdateBlacklistJSONBody defines parameters for MailProjectsettingUpdateBlacklist.
-type MailProjectsettingUpdateBlacklistJSONBody struct {
+// MailUpdateProjectMailSettingJSONBody defines parameters for MailUpdateProjectMailSetting.
+type MailUpdateProjectMailSettingJSONBody struct {
+	union json.RawMessage
+}
+
+// MailUpdateProjectMailSettingParamsSetting defines parameters for MailUpdateProjectMailSetting.
+type MailUpdateProjectMailSettingParamsSetting string
+
+// MailUpdateProjectMailSettingJSONBody0 defines parameters for MailUpdateProjectMailSetting.
+type MailUpdateProjectMailSettingJSONBody0 struct {
 	Blacklist []openapi_types.Email `json:"blacklist"`
 }
 
-// MailProjectsettingUpdateWhitelistJSONBody defines parameters for MailProjectsettingUpdateWhitelist.
-type MailProjectsettingUpdateWhitelistJSONBody struct {
+// MailUpdateProjectMailSettingJSONBody1 defines parameters for MailUpdateProjectMailSetting.
+type MailUpdateProjectMailSettingJSONBody1 struct {
+	Whitelist []openapi_types.Email `json:"whitelist"`
+}
+
+// PostV2ProjectsProjectIdMailaddressesJSONBody defines parameters for PostV2ProjectsProjectIdMailaddresses.
+type PostV2ProjectsProjectIdMailaddressesJSONBody struct {
+	union json.RawMessage
+}
+
+// MailProjectsettingUpdateBlacklistDeprecatedJSONBody defines parameters for MailProjectsettingUpdateBlacklistDeprecated.
+type MailProjectsettingUpdateBlacklistDeprecatedJSONBody struct {
+	Blacklist []openapi_types.Email `json:"blacklist"`
+}
+
+// MailProjectsettingUpdateWhitelistDeprecatedJSONBody defines parameters for MailProjectsettingUpdateWhitelistDeprecated.
+type MailProjectsettingUpdateWhitelistDeprecatedJSONBody struct {
 	Whitelist []openapi_types.Email `json:"whitelist"`
 }
 
@@ -4401,12 +4583,6 @@ type CustomerLeaveCustomerJSONRequestBody = CustomerLeaveCustomerJSONBody
 // CustomerCreateCustomerInviteJSONRequestBody defines body for CustomerCreateCustomerInvite for application/json ContentType.
 type CustomerCreateCustomerInviteJSONRequestBody CustomerCreateCustomerInviteJSONBody
 
-// CustomerCreateCategoryDeprecatedJSONRequestBody defines body for CustomerCreateCategoryDeprecated for application/json ContentType.
-type CustomerCreateCategoryDeprecatedJSONRequestBody = DeMittwaldV1CustomerCategory
-
-// CustomerUpdateCategoryDeprecatedJSONRequestBody defines body for CustomerUpdateCategoryDeprecated for application/json ContentType.
-type CustomerUpdateCategoryDeprecatedJSONRequestBody = DeMittwaldV1CustomerCategory
-
 // CustomerCreateCustomerJSONRequestBody defines body for CustomerCreateCustomer for application/json ContentType.
 type CustomerCreateCustomerJSONRequestBody CustomerCreateCustomerJSONBody
 
@@ -4419,68 +4595,110 @@ type CustomerRequestAvatarUploadJSONRequestBody = CustomerRequestAvatarUploadJSO
 // InvoiceUpdateInvoiceSettingsJSONRequestBody defines body for InvoiceUpdateInvoiceSettings for application/json ContentType.
 type InvoiceUpdateInvoiceSettingsJSONRequestBody InvoiceUpdateInvoiceSettingsJSONBody
 
-// MailDeliveryboxUpdateDescriptionJSONRequestBody defines body for MailDeliveryboxUpdateDescription for application/json ContentType.
-type MailDeliveryboxUpdateDescriptionJSONRequestBody MailDeliveryboxUpdateDescriptionJSONBody
+// MailUpdateDeliveryBoxDescriptionJSONRequestBody defines body for MailUpdateDeliveryBoxDescription for application/json ContentType.
+type MailUpdateDeliveryBoxDescriptionJSONRequestBody MailUpdateDeliveryBoxDescriptionJSONBody
 
-// MailDeliveryboxUpdatePasswordJSONRequestBody defines body for MailDeliveryboxUpdatePassword for application/json ContentType.
-type MailDeliveryboxUpdatePasswordJSONRequestBody MailDeliveryboxUpdatePasswordJSONBody
+// MailUpdateDeliveryBoxPasswordJSONRequestBody defines body for MailUpdateDeliveryBoxPassword for application/json ContentType.
+type MailUpdateDeliveryBoxPasswordJSONRequestBody MailUpdateDeliveryBoxPasswordJSONBody
 
-// DnsSubZoneCreateJSONRequestBody defines body for DnsSubZoneCreate for application/json ContentType.
-type DnsSubZoneCreateJSONRequestBody DnsSubZoneCreateJSONBody
+// MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody defines body for MailDeliveryboxUpdateDescriptionDeprecated for application/json ContentType.
+type MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody MailDeliveryboxUpdateDescriptionDeprecatedJSONBody
 
-// DnsRecordASetCustomJSONRequestBody defines body for DnsRecordASetCustom for application/json ContentType.
-type DnsRecordASetCustomJSONRequestBody DnsRecordASetCustomJSONBody
+// MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody defines body for MailDeliveryboxUpdatePasswordDeprecated for application/json ContentType.
+type MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody MailDeliveryboxUpdatePasswordDeprecatedJSONBody
 
-// DnsRecordASetManagedByIngressJSONRequestBody defines body for DnsRecordASetManagedByIngress for application/json ContentType.
-type DnsRecordASetManagedByIngressJSONRequestBody = DnsRecordASetManagedByIngressJSONBody
+// DnsCreateDnsZoneJSONRequestBody defines body for DnsCreateDnsZone for application/json ContentType.
+type DnsCreateDnsZoneJSONRequestBody DnsCreateDnsZoneJSONBody
 
-// DnsRecordCnameSetJSONRequestBody defines body for DnsRecordCnameSet for application/json ContentType.
-type DnsRecordCnameSetJSONRequestBody DnsRecordCnameSetJSONBody
+// DnsUpdateRecordSetJSONRequestBody defines body for DnsUpdateRecordSet for application/json ContentType.
+type DnsUpdateRecordSetJSONRequestBody DnsUpdateRecordSetJSONBody
 
-// DnsRecordMxSetCustomJSONRequestBody defines body for DnsRecordMxSetCustom for application/json ContentType.
-type DnsRecordMxSetCustomJSONRequestBody DnsRecordMxSetCustomJSONBody
+// DnsSetRecordSetManagedJSONRequestBody defines body for DnsSetRecordSetManaged for application/json ContentType.
+type DnsSetRecordSetManagedJSONRequestBody = DnsSetRecordSetManagedJSONBody
 
-// DnsRecordMxSetManagedJSONRequestBody defines body for DnsRecordMxSetManaged for application/json ContentType.
-type DnsRecordMxSetManagedJSONRequestBody = DnsRecordMxSetManagedJSONBody
+// PostV2DnsZonesJSONRequestBody defines body for PostV2DnsZones for application/json ContentType.
+type PostV2DnsZonesJSONRequestBody PostV2DnsZonesJSONBody
 
-// DnsRecordSrvSetJSONRequestBody defines body for DnsRecordSrvSet for application/json ContentType.
-type DnsRecordSrvSetJSONRequestBody DnsRecordSrvSetJSONBody
+// DnsRecordASetCustomDeprecatedJSONRequestBody defines body for DnsRecordASetCustomDeprecated for application/json ContentType.
+type DnsRecordASetCustomDeprecatedJSONRequestBody DnsRecordASetCustomDeprecatedJSONBody
 
-// DnsRecordTxtSetJSONRequestBody defines body for DnsRecordTxtSet for application/json ContentType.
-type DnsRecordTxtSetJSONRequestBody DnsRecordTxtSetJSONBody
+// DnsRecordASetManagedByIngressDeprecatedJSONRequestBody defines body for DnsRecordASetManagedByIngressDeprecated for application/json ContentType.
+type DnsRecordASetManagedByIngressDeprecatedJSONRequestBody = DnsRecordASetManagedByIngressDeprecatedJSONBody
+
+// DnsRecordCnameSetDeprecatedJSONRequestBody defines body for DnsRecordCnameSetDeprecated for application/json ContentType.
+type DnsRecordCnameSetDeprecatedJSONRequestBody DnsRecordCnameSetDeprecatedJSONBody
+
+// DnsRecordMxSetCustomDeprecatedJSONRequestBody defines body for DnsRecordMxSetCustomDeprecated for application/json ContentType.
+type DnsRecordMxSetCustomDeprecatedJSONRequestBody DnsRecordMxSetCustomDeprecatedJSONBody
+
+// DnsRecordMxSetManagedDeprecatedJSONRequestBody defines body for DnsRecordMxSetManagedDeprecated for application/json ContentType.
+type DnsRecordMxSetManagedDeprecatedJSONRequestBody = DnsRecordMxSetManagedDeprecatedJSONBody
+
+// DnsRecordSrvSetDeprecatedJSONRequestBody defines body for DnsRecordSrvSetDeprecated for application/json ContentType.
+type DnsRecordSrvSetDeprecatedJSONRequestBody DnsRecordSrvSetDeprecatedJSONBody
+
+// DnsRecordTxtSetDeprecatedJSONRequestBody defines body for DnsRecordTxtSetDeprecated for application/json ContentType.
+type DnsRecordTxtSetDeprecatedJSONRequestBody DnsRecordTxtSetDeprecatedJSONBody
+
+// PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody defines body for PostV2DomainOwnershipsDomainOwnershipId for application/json ContentType.
+type PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody PostV2DomainOwnershipsDomainOwnershipIdJSONBody
 
 // DomainVerifyDomainOwnershipJSONRequestBody defines body for DomainVerifyDomainOwnership for application/json ContentType.
 type DomainVerifyDomainOwnershipJSONRequestBody = DomainVerifyDomainOwnershipJSONBody
 
-// DomainCheckDomainAvailabilityJSONRequestBody defines body for DomainCheckDomainAvailability for application/json ContentType.
-type DomainCheckDomainAvailabilityJSONRequestBody DomainCheckDomainAvailabilityJSONBody
+// DomainCheckDomainRegistrabilityJSONRequestBody defines body for DomainCheckDomainRegistrability for application/json ContentType.
+type DomainCheckDomainRegistrabilityJSONRequestBody DomainCheckDomainRegistrabilityJSONBody
+
+// DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody defines body for DomainCheckDomainRegistrabilityV2Deprecated for application/json ContentType.
+type DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody DomainCheckDomainRegistrabilityV2DeprecatedJSONBody
 
 // DomainDeleteDomainJSONRequestBody defines body for DomainDeleteDomain for application/json ContentType.
 type DomainDeleteDomainJSONRequestBody DomainDeleteDomainJSONBody
 
-// DomainCreateAuthcodeForDomainJSONRequestBody defines body for DomainCreateAuthcodeForDomain for application/json ContentType.
-type DomainCreateAuthcodeForDomainJSONRequestBody = DomainCreateAuthcodeForDomainJSONBody
+// DomainCreateDomainAuthCodeJSONRequestBody defines body for DomainCreateDomainAuthCode for application/json ContentType.
+type DomainCreateDomainAuthCodeJSONRequestBody = DomainCreateDomainAuthCodeJSONBody
 
-// DomainCreateAuthcode2ForDomainJSONRequestBody defines body for DomainCreateAuthcode2ForDomain for application/json ContentType.
-type DomainCreateAuthcode2ForDomainJSONRequestBody = DomainCreateAuthcode2ForDomainJSONBody
+// DomainCreateDomainAuthCode2JSONRequestBody defines body for DomainCreateDomainAuthCode2 for application/json ContentType.
+type DomainCreateDomainAuthCode2JSONRequestBody = DomainCreateDomainAuthCode2JSONBody
+
+// PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody defines body for PostV2DomainsDomainIdActionsCreateAuthcode for application/json ContentType.
+type PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody PostV2DomainsDomainIdActionsCreateAuthcodeJSONBody
+
+// PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody defines body for PostV2DomainsDomainIdActionsCreateAuthcode2 for application/json ContentType.
+type PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody PostV2DomainsDomainIdActionsCreateAuthcode2JSONBody
 
 // DomainResendDomainEmailJSONRequestBody defines body for DomainResendDomainEmail for application/json ContentType.
 type DomainResendDomainEmailJSONRequestBody = DomainResendDomainEmailJSONBody
 
-// DomainDeclareProcessChangeAuthcodeJSONRequestBody defines body for DomainDeclareProcessChangeAuthcode for application/json ContentType.
-type DomainDeclareProcessChangeAuthcodeJSONRequestBody DomainDeclareProcessChangeAuthcodeJSONBody
+// DomainUpdateDomainAuthCodeJSONRequestBody defines body for DomainUpdateDomainAuthCode for application/json ContentType.
+type DomainUpdateDomainAuthCodeJSONRequestBody DomainUpdateDomainAuthCodeJSONBody
 
-// DomainDeclareProcessChangeHandlesJSONRequestBody defines body for DomainDeclareProcessChangeHandles for application/json ContentType.
-type DomainDeclareProcessChangeHandlesJSONRequestBody DomainDeclareProcessChangeHandlesJSONBody
+// PatchV2DomainsDomainIdAuthcodeJSONRequestBody defines body for PatchV2DomainsDomainIdAuthcode for application/json ContentType.
+type PatchV2DomainsDomainIdAuthcodeJSONRequestBody PatchV2DomainsDomainIdAuthcodeJSONBody
 
-// DomainChangeOwnercOfDomainJSONRequestBody defines body for DomainChangeOwnercOfDomain for application/json ContentType.
-type DomainChangeOwnercOfDomainJSONRequestBody DomainChangeOwnercOfDomainJSONBody
+// DomainUpdateDomainContactJSONRequestBody defines body for DomainUpdateDomainContact for application/json ContentType.
+type DomainUpdateDomainContactJSONRequestBody DomainUpdateDomainContactJSONBody
 
-// DomainDeclareNameserversJSONRequestBody defines body for DomainDeclareNameservers for application/json ContentType.
-type DomainDeclareNameserversJSONRequestBody DomainDeclareNameserversJSONBody
+// DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody defines body for DomainDeclareProcessChangeAuthcodeV2Deprecated for application/json ContentType.
+type DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONBody
 
-// DomainChangeProjectOfDomainJSONRequestBody defines body for DomainChangeProjectOfDomain for application/json ContentType.
-type DomainChangeProjectOfDomainJSONRequestBody DomainChangeProjectOfDomainJSONBody
+// DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody defines body for DomainDeclareProcessChangeHandlesV2Deprecated for application/json ContentType.
+type DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody DomainDeclareProcessChangeHandlesV2DeprecatedJSONBody
+
+// DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody defines body for DomainChangeOwnercOfDomainV2Deprecated for application/json ContentType.
+type DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody DomainChangeOwnercOfDomainV2DeprecatedJSONBody
+
+// DomainUpdateDomainNameserversJSONRequestBody defines body for DomainUpdateDomainNameservers for application/json ContentType.
+type DomainUpdateDomainNameserversJSONRequestBody DomainUpdateDomainNameserversJSONBody
+
+// DomainDeclareNameserversV2DeprecatedJSONRequestBody defines body for DomainDeclareNameserversV2Deprecated for application/json ContentType.
+type DomainDeclareNameserversV2DeprecatedJSONRequestBody DomainDeclareNameserversV2DeprecatedJSONBody
+
+// DomainUpdateDomainProjectIdJSONRequestBody defines body for DomainUpdateDomainProjectId for application/json ContentType.
+type DomainUpdateDomainProjectIdJSONRequestBody DomainUpdateDomainProjectIdJSONBody
+
+// DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody defines body for DomainChangeProjectOfDomainV2Deprecated for application/json ContentType.
+type DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody DomainChangeProjectOfDomainV2DeprecatedJSONBody
 
 // DomainGetScreenshotForDomainJSONRequestBody defines body for DomainGetScreenshotForDomain for application/json ContentType.
 type DomainGetScreenshotForDomainJSONRequestBody DomainGetScreenshotForDomainJSONBody
@@ -4500,26 +4718,47 @@ type RelocationCreateLegacyTariffChangeJSONRequestBody RelocationCreateLegacyTar
 // UserLogoutJSONRequestBody defines body for UserLogout for application/json ContentType.
 type UserLogoutJSONRequestBody = UserLogoutJSONBody
 
-// MailMailaddressUpdateAddressJSONRequestBody defines body for MailMailaddressUpdateAddress for application/json ContentType.
-type MailMailaddressUpdateAddressJSONRequestBody MailMailaddressUpdateAddressJSONBody
+// MailUpdateMailAddressAddressJSONRequestBody defines body for MailUpdateMailAddressAddress for application/json ContentType.
+type MailUpdateMailAddressAddressJSONRequestBody MailUpdateMailAddressAddressJSONBody
 
-// MailMailaddressUpdateAutoresponderJSONRequestBody defines body for MailMailaddressUpdateAutoresponder for application/json ContentType.
-type MailMailaddressUpdateAutoresponderJSONRequestBody MailMailaddressUpdateAutoresponderJSONBody
+// MailUpdateMailAddressAutoresponderJSONRequestBody defines body for MailUpdateMailAddressAutoresponder for application/json ContentType.
+type MailUpdateMailAddressAutoresponderJSONRequestBody MailUpdateMailAddressAutoresponderJSONBody
 
-// MailMailaddressUpdateCatchallJSONRequestBody defines body for MailMailaddressUpdateCatchall for application/json ContentType.
-type MailMailaddressUpdateCatchallJSONRequestBody MailMailaddressUpdateCatchallJSONBody
+// MailUpdateMailAddressCatchallJSONRequestBody defines body for MailUpdateMailAddressCatchall for application/json ContentType.
+type MailUpdateMailAddressCatchallJSONRequestBody MailUpdateMailAddressCatchallJSONBody
 
-// MailMailaddressUpdateForwardaddressesJSONRequestBody defines body for MailMailaddressUpdateForwardaddresses for application/json ContentType.
-type MailMailaddressUpdateForwardaddressesJSONRequestBody MailMailaddressUpdateForwardaddressesJSONBody
+// MailUpdateMailAddressForwardAddressesJSONRequestBody defines body for MailUpdateMailAddressForwardAddresses for application/json ContentType.
+type MailUpdateMailAddressForwardAddressesJSONRequestBody MailUpdateMailAddressForwardAddressesJSONBody
 
-// MailMailaddressUpdatePasswordJSONRequestBody defines body for MailMailaddressUpdatePassword for application/json ContentType.
-type MailMailaddressUpdatePasswordJSONRequestBody MailMailaddressUpdatePasswordJSONBody
+// MailUpdateMailAddressPasswordJSONRequestBody defines body for MailUpdateMailAddressPassword for application/json ContentType.
+type MailUpdateMailAddressPasswordJSONRequestBody MailUpdateMailAddressPasswordJSONBody
 
-// MailMailaddressUpdateQuotaJSONRequestBody defines body for MailMailaddressUpdateQuota for application/json ContentType.
-type MailMailaddressUpdateQuotaJSONRequestBody MailMailaddressUpdateQuotaJSONBody
+// MailUpdateMailAddressQuotaJSONRequestBody defines body for MailUpdateMailAddressQuota for application/json ContentType.
+type MailUpdateMailAddressQuotaJSONRequestBody MailUpdateMailAddressQuotaJSONBody
 
-// MailMailaddressUpdateSpamprotectionJSONRequestBody defines body for MailMailaddressUpdateSpamprotection for application/json ContentType.
-type MailMailaddressUpdateSpamprotectionJSONRequestBody MailMailaddressUpdateSpamprotectionJSONBody
+// MailUpdateMailAddressSpamProtectionJSONRequestBody defines body for MailUpdateMailAddressSpamProtection for application/json ContentType.
+type MailUpdateMailAddressSpamProtectionJSONRequestBody MailUpdateMailAddressSpamProtectionJSONBody
+
+// MailMailaddressUpdateAddressDeprecatedJSONRequestBody defines body for MailMailaddressUpdateAddressDeprecated for application/json ContentType.
+type MailMailaddressUpdateAddressDeprecatedJSONRequestBody MailMailaddressUpdateAddressDeprecatedJSONBody
+
+// PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody defines body for PutV2MailaddressesMailAddressIdAutoResponder for application/json ContentType.
+type PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody PutV2MailaddressesMailAddressIdAutoResponderJSONBody
+
+// PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody defines body for PutV2MailaddressesMailAddressIdCatchAll for application/json ContentType.
+type PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody PutV2MailaddressesMailAddressIdCatchAllJSONBody
+
+// PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody defines body for PutV2MailaddressesMailAddressIdForwardaddresses for application/json ContentType.
+type PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody PutV2MailaddressesMailAddressIdForwardaddressesJSONBody
+
+// PutV2MailaddressesMailAddressIdPasswordJSONRequestBody defines body for PutV2MailaddressesMailAddressIdPassword for application/json ContentType.
+type PutV2MailaddressesMailAddressIdPasswordJSONRequestBody PutV2MailaddressesMailAddressIdPasswordJSONBody
+
+// PutV2MailaddressesMailAddressIdQuotaJSONRequestBody defines body for PutV2MailaddressesMailAddressIdQuota for application/json ContentType.
+type PutV2MailaddressesMailAddressIdQuotaJSONRequestBody PutV2MailaddressesMailAddressIdQuotaJSONBody
+
+// PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody defines body for PutV2MailaddressesMailAddressIdSpamprotection for application/json ContentType.
+type PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody PutV2MailaddressesMailAddressIdSpamprotectionJSONBody
 
 // DatabaseCreateMysqlUserJSONRequestBody defines body for DatabaseCreateMysqlUser for application/json ContentType.
 type DatabaseCreateMysqlUserJSONRequestBody = DeMittwaldV1DatabaseCreateMySqlUser
@@ -4596,8 +4835,11 @@ type BackupCreateProjectBackupJSONRequestBody BackupCreateProjectBackupJSONBody
 // CronjobCreateCronjobJSONRequestBody defines body for CronjobCreateCronjob for application/json ContentType.
 type CronjobCreateCronjobJSONRequestBody = DeMittwaldV1CronjobCronjobRequest
 
-// MailDeliveryboxCreateJSONRequestBody defines body for MailDeliveryboxCreate for application/json ContentType.
-type MailDeliveryboxCreateJSONRequestBody MailDeliveryboxCreateJSONBody
+// MailCreateDeliveryboxJSONRequestBody defines body for MailCreateDeliverybox for application/json ContentType.
+type MailCreateDeliveryboxJSONRequestBody MailCreateDeliveryboxJSONBody
+
+// PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody defines body for PostV2ProjectsProjectIdDeliveryboxes for application/json ContentType.
+type PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody PostV2ProjectsProjectIdDeliveryboxesJSONBody
 
 // ProjectUpdateProjectDescriptionJSONRequestBody defines body for ProjectUpdateProjectDescription for application/json ContentType.
 type ProjectUpdateProjectDescriptionJSONRequestBody ProjectUpdateProjectDescriptionJSONBody
@@ -4605,14 +4847,20 @@ type ProjectUpdateProjectDescriptionJSONRequestBody ProjectUpdateProjectDescript
 // ProjectLeaveProjectJSONRequestBody defines body for ProjectLeaveProject for application/json ContentType.
 type ProjectLeaveProjectJSONRequestBody = ProjectLeaveProjectJSONBody
 
-// MailMailaddressCreateJSONRequestBody defines body for MailMailaddressCreate for application/json ContentType.
-type MailMailaddressCreateJSONRequestBody MailMailaddressCreateJSONBody
+// MailCreateMailAddressJSONRequestBody defines body for MailCreateMailAddress for application/json ContentType.
+type MailCreateMailAddressJSONRequestBody MailCreateMailAddressJSONBody
 
-// MailProjectsettingUpdateBlacklistJSONRequestBody defines body for MailProjectsettingUpdateBlacklist for application/json ContentType.
-type MailProjectsettingUpdateBlacklistJSONRequestBody MailProjectsettingUpdateBlacklistJSONBody
+// MailUpdateProjectMailSettingJSONRequestBody defines body for MailUpdateProjectMailSetting for application/json ContentType.
+type MailUpdateProjectMailSettingJSONRequestBody MailUpdateProjectMailSettingJSONBody
 
-// MailProjectsettingUpdateWhitelistJSONRequestBody defines body for MailProjectsettingUpdateWhitelist for application/json ContentType.
-type MailProjectsettingUpdateWhitelistJSONRequestBody MailProjectsettingUpdateWhitelistJSONBody
+// PostV2ProjectsProjectIdMailaddressesJSONRequestBody defines body for PostV2ProjectsProjectIdMailaddresses for application/json ContentType.
+type PostV2ProjectsProjectIdMailaddressesJSONRequestBody PostV2ProjectsProjectIdMailaddressesJSONBody
+
+// MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody defines body for MailProjectsettingUpdateBlacklistDeprecated for application/json ContentType.
+type MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody MailProjectsettingUpdateBlacklistDeprecatedJSONBody
+
+// MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody defines body for MailProjectsettingUpdateWhitelistDeprecated for application/json ContentType.
+type MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody MailProjectsettingUpdateWhitelistDeprecatedJSONBody
 
 // DatabaseCreateMysqlDatabaseJSONRequestBody defines body for DatabaseCreateMysqlDatabase for application/json ContentType.
 type DatabaseCreateMysqlDatabaseJSONRequestBody DatabaseCreateMysqlDatabaseJSONBody
@@ -6363,25 +6611,6 @@ type ClientInterface interface {
 
 	CustomerCreateCustomerInvite(ctx context.Context, customerId openapi_types.UUID, body CustomerCreateCustomerInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CustomerListOfCustomerCategoriesDeprecated request
-	CustomerListOfCustomerCategoriesDeprecated(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CustomerCreateCategoryDeprecatedWithBody request with any body
-	CustomerCreateCategoryDeprecatedWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CustomerCreateCategoryDeprecated(ctx context.Context, body CustomerCreateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CustomerDeleteCategoryDeprecated request
-	CustomerDeleteCategoryDeprecated(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CustomerDetailOfCustomerCategoryDeprecated request
-	CustomerDetailOfCustomerCategoryDeprecated(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CustomerUpdateCategoryDeprecatedWithBody request with any body
-	CustomerUpdateCategoryDeprecatedWithBody(ctx context.Context, categoryId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CustomerUpdateCategoryDeprecated(ctx context.Context, categoryId string, body CustomerUpdateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CustomerListCustomers request
 	CustomerListCustomers(ctx context.Context, params *CustomerListCustomersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -6438,83 +6667,139 @@ type ClientInterface interface {
 	// OrderListCustomerOrders request
 	OrderListCustomerOrders(ctx context.Context, customerId string, params *OrderListCustomerOrdersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailDeliveryboxDelete request
-	MailDeliveryboxDelete(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailDeleteDeliveryBox request
+	MailDeleteDeliveryBox(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailDeliveryboxGetSpecific request
-	MailDeliveryboxGetSpecific(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailGetDeliveryBox request
+	MailGetDeliveryBox(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailDeliveryboxUpdateDescriptionWithBody request with any body
-	MailDeliveryboxUpdateDescriptionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateDeliveryBoxDescriptionWithBody request with any body
+	MailUpdateDeliveryBoxDescriptionWithBody(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailDeliveryboxUpdateDescription(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateDeliveryBoxDescription(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailDeliveryboxUpdatePasswordWithBody request with any body
-	MailDeliveryboxUpdatePasswordWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateDeliveryBoxPasswordWithBody request with any body
+	MailUpdateDeliveryBoxPasswordWithBody(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailDeliveryboxUpdatePassword(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateDeliveryBoxPassword(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsSubZoneCreateWithBody request with any body
-	DnsSubZoneCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteV2DeliveryboxesDeliveryBoxId request
+	DeleteV2DeliveryboxesDeliveryBoxId(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsSubZoneCreate(ctx context.Context, body DnsSubZoneCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetV2DeliveryboxesDeliveryBoxId request
+	GetV2DeliveryboxesDeliveryBoxId(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsZoneGetSpecific request
-	DnsZoneGetSpecific(ctx context.Context, zoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailDeliveryboxUpdateDescriptionDeprecatedWithBody request with any body
+	MailDeliveryboxUpdateDescriptionDeprecatedWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordASetCustomWithBody request with any body
-	DnsRecordASetCustomWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailDeliveryboxUpdateDescriptionDeprecated(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordASetCustom(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailDeliveryboxUpdatePasswordDeprecatedWithBody request with any body
+	MailDeliveryboxUpdatePasswordDeprecatedWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordASetManagedByIngressWithBody request with any body
-	DnsRecordASetManagedByIngressWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailDeliveryboxUpdatePasswordDeprecated(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordASetManagedByIngress(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DnsCreateDnsZoneWithBody request with any body
+	DnsCreateDnsZoneWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordCnameSetWithBody request with any body
-	DnsRecordCnameSetWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DnsCreateDnsZone(ctx context.Context, body DnsCreateDnsZoneJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordCnameSet(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DnsDeleteDnsZone request
+	DnsDeleteDnsZone(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordMxSetCustomWithBody request with any body
-	DnsRecordMxSetCustomWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DnsGetDnsZone request
+	DnsGetDnsZone(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordMxSetCustom(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DnsUpdateRecordSetWithBody request with any body
+	DnsUpdateRecordSetWithBody(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordMxSetManagedWithBody request with any body
-	DnsRecordMxSetManagedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DnsUpdateRecordSet(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, body DnsUpdateRecordSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordMxSetManaged(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DnsSetRecordSetManagedWithBody request with any body
+	DnsSetRecordSetManagedWithBody(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordSrvSetWithBody request with any body
-	DnsRecordSrvSetWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DnsSetRecordSetManaged(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, body DnsSetRecordSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordSrvSet(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostV2DnsZonesWithBody request with any body
+	PostV2DnsZonesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsRecordTxtSetWithBody request with any body
-	DnsRecordTxtSetWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostV2DnsZones(ctx context.Context, body PostV2DnsZonesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DnsRecordTxtSet(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteV2DnsZonesDnsZoneId request
+	DeleteV2DnsZonesDnsZoneId(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainGetSpecificDomainOwnership request
-	DomainGetSpecificDomainOwnership(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetV2DnsZonesDnsZoneId request
+	GetV2DnsZonesDnsZoneId(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordASetCustomDeprecatedWithBody request with any body
+	DnsRecordASetCustomDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordASetCustomDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordASetManagedByIngressDeprecatedWithBody request with any body
+	DnsRecordASetManagedByIngressDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordASetManagedByIngressDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordCnameSetDeprecatedWithBody request with any body
+	DnsRecordCnameSetDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordCnameSetDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordMxSetCustomDeprecatedWithBody request with any body
+	DnsRecordMxSetCustomDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordMxSetCustomDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordMxSetManagedDeprecatedWithBody request with any body
+	DnsRecordMxSetManagedDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordMxSetManagedDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordSrvSetDeprecatedWithBody request with any body
+	DnsRecordSrvSetDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordSrvSetDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DnsRecordTxtSetDeprecatedWithBody request with any body
+	DnsRecordTxtSetDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DnsRecordTxtSetDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainGetDomainOwnership request
+	DomainGetDomainOwnership(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostV2DomainOwnershipsDomainOwnershipIdWithBody request with any body
+	PostV2DomainOwnershipsDomainOwnershipIdWithBody(ctx context.Context, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostV2DomainOwnershipsDomainOwnershipId(ctx context.Context, domainOwnershipId openapi_types.UUID, body PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DomainVerifyDomainOwnershipWithBody request with any body
 	DomainVerifyDomainOwnershipWithBody(ctx context.Context, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	DomainVerifyDomainOwnership(ctx context.Context, domainOwnershipId openapi_types.UUID, body DomainVerifyDomainOwnershipJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainCheckDomainAvailabilityWithBody request with any body
-	DomainCheckDomainAvailabilityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainCheckDomainRegistrabilityWithBody request with any body
+	DomainCheckDomainRegistrabilityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainCheckDomainAvailability(ctx context.Context, body DomainCheckDomainAvailabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainCheckDomainRegistrability(ctx context.Context, body DomainCheckDomainRegistrabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainGetHandleFields request
-	DomainGetHandleFields(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainListTlds request
+	DomainListTlds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainGetSupportedTlds request
-	DomainGetSupportedTlds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainListTldContactSchemas request
+	DomainListTldContactSchemas(ctx context.Context, tld string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainCheckDomainRegistrabilityV2DeprecatedWithBody request with any body
+	DomainCheckDomainRegistrabilityV2DeprecatedWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DomainCheckDomainRegistrabilityV2Deprecated(ctx context.Context, body DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainGetHandleFieldsV2Deprecated request
+	DomainGetHandleFieldsV2Deprecated(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetV2DomainsSupportedTlds request
+	GetV2DomainsSupportedTlds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DomainDeleteDomainWithBody request with any body
 	DomainDeleteDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6524,20 +6809,45 @@ type ClientInterface interface {
 	// DomainGetDomain request
 	DomainGetDomain(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainCreateAuthcodeForDomainWithBody request with any body
-	DomainCreateAuthcodeForDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainCreateDomainAuthCodeWithBody request with any body
+	DomainCreateDomainAuthCodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainCreateAuthcodeForDomain(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcodeForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainCreateDomainAuthCode(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainCreateAuthcode2ForDomainWithBody request with any body
-	DomainCreateAuthcode2ForDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainCreateDomainAuthCode2WithBody request with any body
+	DomainCreateDomainAuthCode2WithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainCreateAuthcode2ForDomain(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcode2ForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainCreateDomainAuthCode2(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCode2JSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostV2DomainsDomainIdActionsCreateAuthcodeWithBody request with any body
+	PostV2DomainsDomainIdActionsCreateAuthcodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostV2DomainsDomainIdActionsCreateAuthcode(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostV2DomainsDomainIdActionsCreateAuthcode2WithBody request with any body
+	PostV2DomainsDomainIdActionsCreateAuthcode2WithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostV2DomainsDomainIdActionsCreateAuthcode2(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DomainResendDomainEmailWithBody request with any body
 	DomainResendDomainEmailWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	DomainResendDomainEmail(ctx context.Context, domainId openapi_types.UUID, body DomainResendDomainEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainUpdateDomainAuthCodeWithBody request with any body
+	DomainUpdateDomainAuthCodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DomainUpdateDomainAuthCode(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchV2DomainsDomainIdAuthcodeWithBody request with any body
+	PatchV2DomainsDomainIdAuthcodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchV2DomainsDomainIdAuthcode(ctx context.Context, domainId openapi_types.UUID, body PatchV2DomainsDomainIdAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainUpdateDomainContactWithBody request with any body
+	DomainUpdateDomainContactWithBody(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DomainUpdateDomainContact(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, body DomainUpdateDomainContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ContractGetDetailOfContractByDomain request
 	ContractGetDetailOfContractByDomain(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6545,33 +6855,46 @@ type ClientInterface interface {
 	// DeprecatedContractGetDetailOfContractByDomain request
 	DeprecatedContractGetDetailOfContractByDomain(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainAbortDeclareProcess request
-	DomainAbortDeclareProcess(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainAbortDomainDeclaration request
+	DomainAbortDomainDeclaration(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainDeclareProcessChangeAuthcodeWithBody request with any body
-	DomainDeclareProcessChangeAuthcodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteV2DomainsDomainIdDeclarations request
+	DeleteV2DomainsDomainIdDeclarations(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainDeclareProcessChangeAuthcode(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBody request with any body
+	DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainDeclareProcessChangeHandlesWithBody request with any body
-	DomainDeclareProcessChangeHandlesWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainDeclareProcessChangeAuthcodeV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainDeclareProcessChangeHandles(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainDeclareProcessChangeHandlesV2DeprecatedWithBody request with any body
+	DomainDeclareProcessChangeHandlesV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainChangeOwnercOfDomainWithBody request with any body
-	DomainChangeOwnercOfDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainDeclareProcessChangeHandlesV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainChangeOwnercOfDomain(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainChangeOwnercOfDomainV2DeprecatedWithBody request with any body
+	DomainChangeOwnercOfDomainV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainDeclareNameserversWithBody request with any body
-	DomainDeclareNameserversWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainChangeOwnercOfDomainV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainDeclareNameservers(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainUpdateDomainNameserversWithBody request with any body
+	DomainUpdateDomainNameserversWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainChangeProjectOfDomainWithBody request with any body
-	DomainChangeProjectOfDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DomainUpdateDomainNameservers(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DomainChangeProjectOfDomain(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DomainDeclareNameserversV2DeprecatedWithBody request with any body
+	DomainDeclareNameserversV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DomainDeclareNameserversV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainUpdateDomainProjectIdWithBody request with any body
+	DomainUpdateDomainProjectIdWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DomainUpdateDomainProjectId(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainProjectIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DomainChangeProjectOfDomainV2DeprecatedWithBody request with any body
+	DomainChangeProjectOfDomainV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DomainChangeProjectOfDomainV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DomainGetScreenshotForDomainWithBody request with any body
 	DomainGetScreenshotForDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6630,46 +6953,87 @@ type ClientInterface interface {
 
 	UserLogout(ctx context.Context, body UserLogoutJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressDelete request
-	MailMailaddressDelete(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailDeleteMailAddress request
+	MailDeleteMailAddress(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressGetSpecific request
-	MailMailaddressGetSpecific(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailGetMailAddress request
+	MailGetMailAddress(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdateAddressWithBody request with any body
-	MailMailaddressUpdateAddressWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressAddressWithBody request with any body
+	MailUpdateMailAddressAddressWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdateAddress(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressAddress(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdateAutoresponderWithBody request with any body
-	MailMailaddressUpdateAutoresponderWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressAutoresponderWithBody request with any body
+	MailUpdateMailAddressAutoresponderWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdateAutoresponder(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressAutoresponder(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdateCatchallWithBody request with any body
-	MailMailaddressUpdateCatchallWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressCatchallWithBody request with any body
+	MailUpdateMailAddressCatchallWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdateCatchall(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressCatchall(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdateForwardaddressesWithBody request with any body
-	MailMailaddressUpdateForwardaddressesWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressForwardAddressesWithBody request with any body
+	MailUpdateMailAddressForwardAddressesWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdateForwardaddresses(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressForwardAddresses(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressForwardAddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdatePasswordWithBody request with any body
-	MailMailaddressUpdatePasswordWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressPasswordWithBody request with any body
+	MailUpdateMailAddressPasswordWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdatePassword(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressPassword(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdateQuotaWithBody request with any body
-	MailMailaddressUpdateQuotaWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressQuotaWithBody request with any body
+	MailUpdateMailAddressQuotaWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdateQuota(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressQuota(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressUpdateSpamprotectionWithBody request with any body
-	MailMailaddressUpdateSpamprotectionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateMailAddressSpamProtectionWithBody request with any body
+	MailUpdateMailAddressSpamProtectionWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressUpdateSpamprotection(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateMailAddressSpamProtection(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressSpamProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MailMailaddressUpdateAddressDeprecatedWithBody request with any body
+	MailMailaddressUpdateAddressDeprecatedWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	MailMailaddressUpdateAddressDeprecated(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteV2MailaddressesMailAddressId request
+	DeleteV2MailaddressesMailAddressId(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetV2MailaddressesMailAddressId request
+	GetV2MailaddressesMailAddressId(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutV2MailaddressesMailAddressIdAutoResponderWithBody request with any body
+	PutV2MailaddressesMailAddressIdAutoResponderWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutV2MailaddressesMailAddressIdAutoResponder(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutV2MailaddressesMailAddressIdCatchAllWithBody request with any body
+	PutV2MailaddressesMailAddressIdCatchAllWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutV2MailaddressesMailAddressIdCatchAll(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutV2MailaddressesMailAddressIdForwardaddressesWithBody request with any body
+	PutV2MailaddressesMailAddressIdForwardaddressesWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutV2MailaddressesMailAddressIdForwardaddresses(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutV2MailaddressesMailAddressIdPasswordWithBody request with any body
+	PutV2MailaddressesMailAddressIdPasswordWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutV2MailaddressesMailAddressIdPassword(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutV2MailaddressesMailAddressIdQuotaWithBody request with any body
+	PutV2MailaddressesMailAddressIdQuotaWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutV2MailaddressesMailAddressIdQuota(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutV2MailaddressesMailAddressIdSpamprotectionWithBody request with any body
+	PutV2MailaddressesMailAddressIdSpamprotectionWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutV2MailaddressesMailAddressIdSpamprotection(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseListMysqlCharsets request
 	DatabaseListMysqlCharsets(ctx context.Context, params *DatabaseListMysqlCharsetsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6683,49 +7047,49 @@ type ClientInterface interface {
 	DatabaseCreateMysqlUser(ctx context.Context, databaseId openapi_types.UUID, body DatabaseCreateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseDeleteMysqlDatabase request
-	DatabaseDeleteMysqlDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseDeleteMysqlDatabase(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseGetMysqlDatabase request
-	DatabaseGetMysqlDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseGetMysqlDatabase(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody request with any body
-	DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseUpdateMysqlDatabaseDefaultCharset(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlDatabaseDefaultCharset(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseUpdateMysqlDatabaseDescriptionWithBody request with any body
-	DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseUpdateMysqlDatabaseDescription(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlDatabaseDescription(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseDeleteMysqlUser request
-	DatabaseDeleteMysqlUser(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseDeleteMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseGetMysqlUser request
-	DatabaseGetMysqlUser(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseGetMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseUpdateMysqlUserWithBody request with any body
-	DatabaseUpdateMysqlUserWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlUserWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseUpdateMysqlUser(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseDisableMysqlUserWithBody request with any body
-	DatabaseDisableMysqlUserWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseDisableMysqlUserWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseDisableMysqlUser(ctx context.Context, id openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseDisableMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseEnableMysqlUserWithBody request with any body
-	DatabaseEnableMysqlUserWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseEnableMysqlUserWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseEnableMysqlUser(ctx context.Context, id openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseEnableMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseUpdateMysqlUserPasswordWithBody request with any body
-	DatabaseUpdateMysqlUserPasswordWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlUserPasswordWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseUpdateMysqlUserPassword(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateMysqlUserPassword(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseGetMysqlUserPhpMyAdminUrl request
-	DatabaseGetMysqlUserPhpMyAdminUrl(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseGetMysqlUserPhpMyAdminUrl(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseListMysqlVersions request
 	DatabaseListMysqlVersions(ctx context.Context, params *DatabaseListMysqlVersionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6916,21 +7280,32 @@ type ClientInterface interface {
 
 	CronjobCreateCronjob(ctx context.Context, projectId openapi_types.UUID, body CronjobCreateCronjobJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailDeliveryboxList request
-	MailDeliveryboxList(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailListDeliveryBoxes request
+	MailListDeliveryBoxes(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailDeliveryboxCreateWithBody request with any body
-	MailDeliveryboxCreateWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailCreateDeliveryboxWithBody request with any body
+	MailCreateDeliveryboxWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailDeliveryboxCreate(ctx context.Context, projectId string, body MailDeliveryboxCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailCreateDeliverybox(ctx context.Context, projectId string, body MailCreateDeliveryboxJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetV2ProjectsProjectIdDeliveryboxes request
+	GetV2ProjectsProjectIdDeliveryboxes(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostV2ProjectsProjectIdDeliveryboxesWithBody request with any body
+	PostV2ProjectsProjectIdDeliveryboxesWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostV2ProjectsProjectIdDeliveryboxes(ctx context.Context, projectId string, body PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ProjectUpdateProjectDescriptionWithBody request with any body
 	ProjectUpdateProjectDescriptionWithBody(ctx context.Context, projectId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ProjectUpdateProjectDescription(ctx context.Context, projectId openapi_types.UUID, body ProjectUpdateProjectDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DnsZonesForProject request
-	DnsZonesForProject(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DnsListDnsZones request
+	DnsListDnsZones(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetV2ProjectsProjectIdDnsZones request
+	GetV2ProjectsProjectIdDnsZones(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DomainListDomainOwnerships request
 	DomainListDomainOwnerships(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6964,26 +7339,42 @@ type ClientInterface interface {
 
 	ProjectLeaveProject(ctx context.Context, projectId openapi_types.UUID, body ProjectLeaveProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressList request
-	MailMailaddressList(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailListMailAddresses request
+	MailListMailAddresses(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailMailaddressCreateWithBody request with any body
-	MailMailaddressCreateWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailCreateMailAddressWithBody request with any body
+	MailCreateMailAddressWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailMailaddressCreate(ctx context.Context, projectId string, body MailMailaddressCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailCreateMailAddress(ctx context.Context, projectId string, body MailCreateMailAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailProjectsettingGetSpecific request
-	MailProjectsettingGetSpecific(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailListProjectMailSettings request
+	MailListProjectMailSettings(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailProjectsettingUpdateBlacklistWithBody request with any body
-	MailProjectsettingUpdateBlacklistWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// MailUpdateProjectMailSettingWithBody request with any body
+	MailUpdateProjectMailSettingWithBody(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailProjectsettingUpdateBlacklist(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	MailUpdateProjectMailSetting(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, body MailUpdateProjectMailSettingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MailProjectsettingUpdateWhitelistWithBody request with any body
-	MailProjectsettingUpdateWhitelistWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetV2ProjectsProjectIdMailaddresses request
+	GetV2ProjectsProjectIdMailaddresses(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	MailProjectsettingUpdateWhitelist(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostV2ProjectsProjectIdMailaddressesWithBody request with any body
+	PostV2ProjectsProjectIdMailaddressesWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostV2ProjectsProjectIdMailaddresses(ctx context.Context, projectId string, body PostV2ProjectsProjectIdMailaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetV2ProjectsProjectIdMailsettings request
+	GetV2ProjectsProjectIdMailsettings(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MailProjectsettingUpdateBlacklistDeprecatedWithBody request with any body
+	MailProjectsettingUpdateBlacklistDeprecatedWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	MailProjectsettingUpdateBlacklistDeprecated(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MailProjectsettingUpdateWhitelistDeprecatedWithBody request with any body
+	MailProjectsettingUpdateWhitelistDeprecatedWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	MailProjectsettingUpdateWhitelistDeprecated(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ProjectListMembershipsForProject request
 	ProjectListMembershipsForProject(ctx context.Context, projectId string, params *ProjectListMembershipsForProjectParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -7027,20 +7418,20 @@ type ClientInterface interface {
 	SshUserCreateSshUser(ctx context.Context, projectId string, body SshUserCreateSshUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseDeleteRedisDatabase request
-	DatabaseDeleteRedisDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseDeleteRedisDatabase(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseGetRedisDatabase request
-	DatabaseGetRedisDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseGetRedisDatabase(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseUpdateRedisDatabaseConfigurationWithBody request with any body
-	DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseUpdateRedisDatabaseConfiguration(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateRedisDatabaseConfiguration(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseUpdateRedisDatabaseDescriptionWithBody request with any body
-	DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	DatabaseUpdateRedisDatabaseDescription(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DatabaseUpdateRedisDatabaseDescription(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DatabaseListRedisVersions request
 	DatabaseListRedisVersions(ctx context.Context, params *DatabaseListRedisVersionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8736,90 +9127,6 @@ func (c *Client) CustomerCreateCustomerInvite(ctx context.Context, customerId op
 	return c.Client.Do(req)
 }
 
-func (c *Client) CustomerListOfCustomerCategoriesDeprecated(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerListOfCustomerCategoriesDeprecatedRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CustomerCreateCategoryDeprecatedWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerCreateCategoryDeprecatedRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CustomerCreateCategoryDeprecated(ctx context.Context, body CustomerCreateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerCreateCategoryDeprecatedRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CustomerDeleteCategoryDeprecated(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerDeleteCategoryDeprecatedRequest(c.Server, categoryId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CustomerDetailOfCustomerCategoryDeprecated(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerDetailOfCustomerCategoryDeprecatedRequest(c.Server, categoryId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CustomerUpdateCategoryDeprecatedWithBody(ctx context.Context, categoryId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerUpdateCategoryDeprecatedRequestWithBody(c.Server, categoryId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CustomerUpdateCategoryDeprecated(ctx context.Context, categoryId string, body CustomerUpdateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCustomerUpdateCategoryDeprecatedRequest(c.Server, categoryId, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) CustomerListCustomers(ctx context.Context, params *CustomerListCustomersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCustomerListCustomersRequest(c.Server, params)
 	if err != nil {
@@ -9060,8 +9367,8 @@ func (c *Client) OrderListCustomerOrders(ctx context.Context, customerId string,
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxDelete(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxDeleteRequest(c.Server, id)
+func (c *Client) MailDeleteDeliveryBox(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailDeleteDeliveryBoxRequest(c.Server, deliveryBoxId)
 	if err != nil {
 		return nil, err
 	}
@@ -9072,8 +9379,8 @@ func (c *Client) MailDeliveryboxDelete(ctx context.Context, id openapi_types.UUI
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxGetSpecific(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxGetSpecificRequest(c.Server, id)
+func (c *Client) MailGetDeliveryBox(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailGetDeliveryBoxRequest(c.Server, deliveryBoxId)
 	if err != nil {
 		return nil, err
 	}
@@ -9084,8 +9391,8 @@ func (c *Client) MailDeliveryboxGetSpecific(ctx context.Context, id openapi_type
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxUpdateDescriptionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxUpdateDescriptionRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateDeliveryBoxDescriptionWithBody(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateDeliveryBoxDescriptionRequestWithBody(c.Server, deliveryBoxId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9096,8 +9403,8 @@ func (c *Client) MailDeliveryboxUpdateDescriptionWithBody(ctx context.Context, i
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxUpdateDescription(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxUpdateDescriptionRequest(c.Server, id, body)
+func (c *Client) MailUpdateDeliveryBoxDescription(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateDeliveryBoxDescriptionRequest(c.Server, deliveryBoxId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9108,8 +9415,8 @@ func (c *Client) MailDeliveryboxUpdateDescription(ctx context.Context, id openap
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxUpdatePasswordWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxUpdatePasswordRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateDeliveryBoxPasswordWithBody(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateDeliveryBoxPasswordRequestWithBody(c.Server, deliveryBoxId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9120,8 +9427,8 @@ func (c *Client) MailDeliveryboxUpdatePasswordWithBody(ctx context.Context, id o
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxUpdatePassword(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxUpdatePasswordRequest(c.Server, id, body)
+func (c *Client) MailUpdateDeliveryBoxPassword(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateDeliveryBoxPasswordRequest(c.Server, deliveryBoxId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9132,8 +9439,8 @@ func (c *Client) MailDeliveryboxUpdatePassword(ctx context.Context, id openapi_t
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsSubZoneCreateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsSubZoneCreateRequestWithBody(c.Server, contentType, body)
+func (c *Client) DeleteV2DeliveryboxesDeliveryBoxId(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteV2DeliveryboxesDeliveryBoxIdRequest(c.Server, deliveryBoxId)
 	if err != nil {
 		return nil, err
 	}
@@ -9144,8 +9451,8 @@ func (c *Client) DnsSubZoneCreateWithBody(ctx context.Context, contentType strin
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsSubZoneCreate(ctx context.Context, body DnsSubZoneCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsSubZoneCreateRequest(c.Server, body)
+func (c *Client) GetV2DeliveryboxesDeliveryBoxId(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2DeliveryboxesDeliveryBoxIdRequest(c.Server, deliveryBoxId)
 	if err != nil {
 		return nil, err
 	}
@@ -9156,8 +9463,8 @@ func (c *Client) DnsSubZoneCreate(ctx context.Context, body DnsSubZoneCreateJSON
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsZoneGetSpecific(ctx context.Context, zoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsZoneGetSpecificRequest(c.Server, zoneId)
+func (c *Client) MailDeliveryboxUpdateDescriptionDeprecatedWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailDeliveryboxUpdateDescriptionDeprecatedRequestWithBody(c.Server, id, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9168,8 +9475,8 @@ func (c *Client) DnsZoneGetSpecific(ctx context.Context, zoneId openapi_types.UU
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordASetCustomWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordASetCustomRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) MailDeliveryboxUpdateDescriptionDeprecated(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailDeliveryboxUpdateDescriptionDeprecatedRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9180,8 +9487,8 @@ func (c *Client) DnsRecordASetCustomWithBody(ctx context.Context, zoneId openapi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordASetCustom(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordASetCustomRequest(c.Server, zoneId, body)
+func (c *Client) MailDeliveryboxUpdatePasswordDeprecatedWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailDeliveryboxUpdatePasswordDeprecatedRequestWithBody(c.Server, id, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9192,8 +9499,8 @@ func (c *Client) DnsRecordASetCustom(ctx context.Context, zoneId openapi_types.U
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordASetManagedByIngressWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordASetManagedByIngressRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) MailDeliveryboxUpdatePasswordDeprecated(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailDeliveryboxUpdatePasswordDeprecatedRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9204,8 +9511,8 @@ func (c *Client) DnsRecordASetManagedByIngressWithBody(ctx context.Context, zone
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordASetManagedByIngress(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordASetManagedByIngressRequest(c.Server, zoneId, body)
+func (c *Client) DnsCreateDnsZoneWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsCreateDnsZoneRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9216,8 +9523,8 @@ func (c *Client) DnsRecordASetManagedByIngress(ctx context.Context, zoneId opena
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordCnameSetWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordCnameSetRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) DnsCreateDnsZone(ctx context.Context, body DnsCreateDnsZoneJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsCreateDnsZoneRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9228,8 +9535,8 @@ func (c *Client) DnsRecordCnameSetWithBody(ctx context.Context, zoneId openapi_t
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordCnameSet(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordCnameSetRequest(c.Server, zoneId, body)
+func (c *Client) DnsDeleteDnsZone(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsDeleteDnsZoneRequest(c.Server, dnsZoneId)
 	if err != nil {
 		return nil, err
 	}
@@ -9240,8 +9547,8 @@ func (c *Client) DnsRecordCnameSet(ctx context.Context, zoneId openapi_types.UUI
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordMxSetCustomWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordMxSetCustomRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) DnsGetDnsZone(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsGetDnsZoneRequest(c.Server, dnsZoneId)
 	if err != nil {
 		return nil, err
 	}
@@ -9252,8 +9559,8 @@ func (c *Client) DnsRecordMxSetCustomWithBody(ctx context.Context, zoneId openap
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordMxSetCustom(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordMxSetCustomRequest(c.Server, zoneId, body)
+func (c *Client) DnsUpdateRecordSetWithBody(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsUpdateRecordSetRequestWithBody(c.Server, dnsZoneId, recordSet, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9264,8 +9571,8 @@ func (c *Client) DnsRecordMxSetCustom(ctx context.Context, zoneId openapi_types.
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordMxSetManagedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordMxSetManagedRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) DnsUpdateRecordSet(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, body DnsUpdateRecordSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsUpdateRecordSetRequest(c.Server, dnsZoneId, recordSet, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9276,8 +9583,8 @@ func (c *Client) DnsRecordMxSetManagedWithBody(ctx context.Context, zoneId opena
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordMxSetManaged(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordMxSetManagedRequest(c.Server, zoneId, body)
+func (c *Client) DnsSetRecordSetManagedWithBody(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsSetRecordSetManagedRequestWithBody(c.Server, dnsZoneId, recordSet, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9288,8 +9595,8 @@ func (c *Client) DnsRecordMxSetManaged(ctx context.Context, zoneId openapi_types
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordSrvSetWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordSrvSetRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) DnsSetRecordSetManaged(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, body DnsSetRecordSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsSetRecordSetManagedRequest(c.Server, dnsZoneId, recordSet, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9300,8 +9607,8 @@ func (c *Client) DnsRecordSrvSetWithBody(ctx context.Context, zoneId openapi_typ
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordSrvSet(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordSrvSetRequest(c.Server, zoneId, body)
+func (c *Client) PostV2DnsZonesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DnsZonesRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9312,8 +9619,8 @@ func (c *Client) DnsRecordSrvSet(ctx context.Context, zoneId openapi_types.UUID,
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordTxtSetWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordTxtSetRequestWithBody(c.Server, zoneId, contentType, body)
+func (c *Client) PostV2DnsZones(ctx context.Context, body PostV2DnsZonesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DnsZonesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9324,8 +9631,8 @@ func (c *Client) DnsRecordTxtSetWithBody(ctx context.Context, zoneId openapi_typ
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsRecordTxtSet(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsRecordTxtSetRequest(c.Server, zoneId, body)
+func (c *Client) DeleteV2DnsZonesDnsZoneId(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteV2DnsZonesDnsZoneIdRequest(c.Server, dnsZoneId)
 	if err != nil {
 		return nil, err
 	}
@@ -9336,8 +9643,212 @@ func (c *Client) DnsRecordTxtSet(ctx context.Context, zoneId openapi_types.UUID,
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainGetSpecificDomainOwnership(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainGetSpecificDomainOwnershipRequest(c.Server, domainOwnershipId)
+func (c *Client) GetV2DnsZonesDnsZoneId(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2DnsZonesDnsZoneIdRequest(c.Server, dnsZoneId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordASetCustomDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordASetCustomDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordASetCustomDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordASetCustomDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordASetManagedByIngressDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordASetManagedByIngressDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordASetManagedByIngressDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordASetManagedByIngressDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordCnameSetDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordCnameSetDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordCnameSetDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordCnameSetDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordMxSetCustomDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordMxSetCustomDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordMxSetCustomDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordMxSetCustomDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordMxSetManagedDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordMxSetManagedDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordMxSetManagedDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordMxSetManagedDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordSrvSetDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordSrvSetDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordSrvSetDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordSrvSetDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordTxtSetDeprecatedWithBody(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordTxtSetDeprecatedRequestWithBody(c.Server, zoneId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DnsRecordTxtSetDeprecated(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsRecordTxtSetDeprecatedRequest(c.Server, zoneId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainGetDomainOwnership(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainGetDomainOwnershipRequest(c.Server, domainOwnershipId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2DomainOwnershipsDomainOwnershipIdWithBody(ctx context.Context, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DomainOwnershipsDomainOwnershipIdRequestWithBody(c.Server, domainOwnershipId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2DomainOwnershipsDomainOwnershipId(ctx context.Context, domainOwnershipId openapi_types.UUID, body PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DomainOwnershipsDomainOwnershipIdRequest(c.Server, domainOwnershipId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9372,8 +9883,8 @@ func (c *Client) DomainVerifyDomainOwnership(ctx context.Context, domainOwnershi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainCheckDomainAvailabilityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainCheckDomainAvailabilityRequestWithBody(c.Server, contentType, body)
+func (c *Client) DomainCheckDomainRegistrabilityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCheckDomainRegistrabilityRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9384,8 +9895,8 @@ func (c *Client) DomainCheckDomainAvailabilityWithBody(ctx context.Context, cont
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainCheckDomainAvailability(ctx context.Context, body DomainCheckDomainAvailabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainCheckDomainAvailabilityRequest(c.Server, body)
+func (c *Client) DomainCheckDomainRegistrability(ctx context.Context, body DomainCheckDomainRegistrabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCheckDomainRegistrabilityRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9396,8 +9907,8 @@ func (c *Client) DomainCheckDomainAvailability(ctx context.Context, body DomainC
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainGetHandleFields(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainGetHandleFieldsRequest(c.Server, domainName)
+func (c *Client) DomainListTlds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainListTldsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -9408,8 +9919,56 @@ func (c *Client) DomainGetHandleFields(ctx context.Context, domainName string, r
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainGetSupportedTlds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainGetSupportedTldsRequest(c.Server)
+func (c *Client) DomainListTldContactSchemas(ctx context.Context, tld string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainListTldContactSchemasRequest(c.Server, tld)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainCheckDomainRegistrabilityV2DeprecatedWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCheckDomainRegistrabilityV2DeprecatedRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainCheckDomainRegistrabilityV2Deprecated(ctx context.Context, body DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCheckDomainRegistrabilityV2DeprecatedRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainGetHandleFieldsV2Deprecated(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainGetHandleFieldsV2DeprecatedRequest(c.Server, domainName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetV2DomainsSupportedTlds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2DomainsSupportedTldsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -9456,8 +10015,8 @@ func (c *Client) DomainGetDomain(ctx context.Context, domainId openapi_types.UUI
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainCreateAuthcodeForDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainCreateAuthcodeForDomainRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DomainCreateDomainAuthCodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCreateDomainAuthCodeRequestWithBody(c.Server, domainId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9468,8 +10027,8 @@ func (c *Client) DomainCreateAuthcodeForDomainWithBody(ctx context.Context, doma
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainCreateAuthcodeForDomain(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcodeForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainCreateAuthcodeForDomainRequest(c.Server, domainId, body)
+func (c *Client) DomainCreateDomainAuthCode(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCreateDomainAuthCodeRequest(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9480,8 +10039,8 @@ func (c *Client) DomainCreateAuthcodeForDomain(ctx context.Context, domainId ope
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainCreateAuthcode2ForDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainCreateAuthcode2ForDomainRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DomainCreateDomainAuthCode2WithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCreateDomainAuthCode2RequestWithBody(c.Server, domainId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9492,8 +10051,56 @@ func (c *Client) DomainCreateAuthcode2ForDomainWithBody(ctx context.Context, dom
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainCreateAuthcode2ForDomain(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcode2ForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainCreateAuthcode2ForDomainRequest(c.Server, domainId, body)
+func (c *Client) DomainCreateDomainAuthCode2(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCode2JSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainCreateDomainAuthCode2Request(c.Server, domainId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2DomainsDomainIdActionsCreateAuthcodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DomainsDomainIdActionsCreateAuthcodeRequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2DomainsDomainIdActionsCreateAuthcode(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DomainsDomainIdActionsCreateAuthcodeRequest(c.Server, domainId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2DomainsDomainIdActionsCreateAuthcode2WithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DomainsDomainIdActionsCreateAuthcode2RequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2DomainsDomainIdActionsCreateAuthcode2(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2DomainsDomainIdActionsCreateAuthcode2Request(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9528,6 +10135,78 @@ func (c *Client) DomainResendDomainEmail(ctx context.Context, domainId openapi_t
 	return c.Client.Do(req)
 }
 
+func (c *Client) DomainUpdateDomainAuthCodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainAuthCodeRequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainUpdateDomainAuthCode(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainAuthCodeRequest(c.Server, domainId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchV2DomainsDomainIdAuthcodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchV2DomainsDomainIdAuthcodeRequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchV2DomainsDomainIdAuthcode(ctx context.Context, domainId openapi_types.UUID, body PatchV2DomainsDomainIdAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchV2DomainsDomainIdAuthcodeRequest(c.Server, domainId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainUpdateDomainContactWithBody(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainContactRequestWithBody(c.Server, domainId, contact, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainUpdateDomainContact(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, body DomainUpdateDomainContactJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainContactRequest(c.Server, domainId, contact, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ContractGetDetailOfContractByDomain(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewContractGetDetailOfContractByDomainRequest(c.Server, domainId)
 	if err != nil {
@@ -9552,8 +10231,8 @@ func (c *Client) DeprecatedContractGetDetailOfContractByDomain(ctx context.Conte
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainAbortDeclareProcess(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainAbortDeclareProcessRequest(c.Server, domainId)
+func (c *Client) DomainAbortDomainDeclaration(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainAbortDomainDeclarationRequest(c.Server, domainId)
 	if err != nil {
 		return nil, err
 	}
@@ -9564,8 +10243,8 @@ func (c *Client) DomainAbortDeclareProcess(ctx context.Context, domainId openapi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainDeclareProcessChangeAuthcodeWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainDeclareProcessChangeAuthcodeRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DeleteV2DomainsDomainIdDeclarations(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteV2DomainsDomainIdDeclarationsRequest(c.Server, domainId)
 	if err != nil {
 		return nil, err
 	}
@@ -9576,8 +10255,8 @@ func (c *Client) DomainDeclareProcessChangeAuthcodeWithBody(ctx context.Context,
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainDeclareProcessChangeAuthcode(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainDeclareProcessChangeAuthcodeRequest(c.Server, domainId, body)
+func (c *Client) DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequestWithBody(c.Server, domainId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9588,8 +10267,8 @@ func (c *Client) DomainDeclareProcessChangeAuthcode(ctx context.Context, domainI
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainDeclareProcessChangeHandlesWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainDeclareProcessChangeHandlesRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DomainDeclareProcessChangeAuthcodeV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequest(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9600,8 +10279,8 @@ func (c *Client) DomainDeclareProcessChangeHandlesWithBody(ctx context.Context, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainDeclareProcessChangeHandles(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainDeclareProcessChangeHandlesRequest(c.Server, domainId, body)
+func (c *Client) DomainDeclareProcessChangeHandlesV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainDeclareProcessChangeHandlesV2DeprecatedRequestWithBody(c.Server, domainId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9612,8 +10291,8 @@ func (c *Client) DomainDeclareProcessChangeHandles(ctx context.Context, domainId
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainChangeOwnercOfDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainChangeOwnercOfDomainRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DomainDeclareProcessChangeHandlesV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainDeclareProcessChangeHandlesV2DeprecatedRequest(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9624,8 +10303,8 @@ func (c *Client) DomainChangeOwnercOfDomainWithBody(ctx context.Context, domainI
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainChangeOwnercOfDomain(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainChangeOwnercOfDomainRequest(c.Server, domainId, body)
+func (c *Client) DomainChangeOwnercOfDomainV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainChangeOwnercOfDomainV2DeprecatedRequestWithBody(c.Server, domainId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9636,8 +10315,8 @@ func (c *Client) DomainChangeOwnercOfDomain(ctx context.Context, domainId openap
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainDeclareNameserversWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainDeclareNameserversRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DomainChangeOwnercOfDomainV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainChangeOwnercOfDomainV2DeprecatedRequest(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9648,8 +10327,8 @@ func (c *Client) DomainDeclareNameserversWithBody(ctx context.Context, domainId 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainDeclareNameservers(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainDeclareNameserversRequest(c.Server, domainId, body)
+func (c *Client) DomainUpdateDomainNameserversWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainNameserversRequestWithBody(c.Server, domainId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9660,8 +10339,8 @@ func (c *Client) DomainDeclareNameservers(ctx context.Context, domainId openapi_
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainChangeProjectOfDomainWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainChangeProjectOfDomainRequestWithBody(c.Server, domainId, contentType, body)
+func (c *Client) DomainUpdateDomainNameservers(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainNameserversRequest(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9672,8 +10351,68 @@ func (c *Client) DomainChangeProjectOfDomainWithBody(ctx context.Context, domain
 	return c.Client.Do(req)
 }
 
-func (c *Client) DomainChangeProjectOfDomain(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainChangeProjectOfDomainRequest(c.Server, domainId, body)
+func (c *Client) DomainDeclareNameserversV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainDeclareNameserversV2DeprecatedRequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainDeclareNameserversV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainDeclareNameserversV2DeprecatedRequest(c.Server, domainId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainUpdateDomainProjectIdWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainProjectIdRequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainUpdateDomainProjectId(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainProjectIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainUpdateDomainProjectIdRequest(c.Server, domainId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainChangeProjectOfDomainV2DeprecatedWithBody(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainChangeProjectOfDomainV2DeprecatedRequestWithBody(c.Server, domainId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DomainChangeProjectOfDomainV2Deprecated(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDomainChangeProjectOfDomainV2DeprecatedRequest(c.Server, domainId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9936,8 +10675,8 @@ func (c *Client) UserLogout(ctx context.Context, body UserLogoutJSONRequestBody,
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressDelete(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressDeleteRequest(c.Server, id)
+func (c *Client) MailDeleteMailAddress(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailDeleteMailAddressRequest(c.Server, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -9948,8 +10687,8 @@ func (c *Client) MailMailaddressDelete(ctx context.Context, id openapi_types.UUI
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressGetSpecific(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressGetSpecificRequest(c.Server, id)
+func (c *Client) MailGetMailAddress(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailGetMailAddressRequest(c.Server, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -9960,8 +10699,8 @@ func (c *Client) MailMailaddressGetSpecific(ctx context.Context, id openapi_type
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateAddressWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateAddressRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressAddressWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressAddressRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9972,8 +10711,8 @@ func (c *Client) MailMailaddressUpdateAddressWithBody(ctx context.Context, id op
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateAddress(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateAddressRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressAddress(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressAddressRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9984,8 +10723,8 @@ func (c *Client) MailMailaddressUpdateAddress(ctx context.Context, id openapi_ty
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateAutoresponderWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateAutoresponderRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressAutoresponderWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressAutoresponderRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9996,8 +10735,8 @@ func (c *Client) MailMailaddressUpdateAutoresponderWithBody(ctx context.Context,
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateAutoresponder(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateAutoresponderRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressAutoresponder(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressAutoresponderRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10008,8 +10747,8 @@ func (c *Client) MailMailaddressUpdateAutoresponder(ctx context.Context, id open
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateCatchallWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateCatchallRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressCatchallWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressCatchallRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10020,8 +10759,8 @@ func (c *Client) MailMailaddressUpdateCatchallWithBody(ctx context.Context, id o
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateCatchall(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateCatchallRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressCatchall(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressCatchallRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10032,8 +10771,8 @@ func (c *Client) MailMailaddressUpdateCatchall(ctx context.Context, id openapi_t
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateForwardaddressesWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateForwardaddressesRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressForwardAddressesWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressForwardAddressesRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10044,8 +10783,8 @@ func (c *Client) MailMailaddressUpdateForwardaddressesWithBody(ctx context.Conte
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateForwardaddresses(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateForwardaddressesRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressForwardAddresses(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressForwardAddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressForwardAddressesRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10056,8 +10795,8 @@ func (c *Client) MailMailaddressUpdateForwardaddresses(ctx context.Context, id o
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdatePasswordWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdatePasswordRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressPasswordWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressPasswordRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10068,8 +10807,8 @@ func (c *Client) MailMailaddressUpdatePasswordWithBody(ctx context.Context, id o
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdatePassword(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdatePasswordRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressPassword(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressPasswordRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10080,8 +10819,8 @@ func (c *Client) MailMailaddressUpdatePassword(ctx context.Context, id openapi_t
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateQuotaWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateQuotaRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressQuotaWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressQuotaRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10092,8 +10831,8 @@ func (c *Client) MailMailaddressUpdateQuotaWithBody(ctx context.Context, id open
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateQuota(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateQuotaRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressQuota(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressQuotaRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10104,8 +10843,8 @@ func (c *Client) MailMailaddressUpdateQuota(ctx context.Context, id openapi_type
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateSpamprotectionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateSpamprotectionRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) MailUpdateMailAddressSpamProtectionWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressSpamProtectionRequestWithBody(c.Server, mailAddressId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10116,8 +10855,200 @@ func (c *Client) MailMailaddressUpdateSpamprotectionWithBody(ctx context.Context
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressUpdateSpamprotection(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressUpdateSpamprotectionRequest(c.Server, id, body)
+func (c *Client) MailUpdateMailAddressSpamProtection(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressSpamProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateMailAddressSpamProtectionRequest(c.Server, mailAddressId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MailMailaddressUpdateAddressDeprecatedWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailMailaddressUpdateAddressDeprecatedRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MailMailaddressUpdateAddressDeprecated(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailMailaddressUpdateAddressDeprecatedRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteV2MailaddressesMailAddressId(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteV2MailaddressesMailAddressIdRequest(c.Server, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetV2MailaddressesMailAddressId(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2MailaddressesMailAddressIdRequest(c.Server, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdAutoResponderWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdAutoResponderRequestWithBody(c.Server, mailAddressId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdAutoResponder(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdAutoResponderRequest(c.Server, mailAddressId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdCatchAllWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdCatchAllRequestWithBody(c.Server, mailAddressId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdCatchAll(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdCatchAllRequest(c.Server, mailAddressId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdForwardaddressesWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdForwardaddressesRequestWithBody(c.Server, mailAddressId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdForwardaddresses(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdForwardaddressesRequest(c.Server, mailAddressId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdPasswordWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdPasswordRequestWithBody(c.Server, mailAddressId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdPassword(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdPasswordRequest(c.Server, mailAddressId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdQuotaWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdQuotaRequestWithBody(c.Server, mailAddressId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdQuota(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdQuotaRequest(c.Server, mailAddressId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdSpamprotectionWithBody(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdSpamprotectionRequestWithBody(c.Server, mailAddressId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutV2MailaddressesMailAddressIdSpamprotection(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutV2MailaddressesMailAddressIdSpamprotectionRequest(c.Server, mailAddressId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10176,8 +11107,8 @@ func (c *Client) DatabaseCreateMysqlUser(ctx context.Context, databaseId openapi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseDeleteMysqlDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseDeleteMysqlDatabaseRequest(c.Server, id)
+func (c *Client) DatabaseDeleteMysqlDatabase(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseDeleteMysqlDatabaseRequest(c.Server, mysqlDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -10188,8 +11119,8 @@ func (c *Client) DatabaseDeleteMysqlDatabase(ctx context.Context, id openapi_typ
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseGetMysqlDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseGetMysqlDatabaseRequest(c.Server, id)
+func (c *Client) DatabaseGetMysqlDatabase(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseGetMysqlDatabaseRequest(c.Server, mysqlDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -10200,8 +11131,8 @@ func (c *Client) DatabaseGetMysqlDatabase(ctx context.Context, id openapi_types.
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(c.Server, mysqlDatabaseId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10212,8 +11143,8 @@ func (c *Client) DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx context.C
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlDatabaseDefaultCharset(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequest(c.Server, id, body)
+func (c *Client) DatabaseUpdateMysqlDatabaseDefaultCharset(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequest(c.Server, mysqlDatabaseId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10224,8 +11155,8 @@ func (c *Client) DatabaseUpdateMysqlDatabaseDefaultCharset(ctx context.Context, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(c.Server, mysqlDatabaseId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10236,8 +11167,8 @@ func (c *Client) DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx context.Cont
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlDatabaseDescription(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlDatabaseDescriptionRequest(c.Server, id, body)
+func (c *Client) DatabaseUpdateMysqlDatabaseDescription(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlDatabaseDescriptionRequest(c.Server, mysqlDatabaseId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10248,8 +11179,8 @@ func (c *Client) DatabaseUpdateMysqlDatabaseDescription(ctx context.Context, id 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseDeleteMysqlUser(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseDeleteMysqlUserRequest(c.Server, id)
+func (c *Client) DatabaseDeleteMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseDeleteMysqlUserRequest(c.Server, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -10260,8 +11191,8 @@ func (c *Client) DatabaseDeleteMysqlUser(ctx context.Context, id openapi_types.U
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseGetMysqlUser(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseGetMysqlUserRequest(c.Server, id)
+func (c *Client) DatabaseGetMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseGetMysqlUserRequest(c.Server, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -10272,8 +11203,8 @@ func (c *Client) DatabaseGetMysqlUser(ctx context.Context, id openapi_types.UUID
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlUserWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlUserRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseUpdateMysqlUserWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlUserRequestWithBody(c.Server, mysqlUserId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10284,8 +11215,8 @@ func (c *Client) DatabaseUpdateMysqlUserWithBody(ctx context.Context, id openapi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlUser(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlUserRequest(c.Server, id, body)
+func (c *Client) DatabaseUpdateMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlUserRequest(c.Server, mysqlUserId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10296,8 +11227,8 @@ func (c *Client) DatabaseUpdateMysqlUser(ctx context.Context, id openapi_types.U
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseDisableMysqlUserWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseDisableMysqlUserRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseDisableMysqlUserWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseDisableMysqlUserRequestWithBody(c.Server, mysqlUserId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10308,8 +11239,8 @@ func (c *Client) DatabaseDisableMysqlUserWithBody(ctx context.Context, id openap
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseDisableMysqlUser(ctx context.Context, id openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseDisableMysqlUserRequest(c.Server, id, body)
+func (c *Client) DatabaseDisableMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseDisableMysqlUserRequest(c.Server, mysqlUserId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10320,8 +11251,8 @@ func (c *Client) DatabaseDisableMysqlUser(ctx context.Context, id openapi_types.
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseEnableMysqlUserWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseEnableMysqlUserRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseEnableMysqlUserWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseEnableMysqlUserRequestWithBody(c.Server, mysqlUserId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10332,8 +11263,8 @@ func (c *Client) DatabaseEnableMysqlUserWithBody(ctx context.Context, id openapi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseEnableMysqlUser(ctx context.Context, id openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseEnableMysqlUserRequest(c.Server, id, body)
+func (c *Client) DatabaseEnableMysqlUser(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseEnableMysqlUserRequest(c.Server, mysqlUserId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10344,8 +11275,8 @@ func (c *Client) DatabaseEnableMysqlUser(ctx context.Context, id openapi_types.U
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlUserPasswordWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlUserPasswordRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseUpdateMysqlUserPasswordWithBody(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlUserPasswordRequestWithBody(c.Server, mysqlUserId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10356,8 +11287,8 @@ func (c *Client) DatabaseUpdateMysqlUserPasswordWithBody(ctx context.Context, id
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateMysqlUserPassword(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateMysqlUserPasswordRequest(c.Server, id, body)
+func (c *Client) DatabaseUpdateMysqlUserPassword(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateMysqlUserPasswordRequest(c.Server, mysqlUserId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10368,8 +11299,8 @@ func (c *Client) DatabaseUpdateMysqlUserPassword(ctx context.Context, id openapi
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseGetMysqlUserPhpMyAdminUrl(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseGetMysqlUserPhpMyAdminUrlRequest(c.Server, id)
+func (c *Client) DatabaseGetMysqlUserPhpMyAdminUrl(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseGetMysqlUserPhpMyAdminUrlRequest(c.Server, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -11208,8 +12139,8 @@ func (c *Client) CronjobCreateCronjob(ctx context.Context, projectId openapi_typ
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxList(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxListRequest(c.Server, projectId)
+func (c *Client) MailListDeliveryBoxes(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailListDeliveryBoxesRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -11220,8 +12151,8 @@ func (c *Client) MailDeliveryboxList(ctx context.Context, projectId string, reqE
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxCreateWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxCreateRequestWithBody(c.Server, projectId, contentType, body)
+func (c *Client) MailCreateDeliveryboxWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailCreateDeliveryboxRequestWithBody(c.Server, projectId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11232,8 +12163,44 @@ func (c *Client) MailDeliveryboxCreateWithBody(ctx context.Context, projectId st
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailDeliveryboxCreate(ctx context.Context, projectId string, body MailDeliveryboxCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailDeliveryboxCreateRequest(c.Server, projectId, body)
+func (c *Client) MailCreateDeliverybox(ctx context.Context, projectId string, body MailCreateDeliveryboxJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailCreateDeliveryboxRequest(c.Server, projectId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetV2ProjectsProjectIdDeliveryboxes(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2ProjectsProjectIdDeliveryboxesRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2ProjectsProjectIdDeliveryboxesWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2ProjectsProjectIdDeliveryboxesRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2ProjectsProjectIdDeliveryboxes(ctx context.Context, projectId string, body PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2ProjectsProjectIdDeliveryboxesRequest(c.Server, projectId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11268,8 +12235,20 @@ func (c *Client) ProjectUpdateProjectDescription(ctx context.Context, projectId 
 	return c.Client.Do(req)
 }
 
-func (c *Client) DnsZonesForProject(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDnsZonesForProjectRequest(c.Server, projectId)
+func (c *Client) DnsListDnsZones(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDnsListDnsZonesRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetV2ProjectsProjectIdDnsZones(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2ProjectsProjectIdDnsZonesRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -11412,8 +12391,8 @@ func (c *Client) ProjectLeaveProject(ctx context.Context, projectId openapi_type
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressList(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressListRequest(c.Server, projectId)
+func (c *Client) MailListMailAddresses(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailListMailAddressesRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -11424,8 +12403,8 @@ func (c *Client) MailMailaddressList(ctx context.Context, projectId string, reqE
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressCreateWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressCreateRequestWithBody(c.Server, projectId, contentType, body)
+func (c *Client) MailCreateMailAddressWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailCreateMailAddressRequestWithBody(c.Server, projectId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11436,8 +12415,8 @@ func (c *Client) MailMailaddressCreateWithBody(ctx context.Context, projectId st
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailMailaddressCreate(ctx context.Context, projectId string, body MailMailaddressCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailMailaddressCreateRequest(c.Server, projectId, body)
+func (c *Client) MailCreateMailAddress(ctx context.Context, projectId string, body MailCreateMailAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailCreateMailAddressRequest(c.Server, projectId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11448,8 +12427,8 @@ func (c *Client) MailMailaddressCreate(ctx context.Context, projectId string, bo
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailProjectsettingGetSpecific(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailProjectsettingGetSpecificRequest(c.Server, projectId)
+func (c *Client) MailListProjectMailSettings(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailListProjectMailSettingsRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -11460,8 +12439,8 @@ func (c *Client) MailProjectsettingGetSpecific(ctx context.Context, projectId st
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailProjectsettingUpdateBlacklistWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailProjectsettingUpdateBlacklistRequestWithBody(c.Server, projectId, contentType, body)
+func (c *Client) MailUpdateProjectMailSettingWithBody(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateProjectMailSettingRequestWithBody(c.Server, projectId, setting, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11472,8 +12451,8 @@ func (c *Client) MailProjectsettingUpdateBlacklistWithBody(ctx context.Context, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailProjectsettingUpdateBlacklist(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailProjectsettingUpdateBlacklistRequest(c.Server, projectId, body)
+func (c *Client) MailUpdateProjectMailSetting(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, body MailUpdateProjectMailSettingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailUpdateProjectMailSettingRequest(c.Server, projectId, setting, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11484,8 +12463,8 @@ func (c *Client) MailProjectsettingUpdateBlacklist(ctx context.Context, projectI
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailProjectsettingUpdateWhitelistWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailProjectsettingUpdateWhitelistRequestWithBody(c.Server, projectId, contentType, body)
+func (c *Client) GetV2ProjectsProjectIdMailaddresses(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2ProjectsProjectIdMailaddressesRequest(c.Server, projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -11496,8 +12475,80 @@ func (c *Client) MailProjectsettingUpdateWhitelistWithBody(ctx context.Context, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) MailProjectsettingUpdateWhitelist(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMailProjectsettingUpdateWhitelistRequest(c.Server, projectId, body)
+func (c *Client) PostV2ProjectsProjectIdMailaddressesWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2ProjectsProjectIdMailaddressesRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostV2ProjectsProjectIdMailaddresses(ctx context.Context, projectId string, body PostV2ProjectsProjectIdMailaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostV2ProjectsProjectIdMailaddressesRequest(c.Server, projectId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetV2ProjectsProjectIdMailsettings(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetV2ProjectsProjectIdMailsettingsRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MailProjectsettingUpdateBlacklistDeprecatedWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailProjectsettingUpdateBlacklistDeprecatedRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MailProjectsettingUpdateBlacklistDeprecated(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailProjectsettingUpdateBlacklistDeprecatedRequest(c.Server, projectId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MailProjectsettingUpdateWhitelistDeprecatedWithBody(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailProjectsettingUpdateWhitelistDeprecatedRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MailProjectsettingUpdateWhitelistDeprecated(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMailProjectsettingUpdateWhitelistDeprecatedRequest(c.Server, projectId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11688,8 +12739,8 @@ func (c *Client) SshUserCreateSshUser(ctx context.Context, projectId string, bod
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseDeleteRedisDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseDeleteRedisDatabaseRequest(c.Server, id)
+func (c *Client) DatabaseDeleteRedisDatabase(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseDeleteRedisDatabaseRequest(c.Server, redisDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -11700,8 +12751,8 @@ func (c *Client) DatabaseDeleteRedisDatabase(ctx context.Context, id openapi_typ
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseGetRedisDatabase(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseGetRedisDatabaseRequest(c.Server, id)
+func (c *Client) DatabaseGetRedisDatabase(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseGetRedisDatabaseRequest(c.Server, redisDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -11712,8 +12763,8 @@ func (c *Client) DatabaseGetRedisDatabase(ctx context.Context, id openapi_types.
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(c.Server, redisDatabaseId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11724,8 +12775,8 @@ func (c *Client) DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx context.Co
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateRedisDatabaseConfiguration(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateRedisDatabaseConfigurationRequest(c.Server, id, body)
+func (c *Client) DatabaseUpdateRedisDatabaseConfiguration(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateRedisDatabaseConfigurationRequest(c.Server, redisDatabaseId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11736,8 +12787,8 @@ func (c *Client) DatabaseUpdateRedisDatabaseConfiguration(ctx context.Context, i
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody(c.Server, id, contentType, body)
+func (c *Client) DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody(c.Server, redisDatabaseId, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11748,8 +12799,8 @@ func (c *Client) DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx context.Cont
 	return c.Client.Do(req)
 }
 
-func (c *Client) DatabaseUpdateRedisDatabaseDescription(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDatabaseUpdateRedisDatabaseDescriptionRequest(c.Server, id, body)
+func (c *Client) DatabaseUpdateRedisDatabaseDescription(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDatabaseUpdateRedisDatabaseDescriptionRequest(c.Server, redisDatabaseId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17147,188 +18198,6 @@ func NewCustomerCreateCustomerInviteRequestWithBody(server string, customerId op
 	return req, nil
 }
 
-// NewCustomerListOfCustomerCategoriesDeprecatedRequest generates requests for CustomerListOfCustomerCategoriesDeprecated
-func NewCustomerListOfCustomerCategoriesDeprecatedRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/customercategories")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCustomerCreateCategoryDeprecatedRequest calls the generic CustomerCreateCategoryDeprecated builder with application/json body
-func NewCustomerCreateCategoryDeprecatedRequest(server string, body CustomerCreateCategoryDeprecatedJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCustomerCreateCategoryDeprecatedRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCustomerCreateCategoryDeprecatedRequestWithBody generates requests for CustomerCreateCategoryDeprecated with any type of body
-func NewCustomerCreateCategoryDeprecatedRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/customercategories")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewCustomerDeleteCategoryDeprecatedRequest generates requests for CustomerDeleteCategoryDeprecated
-func NewCustomerDeleteCategoryDeprecatedRequest(server string, categoryId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "categoryId", runtime.ParamLocationPath, categoryId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/customercategories/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCustomerDetailOfCustomerCategoryDeprecatedRequest generates requests for CustomerDetailOfCustomerCategoryDeprecated
-func NewCustomerDetailOfCustomerCategoryDeprecatedRequest(server string, categoryId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "categoryId", runtime.ParamLocationPath, categoryId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/customercategories/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCustomerUpdateCategoryDeprecatedRequest calls the generic CustomerUpdateCategoryDeprecated builder with application/json body
-func NewCustomerUpdateCategoryDeprecatedRequest(server string, categoryId string, body CustomerUpdateCategoryDeprecatedJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCustomerUpdateCategoryDeprecatedRequestWithBody(server, categoryId, "application/json", bodyReader)
-}
-
-// NewCustomerUpdateCategoryDeprecatedRequestWithBody generates requests for CustomerUpdateCategoryDeprecated with any type of body
-func NewCustomerUpdateCategoryDeprecatedRequestWithBody(server string, categoryId string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "categoryId", runtime.ParamLocationPath, categoryId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/customercategories/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewCustomerListCustomersRequest generates requests for CustomerListCustomers
 func NewCustomerListCustomersRequest(server string, params *CustomerListCustomersParams) (*http.Request, error) {
 	var err error
@@ -18290,13 +19159,175 @@ func NewOrderListCustomerOrdersRequest(server string, customerId string, params 
 	return req, nil
 }
 
-// NewMailDeliveryboxDeleteRequest generates requests for MailDeliveryboxDelete
-func NewMailDeliveryboxDeleteRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+// NewMailDeleteDeliveryBoxRequest generates requests for MailDeleteDeliveryBox
+func NewMailDeleteDeliveryBoxRequest(server string, deliveryBoxId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, deliveryBoxId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/delivery-boxes/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMailGetDeliveryBoxRequest generates requests for MailGetDeliveryBox
+func NewMailGetDeliveryBoxRequest(server string, deliveryBoxId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, deliveryBoxId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/delivery-boxes/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMailUpdateDeliveryBoxDescriptionRequest calls the generic MailUpdateDeliveryBoxDescription builder with application/json body
+func NewMailUpdateDeliveryBoxDescriptionRequest(server string, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxDescriptionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateDeliveryBoxDescriptionRequestWithBody(server, deliveryBoxId, "application/json", bodyReader)
+}
+
+// NewMailUpdateDeliveryBoxDescriptionRequestWithBody generates requests for MailUpdateDeliveryBoxDescription with any type of body
+func NewMailUpdateDeliveryBoxDescriptionRequestWithBody(server string, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, deliveryBoxId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/delivery-boxes/%s/description", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateDeliveryBoxPasswordRequest calls the generic MailUpdateDeliveryBoxPassword builder with application/json body
+func NewMailUpdateDeliveryBoxPasswordRequest(server string, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxPasswordJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateDeliveryBoxPasswordRequestWithBody(server, deliveryBoxId, "application/json", bodyReader)
+}
+
+// NewMailUpdateDeliveryBoxPasswordRequestWithBody generates requests for MailUpdateDeliveryBoxPassword with any type of body
+func NewMailUpdateDeliveryBoxPasswordRequestWithBody(server string, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, deliveryBoxId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/delivery-boxes/%s/password", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteV2DeliveryboxesDeliveryBoxIdRequest generates requests for DeleteV2DeliveryboxesDeliveryBoxId
+func NewDeleteV2DeliveryboxesDeliveryBoxIdRequest(server string, deliveryBoxId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, deliveryBoxId)
 	if err != nil {
 		return nil, err
 	}
@@ -18324,13 +19355,13 @@ func NewMailDeliveryboxDeleteRequest(server string, id openapi_types.UUID) (*htt
 	return req, nil
 }
 
-// NewMailDeliveryboxGetSpecificRequest generates requests for MailDeliveryboxGetSpecific
-func NewMailDeliveryboxGetSpecificRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+// NewGetV2DeliveryboxesDeliveryBoxIdRequest generates requests for GetV2DeliveryboxesDeliveryBoxId
+func NewGetV2DeliveryboxesDeliveryBoxIdRequest(server string, deliveryBoxId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, deliveryBoxId)
 	if err != nil {
 		return nil, err
 	}
@@ -18358,19 +19389,19 @@ func NewMailDeliveryboxGetSpecificRequest(server string, id openapi_types.UUID) 
 	return req, nil
 }
 
-// NewMailDeliveryboxUpdateDescriptionRequest calls the generic MailDeliveryboxUpdateDescription builder with application/json body
-func NewMailDeliveryboxUpdateDescriptionRequest(server string, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionJSONRequestBody) (*http.Request, error) {
+// NewMailDeliveryboxUpdateDescriptionDeprecatedRequest calls the generic MailDeliveryboxUpdateDescriptionDeprecated builder with application/json body
+func NewMailDeliveryboxUpdateDescriptionDeprecatedRequest(server string, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailDeliveryboxUpdateDescriptionRequestWithBody(server, id, "application/json", bodyReader)
+	return NewMailDeliveryboxUpdateDescriptionDeprecatedRequestWithBody(server, id, "application/json", bodyReader)
 }
 
-// NewMailDeliveryboxUpdateDescriptionRequestWithBody generates requests for MailDeliveryboxUpdateDescription with any type of body
-func NewMailDeliveryboxUpdateDescriptionRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewMailDeliveryboxUpdateDescriptionDeprecatedRequestWithBody generates requests for MailDeliveryboxUpdateDescriptionDeprecated with any type of body
+func NewMailDeliveryboxUpdateDescriptionDeprecatedRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18405,19 +19436,19 @@ func NewMailDeliveryboxUpdateDescriptionRequestWithBody(server string, id openap
 	return req, nil
 }
 
-// NewMailDeliveryboxUpdatePasswordRequest calls the generic MailDeliveryboxUpdatePassword builder with application/json body
-func NewMailDeliveryboxUpdatePasswordRequest(server string, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordJSONRequestBody) (*http.Request, error) {
+// NewMailDeliveryboxUpdatePasswordDeprecatedRequest calls the generic MailDeliveryboxUpdatePasswordDeprecated builder with application/json body
+func NewMailDeliveryboxUpdatePasswordDeprecatedRequest(server string, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailDeliveryboxUpdatePasswordRequestWithBody(server, id, "application/json", bodyReader)
+	return NewMailDeliveryboxUpdatePasswordDeprecatedRequestWithBody(server, id, "application/json", bodyReader)
 }
 
-// NewMailDeliveryboxUpdatePasswordRequestWithBody generates requests for MailDeliveryboxUpdatePassword with any type of body
-func NewMailDeliveryboxUpdatePasswordRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewMailDeliveryboxUpdatePasswordDeprecatedRequestWithBody generates requests for MailDeliveryboxUpdatePasswordDeprecated with any type of body
+func NewMailDeliveryboxUpdatePasswordDeprecatedRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18452,19 +19483,235 @@ func NewMailDeliveryboxUpdatePasswordRequestWithBody(server string, id openapi_t
 	return req, nil
 }
 
-// NewDnsSubZoneCreateRequest calls the generic DnsSubZoneCreate builder with application/json body
-func NewDnsSubZoneCreateRequest(server string, body DnsSubZoneCreateJSONRequestBody) (*http.Request, error) {
+// NewDnsCreateDnsZoneRequest calls the generic DnsCreateDnsZone builder with application/json body
+func NewDnsCreateDnsZoneRequest(server string, body DnsCreateDnsZoneJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsSubZoneCreateRequestWithBody(server, "application/json", bodyReader)
+	return NewDnsCreateDnsZoneRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewDnsSubZoneCreateRequestWithBody generates requests for DnsSubZoneCreate with any type of body
-func NewDnsSubZoneCreateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsCreateDnsZoneRequestWithBody generates requests for DnsCreateDnsZone with any type of body
+func NewDnsCreateDnsZoneRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/dns-zones")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDnsDeleteDnsZoneRequest generates requests for DnsDeleteDnsZone
+func NewDnsDeleteDnsZoneRequest(server string, dnsZoneId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, dnsZoneId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/dns-zones/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDnsGetDnsZoneRequest generates requests for DnsGetDnsZone
+func NewDnsGetDnsZoneRequest(server string, dnsZoneId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, dnsZoneId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/dns-zones/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDnsUpdateRecordSetRequest calls the generic DnsUpdateRecordSet builder with application/json body
+func NewDnsUpdateRecordSetRequest(server string, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, body DnsUpdateRecordSetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDnsUpdateRecordSetRequestWithBody(server, dnsZoneId, recordSet, "application/json", bodyReader)
+}
+
+// NewDnsUpdateRecordSetRequestWithBody generates requests for DnsUpdateRecordSet with any type of body
+func NewDnsUpdateRecordSetRequestWithBody(server string, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, dnsZoneId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "recordSet", runtime.ParamLocationPath, recordSet)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/dns-zones/%s/record-sets/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDnsSetRecordSetManagedRequest calls the generic DnsSetRecordSetManaged builder with application/json body
+func NewDnsSetRecordSetManagedRequest(server string, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, body DnsSetRecordSetManagedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDnsSetRecordSetManagedRequestWithBody(server, dnsZoneId, recordSet, "application/json", bodyReader)
+}
+
+// NewDnsSetRecordSetManagedRequestWithBody generates requests for DnsSetRecordSetManaged with any type of body
+func NewDnsSetRecordSetManagedRequestWithBody(server string, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, dnsZoneId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "recordSet", runtime.ParamLocationPath, recordSet)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/dns-zones/%s/record-sets/%s/actions/set-managed", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostV2DnsZonesRequest calls the generic PostV2DnsZones builder with application/json body
+func NewPostV2DnsZonesRequest(server string, body PostV2DnsZonesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostV2DnsZonesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostV2DnsZonesRequestWithBody generates requests for PostV2DnsZones with any type of body
+func NewPostV2DnsZonesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -18492,13 +19739,47 @@ func NewDnsSubZoneCreateRequestWithBody(server string, contentType string, body 
 	return req, nil
 }
 
-// NewDnsZoneGetSpecificRequest generates requests for DnsZoneGetSpecific
-func NewDnsZoneGetSpecificRequest(server string, zoneId openapi_types.UUID) (*http.Request, error) {
+// NewDeleteV2DnsZonesDnsZoneIdRequest generates requests for DeleteV2DnsZonesDnsZoneId
+func NewDeleteV2DnsZonesDnsZoneIdRequest(server string, dnsZoneId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "zoneId", runtime.ParamLocationPath, zoneId)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, dnsZoneId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/dns/zones/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetV2DnsZonesDnsZoneIdRequest generates requests for GetV2DnsZonesDnsZoneId
+func NewGetV2DnsZonesDnsZoneIdRequest(server string, dnsZoneId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, dnsZoneId)
 	if err != nil {
 		return nil, err
 	}
@@ -18526,19 +19807,19 @@ func NewDnsZoneGetSpecificRequest(server string, zoneId openapi_types.UUID) (*ht
 	return req, nil
 }
 
-// NewDnsRecordASetCustomRequest calls the generic DnsRecordASetCustom builder with application/json body
-func NewDnsRecordASetCustomRequest(server string, zoneId openapi_types.UUID, body DnsRecordASetCustomJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordASetCustomDeprecatedRequest calls the generic DnsRecordASetCustomDeprecated builder with application/json body
+func NewDnsRecordASetCustomDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordASetCustomDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordASetCustomRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordASetCustomDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordASetCustomRequestWithBody generates requests for DnsRecordASetCustom with any type of body
-func NewDnsRecordASetCustomRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordASetCustomDeprecatedRequestWithBody generates requests for DnsRecordASetCustomDeprecated with any type of body
+func NewDnsRecordASetCustomDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18573,19 +19854,19 @@ func NewDnsRecordASetCustomRequestWithBody(server string, zoneId openapi_types.U
 	return req, nil
 }
 
-// NewDnsRecordASetManagedByIngressRequest calls the generic DnsRecordASetManagedByIngress builder with application/json body
-func NewDnsRecordASetManagedByIngressRequest(server string, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordASetManagedByIngressDeprecatedRequest calls the generic DnsRecordASetManagedByIngressDeprecated builder with application/json body
+func NewDnsRecordASetManagedByIngressDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordASetManagedByIngressRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordASetManagedByIngressDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordASetManagedByIngressRequestWithBody generates requests for DnsRecordASetManagedByIngress with any type of body
-func NewDnsRecordASetManagedByIngressRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordASetManagedByIngressDeprecatedRequestWithBody generates requests for DnsRecordASetManagedByIngressDeprecated with any type of body
+func NewDnsRecordASetManagedByIngressDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18620,19 +19901,19 @@ func NewDnsRecordASetManagedByIngressRequestWithBody(server string, zoneId opena
 	return req, nil
 }
 
-// NewDnsRecordCnameSetRequest calls the generic DnsRecordCnameSet builder with application/json body
-func NewDnsRecordCnameSetRequest(server string, zoneId openapi_types.UUID, body DnsRecordCnameSetJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordCnameSetDeprecatedRequest calls the generic DnsRecordCnameSetDeprecated builder with application/json body
+func NewDnsRecordCnameSetDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordCnameSetDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordCnameSetRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordCnameSetDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordCnameSetRequestWithBody generates requests for DnsRecordCnameSet with any type of body
-func NewDnsRecordCnameSetRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordCnameSetDeprecatedRequestWithBody generates requests for DnsRecordCnameSetDeprecated with any type of body
+func NewDnsRecordCnameSetDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18667,19 +19948,19 @@ func NewDnsRecordCnameSetRequestWithBody(server string, zoneId openapi_types.UUI
 	return req, nil
 }
 
-// NewDnsRecordMxSetCustomRequest calls the generic DnsRecordMxSetCustom builder with application/json body
-func NewDnsRecordMxSetCustomRequest(server string, zoneId openapi_types.UUID, body DnsRecordMxSetCustomJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordMxSetCustomDeprecatedRequest calls the generic DnsRecordMxSetCustomDeprecated builder with application/json body
+func NewDnsRecordMxSetCustomDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordMxSetCustomDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordMxSetCustomRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordMxSetCustomDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordMxSetCustomRequestWithBody generates requests for DnsRecordMxSetCustom with any type of body
-func NewDnsRecordMxSetCustomRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordMxSetCustomDeprecatedRequestWithBody generates requests for DnsRecordMxSetCustomDeprecated with any type of body
+func NewDnsRecordMxSetCustomDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18714,19 +19995,19 @@ func NewDnsRecordMxSetCustomRequestWithBody(server string, zoneId openapi_types.
 	return req, nil
 }
 
-// NewDnsRecordMxSetManagedRequest calls the generic DnsRecordMxSetManaged builder with application/json body
-func NewDnsRecordMxSetManagedRequest(server string, zoneId openapi_types.UUID, body DnsRecordMxSetManagedJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordMxSetManagedDeprecatedRequest calls the generic DnsRecordMxSetManagedDeprecated builder with application/json body
+func NewDnsRecordMxSetManagedDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordMxSetManagedDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordMxSetManagedRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordMxSetManagedDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordMxSetManagedRequestWithBody generates requests for DnsRecordMxSetManaged with any type of body
-func NewDnsRecordMxSetManagedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordMxSetManagedDeprecatedRequestWithBody generates requests for DnsRecordMxSetManagedDeprecated with any type of body
+func NewDnsRecordMxSetManagedDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18761,19 +20042,19 @@ func NewDnsRecordMxSetManagedRequestWithBody(server string, zoneId openapi_types
 	return req, nil
 }
 
-// NewDnsRecordSrvSetRequest calls the generic DnsRecordSrvSet builder with application/json body
-func NewDnsRecordSrvSetRequest(server string, zoneId openapi_types.UUID, body DnsRecordSrvSetJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordSrvSetDeprecatedRequest calls the generic DnsRecordSrvSetDeprecated builder with application/json body
+func NewDnsRecordSrvSetDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordSrvSetDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordSrvSetRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordSrvSetDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordSrvSetRequestWithBody generates requests for DnsRecordSrvSet with any type of body
-func NewDnsRecordSrvSetRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordSrvSetDeprecatedRequestWithBody generates requests for DnsRecordSrvSetDeprecated with any type of body
+func NewDnsRecordSrvSetDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18808,19 +20089,19 @@ func NewDnsRecordSrvSetRequestWithBody(server string, zoneId openapi_types.UUID,
 	return req, nil
 }
 
-// NewDnsRecordTxtSetRequest calls the generic DnsRecordTxtSet builder with application/json body
-func NewDnsRecordTxtSetRequest(server string, zoneId openapi_types.UUID, body DnsRecordTxtSetJSONRequestBody) (*http.Request, error) {
+// NewDnsRecordTxtSetDeprecatedRequest calls the generic DnsRecordTxtSetDeprecated builder with application/json body
+func NewDnsRecordTxtSetDeprecatedRequest(server string, zoneId openapi_types.UUID, body DnsRecordTxtSetDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDnsRecordTxtSetRequestWithBody(server, zoneId, "application/json", bodyReader)
+	return NewDnsRecordTxtSetDeprecatedRequestWithBody(server, zoneId, "application/json", bodyReader)
 }
 
-// NewDnsRecordTxtSetRequestWithBody generates requests for DnsRecordTxtSet with any type of body
-func NewDnsRecordTxtSetRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDnsRecordTxtSetDeprecatedRequestWithBody generates requests for DnsRecordTxtSetDeprecated with any type of body
+func NewDnsRecordTxtSetDeprecatedRequestWithBody(server string, zoneId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18855,8 +20136,8 @@ func NewDnsRecordTxtSetRequestWithBody(server string, zoneId openapi_types.UUID,
 	return req, nil
 }
 
-// NewDomainGetSpecificDomainOwnershipRequest generates requests for DomainGetSpecificDomainOwnership
-func NewDomainGetSpecificDomainOwnershipRequest(server string, domainOwnershipId openapi_types.UUID) (*http.Request, error) {
+// NewDomainGetDomainOwnershipRequest generates requests for DomainGetDomainOwnership
+func NewDomainGetDomainOwnershipRequest(server string, domainOwnershipId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18889,19 +20170,19 @@ func NewDomainGetSpecificDomainOwnershipRequest(server string, domainOwnershipId
 	return req, nil
 }
 
-// NewDomainVerifyDomainOwnershipRequest calls the generic DomainVerifyDomainOwnership builder with application/json body
-func NewDomainVerifyDomainOwnershipRequest(server string, domainOwnershipId openapi_types.UUID, body DomainVerifyDomainOwnershipJSONRequestBody) (*http.Request, error) {
+// NewPostV2DomainOwnershipsDomainOwnershipIdRequest calls the generic PostV2DomainOwnershipsDomainOwnershipId builder with application/json body
+func NewPostV2DomainOwnershipsDomainOwnershipIdRequest(server string, domainOwnershipId openapi_types.UUID, body PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainVerifyDomainOwnershipRequestWithBody(server, domainOwnershipId, "application/json", bodyReader)
+	return NewPostV2DomainOwnershipsDomainOwnershipIdRequestWithBody(server, domainOwnershipId, "application/json", bodyReader)
 }
 
-// NewDomainVerifyDomainOwnershipRequestWithBody generates requests for DomainVerifyDomainOwnership with any type of body
-func NewDomainVerifyDomainOwnershipRequestWithBody(server string, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostV2DomainOwnershipsDomainOwnershipIdRequestWithBody generates requests for PostV2DomainOwnershipsDomainOwnershipId with any type of body
+func NewPostV2DomainOwnershipsDomainOwnershipIdRequestWithBody(server string, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -18936,19 +20217,167 @@ func NewDomainVerifyDomainOwnershipRequestWithBody(server string, domainOwnershi
 	return req, nil
 }
 
-// NewDomainCheckDomainAvailabilityRequest calls the generic DomainCheckDomainAvailability builder with application/json body
-func NewDomainCheckDomainAvailabilityRequest(server string, body DomainCheckDomainAvailabilityJSONRequestBody) (*http.Request, error) {
+// NewDomainVerifyDomainOwnershipRequest calls the generic DomainVerifyDomainOwnership builder with application/json body
+func NewDomainVerifyDomainOwnershipRequest(server string, domainOwnershipId openapi_types.UUID, body DomainVerifyDomainOwnershipJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainCheckDomainAvailabilityRequestWithBody(server, "application/json", bodyReader)
+	return NewDomainVerifyDomainOwnershipRequestWithBody(server, domainOwnershipId, "application/json", bodyReader)
 }
 
-// NewDomainCheckDomainAvailabilityRequestWithBody generates requests for DomainCheckDomainAvailability with any type of body
-func NewDomainCheckDomainAvailabilityRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainVerifyDomainOwnershipRequestWithBody generates requests for DomainVerifyDomainOwnership with any type of body
+func NewDomainVerifyDomainOwnershipRequestWithBody(server string, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainOwnershipId", runtime.ParamLocationPath, domainOwnershipId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domain-ownerships/%s/actions/verify", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDomainCheckDomainRegistrabilityRequest calls the generic DomainCheckDomainRegistrability builder with application/json body
+func NewDomainCheckDomainRegistrabilityRequest(server string, body DomainCheckDomainRegistrabilityJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainCheckDomainRegistrabilityRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDomainCheckDomainRegistrabilityRequestWithBody generates requests for DomainCheckDomainRegistrability with any type of body
+func NewDomainCheckDomainRegistrabilityRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domain-registrable")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDomainListTldsRequest generates requests for DomainListTlds
+func NewDomainListTldsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domain-tlds")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDomainListTldContactSchemasRequest generates requests for DomainListTldContactSchemas
+func NewDomainListTldContactSchemasRequest(server string, tld string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "tld", runtime.ParamLocationPath, tld)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domain-tlds/%s/contact-schemas", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDomainCheckDomainRegistrabilityV2DeprecatedRequest calls the generic DomainCheckDomainRegistrabilityV2Deprecated builder with application/json body
+func NewDomainCheckDomainRegistrabilityV2DeprecatedRequest(server string, body DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainCheckDomainRegistrabilityV2DeprecatedRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDomainCheckDomainRegistrabilityV2DeprecatedRequestWithBody generates requests for DomainCheckDomainRegistrabilityV2Deprecated with any type of body
+func NewDomainCheckDomainRegistrabilityV2DeprecatedRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -18976,8 +20405,8 @@ func NewDomainCheckDomainAvailabilityRequestWithBody(server string, contentType 
 	return req, nil
 }
 
-// NewDomainGetHandleFieldsRequest generates requests for DomainGetHandleFields
-func NewDomainGetHandleFieldsRequest(server string, domainName string) (*http.Request, error) {
+// NewDomainGetHandleFieldsV2DeprecatedRequest generates requests for DomainGetHandleFieldsV2Deprecated
+func NewDomainGetHandleFieldsV2DeprecatedRequest(server string, domainName string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19010,8 +20439,8 @@ func NewDomainGetHandleFieldsRequest(server string, domainName string) (*http.Re
 	return req, nil
 }
 
-// NewDomainGetSupportedTldsRequest generates requests for DomainGetSupportedTlds
-func NewDomainGetSupportedTldsRequest(server string) (*http.Request, error) {
+// NewGetV2DomainsSupportedTldsRequest generates requests for GetV2DomainsSupportedTlds
+func NewGetV2DomainsSupportedTldsRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -19118,19 +20547,113 @@ func NewDomainGetDomainRequest(server string, domainId openapi_types.UUID) (*htt
 	return req, nil
 }
 
-// NewDomainCreateAuthcodeForDomainRequest calls the generic DomainCreateAuthcodeForDomain builder with application/json body
-func NewDomainCreateAuthcodeForDomainRequest(server string, domainId openapi_types.UUID, body DomainCreateAuthcodeForDomainJSONRequestBody) (*http.Request, error) {
+// NewDomainCreateDomainAuthCodeRequest calls the generic DomainCreateDomainAuthCode builder with application/json body
+func NewDomainCreateDomainAuthCodeRequest(server string, domainId openapi_types.UUID, body DomainCreateDomainAuthCodeJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainCreateAuthcodeForDomainRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewDomainCreateDomainAuthCodeRequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainCreateAuthcodeForDomainRequestWithBody generates requests for DomainCreateAuthcodeForDomain with any type of body
-func NewDomainCreateAuthcodeForDomainRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainCreateDomainAuthCodeRequestWithBody generates requests for DomainCreateDomainAuthCode with any type of body
+func NewDomainCreateDomainAuthCodeRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/actions/auth-code", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDomainCreateDomainAuthCode2Request calls the generic DomainCreateDomainAuthCode2 builder with application/json body
+func NewDomainCreateDomainAuthCode2Request(server string, domainId openapi_types.UUID, body DomainCreateDomainAuthCode2JSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainCreateDomainAuthCode2RequestWithBody(server, domainId, "application/json", bodyReader)
+}
+
+// NewDomainCreateDomainAuthCode2RequestWithBody generates requests for DomainCreateDomainAuthCode2 with any type of body
+func NewDomainCreateDomainAuthCode2RequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/actions/auth-code-2", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostV2DomainsDomainIdActionsCreateAuthcodeRequest calls the generic PostV2DomainsDomainIdActionsCreateAuthcode builder with application/json body
+func NewPostV2DomainsDomainIdActionsCreateAuthcodeRequest(server string, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostV2DomainsDomainIdActionsCreateAuthcodeRequestWithBody(server, domainId, "application/json", bodyReader)
+}
+
+// NewPostV2DomainsDomainIdActionsCreateAuthcodeRequestWithBody generates requests for PostV2DomainsDomainIdActionsCreateAuthcode with any type of body
+func NewPostV2DomainsDomainIdActionsCreateAuthcodeRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19165,19 +20688,19 @@ func NewDomainCreateAuthcodeForDomainRequestWithBody(server string, domainId ope
 	return req, nil
 }
 
-// NewDomainCreateAuthcode2ForDomainRequest calls the generic DomainCreateAuthcode2ForDomain builder with application/json body
-func NewDomainCreateAuthcode2ForDomainRequest(server string, domainId openapi_types.UUID, body DomainCreateAuthcode2ForDomainJSONRequestBody) (*http.Request, error) {
+// NewPostV2DomainsDomainIdActionsCreateAuthcode2Request calls the generic PostV2DomainsDomainIdActionsCreateAuthcode2 builder with application/json body
+func NewPostV2DomainsDomainIdActionsCreateAuthcode2Request(server string, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainCreateAuthcode2ForDomainRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewPostV2DomainsDomainIdActionsCreateAuthcode2RequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainCreateAuthcode2ForDomainRequestWithBody generates requests for DomainCreateAuthcode2ForDomain with any type of body
-func NewDomainCreateAuthcode2ForDomainRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostV2DomainsDomainIdActionsCreateAuthcode2RequestWithBody generates requests for PostV2DomainsDomainIdActionsCreateAuthcode2 with any type of body
+func NewPostV2DomainsDomainIdActionsCreateAuthcode2RequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19259,6 +20782,154 @@ func NewDomainResendDomainEmailRequestWithBody(server string, domainId openapi_t
 	return req, nil
 }
 
+// NewDomainUpdateDomainAuthCodeRequest calls the generic DomainUpdateDomainAuthCode builder with application/json body
+func NewDomainUpdateDomainAuthCodeRequest(server string, domainId openapi_types.UUID, body DomainUpdateDomainAuthCodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainUpdateDomainAuthCodeRequestWithBody(server, domainId, "application/json", bodyReader)
+}
+
+// NewDomainUpdateDomainAuthCodeRequestWithBody generates requests for DomainUpdateDomainAuthCode with any type of body
+func NewDomainUpdateDomainAuthCodeRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/auth-code", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPatchV2DomainsDomainIdAuthcodeRequest calls the generic PatchV2DomainsDomainIdAuthcode builder with application/json body
+func NewPatchV2DomainsDomainIdAuthcodeRequest(server string, domainId openapi_types.UUID, body PatchV2DomainsDomainIdAuthcodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchV2DomainsDomainIdAuthcodeRequestWithBody(server, domainId, "application/json", bodyReader)
+}
+
+// NewPatchV2DomainsDomainIdAuthcodeRequestWithBody generates requests for PatchV2DomainsDomainIdAuthcode with any type of body
+func NewPatchV2DomainsDomainIdAuthcodeRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/authcode", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDomainUpdateDomainContactRequest calls the generic DomainUpdateDomainContact builder with application/json body
+func NewDomainUpdateDomainContactRequest(server string, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, body DomainUpdateDomainContactJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainUpdateDomainContactRequestWithBody(server, domainId, contact, "application/json", bodyReader)
+}
+
+// NewDomainUpdateDomainContactRequestWithBody generates requests for DomainUpdateDomainContact with any type of body
+func NewDomainUpdateDomainContactRequestWithBody(server string, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "contact", runtime.ParamLocationPath, contact)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/contacts/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewContractGetDetailOfContractByDomainRequest generates requests for ContractGetDetailOfContractByDomain
 func NewContractGetDetailOfContractByDomainRequest(server string, domainId openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -19327,8 +20998,42 @@ func NewDeprecatedContractGetDetailOfContractByDomainRequest(server string, doma
 	return req, nil
 }
 
-// NewDomainAbortDeclareProcessRequest generates requests for DomainAbortDeclareProcess
-func NewDomainAbortDeclareProcessRequest(server string, domainId openapi_types.UUID) (*http.Request, error) {
+// NewDomainAbortDomainDeclarationRequest generates requests for DomainAbortDomainDeclaration
+func NewDomainAbortDomainDeclarationRequest(server string, domainId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/declaration", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteV2DomainsDomainIdDeclarationsRequest generates requests for DeleteV2DomainsDomainIdDeclarations
+func NewDeleteV2DomainsDomainIdDeclarationsRequest(server string, domainId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19361,19 +21066,19 @@ func NewDomainAbortDeclareProcessRequest(server string, domainId openapi_types.U
 	return req, nil
 }
 
-// NewDomainDeclareProcessChangeAuthcodeRequest calls the generic DomainDeclareProcessChangeAuthcode builder with application/json body
-func NewDomainDeclareProcessChangeAuthcodeRequest(server string, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeJSONRequestBody) (*http.Request, error) {
+// NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequest calls the generic DomainDeclareProcessChangeAuthcodeV2Deprecated builder with application/json body
+func NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequest(server string, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainDeclareProcessChangeAuthcodeRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainDeclareProcessChangeAuthcodeRequestWithBody generates requests for DomainDeclareProcessChangeAuthcode with any type of body
-func NewDomainDeclareProcessChangeAuthcodeRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequestWithBody generates requests for DomainDeclareProcessChangeAuthcodeV2Deprecated with any type of body
+func NewDomainDeclareProcessChangeAuthcodeV2DeprecatedRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19408,19 +21113,19 @@ func NewDomainDeclareProcessChangeAuthcodeRequestWithBody(server string, domainI
 	return req, nil
 }
 
-// NewDomainDeclareProcessChangeHandlesRequest calls the generic DomainDeclareProcessChangeHandles builder with application/json body
-func NewDomainDeclareProcessChangeHandlesRequest(server string, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesJSONRequestBody) (*http.Request, error) {
+// NewDomainDeclareProcessChangeHandlesV2DeprecatedRequest calls the generic DomainDeclareProcessChangeHandlesV2Deprecated builder with application/json body
+func NewDomainDeclareProcessChangeHandlesV2DeprecatedRequest(server string, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainDeclareProcessChangeHandlesRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewDomainDeclareProcessChangeHandlesV2DeprecatedRequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainDeclareProcessChangeHandlesRequestWithBody generates requests for DomainDeclareProcessChangeHandles with any type of body
-func NewDomainDeclareProcessChangeHandlesRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainDeclareProcessChangeHandlesV2DeprecatedRequestWithBody generates requests for DomainDeclareProcessChangeHandlesV2Deprecated with any type of body
+func NewDomainDeclareProcessChangeHandlesV2DeprecatedRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19455,19 +21160,19 @@ func NewDomainDeclareProcessChangeHandlesRequestWithBody(server string, domainId
 	return req, nil
 }
 
-// NewDomainChangeOwnercOfDomainRequest calls the generic DomainChangeOwnercOfDomain builder with application/json body
-func NewDomainChangeOwnercOfDomainRequest(server string, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainJSONRequestBody) (*http.Request, error) {
+// NewDomainChangeOwnercOfDomainV2DeprecatedRequest calls the generic DomainChangeOwnercOfDomainV2Deprecated builder with application/json body
+func NewDomainChangeOwnercOfDomainV2DeprecatedRequest(server string, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainChangeOwnercOfDomainRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewDomainChangeOwnercOfDomainV2DeprecatedRequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainChangeOwnercOfDomainRequestWithBody generates requests for DomainChangeOwnercOfDomain with any type of body
-func NewDomainChangeOwnercOfDomainRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainChangeOwnercOfDomainV2DeprecatedRequestWithBody generates requests for DomainChangeOwnercOfDomainV2Deprecated with any type of body
+func NewDomainChangeOwnercOfDomainV2DeprecatedRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19502,19 +21207,66 @@ func NewDomainChangeOwnercOfDomainRequestWithBody(server string, domainId openap
 	return req, nil
 }
 
-// NewDomainDeclareNameserversRequest calls the generic DomainDeclareNameservers builder with application/json body
-func NewDomainDeclareNameserversRequest(server string, domainId openapi_types.UUID, body DomainDeclareNameserversJSONRequestBody) (*http.Request, error) {
+// NewDomainUpdateDomainNameserversRequest calls the generic DomainUpdateDomainNameservers builder with application/json body
+func NewDomainUpdateDomainNameserversRequest(server string, domainId openapi_types.UUID, body DomainUpdateDomainNameserversJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainDeclareNameserversRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewDomainUpdateDomainNameserversRequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainDeclareNameserversRequestWithBody generates requests for DomainDeclareNameservers with any type of body
-func NewDomainDeclareNameserversRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainUpdateDomainNameserversRequestWithBody generates requests for DomainUpdateDomainNameservers with any type of body
+func NewDomainUpdateDomainNameserversRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/nameservers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDomainDeclareNameserversV2DeprecatedRequest calls the generic DomainDeclareNameserversV2Deprecated builder with application/json body
+func NewDomainDeclareNameserversV2DeprecatedRequest(server string, domainId openapi_types.UUID, body DomainDeclareNameserversV2DeprecatedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainDeclareNameserversV2DeprecatedRequestWithBody(server, domainId, "application/json", bodyReader)
+}
+
+// NewDomainDeclareNameserversV2DeprecatedRequestWithBody generates requests for DomainDeclareNameserversV2Deprecated with any type of body
+func NewDomainDeclareNameserversV2DeprecatedRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -19549,19 +21301,66 @@ func NewDomainDeclareNameserversRequestWithBody(server string, domainId openapi_
 	return req, nil
 }
 
-// NewDomainChangeProjectOfDomainRequest calls the generic DomainChangeProjectOfDomain builder with application/json body
-func NewDomainChangeProjectOfDomainRequest(server string, domainId openapi_types.UUID, body DomainChangeProjectOfDomainJSONRequestBody) (*http.Request, error) {
+// NewDomainUpdateDomainProjectIdRequest calls the generic DomainUpdateDomainProjectId builder with application/json body
+func NewDomainUpdateDomainProjectIdRequest(server string, domainId openapi_types.UUID, body DomainUpdateDomainProjectIdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDomainChangeProjectOfDomainRequestWithBody(server, domainId, "application/json", bodyReader)
+	return NewDomainUpdateDomainProjectIdRequestWithBody(server, domainId, "application/json", bodyReader)
 }
 
-// NewDomainChangeProjectOfDomainRequestWithBody generates requests for DomainChangeProjectOfDomain with any type of body
-func NewDomainChangeProjectOfDomainRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewDomainUpdateDomainProjectIdRequestWithBody generates requests for DomainUpdateDomainProjectId with any type of body
+func NewDomainUpdateDomainProjectIdRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "domainId", runtime.ParamLocationPath, domainId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/domains/%s/project-id", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDomainChangeProjectOfDomainV2DeprecatedRequest calls the generic DomainChangeProjectOfDomainV2Deprecated builder with application/json body
+func NewDomainChangeProjectOfDomainV2DeprecatedRequest(server string, domainId openapi_types.UUID, body DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDomainChangeProjectOfDomainV2DeprecatedRequestWithBody(server, domainId, "application/json", bodyReader)
+}
+
+// NewDomainChangeProjectOfDomainV2DeprecatedRequestWithBody generates requests for DomainChangeProjectOfDomainV2Deprecated with any type of body
+func NewDomainChangeProjectOfDomainV2DeprecatedRequestWithBody(server string, domainId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -20190,13 +21989,13 @@ func NewUserLogoutRequestWithBody(server string, contentType string, body io.Rea
 	return req, nil
 }
 
-// NewMailMailaddressDeleteRequest generates requests for MailMailaddressDelete
-func NewMailMailaddressDeleteRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+// NewMailDeleteMailAddressRequest generates requests for MailDeleteMailAddress
+func NewMailDeleteMailAddressRequest(server string, mailAddressId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20206,7 +22005,7 @@ func NewMailMailaddressDeleteRequest(server string, id openapi_types.UUID) (*htt
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v2/mailaddresses/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -20224,13 +22023,13 @@ func NewMailMailaddressDeleteRequest(server string, id openapi_types.UUID) (*htt
 	return req, nil
 }
 
-// NewMailMailaddressGetSpecificRequest generates requests for MailMailaddressGetSpecific
-func NewMailMailaddressGetSpecificRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+// NewMailGetMailAddressRequest generates requests for MailGetMailAddress
+func NewMailGetMailAddressRequest(server string, mailAddressId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20240,7 +22039,7 @@ func NewMailMailaddressGetSpecificRequest(server string, id openapi_types.UUID) 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v2/mailaddresses/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -20258,19 +22057,348 @@ func NewMailMailaddressGetSpecificRequest(server string, id openapi_types.UUID) 
 	return req, nil
 }
 
-// NewMailMailaddressUpdateAddressRequest calls the generic MailMailaddressUpdateAddress builder with application/json body
-func NewMailMailaddressUpdateAddressRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateAddressJSONRequestBody) (*http.Request, error) {
+// NewMailUpdateMailAddressAddressRequest calls the generic MailUpdateMailAddressAddress builder with application/json body
+func NewMailUpdateMailAddressAddressRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAddressJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdateAddressRequestWithBody(server, id, "application/json", bodyReader)
+	return NewMailUpdateMailAddressAddressRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdateAddressRequestWithBody generates requests for MailMailaddressUpdateAddress with any type of body
-func NewMailMailaddressUpdateAddressRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewMailUpdateMailAddressAddressRequestWithBody generates requests for MailUpdateMailAddressAddress with any type of body
+func NewMailUpdateMailAddressAddressRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/address", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateMailAddressAutoresponderRequest calls the generic MailUpdateMailAddressAutoresponder builder with application/json body
+func NewMailUpdateMailAddressAutoresponderRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAutoresponderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateMailAddressAutoresponderRequestWithBody(server, mailAddressId, "application/json", bodyReader)
+}
+
+// NewMailUpdateMailAddressAutoresponderRequestWithBody generates requests for MailUpdateMailAddressAutoresponder with any type of body
+func NewMailUpdateMailAddressAutoresponderRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/autoresponder", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateMailAddressCatchallRequest calls the generic MailUpdateMailAddressCatchall builder with application/json body
+func NewMailUpdateMailAddressCatchallRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressCatchallJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateMailAddressCatchallRequestWithBody(server, mailAddressId, "application/json", bodyReader)
+}
+
+// NewMailUpdateMailAddressCatchallRequestWithBody generates requests for MailUpdateMailAddressCatchall with any type of body
+func NewMailUpdateMailAddressCatchallRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/catchall", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateMailAddressForwardAddressesRequest calls the generic MailUpdateMailAddressForwardAddresses builder with application/json body
+func NewMailUpdateMailAddressForwardAddressesRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressForwardAddressesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateMailAddressForwardAddressesRequestWithBody(server, mailAddressId, "application/json", bodyReader)
+}
+
+// NewMailUpdateMailAddressForwardAddressesRequestWithBody generates requests for MailUpdateMailAddressForwardAddresses with any type of body
+func NewMailUpdateMailAddressForwardAddressesRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/forward-addresses", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateMailAddressPasswordRequest calls the generic MailUpdateMailAddressPassword builder with application/json body
+func NewMailUpdateMailAddressPasswordRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressPasswordJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateMailAddressPasswordRequestWithBody(server, mailAddressId, "application/json", bodyReader)
+}
+
+// NewMailUpdateMailAddressPasswordRequestWithBody generates requests for MailUpdateMailAddressPassword with any type of body
+func NewMailUpdateMailAddressPasswordRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/password", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateMailAddressQuotaRequest calls the generic MailUpdateMailAddressQuota builder with application/json body
+func NewMailUpdateMailAddressQuotaRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressQuotaJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateMailAddressQuotaRequestWithBody(server, mailAddressId, "application/json", bodyReader)
+}
+
+// NewMailUpdateMailAddressQuotaRequestWithBody generates requests for MailUpdateMailAddressQuota with any type of body
+func NewMailUpdateMailAddressQuotaRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/quota", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailUpdateMailAddressSpamProtectionRequest calls the generic MailUpdateMailAddressSpamProtection builder with application/json body
+func NewMailUpdateMailAddressSpamProtectionRequest(server string, mailAddressId openapi_types.UUID, body MailUpdateMailAddressSpamProtectionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateMailAddressSpamProtectionRequestWithBody(server, mailAddressId, "application/json", bodyReader)
+}
+
+// NewMailUpdateMailAddressSpamProtectionRequestWithBody generates requests for MailUpdateMailAddressSpamProtection with any type of body
+func NewMailUpdateMailAddressSpamProtectionRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mail-addresses/%s/spam-protection", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailMailaddressUpdateAddressDeprecatedRequest calls the generic MailMailaddressUpdateAddressDeprecated builder with application/json body
+func NewMailMailaddressUpdateAddressDeprecatedRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateAddressDeprecatedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailMailaddressUpdateAddressDeprecatedRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewMailMailaddressUpdateAddressDeprecatedRequestWithBody generates requests for MailMailaddressUpdateAddressDeprecated with any type of body
+func NewMailMailaddressUpdateAddressDeprecatedRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -20305,24 +22433,92 @@ func NewMailMailaddressUpdateAddressRequestWithBody(server string, id openapi_ty
 	return req, nil
 }
 
-// NewMailMailaddressUpdateAutoresponderRequest calls the generic MailMailaddressUpdateAutoresponder builder with application/json body
-func NewMailMailaddressUpdateAutoresponderRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateAutoresponderJSONRequestBody) (*http.Request, error) {
+// NewDeleteV2MailaddressesMailAddressIdRequest generates requests for DeleteV2MailaddressesMailAddressId
+func NewDeleteV2MailaddressesMailAddressIdRequest(server string, mailAddressId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mailaddresses/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetV2MailaddressesMailAddressIdRequest generates requests for GetV2MailaddressesMailAddressId
+func NewGetV2MailaddressesMailAddressIdRequest(server string, mailAddressId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mailaddresses/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutV2MailaddressesMailAddressIdAutoResponderRequest calls the generic PutV2MailaddressesMailAddressIdAutoResponder builder with application/json body
+func NewPutV2MailaddressesMailAddressIdAutoResponderRequest(server string, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdateAutoresponderRequestWithBody(server, id, "application/json", bodyReader)
+	return NewPutV2MailaddressesMailAddressIdAutoResponderRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdateAutoresponderRequestWithBody generates requests for MailMailaddressUpdateAutoresponder with any type of body
-func NewMailMailaddressUpdateAutoresponderRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdAutoResponderRequestWithBody generates requests for PutV2MailaddressesMailAddressIdAutoResponder with any type of body
+func NewPutV2MailaddressesMailAddressIdAutoResponderRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20352,24 +22548,24 @@ func NewMailMailaddressUpdateAutoresponderRequestWithBody(server string, id open
 	return req, nil
 }
 
-// NewMailMailaddressUpdateCatchallRequest calls the generic MailMailaddressUpdateCatchall builder with application/json body
-func NewMailMailaddressUpdateCatchallRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateCatchallJSONRequestBody) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdCatchAllRequest calls the generic PutV2MailaddressesMailAddressIdCatchAll builder with application/json body
+func NewPutV2MailaddressesMailAddressIdCatchAllRequest(server string, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdateCatchallRequestWithBody(server, id, "application/json", bodyReader)
+	return NewPutV2MailaddressesMailAddressIdCatchAllRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdateCatchallRequestWithBody generates requests for MailMailaddressUpdateCatchall with any type of body
-func NewMailMailaddressUpdateCatchallRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdCatchAllRequestWithBody generates requests for PutV2MailaddressesMailAddressIdCatchAll with any type of body
+func NewPutV2MailaddressesMailAddressIdCatchAllRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20399,24 +22595,24 @@ func NewMailMailaddressUpdateCatchallRequestWithBody(server string, id openapi_t
 	return req, nil
 }
 
-// NewMailMailaddressUpdateForwardaddressesRequest calls the generic MailMailaddressUpdateForwardaddresses builder with application/json body
-func NewMailMailaddressUpdateForwardaddressesRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateForwardaddressesJSONRequestBody) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdForwardaddressesRequest calls the generic PutV2MailaddressesMailAddressIdForwardaddresses builder with application/json body
+func NewPutV2MailaddressesMailAddressIdForwardaddressesRequest(server string, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdateForwardaddressesRequestWithBody(server, id, "application/json", bodyReader)
+	return NewPutV2MailaddressesMailAddressIdForwardaddressesRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdateForwardaddressesRequestWithBody generates requests for MailMailaddressUpdateForwardaddresses with any type of body
-func NewMailMailaddressUpdateForwardaddressesRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdForwardaddressesRequestWithBody generates requests for PutV2MailaddressesMailAddressIdForwardaddresses with any type of body
+func NewPutV2MailaddressesMailAddressIdForwardaddressesRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20446,24 +22642,24 @@ func NewMailMailaddressUpdateForwardaddressesRequestWithBody(server string, id o
 	return req, nil
 }
 
-// NewMailMailaddressUpdatePasswordRequest calls the generic MailMailaddressUpdatePassword builder with application/json body
-func NewMailMailaddressUpdatePasswordRequest(server string, id openapi_types.UUID, body MailMailaddressUpdatePasswordJSONRequestBody) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdPasswordRequest calls the generic PutV2MailaddressesMailAddressIdPassword builder with application/json body
+func NewPutV2MailaddressesMailAddressIdPasswordRequest(server string, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdPasswordJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdatePasswordRequestWithBody(server, id, "application/json", bodyReader)
+	return NewPutV2MailaddressesMailAddressIdPasswordRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdatePasswordRequestWithBody generates requests for MailMailaddressUpdatePassword with any type of body
-func NewMailMailaddressUpdatePasswordRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdPasswordRequestWithBody generates requests for PutV2MailaddressesMailAddressIdPassword with any type of body
+func NewPutV2MailaddressesMailAddressIdPasswordRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20493,24 +22689,24 @@ func NewMailMailaddressUpdatePasswordRequestWithBody(server string, id openapi_t
 	return req, nil
 }
 
-// NewMailMailaddressUpdateQuotaRequest calls the generic MailMailaddressUpdateQuota builder with application/json body
-func NewMailMailaddressUpdateQuotaRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateQuotaJSONRequestBody) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdQuotaRequest calls the generic PutV2MailaddressesMailAddressIdQuota builder with application/json body
+func NewPutV2MailaddressesMailAddressIdQuotaRequest(server string, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdQuotaJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdateQuotaRequestWithBody(server, id, "application/json", bodyReader)
+	return NewPutV2MailaddressesMailAddressIdQuotaRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdateQuotaRequestWithBody generates requests for MailMailaddressUpdateQuota with any type of body
-func NewMailMailaddressUpdateQuotaRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdQuotaRequestWithBody generates requests for PutV2MailaddressesMailAddressIdQuota with any type of body
+func NewPutV2MailaddressesMailAddressIdQuotaRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20540,24 +22736,24 @@ func NewMailMailaddressUpdateQuotaRequestWithBody(server string, id openapi_type
 	return req, nil
 }
 
-// NewMailMailaddressUpdateSpamprotectionRequest calls the generic MailMailaddressUpdateSpamprotection builder with application/json body
-func NewMailMailaddressUpdateSpamprotectionRequest(server string, id openapi_types.UUID, body MailMailaddressUpdateSpamprotectionJSONRequestBody) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdSpamprotectionRequest calls the generic PutV2MailaddressesMailAddressIdSpamprotection builder with application/json body
+func NewPutV2MailaddressesMailAddressIdSpamprotectionRequest(server string, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressUpdateSpamprotectionRequestWithBody(server, id, "application/json", bodyReader)
+	return NewPutV2MailaddressesMailAddressIdSpamprotectionRequestWithBody(server, mailAddressId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressUpdateSpamprotectionRequestWithBody generates requests for MailMailaddressUpdateSpamprotection with any type of body
-func NewMailMailaddressUpdateSpamprotectionRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPutV2MailaddressesMailAddressIdSpamprotectionRequestWithBody generates requests for PutV2MailaddressesMailAddressIdSpamprotection with any type of body
+func NewPutV2MailaddressesMailAddressIdSpamprotectionRequestWithBody(server string, mailAddressId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, mailAddressId)
 	if err != nil {
 		return nil, err
 	}
@@ -20718,12 +22914,12 @@ func NewDatabaseCreateMysqlUserRequestWithBody(server string, databaseId openapi
 }
 
 // NewDatabaseDeleteMysqlDatabaseRequest generates requests for DatabaseDeleteMysqlDatabase
-func NewDatabaseDeleteMysqlDatabaseRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseDeleteMysqlDatabaseRequest(server string, mysqlDatabaseId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, mysqlDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -20752,12 +22948,12 @@ func NewDatabaseDeleteMysqlDatabaseRequest(server string, id openapi_types.UUID)
 }
 
 // NewDatabaseGetMysqlDatabaseRequest generates requests for DatabaseGetMysqlDatabase
-func NewDatabaseGetMysqlDatabaseRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseGetMysqlDatabaseRequest(server string, mysqlDatabaseId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, mysqlDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -20786,23 +22982,23 @@ func NewDatabaseGetMysqlDatabaseRequest(server string, id openapi_types.UUID) (*
 }
 
 // NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequest calls the generic DatabaseUpdateMysqlDatabaseDefaultCharset builder with application/json body
-func NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequest(server string, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody) (*http.Request, error) {
+func NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequest(server string, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(server, mysqlDatabaseId, "application/json", bodyReader)
 }
 
 // NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody generates requests for DatabaseUpdateMysqlDatabaseDefaultCharset with any type of body
-func NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(server string, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, mysqlDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -20833,23 +23029,23 @@ func NewDatabaseUpdateMysqlDatabaseDefaultCharsetRequestWithBody(server string, 
 }
 
 // NewDatabaseUpdateMysqlDatabaseDescriptionRequest calls the generic DatabaseUpdateMysqlDatabaseDescription builder with application/json body
-func NewDatabaseUpdateMysqlDatabaseDescriptionRequest(server string, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody) (*http.Request, error) {
+func NewDatabaseUpdateMysqlDatabaseDescriptionRequest(server string, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(server, mysqlDatabaseId, "application/json", bodyReader)
 }
 
 // NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody generates requests for DatabaseUpdateMysqlDatabaseDescription with any type of body
-func NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(server string, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, mysqlDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -20880,12 +23076,12 @@ func NewDatabaseUpdateMysqlDatabaseDescriptionRequestWithBody(server string, id 
 }
 
 // NewDatabaseDeleteMysqlUserRequest generates requests for DatabaseDeleteMysqlUser
-func NewDatabaseDeleteMysqlUserRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseDeleteMysqlUserRequest(server string, mysqlUserId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -20914,12 +23110,12 @@ func NewDatabaseDeleteMysqlUserRequest(server string, id openapi_types.UUID) (*h
 }
 
 // NewDatabaseGetMysqlUserRequest generates requests for DatabaseGetMysqlUser
-func NewDatabaseGetMysqlUserRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseGetMysqlUserRequest(server string, mysqlUserId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -20948,23 +23144,23 @@ func NewDatabaseGetMysqlUserRequest(server string, id openapi_types.UUID) (*http
 }
 
 // NewDatabaseUpdateMysqlUserRequest calls the generic DatabaseUpdateMysqlUser builder with application/json body
-func NewDatabaseUpdateMysqlUserRequest(server string, id openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody) (*http.Request, error) {
+func NewDatabaseUpdateMysqlUserRequest(server string, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseUpdateMysqlUserRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseUpdateMysqlUserRequestWithBody(server, mysqlUserId, "application/json", bodyReader)
 }
 
 // NewDatabaseUpdateMysqlUserRequestWithBody generates requests for DatabaseUpdateMysqlUser with any type of body
-func NewDatabaseUpdateMysqlUserRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseUpdateMysqlUserRequestWithBody(server string, mysqlUserId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -20995,23 +23191,23 @@ func NewDatabaseUpdateMysqlUserRequestWithBody(server string, id openapi_types.U
 }
 
 // NewDatabaseDisableMysqlUserRequest calls the generic DatabaseDisableMysqlUser builder with application/json body
-func NewDatabaseDisableMysqlUserRequest(server string, id openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody) (*http.Request, error) {
+func NewDatabaseDisableMysqlUserRequest(server string, mysqlUserId openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseDisableMysqlUserRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseDisableMysqlUserRequestWithBody(server, mysqlUserId, "application/json", bodyReader)
 }
 
 // NewDatabaseDisableMysqlUserRequestWithBody generates requests for DatabaseDisableMysqlUser with any type of body
-func NewDatabaseDisableMysqlUserRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseDisableMysqlUserRequestWithBody(server string, mysqlUserId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -21042,23 +23238,23 @@ func NewDatabaseDisableMysqlUserRequestWithBody(server string, id openapi_types.
 }
 
 // NewDatabaseEnableMysqlUserRequest calls the generic DatabaseEnableMysqlUser builder with application/json body
-func NewDatabaseEnableMysqlUserRequest(server string, id openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody) (*http.Request, error) {
+func NewDatabaseEnableMysqlUserRequest(server string, mysqlUserId openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseEnableMysqlUserRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseEnableMysqlUserRequestWithBody(server, mysqlUserId, "application/json", bodyReader)
 }
 
 // NewDatabaseEnableMysqlUserRequestWithBody generates requests for DatabaseEnableMysqlUser with any type of body
-func NewDatabaseEnableMysqlUserRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseEnableMysqlUserRequestWithBody(server string, mysqlUserId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -21089,23 +23285,23 @@ func NewDatabaseEnableMysqlUserRequestWithBody(server string, id openapi_types.U
 }
 
 // NewDatabaseUpdateMysqlUserPasswordRequest calls the generic DatabaseUpdateMysqlUserPassword builder with application/json body
-func NewDatabaseUpdateMysqlUserPasswordRequest(server string, id openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody) (*http.Request, error) {
+func NewDatabaseUpdateMysqlUserPasswordRequest(server string, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseUpdateMysqlUserPasswordRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseUpdateMysqlUserPasswordRequestWithBody(server, mysqlUserId, "application/json", bodyReader)
 }
 
 // NewDatabaseUpdateMysqlUserPasswordRequestWithBody generates requests for DatabaseUpdateMysqlUserPassword with any type of body
-func NewDatabaseUpdateMysqlUserPasswordRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseUpdateMysqlUserPasswordRequestWithBody(server string, mysqlUserId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -21136,12 +23332,12 @@ func NewDatabaseUpdateMysqlUserPasswordRequestWithBody(server string, id openapi
 }
 
 // NewDatabaseGetMysqlUserPhpMyAdminUrlRequest generates requests for DatabaseGetMysqlUserPhpMyAdminUrl
-func NewDatabaseGetMysqlUserPhpMyAdminUrlRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseGetMysqlUserPhpMyAdminUrlRequest(server string, mysqlUserId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, mysqlUserId)
 	if err != nil {
 		return nil, err
 	}
@@ -23417,8 +25613,89 @@ func NewCronjobCreateCronjobRequestWithBody(server string, projectId openapi_typ
 	return req, nil
 }
 
-// NewMailDeliveryboxListRequest generates requests for MailDeliveryboxList
-func NewMailDeliveryboxListRequest(server string, projectId string) (*http.Request, error) {
+// NewMailListDeliveryBoxesRequest generates requests for MailListDeliveryBoxes
+func NewMailListDeliveryBoxesRequest(server string, projectId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/delivery-boxes", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMailCreateDeliveryboxRequest calls the generic MailCreateDeliverybox builder with application/json body
+func NewMailCreateDeliveryboxRequest(server string, projectId string, body MailCreateDeliveryboxJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailCreateDeliveryboxRequestWithBody(server, projectId, "application/json", bodyReader)
+}
+
+// NewMailCreateDeliveryboxRequestWithBody generates requests for MailCreateDeliverybox with any type of body
+func NewMailCreateDeliveryboxRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/delivery-boxes", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetV2ProjectsProjectIdDeliveryboxesRequest generates requests for GetV2ProjectsProjectIdDeliveryboxes
+func NewGetV2ProjectsProjectIdDeliveryboxesRequest(server string, projectId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -23451,19 +25728,19 @@ func NewMailDeliveryboxListRequest(server string, projectId string) (*http.Reque
 	return req, nil
 }
 
-// NewMailDeliveryboxCreateRequest calls the generic MailDeliveryboxCreate builder with application/json body
-func NewMailDeliveryboxCreateRequest(server string, projectId string, body MailDeliveryboxCreateJSONRequestBody) (*http.Request, error) {
+// NewPostV2ProjectsProjectIdDeliveryboxesRequest calls the generic PostV2ProjectsProjectIdDeliveryboxes builder with application/json body
+func NewPostV2ProjectsProjectIdDeliveryboxesRequest(server string, projectId string, body PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailDeliveryboxCreateRequestWithBody(server, projectId, "application/json", bodyReader)
+	return NewPostV2ProjectsProjectIdDeliveryboxesRequestWithBody(server, projectId, "application/json", bodyReader)
 }
 
-// NewMailDeliveryboxCreateRequestWithBody generates requests for MailDeliveryboxCreate with any type of body
-func NewMailDeliveryboxCreateRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostV2ProjectsProjectIdDeliveryboxesRequestWithBody generates requests for PostV2ProjectsProjectIdDeliveryboxes with any type of body
+func NewPostV2ProjectsProjectIdDeliveryboxesRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -23545,8 +25822,42 @@ func NewProjectUpdateProjectDescriptionRequestWithBody(server string, projectId 
 	return req, nil
 }
 
-// NewDnsZonesForProjectRequest generates requests for DnsZonesForProject
-func NewDnsZonesForProjectRequest(server string, projectId openapi_types.UUID) (*http.Request, error) {
+// NewDnsListDnsZonesRequest generates requests for DnsListDnsZones
+func NewDnsListDnsZonesRequest(server string, projectId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/dns-zones", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetV2ProjectsProjectIdDnsZonesRequest generates requests for GetV2ProjectsProjectIdDnsZones
+func NewGetV2ProjectsProjectIdDnsZonesRequest(server string, projectId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24208,8 +26519,177 @@ func NewProjectLeaveProjectRequestWithBody(server string, projectId openapi_type
 	return req, nil
 }
 
-// NewMailMailaddressListRequest generates requests for MailMailaddressList
-func NewMailMailaddressListRequest(server string, projectId string) (*http.Request, error) {
+// NewMailListMailAddressesRequest generates requests for MailListMailAddresses
+func NewMailListMailAddressesRequest(server string, projectId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/mail-addresses", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMailCreateMailAddressRequest calls the generic MailCreateMailAddress builder with application/json body
+func NewMailCreateMailAddressRequest(server string, projectId string, body MailCreateMailAddressJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailCreateMailAddressRequestWithBody(server, projectId, "application/json", bodyReader)
+}
+
+// NewMailCreateMailAddressRequestWithBody generates requests for MailCreateMailAddress with any type of body
+func NewMailCreateMailAddressRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/mail-addresses", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMailListProjectMailSettingsRequest generates requests for MailListProjectMailSettings
+func NewMailListProjectMailSettingsRequest(server string, projectId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/mail-settings", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMailUpdateProjectMailSettingRequest calls the generic MailUpdateProjectMailSetting builder with application/json body
+func NewMailUpdateProjectMailSettingRequest(server string, projectId string, setting MailUpdateProjectMailSettingParamsSetting, body MailUpdateProjectMailSettingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMailUpdateProjectMailSettingRequestWithBody(server, projectId, setting, "application/json", bodyReader)
+}
+
+// NewMailUpdateProjectMailSettingRequestWithBody generates requests for MailUpdateProjectMailSetting with any type of body
+func NewMailUpdateProjectMailSettingRequestWithBody(server string, projectId string, setting MailUpdateProjectMailSettingParamsSetting, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "setting", runtime.ParamLocationPath, setting)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/projects/%s/mail-settings/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetV2ProjectsProjectIdMailaddressesRequest generates requests for GetV2ProjectsProjectIdMailaddresses
+func NewGetV2ProjectsProjectIdMailaddressesRequest(server string, projectId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24242,19 +26722,19 @@ func NewMailMailaddressListRequest(server string, projectId string) (*http.Reque
 	return req, nil
 }
 
-// NewMailMailaddressCreateRequest calls the generic MailMailaddressCreate builder with application/json body
-func NewMailMailaddressCreateRequest(server string, projectId string, body MailMailaddressCreateJSONRequestBody) (*http.Request, error) {
+// NewPostV2ProjectsProjectIdMailaddressesRequest calls the generic PostV2ProjectsProjectIdMailaddresses builder with application/json body
+func NewPostV2ProjectsProjectIdMailaddressesRequest(server string, projectId string, body PostV2ProjectsProjectIdMailaddressesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailMailaddressCreateRequestWithBody(server, projectId, "application/json", bodyReader)
+	return NewPostV2ProjectsProjectIdMailaddressesRequestWithBody(server, projectId, "application/json", bodyReader)
 }
 
-// NewMailMailaddressCreateRequestWithBody generates requests for MailMailaddressCreate with any type of body
-func NewMailMailaddressCreateRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostV2ProjectsProjectIdMailaddressesRequestWithBody generates requests for PostV2ProjectsProjectIdMailaddresses with any type of body
+func NewPostV2ProjectsProjectIdMailaddressesRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24289,8 +26769,8 @@ func NewMailMailaddressCreateRequestWithBody(server string, projectId string, co
 	return req, nil
 }
 
-// NewMailProjectsettingGetSpecificRequest generates requests for MailProjectsettingGetSpecific
-func NewMailProjectsettingGetSpecificRequest(server string, projectId string) (*http.Request, error) {
+// NewGetV2ProjectsProjectIdMailsettingsRequest generates requests for GetV2ProjectsProjectIdMailsettings
+func NewGetV2ProjectsProjectIdMailsettingsRequest(server string, projectId string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24323,19 +26803,19 @@ func NewMailProjectsettingGetSpecificRequest(server string, projectId string) (*
 	return req, nil
 }
 
-// NewMailProjectsettingUpdateBlacklistRequest calls the generic MailProjectsettingUpdateBlacklist builder with application/json body
-func NewMailProjectsettingUpdateBlacklistRequest(server string, projectId string, body MailProjectsettingUpdateBlacklistJSONRequestBody) (*http.Request, error) {
+// NewMailProjectsettingUpdateBlacklistDeprecatedRequest calls the generic MailProjectsettingUpdateBlacklistDeprecated builder with application/json body
+func NewMailProjectsettingUpdateBlacklistDeprecatedRequest(server string, projectId string, body MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailProjectsettingUpdateBlacklistRequestWithBody(server, projectId, "application/json", bodyReader)
+	return NewMailProjectsettingUpdateBlacklistDeprecatedRequestWithBody(server, projectId, "application/json", bodyReader)
 }
 
-// NewMailProjectsettingUpdateBlacklistRequestWithBody generates requests for MailProjectsettingUpdateBlacklist with any type of body
-func NewMailProjectsettingUpdateBlacklistRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
+// NewMailProjectsettingUpdateBlacklistDeprecatedRequestWithBody generates requests for MailProjectsettingUpdateBlacklistDeprecated with any type of body
+func NewMailProjectsettingUpdateBlacklistDeprecatedRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -24370,19 +26850,19 @@ func NewMailProjectsettingUpdateBlacklistRequestWithBody(server string, projectI
 	return req, nil
 }
 
-// NewMailProjectsettingUpdateWhitelistRequest calls the generic MailProjectsettingUpdateWhitelist builder with application/json body
-func NewMailProjectsettingUpdateWhitelistRequest(server string, projectId string, body MailProjectsettingUpdateWhitelistJSONRequestBody) (*http.Request, error) {
+// NewMailProjectsettingUpdateWhitelistDeprecatedRequest calls the generic MailProjectsettingUpdateWhitelistDeprecated builder with application/json body
+func NewMailProjectsettingUpdateWhitelistDeprecatedRequest(server string, projectId string, body MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewMailProjectsettingUpdateWhitelistRequestWithBody(server, projectId, "application/json", bodyReader)
+	return NewMailProjectsettingUpdateWhitelistDeprecatedRequestWithBody(server, projectId, "application/json", bodyReader)
 }
 
-// NewMailProjectsettingUpdateWhitelistRequestWithBody generates requests for MailProjectsettingUpdateWhitelist with any type of body
-func NewMailProjectsettingUpdateWhitelistRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
+// NewMailProjectsettingUpdateWhitelistDeprecatedRequestWithBody generates requests for MailProjectsettingUpdateWhitelistDeprecated with any type of body
+func NewMailProjectsettingUpdateWhitelistDeprecatedRequestWithBody(server string, projectId string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -25060,12 +27540,12 @@ func NewSshUserCreateSshUserRequestWithBody(server string, projectId string, con
 }
 
 // NewDatabaseDeleteRedisDatabaseRequest generates requests for DatabaseDeleteRedisDatabase
-func NewDatabaseDeleteRedisDatabaseRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseDeleteRedisDatabaseRequest(server string, redisDatabaseId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, redisDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -25094,12 +27574,12 @@ func NewDatabaseDeleteRedisDatabaseRequest(server string, id openapi_types.UUID)
 }
 
 // NewDatabaseGetRedisDatabaseRequest generates requests for DatabaseGetRedisDatabase
-func NewDatabaseGetRedisDatabaseRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+func NewDatabaseGetRedisDatabaseRequest(server string, redisDatabaseId openapi_types.UUID) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, redisDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -25128,23 +27608,23 @@ func NewDatabaseGetRedisDatabaseRequest(server string, id openapi_types.UUID) (*
 }
 
 // NewDatabaseUpdateRedisDatabaseConfigurationRequest calls the generic DatabaseUpdateRedisDatabaseConfiguration builder with application/json body
-func NewDatabaseUpdateRedisDatabaseConfigurationRequest(server string, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody) (*http.Request, error) {
+func NewDatabaseUpdateRedisDatabaseConfigurationRequest(server string, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(server, redisDatabaseId, "application/json", bodyReader)
 }
 
 // NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody generates requests for DatabaseUpdateRedisDatabaseConfiguration with any type of body
-func NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(server string, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, redisDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -25175,23 +27655,23 @@ func NewDatabaseUpdateRedisDatabaseConfigurationRequestWithBody(server string, i
 }
 
 // NewDatabaseUpdateRedisDatabaseDescriptionRequest calls the generic DatabaseUpdateRedisDatabaseDescription builder with application/json body
-func NewDatabaseUpdateRedisDatabaseDescriptionRequest(server string, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody) (*http.Request, error) {
+func NewDatabaseUpdateRedisDatabaseDescriptionRequest(server string, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody(server, id, "application/json", bodyReader)
+	return NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody(server, redisDatabaseId, "application/json", bodyReader)
 }
 
 // NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody generates requests for DatabaseUpdateRedisDatabaseDescription with any type of body
-func NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+func NewDatabaseUpdateRedisDatabaseDescriptionRequestWithBody(server string, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, redisDatabaseId)
 	if err != nil {
 		return nil, err
 	}
@@ -30347,25 +32827,6 @@ type ClientWithResponsesInterface interface {
 
 	CustomerCreateCustomerInviteWithResponse(ctx context.Context, customerId openapi_types.UUID, body CustomerCreateCustomerInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*CustomerCreateCustomerInviteResponse, error)
 
-	// CustomerListOfCustomerCategoriesDeprecatedWithResponse request
-	CustomerListOfCustomerCategoriesDeprecatedWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CustomerListOfCustomerCategoriesDeprecatedResponse, error)
-
-	// CustomerCreateCategoryDeprecatedWithBodyWithResponse request with any body
-	CustomerCreateCategoryDeprecatedWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CustomerCreateCategoryDeprecatedResponse, error)
-
-	CustomerCreateCategoryDeprecatedWithResponse(ctx context.Context, body CustomerCreateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*CustomerCreateCategoryDeprecatedResponse, error)
-
-	// CustomerDeleteCategoryDeprecatedWithResponse request
-	CustomerDeleteCategoryDeprecatedWithResponse(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*CustomerDeleteCategoryDeprecatedResponse, error)
-
-	// CustomerDetailOfCustomerCategoryDeprecatedWithResponse request
-	CustomerDetailOfCustomerCategoryDeprecatedWithResponse(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*CustomerDetailOfCustomerCategoryDeprecatedResponse, error)
-
-	// CustomerUpdateCategoryDeprecatedWithBodyWithResponse request with any body
-	CustomerUpdateCategoryDeprecatedWithBodyWithResponse(ctx context.Context, categoryId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CustomerUpdateCategoryDeprecatedResponse, error)
-
-	CustomerUpdateCategoryDeprecatedWithResponse(ctx context.Context, categoryId string, body CustomerUpdateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*CustomerUpdateCategoryDeprecatedResponse, error)
-
 	// CustomerListCustomersWithResponse request
 	CustomerListCustomersWithResponse(ctx context.Context, params *CustomerListCustomersParams, reqEditors ...RequestEditorFn) (*CustomerListCustomersResponse, error)
 
@@ -30422,83 +32883,139 @@ type ClientWithResponsesInterface interface {
 	// OrderListCustomerOrdersWithResponse request
 	OrderListCustomerOrdersWithResponse(ctx context.Context, customerId string, params *OrderListCustomerOrdersParams, reqEditors ...RequestEditorFn) (*OrderListCustomerOrdersResponse, error)
 
-	// MailDeliveryboxDeleteWithResponse request
-	MailDeliveryboxDeleteWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeliveryboxDeleteResponse, error)
+	// MailDeleteDeliveryBoxWithResponse request
+	MailDeleteDeliveryBoxWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeleteDeliveryBoxResponse, error)
 
-	// MailDeliveryboxGetSpecificWithResponse request
-	MailDeliveryboxGetSpecificWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeliveryboxGetSpecificResponse, error)
+	// MailGetDeliveryBoxWithResponse request
+	MailGetDeliveryBoxWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailGetDeliveryBoxResponse, error)
 
-	// MailDeliveryboxUpdateDescriptionWithBodyWithResponse request with any body
-	MailDeliveryboxUpdateDescriptionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionResponse, error)
+	// MailUpdateDeliveryBoxDescriptionWithBodyWithResponse request with any body
+	MailUpdateDeliveryBoxDescriptionWithBodyWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxDescriptionResponse, error)
 
-	MailDeliveryboxUpdateDescriptionWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionResponse, error)
+	MailUpdateDeliveryBoxDescriptionWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxDescriptionResponse, error)
 
-	// MailDeliveryboxUpdatePasswordWithBodyWithResponse request with any body
-	MailDeliveryboxUpdatePasswordWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordResponse, error)
+	// MailUpdateDeliveryBoxPasswordWithBodyWithResponse request with any body
+	MailUpdateDeliveryBoxPasswordWithBodyWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxPasswordResponse, error)
 
-	MailDeliveryboxUpdatePasswordWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordResponse, error)
+	MailUpdateDeliveryBoxPasswordWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxPasswordResponse, error)
 
-	// DnsSubZoneCreateWithBodyWithResponse request with any body
-	DnsSubZoneCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsSubZoneCreateResponse, error)
+	// DeleteV2DeliveryboxesDeliveryBoxIdWithResponse request
+	DeleteV2DeliveryboxesDeliveryBoxIdWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2DeliveryboxesDeliveryBoxIdResponse, error)
 
-	DnsSubZoneCreateWithResponse(ctx context.Context, body DnsSubZoneCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsSubZoneCreateResponse, error)
+	// GetV2DeliveryboxesDeliveryBoxIdWithResponse request
+	GetV2DeliveryboxesDeliveryBoxIdWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2DeliveryboxesDeliveryBoxIdResponse, error)
 
-	// DnsZoneGetSpecificWithResponse request
-	DnsZoneGetSpecificWithResponse(ctx context.Context, zoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsZoneGetSpecificResponse, error)
+	// MailDeliveryboxUpdateDescriptionDeprecatedWithBodyWithResponse request with any body
+	MailDeliveryboxUpdateDescriptionDeprecatedWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionDeprecatedResponse, error)
 
-	// DnsRecordASetCustomWithBodyWithResponse request with any body
-	DnsRecordASetCustomWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomResponse, error)
+	MailDeliveryboxUpdateDescriptionDeprecatedWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionDeprecatedResponse, error)
 
-	DnsRecordASetCustomWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomResponse, error)
+	// MailDeliveryboxUpdatePasswordDeprecatedWithBodyWithResponse request with any body
+	MailDeliveryboxUpdatePasswordDeprecatedWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordDeprecatedResponse, error)
 
-	// DnsRecordASetManagedByIngressWithBodyWithResponse request with any body
-	DnsRecordASetManagedByIngressWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressResponse, error)
+	MailDeliveryboxUpdatePasswordDeprecatedWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordDeprecatedResponse, error)
 
-	DnsRecordASetManagedByIngressWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressResponse, error)
+	// DnsCreateDnsZoneWithBodyWithResponse request with any body
+	DnsCreateDnsZoneWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsCreateDnsZoneResponse, error)
 
-	// DnsRecordCnameSetWithBodyWithResponse request with any body
-	DnsRecordCnameSetWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetResponse, error)
+	DnsCreateDnsZoneWithResponse(ctx context.Context, body DnsCreateDnsZoneJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsCreateDnsZoneResponse, error)
 
-	DnsRecordCnameSetWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetResponse, error)
+	// DnsDeleteDnsZoneWithResponse request
+	DnsDeleteDnsZoneWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsDeleteDnsZoneResponse, error)
 
-	// DnsRecordMxSetCustomWithBodyWithResponse request with any body
-	DnsRecordMxSetCustomWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomResponse, error)
+	// DnsGetDnsZoneWithResponse request
+	DnsGetDnsZoneWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsGetDnsZoneResponse, error)
 
-	DnsRecordMxSetCustomWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomResponse, error)
+	// DnsUpdateRecordSetWithBodyWithResponse request with any body
+	DnsUpdateRecordSetWithBodyWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsUpdateRecordSetResponse, error)
 
-	// DnsRecordMxSetManagedWithBodyWithResponse request with any body
-	DnsRecordMxSetManagedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedResponse, error)
+	DnsUpdateRecordSetWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, body DnsUpdateRecordSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsUpdateRecordSetResponse, error)
 
-	DnsRecordMxSetManagedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedResponse, error)
+	// DnsSetRecordSetManagedWithBodyWithResponse request with any body
+	DnsSetRecordSetManagedWithBodyWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsSetRecordSetManagedResponse, error)
 
-	// DnsRecordSrvSetWithBodyWithResponse request with any body
-	DnsRecordSrvSetWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetResponse, error)
+	DnsSetRecordSetManagedWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, body DnsSetRecordSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsSetRecordSetManagedResponse, error)
 
-	DnsRecordSrvSetWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetResponse, error)
+	// PostV2DnsZonesWithBodyWithResponse request with any body
+	PostV2DnsZonesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DnsZonesResponse, error)
 
-	// DnsRecordTxtSetWithBodyWithResponse request with any body
-	DnsRecordTxtSetWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetResponse, error)
+	PostV2DnsZonesWithResponse(ctx context.Context, body PostV2DnsZonesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DnsZonesResponse, error)
 
-	DnsRecordTxtSetWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetResponse, error)
+	// DeleteV2DnsZonesDnsZoneIdWithResponse request
+	DeleteV2DnsZonesDnsZoneIdWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2DnsZonesDnsZoneIdResponse, error)
 
-	// DomainGetSpecificDomainOwnershipWithResponse request
-	DomainGetSpecificDomainOwnershipWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainGetSpecificDomainOwnershipResponse, error)
+	// GetV2DnsZonesDnsZoneIdWithResponse request
+	GetV2DnsZonesDnsZoneIdWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2DnsZonesDnsZoneIdResponse, error)
+
+	// DnsRecordASetCustomDeprecatedWithBodyWithResponse request with any body
+	DnsRecordASetCustomDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomDeprecatedResponse, error)
+
+	DnsRecordASetCustomDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomDeprecatedResponse, error)
+
+	// DnsRecordASetManagedByIngressDeprecatedWithBodyWithResponse request with any body
+	DnsRecordASetManagedByIngressDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressDeprecatedResponse, error)
+
+	DnsRecordASetManagedByIngressDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressDeprecatedResponse, error)
+
+	// DnsRecordCnameSetDeprecatedWithBodyWithResponse request with any body
+	DnsRecordCnameSetDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetDeprecatedResponse, error)
+
+	DnsRecordCnameSetDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetDeprecatedResponse, error)
+
+	// DnsRecordMxSetCustomDeprecatedWithBodyWithResponse request with any body
+	DnsRecordMxSetCustomDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomDeprecatedResponse, error)
+
+	DnsRecordMxSetCustomDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomDeprecatedResponse, error)
+
+	// DnsRecordMxSetManagedDeprecatedWithBodyWithResponse request with any body
+	DnsRecordMxSetManagedDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedDeprecatedResponse, error)
+
+	DnsRecordMxSetManagedDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedDeprecatedResponse, error)
+
+	// DnsRecordSrvSetDeprecatedWithBodyWithResponse request with any body
+	DnsRecordSrvSetDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetDeprecatedResponse, error)
+
+	DnsRecordSrvSetDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetDeprecatedResponse, error)
+
+	// DnsRecordTxtSetDeprecatedWithBodyWithResponse request with any body
+	DnsRecordTxtSetDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetDeprecatedResponse, error)
+
+	DnsRecordTxtSetDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetDeprecatedResponse, error)
+
+	// DomainGetDomainOwnershipWithResponse request
+	DomainGetDomainOwnershipWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainGetDomainOwnershipResponse, error)
+
+	// PostV2DomainOwnershipsDomainOwnershipIdWithBodyWithResponse request with any body
+	PostV2DomainOwnershipsDomainOwnershipIdWithBodyWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DomainOwnershipsDomainOwnershipIdResponse, error)
+
+	PostV2DomainOwnershipsDomainOwnershipIdWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, body PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DomainOwnershipsDomainOwnershipIdResponse, error)
 
 	// DomainVerifyDomainOwnershipWithBodyWithResponse request with any body
 	DomainVerifyDomainOwnershipWithBodyWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainVerifyDomainOwnershipResponse, error)
 
 	DomainVerifyDomainOwnershipWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, body DomainVerifyDomainOwnershipJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainVerifyDomainOwnershipResponse, error)
 
-	// DomainCheckDomainAvailabilityWithBodyWithResponse request with any body
-	DomainCheckDomainAvailabilityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCheckDomainAvailabilityResponse, error)
+	// DomainCheckDomainRegistrabilityWithBodyWithResponse request with any body
+	DomainCheckDomainRegistrabilityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityResponse, error)
 
-	DomainCheckDomainAvailabilityWithResponse(ctx context.Context, body DomainCheckDomainAvailabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCheckDomainAvailabilityResponse, error)
+	DomainCheckDomainRegistrabilityWithResponse(ctx context.Context, body DomainCheckDomainRegistrabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityResponse, error)
 
-	// DomainGetHandleFieldsWithResponse request
-	DomainGetHandleFieldsWithResponse(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*DomainGetHandleFieldsResponse, error)
+	// DomainListTldsWithResponse request
+	DomainListTldsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DomainListTldsResponse, error)
 
-	// DomainGetSupportedTldsWithResponse request
-	DomainGetSupportedTldsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DomainGetSupportedTldsResponse, error)
+	// DomainListTldContactSchemasWithResponse request
+	DomainListTldContactSchemasWithResponse(ctx context.Context, tld string, reqEditors ...RequestEditorFn) (*DomainListTldContactSchemasResponse, error)
+
+	// DomainCheckDomainRegistrabilityV2DeprecatedWithBodyWithResponse request with any body
+	DomainCheckDomainRegistrabilityV2DeprecatedWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityV2DeprecatedResponse, error)
+
+	DomainCheckDomainRegistrabilityV2DeprecatedWithResponse(ctx context.Context, body DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityV2DeprecatedResponse, error)
+
+	// DomainGetHandleFieldsV2DeprecatedWithResponse request
+	DomainGetHandleFieldsV2DeprecatedWithResponse(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*DomainGetHandleFieldsV2DeprecatedResponse, error)
+
+	// GetV2DomainsSupportedTldsWithResponse request
+	GetV2DomainsSupportedTldsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetV2DomainsSupportedTldsResponse, error)
 
 	// DomainDeleteDomainWithBodyWithResponse request with any body
 	DomainDeleteDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeleteDomainResponse, error)
@@ -30508,20 +33025,45 @@ type ClientWithResponsesInterface interface {
 	// DomainGetDomainWithResponse request
 	DomainGetDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainGetDomainResponse, error)
 
-	// DomainCreateAuthcodeForDomainWithBodyWithResponse request with any body
-	DomainCreateAuthcodeForDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateAuthcodeForDomainResponse, error)
+	// DomainCreateDomainAuthCodeWithBodyWithResponse request with any body
+	DomainCreateDomainAuthCodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCodeResponse, error)
 
-	DomainCreateAuthcodeForDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcodeForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateAuthcodeForDomainResponse, error)
+	DomainCreateDomainAuthCodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCodeResponse, error)
 
-	// DomainCreateAuthcode2ForDomainWithBodyWithResponse request with any body
-	DomainCreateAuthcode2ForDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateAuthcode2ForDomainResponse, error)
+	// DomainCreateDomainAuthCode2WithBodyWithResponse request with any body
+	DomainCreateDomainAuthCode2WithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCode2Response, error)
 
-	DomainCreateAuthcode2ForDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcode2ForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateAuthcode2ForDomainResponse, error)
+	DomainCreateDomainAuthCode2WithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCode2JSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCode2Response, error)
+
+	// PostV2DomainsDomainIdActionsCreateAuthcodeWithBodyWithResponse request with any body
+	PostV2DomainsDomainIdActionsCreateAuthcodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcodeResponse, error)
+
+	PostV2DomainsDomainIdActionsCreateAuthcodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcodeResponse, error)
+
+	// PostV2DomainsDomainIdActionsCreateAuthcode2WithBodyWithResponse request with any body
+	PostV2DomainsDomainIdActionsCreateAuthcode2WithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcode2Response, error)
+
+	PostV2DomainsDomainIdActionsCreateAuthcode2WithResponse(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcode2Response, error)
 
 	// DomainResendDomainEmailWithBodyWithResponse request with any body
 	DomainResendDomainEmailWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainResendDomainEmailResponse, error)
 
 	DomainResendDomainEmailWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainResendDomainEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainResendDomainEmailResponse, error)
+
+	// DomainUpdateDomainAuthCodeWithBodyWithResponse request with any body
+	DomainUpdateDomainAuthCodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainAuthCodeResponse, error)
+
+	DomainUpdateDomainAuthCodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainAuthCodeResponse, error)
+
+	// PatchV2DomainsDomainIdAuthcodeWithBodyWithResponse request with any body
+	PatchV2DomainsDomainIdAuthcodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchV2DomainsDomainIdAuthcodeResponse, error)
+
+	PatchV2DomainsDomainIdAuthcodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body PatchV2DomainsDomainIdAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchV2DomainsDomainIdAuthcodeResponse, error)
+
+	// DomainUpdateDomainContactWithBodyWithResponse request with any body
+	DomainUpdateDomainContactWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainContactResponse, error)
+
+	DomainUpdateDomainContactWithResponse(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, body DomainUpdateDomainContactJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainContactResponse, error)
 
 	// ContractGetDetailOfContractByDomainWithResponse request
 	ContractGetDetailOfContractByDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*ContractGetDetailOfContractByDomainResponse, error)
@@ -30529,33 +33071,46 @@ type ClientWithResponsesInterface interface {
 	// DeprecatedContractGetDetailOfContractByDomainWithResponse request
 	DeprecatedContractGetDetailOfContractByDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeprecatedContractGetDetailOfContractByDomainResponse, error)
 
-	// DomainAbortDeclareProcessWithResponse request
-	DomainAbortDeclareProcessWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainAbortDeclareProcessResponse, error)
+	// DomainAbortDomainDeclarationWithResponse request
+	DomainAbortDomainDeclarationWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainAbortDomainDeclarationResponse, error)
 
-	// DomainDeclareProcessChangeAuthcodeWithBodyWithResponse request with any body
-	DomainDeclareProcessChangeAuthcodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeResponse, error)
+	// DeleteV2DomainsDomainIdDeclarationsWithResponse request
+	DeleteV2DomainsDomainIdDeclarationsWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2DomainsDomainIdDeclarationsResponse, error)
 
-	DomainDeclareProcessChangeAuthcodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeResponse, error)
+	// DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBodyWithResponse request with any body
+	DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse, error)
 
-	// DomainDeclareProcessChangeHandlesWithBodyWithResponse request with any body
-	DomainDeclareProcessChangeHandlesWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesResponse, error)
+	DomainDeclareProcessChangeAuthcodeV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse, error)
 
-	DomainDeclareProcessChangeHandlesWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesResponse, error)
+	// DomainDeclareProcessChangeHandlesV2DeprecatedWithBodyWithResponse request with any body
+	DomainDeclareProcessChangeHandlesV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesV2DeprecatedResponse, error)
 
-	// DomainChangeOwnercOfDomainWithBodyWithResponse request with any body
-	DomainChangeOwnercOfDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainResponse, error)
+	DomainDeclareProcessChangeHandlesV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesV2DeprecatedResponse, error)
 
-	DomainChangeOwnercOfDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainResponse, error)
+	// DomainChangeOwnercOfDomainV2DeprecatedWithBodyWithResponse request with any body
+	DomainChangeOwnercOfDomainV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainV2DeprecatedResponse, error)
 
-	// DomainDeclareNameserversWithBodyWithResponse request with any body
-	DomainDeclareNameserversWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversResponse, error)
+	DomainChangeOwnercOfDomainV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainV2DeprecatedResponse, error)
 
-	DomainDeclareNameserversWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversResponse, error)
+	// DomainUpdateDomainNameserversWithBodyWithResponse request with any body
+	DomainUpdateDomainNameserversWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainNameserversResponse, error)
 
-	// DomainChangeProjectOfDomainWithBodyWithResponse request with any body
-	DomainChangeProjectOfDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainResponse, error)
+	DomainUpdateDomainNameserversWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainNameserversResponse, error)
 
-	DomainChangeProjectOfDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainResponse, error)
+	// DomainDeclareNameserversV2DeprecatedWithBodyWithResponse request with any body
+	DomainDeclareNameserversV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversV2DeprecatedResponse, error)
+
+	DomainDeclareNameserversV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversV2DeprecatedResponse, error)
+
+	// DomainUpdateDomainProjectIdWithBodyWithResponse request with any body
+	DomainUpdateDomainProjectIdWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainProjectIdResponse, error)
+
+	DomainUpdateDomainProjectIdWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainProjectIdJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainProjectIdResponse, error)
+
+	// DomainChangeProjectOfDomainV2DeprecatedWithBodyWithResponse request with any body
+	DomainChangeProjectOfDomainV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainV2DeprecatedResponse, error)
+
+	DomainChangeProjectOfDomainV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainV2DeprecatedResponse, error)
 
 	// DomainGetScreenshotForDomainWithBodyWithResponse request with any body
 	DomainGetScreenshotForDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainGetScreenshotForDomainResponse, error)
@@ -30614,46 +33169,87 @@ type ClientWithResponsesInterface interface {
 
 	UserLogoutWithResponse(ctx context.Context, body UserLogoutJSONRequestBody, reqEditors ...RequestEditorFn) (*UserLogoutResponse, error)
 
-	// MailMailaddressDeleteWithResponse request
-	MailMailaddressDeleteWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailMailaddressDeleteResponse, error)
+	// MailDeleteMailAddressWithResponse request
+	MailDeleteMailAddressWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeleteMailAddressResponse, error)
 
-	// MailMailaddressGetSpecificWithResponse request
-	MailMailaddressGetSpecificWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailMailaddressGetSpecificResponse, error)
+	// MailGetMailAddressWithResponse request
+	MailGetMailAddressWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailGetMailAddressResponse, error)
 
-	// MailMailaddressUpdateAddressWithBodyWithResponse request with any body
-	MailMailaddressUpdateAddressWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressResponse, error)
+	// MailUpdateMailAddressAddressWithBodyWithResponse request with any body
+	MailUpdateMailAddressAddressWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAddressResponse, error)
 
-	MailMailaddressUpdateAddressWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressResponse, error)
+	MailUpdateMailAddressAddressWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAddressResponse, error)
 
-	// MailMailaddressUpdateAutoresponderWithBodyWithResponse request with any body
-	MailMailaddressUpdateAutoresponderWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAutoresponderResponse, error)
+	// MailUpdateMailAddressAutoresponderWithBodyWithResponse request with any body
+	MailUpdateMailAddressAutoresponderWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAutoresponderResponse, error)
 
-	MailMailaddressUpdateAutoresponderWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAutoresponderResponse, error)
+	MailUpdateMailAddressAutoresponderWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAutoresponderResponse, error)
 
-	// MailMailaddressUpdateCatchallWithBodyWithResponse request with any body
-	MailMailaddressUpdateCatchallWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateCatchallResponse, error)
+	// MailUpdateMailAddressCatchallWithBodyWithResponse request with any body
+	MailUpdateMailAddressCatchallWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressCatchallResponse, error)
 
-	MailMailaddressUpdateCatchallWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateCatchallResponse, error)
+	MailUpdateMailAddressCatchallWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressCatchallResponse, error)
 
-	// MailMailaddressUpdateForwardaddressesWithBodyWithResponse request with any body
-	MailMailaddressUpdateForwardaddressesWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateForwardaddressesResponse, error)
+	// MailUpdateMailAddressForwardAddressesWithBodyWithResponse request with any body
+	MailUpdateMailAddressForwardAddressesWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressForwardAddressesResponse, error)
 
-	MailMailaddressUpdateForwardaddressesWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateForwardaddressesResponse, error)
+	MailUpdateMailAddressForwardAddressesWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressForwardAddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressForwardAddressesResponse, error)
 
-	// MailMailaddressUpdatePasswordWithBodyWithResponse request with any body
-	MailMailaddressUpdatePasswordWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdatePasswordResponse, error)
+	// MailUpdateMailAddressPasswordWithBodyWithResponse request with any body
+	MailUpdateMailAddressPasswordWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressPasswordResponse, error)
 
-	MailMailaddressUpdatePasswordWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdatePasswordResponse, error)
+	MailUpdateMailAddressPasswordWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressPasswordResponse, error)
 
-	// MailMailaddressUpdateQuotaWithBodyWithResponse request with any body
-	MailMailaddressUpdateQuotaWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateQuotaResponse, error)
+	// MailUpdateMailAddressQuotaWithBodyWithResponse request with any body
+	MailUpdateMailAddressQuotaWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressQuotaResponse, error)
 
-	MailMailaddressUpdateQuotaWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateQuotaResponse, error)
+	MailUpdateMailAddressQuotaWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressQuotaResponse, error)
 
-	// MailMailaddressUpdateSpamprotectionWithBodyWithResponse request with any body
-	MailMailaddressUpdateSpamprotectionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateSpamprotectionResponse, error)
+	// MailUpdateMailAddressSpamProtectionWithBodyWithResponse request with any body
+	MailUpdateMailAddressSpamProtectionWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressSpamProtectionResponse, error)
 
-	MailMailaddressUpdateSpamprotectionWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateSpamprotectionResponse, error)
+	MailUpdateMailAddressSpamProtectionWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressSpamProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressSpamProtectionResponse, error)
+
+	// MailMailaddressUpdateAddressDeprecatedWithBodyWithResponse request with any body
+	MailMailaddressUpdateAddressDeprecatedWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressDeprecatedResponse, error)
+
+	MailMailaddressUpdateAddressDeprecatedWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressDeprecatedResponse, error)
+
+	// DeleteV2MailaddressesMailAddressIdWithResponse request
+	DeleteV2MailaddressesMailAddressIdWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2MailaddressesMailAddressIdResponse, error)
+
+	// GetV2MailaddressesMailAddressIdWithResponse request
+	GetV2MailaddressesMailAddressIdWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2MailaddressesMailAddressIdResponse, error)
+
+	// PutV2MailaddressesMailAddressIdAutoResponderWithBodyWithResponse request with any body
+	PutV2MailaddressesMailAddressIdAutoResponderWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdAutoResponderResponse, error)
+
+	PutV2MailaddressesMailAddressIdAutoResponderWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdAutoResponderResponse, error)
+
+	// PutV2MailaddressesMailAddressIdCatchAllWithBodyWithResponse request with any body
+	PutV2MailaddressesMailAddressIdCatchAllWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdCatchAllResponse, error)
+
+	PutV2MailaddressesMailAddressIdCatchAllWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdCatchAllResponse, error)
+
+	// PutV2MailaddressesMailAddressIdForwardaddressesWithBodyWithResponse request with any body
+	PutV2MailaddressesMailAddressIdForwardaddressesWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdForwardaddressesResponse, error)
+
+	PutV2MailaddressesMailAddressIdForwardaddressesWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdForwardaddressesResponse, error)
+
+	// PutV2MailaddressesMailAddressIdPasswordWithBodyWithResponse request with any body
+	PutV2MailaddressesMailAddressIdPasswordWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdPasswordResponse, error)
+
+	PutV2MailaddressesMailAddressIdPasswordWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdPasswordResponse, error)
+
+	// PutV2MailaddressesMailAddressIdQuotaWithBodyWithResponse request with any body
+	PutV2MailaddressesMailAddressIdQuotaWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdQuotaResponse, error)
+
+	PutV2MailaddressesMailAddressIdQuotaWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdQuotaResponse, error)
+
+	// PutV2MailaddressesMailAddressIdSpamprotectionWithBodyWithResponse request with any body
+	PutV2MailaddressesMailAddressIdSpamprotectionWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdSpamprotectionResponse, error)
+
+	PutV2MailaddressesMailAddressIdSpamprotectionWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdSpamprotectionResponse, error)
 
 	// DatabaseListMysqlCharsetsWithResponse request
 	DatabaseListMysqlCharsetsWithResponse(ctx context.Context, params *DatabaseListMysqlCharsetsParams, reqEditors ...RequestEditorFn) (*DatabaseListMysqlCharsetsResponse, error)
@@ -30667,49 +33263,49 @@ type ClientWithResponsesInterface interface {
 	DatabaseCreateMysqlUserWithResponse(ctx context.Context, databaseId openapi_types.UUID, body DatabaseCreateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseCreateMysqlUserResponse, error)
 
 	// DatabaseDeleteMysqlDatabaseWithResponse request
-	DatabaseDeleteMysqlDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlDatabaseResponse, error)
+	DatabaseDeleteMysqlDatabaseWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlDatabaseResponse, error)
 
 	// DatabaseGetMysqlDatabaseWithResponse request
-	DatabaseGetMysqlDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlDatabaseResponse, error)
+	DatabaseGetMysqlDatabaseWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlDatabaseResponse, error)
 
 	// DatabaseUpdateMysqlDatabaseDefaultCharsetWithBodyWithResponse request with any body
-	DatabaseUpdateMysqlDatabaseDefaultCharsetWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error)
+	DatabaseUpdateMysqlDatabaseDefaultCharsetWithBodyWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error)
 
-	DatabaseUpdateMysqlDatabaseDefaultCharsetWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error)
+	DatabaseUpdateMysqlDatabaseDefaultCharsetWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error)
 
 	// DatabaseUpdateMysqlDatabaseDescriptionWithBodyWithResponse request with any body
-	DatabaseUpdateMysqlDatabaseDescriptionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error)
+	DatabaseUpdateMysqlDatabaseDescriptionWithBodyWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error)
 
-	DatabaseUpdateMysqlDatabaseDescriptionWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error)
+	DatabaseUpdateMysqlDatabaseDescriptionWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error)
 
 	// DatabaseDeleteMysqlUserWithResponse request
-	DatabaseDeleteMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlUserResponse, error)
+	DatabaseDeleteMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlUserResponse, error)
 
 	// DatabaseGetMysqlUserWithResponse request
-	DatabaseGetMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserResponse, error)
+	DatabaseGetMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserResponse, error)
 
 	// DatabaseUpdateMysqlUserWithBodyWithResponse request with any body
-	DatabaseUpdateMysqlUserWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error)
+	DatabaseUpdateMysqlUserWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error)
 
-	DatabaseUpdateMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error)
+	DatabaseUpdateMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error)
 
 	// DatabaseDisableMysqlUserWithBodyWithResponse request with any body
-	DatabaseDisableMysqlUserWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error)
+	DatabaseDisableMysqlUserWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error)
 
-	DatabaseDisableMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error)
+	DatabaseDisableMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error)
 
 	// DatabaseEnableMysqlUserWithBodyWithResponse request with any body
-	DatabaseEnableMysqlUserWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error)
+	DatabaseEnableMysqlUserWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error)
 
-	DatabaseEnableMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error)
+	DatabaseEnableMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error)
 
 	// DatabaseUpdateMysqlUserPasswordWithBodyWithResponse request with any body
-	DatabaseUpdateMysqlUserPasswordWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error)
+	DatabaseUpdateMysqlUserPasswordWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error)
 
-	DatabaseUpdateMysqlUserPasswordWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error)
+	DatabaseUpdateMysqlUserPasswordWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error)
 
 	// DatabaseGetMysqlUserPhpMyAdminUrlWithResponse request
-	DatabaseGetMysqlUserPhpMyAdminUrlWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserPhpMyAdminUrlResponse, error)
+	DatabaseGetMysqlUserPhpMyAdminUrlWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserPhpMyAdminUrlResponse, error)
 
 	// DatabaseListMysqlVersionsWithResponse request
 	DatabaseListMysqlVersionsWithResponse(ctx context.Context, params *DatabaseListMysqlVersionsParams, reqEditors ...RequestEditorFn) (*DatabaseListMysqlVersionsResponse, error)
@@ -30900,21 +33496,32 @@ type ClientWithResponsesInterface interface {
 
 	CronjobCreateCronjobWithResponse(ctx context.Context, projectId openapi_types.UUID, body CronjobCreateCronjobJSONRequestBody, reqEditors ...RequestEditorFn) (*CronjobCreateCronjobResponse, error)
 
-	// MailDeliveryboxListWithResponse request
-	MailDeliveryboxListWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailDeliveryboxListResponse, error)
+	// MailListDeliveryBoxesWithResponse request
+	MailListDeliveryBoxesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailListDeliveryBoxesResponse, error)
 
-	// MailDeliveryboxCreateWithBodyWithResponse request with any body
-	MailDeliveryboxCreateWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxCreateResponse, error)
+	// MailCreateDeliveryboxWithBodyWithResponse request with any body
+	MailCreateDeliveryboxWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailCreateDeliveryboxResponse, error)
 
-	MailDeliveryboxCreateWithResponse(ctx context.Context, projectId string, body MailDeliveryboxCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxCreateResponse, error)
+	MailCreateDeliveryboxWithResponse(ctx context.Context, projectId string, body MailCreateDeliveryboxJSONRequestBody, reqEditors ...RequestEditorFn) (*MailCreateDeliveryboxResponse, error)
+
+	// GetV2ProjectsProjectIdDeliveryboxesWithResponse request
+	GetV2ProjectsProjectIdDeliveryboxesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdDeliveryboxesResponse, error)
+
+	// PostV2ProjectsProjectIdDeliveryboxesWithBodyWithResponse request with any body
+	PostV2ProjectsProjectIdDeliveryboxesWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdDeliveryboxesResponse, error)
+
+	PostV2ProjectsProjectIdDeliveryboxesWithResponse(ctx context.Context, projectId string, body PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdDeliveryboxesResponse, error)
 
 	// ProjectUpdateProjectDescriptionWithBodyWithResponse request with any body
 	ProjectUpdateProjectDescriptionWithBodyWithResponse(ctx context.Context, projectId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProjectUpdateProjectDescriptionResponse, error)
 
 	ProjectUpdateProjectDescriptionWithResponse(ctx context.Context, projectId openapi_types.UUID, body ProjectUpdateProjectDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*ProjectUpdateProjectDescriptionResponse, error)
 
-	// DnsZonesForProjectWithResponse request
-	DnsZonesForProjectWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsZonesForProjectResponse, error)
+	// DnsListDnsZonesWithResponse request
+	DnsListDnsZonesWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsListDnsZonesResponse, error)
+
+	// GetV2ProjectsProjectIdDnsZonesWithResponse request
+	GetV2ProjectsProjectIdDnsZonesWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdDnsZonesResponse, error)
 
 	// DomainListDomainOwnershipsWithResponse request
 	DomainListDomainOwnershipsWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainListDomainOwnershipsResponse, error)
@@ -30948,26 +33555,42 @@ type ClientWithResponsesInterface interface {
 
 	ProjectLeaveProjectWithResponse(ctx context.Context, projectId openapi_types.UUID, body ProjectLeaveProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*ProjectLeaveProjectResponse, error)
 
-	// MailMailaddressListWithResponse request
-	MailMailaddressListWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailMailaddressListResponse, error)
+	// MailListMailAddressesWithResponse request
+	MailListMailAddressesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailListMailAddressesResponse, error)
 
-	// MailMailaddressCreateWithBodyWithResponse request with any body
-	MailMailaddressCreateWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressCreateResponse, error)
+	// MailCreateMailAddressWithBodyWithResponse request with any body
+	MailCreateMailAddressWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailCreateMailAddressResponse, error)
 
-	MailMailaddressCreateWithResponse(ctx context.Context, projectId string, body MailMailaddressCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressCreateResponse, error)
+	MailCreateMailAddressWithResponse(ctx context.Context, projectId string, body MailCreateMailAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*MailCreateMailAddressResponse, error)
 
-	// MailProjectsettingGetSpecificWithResponse request
-	MailProjectsettingGetSpecificWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailProjectsettingGetSpecificResponse, error)
+	// MailListProjectMailSettingsWithResponse request
+	MailListProjectMailSettingsWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailListProjectMailSettingsResponse, error)
 
-	// MailProjectsettingUpdateBlacklistWithBodyWithResponse request with any body
-	MailProjectsettingUpdateBlacklistWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistResponse, error)
+	// MailUpdateProjectMailSettingWithBodyWithResponse request with any body
+	MailUpdateProjectMailSettingWithBodyWithResponse(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateProjectMailSettingResponse, error)
 
-	MailProjectsettingUpdateBlacklistWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistResponse, error)
+	MailUpdateProjectMailSettingWithResponse(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, body MailUpdateProjectMailSettingJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateProjectMailSettingResponse, error)
 
-	// MailProjectsettingUpdateWhitelistWithBodyWithResponse request with any body
-	MailProjectsettingUpdateWhitelistWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistResponse, error)
+	// GetV2ProjectsProjectIdMailaddressesWithResponse request
+	GetV2ProjectsProjectIdMailaddressesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdMailaddressesResponse, error)
 
-	MailProjectsettingUpdateWhitelistWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistResponse, error)
+	// PostV2ProjectsProjectIdMailaddressesWithBodyWithResponse request with any body
+	PostV2ProjectsProjectIdMailaddressesWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdMailaddressesResponse, error)
+
+	PostV2ProjectsProjectIdMailaddressesWithResponse(ctx context.Context, projectId string, body PostV2ProjectsProjectIdMailaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdMailaddressesResponse, error)
+
+	// GetV2ProjectsProjectIdMailsettingsWithResponse request
+	GetV2ProjectsProjectIdMailsettingsWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdMailsettingsResponse, error)
+
+	// MailProjectsettingUpdateBlacklistDeprecatedWithBodyWithResponse request with any body
+	MailProjectsettingUpdateBlacklistDeprecatedWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistDeprecatedResponse, error)
+
+	MailProjectsettingUpdateBlacklistDeprecatedWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistDeprecatedResponse, error)
+
+	// MailProjectsettingUpdateWhitelistDeprecatedWithBodyWithResponse request with any body
+	MailProjectsettingUpdateWhitelistDeprecatedWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistDeprecatedResponse, error)
+
+	MailProjectsettingUpdateWhitelistDeprecatedWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistDeprecatedResponse, error)
 
 	// ProjectListMembershipsForProjectWithResponse request
 	ProjectListMembershipsForProjectWithResponse(ctx context.Context, projectId string, params *ProjectListMembershipsForProjectParams, reqEditors ...RequestEditorFn) (*ProjectListMembershipsForProjectResponse, error)
@@ -31011,20 +33634,20 @@ type ClientWithResponsesInterface interface {
 	SshUserCreateSshUserWithResponse(ctx context.Context, projectId string, body SshUserCreateSshUserJSONRequestBody, reqEditors ...RequestEditorFn) (*SshUserCreateSshUserResponse, error)
 
 	// DatabaseDeleteRedisDatabaseWithResponse request
-	DatabaseDeleteRedisDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteRedisDatabaseResponse, error)
+	DatabaseDeleteRedisDatabaseWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteRedisDatabaseResponse, error)
 
 	// DatabaseGetRedisDatabaseWithResponse request
-	DatabaseGetRedisDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetRedisDatabaseResponse, error)
+	DatabaseGetRedisDatabaseWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetRedisDatabaseResponse, error)
 
 	// DatabaseUpdateRedisDatabaseConfigurationWithBodyWithResponse request with any body
-	DatabaseUpdateRedisDatabaseConfigurationWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error)
+	DatabaseUpdateRedisDatabaseConfigurationWithBodyWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error)
 
-	DatabaseUpdateRedisDatabaseConfigurationWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error)
+	DatabaseUpdateRedisDatabaseConfigurationWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error)
 
 	// DatabaseUpdateRedisDatabaseDescriptionWithBodyWithResponse request with any body
-	DatabaseUpdateRedisDatabaseDescriptionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error)
+	DatabaseUpdateRedisDatabaseDescriptionWithBodyWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error)
 
-	DatabaseUpdateRedisDatabaseDescriptionWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error)
+	DatabaseUpdateRedisDatabaseDescriptionWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error)
 
 	// DatabaseListRedisVersionsWithResponse request
 	DatabaseListRedisVersionsWithResponse(ctx context.Context, params *DatabaseListRedisVersionsParams, reqEditors ...RequestEditorFn) (*DatabaseListRedisVersionsResponse, error)
@@ -33243,138 +35866,6 @@ func (r CustomerCreateCustomerInviteResponse) StatusCode() int {
 	return 0
 }
 
-type CustomerListOfCustomerCategoriesDeprecatedResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		Categories *[]DeMittwaldV1CustomerCategory `json:"categories,omitempty"`
-	}
-	JSONDefault *DeMittwaldV1CommonsDefaultError
-}
-
-// Status returns HTTPResponse.Status
-func (r CustomerListOfCustomerCategoriesDeprecatedResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CustomerListOfCustomerCategoriesDeprecatedResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CustomerCreateCategoryDeprecatedResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON201      *struct {
-		CustomerId            *string `json:"customerId,omitempty"`
-		IsPublic              *bool   `json:"isPublic,omitempty"`
-		Name                  *string `json:"name,omitempty"`
-		UseAgencyDomainPrices *bool   `json:"useAgencyDomainPrices,omitempty"`
-		UseAgencySslPrices    *bool   `json:"useAgencySslPrices,omitempty"`
-	}
-	JSON400     *DeMittwaldV1CommonsValidationError
-	JSONDefault *DeMittwaldV1CommonsDefaultError
-}
-
-// Status returns HTTPResponse.Status
-func (r CustomerCreateCategoryDeprecatedResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CustomerCreateCategoryDeprecatedResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CustomerDeleteCategoryDeprecatedResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *DeMittwaldV1CustomerGenericResponse
-	JSONDefault  *DeMittwaldV1CommonsDefaultError
-}
-
-// Status returns HTTPResponse.Status
-func (r CustomerDeleteCategoryDeprecatedResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CustomerDeleteCategoryDeprecatedResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CustomerDetailOfCustomerCategoryDeprecatedResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *DeMittwaldV1CustomerCategory
-	JSONDefault  *DeMittwaldV1CommonsDefaultError
-}
-
-// Status returns HTTPResponse.Status
-func (r CustomerDetailOfCustomerCategoryDeprecatedResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CustomerDetailOfCustomerCategoryDeprecatedResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CustomerUpdateCategoryDeprecatedResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		CustomerId            *string `json:"customerId,omitempty"`
-		IsPublic              *bool   `json:"isPublic,omitempty"`
-		Name                  *string `json:"name,omitempty"`
-		UseAgencyDomainPrices *bool   `json:"useAgencyDomainPrices,omitempty"`
-		UseAgencySslPrices    *bool   `json:"useAgencySslPrices,omitempty"`
-	}
-	JSON400     *DeMittwaldV1CommonsValidationError
-	JSON404     *DeMittwaldV1CommonsNotFoundError
-	JSONDefault *DeMittwaldV1CommonsDefaultError
-}
-
-// Status returns HTTPResponse.Status
-func (r CustomerUpdateCategoryDeprecatedResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CustomerUpdateCategoryDeprecatedResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type CustomerListCustomersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -33793,13 +36284,19 @@ func (r OrderListCustomerOrdersResponse) StatusCode() int {
 	return 0
 }
 
-type MailDeliveryboxDeleteResponse struct {
+type MailDeleteDeliveryBoxResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailDeliveryboxDeleteResponse) Status() string {
+func (r MailDeleteDeliveryBoxResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33807,21 +36304,27 @@ func (r MailDeliveryboxDeleteResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailDeliveryboxDeleteResponse) StatusCode() int {
+func (r MailDeleteDeliveryBoxResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailDeliveryboxGetSpecificResponse struct {
+type MailGetDeliveryBoxResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DeMittwaldV1MailDeliverybox
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailDeliveryboxGetSpecificResponse) Status() string {
+func (r MailGetDeliveryBoxResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33829,20 +36332,74 @@ func (r MailDeliveryboxGetSpecificResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailDeliveryboxGetSpecificResponse) StatusCode() int {
+func (r MailGetDeliveryBoxResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailDeliveryboxUpdateDescriptionResponse struct {
+type MailUpdateDeliveryBoxDescriptionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r MailUpdateDeliveryBoxDescriptionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailUpdateDeliveryBoxDescriptionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailUpdateDeliveryBoxPasswordResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r MailUpdateDeliveryBoxPasswordResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailUpdateDeliveryBoxPasswordResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteV2DeliveryboxesDeliveryBoxIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r MailDeliveryboxUpdateDescriptionResponse) Status() string {
+func (r DeleteV2DeliveryboxesDeliveryBoxIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33850,20 +36407,20 @@ func (r MailDeliveryboxUpdateDescriptionResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailDeliveryboxUpdateDescriptionResponse) StatusCode() int {
+func (r DeleteV2DeliveryboxesDeliveryBoxIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailDeliveryboxUpdatePasswordResponse struct {
+type GetV2DeliveryboxesDeliveryBoxIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r MailDeliveryboxUpdatePasswordResponse) Status() string {
+func (r GetV2DeliveryboxesDeliveryBoxIdResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33871,14 +36428,56 @@ func (r MailDeliveryboxUpdatePasswordResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailDeliveryboxUpdatePasswordResponse) StatusCode() int {
+func (r GetV2DeliveryboxesDeliveryBoxIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsSubZoneCreateResponse struct {
+type MailDeliveryboxUpdateDescriptionDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r MailDeliveryboxUpdateDescriptionDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailDeliveryboxUpdateDescriptionDeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailDeliveryboxUpdatePasswordDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r MailDeliveryboxUpdatePasswordDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailDeliveryboxUpdatePasswordDeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DnsCreateDnsZoneResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *struct {
@@ -33889,7 +36488,7 @@ type DnsSubZoneCreateResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsSubZoneCreateResponse) Status() string {
+func (r DnsCreateDnsZoneResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33897,14 +36496,37 @@ func (r DnsSubZoneCreateResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsSubZoneCreateResponse) StatusCode() int {
+func (r DnsCreateDnsZoneResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsZoneGetSpecificResponse struct {
+type DnsDeleteDnsZoneResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DnsDeleteDnsZoneResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DnsDeleteDnsZoneResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DnsGetDnsZoneResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DeMittwaldV1DnsZone
@@ -33913,7 +36535,7 @@ type DnsZoneGetSpecificResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsZoneGetSpecificResponse) Status() string {
+func (r DnsGetDnsZoneResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33921,14 +36543,14 @@ func (r DnsZoneGetSpecificResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsZoneGetSpecificResponse) StatusCode() int {
+func (r DnsGetDnsZoneResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordASetCustomResponse struct {
+type DnsUpdateRecordSetResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -33936,7 +36558,7 @@ type DnsRecordASetCustomResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordASetCustomResponse) Status() string {
+func (r DnsUpdateRecordSetResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33944,14 +36566,126 @@ func (r DnsRecordASetCustomResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordASetCustomResponse) StatusCode() int {
+func (r DnsUpdateRecordSetResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordASetManagedByIngressResponse struct {
+type DnsSetRecordSetManagedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON204      *struct {
+		IngressId *openapi_types.UUID `json:"ingressId,omitempty"`
+	}
+	JSON400     *DeMittwaldV1CommonsValidationError
+	JSONDefault *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DnsSetRecordSetManagedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DnsSetRecordSetManagedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostV2DnsZonesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PostV2DnsZonesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostV2DnsZonesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteV2DnsZonesDnsZoneIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteV2DnsZonesDnsZoneIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteV2DnsZonesDnsZoneIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV2DnsZonesDnsZoneIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV2DnsZonesDnsZoneIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV2DnsZonesDnsZoneIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DnsRecordASetCustomDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DnsRecordASetCustomDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DnsRecordASetCustomDeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DnsRecordASetManagedByIngressDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON204      *struct {
@@ -33962,7 +36696,7 @@ type DnsRecordASetManagedByIngressResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordASetManagedByIngressResponse) Status() string {
+func (r DnsRecordASetManagedByIngressDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33970,14 +36704,14 @@ func (r DnsRecordASetManagedByIngressResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordASetManagedByIngressResponse) StatusCode() int {
+func (r DnsRecordASetManagedByIngressDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordCnameSetResponse struct {
+type DnsRecordCnameSetDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -33985,7 +36719,7 @@ type DnsRecordCnameSetResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordCnameSetResponse) Status() string {
+func (r DnsRecordCnameSetDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -33993,14 +36727,14 @@ func (r DnsRecordCnameSetResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordCnameSetResponse) StatusCode() int {
+func (r DnsRecordCnameSetDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordMxSetCustomResponse struct {
+type DnsRecordMxSetCustomDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34008,7 +36742,7 @@ type DnsRecordMxSetCustomResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordMxSetCustomResponse) Status() string {
+func (r DnsRecordMxSetCustomDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34016,14 +36750,14 @@ func (r DnsRecordMxSetCustomResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordMxSetCustomResponse) StatusCode() int {
+func (r DnsRecordMxSetCustomDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordMxSetManagedResponse struct {
+type DnsRecordMxSetManagedDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34031,7 +36765,7 @@ type DnsRecordMxSetManagedResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordMxSetManagedResponse) Status() string {
+func (r DnsRecordMxSetManagedDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34039,14 +36773,14 @@ func (r DnsRecordMxSetManagedResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordMxSetManagedResponse) StatusCode() int {
+func (r DnsRecordMxSetManagedDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordSrvSetResponse struct {
+type DnsRecordSrvSetDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34054,7 +36788,7 @@ type DnsRecordSrvSetResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordSrvSetResponse) Status() string {
+func (r DnsRecordSrvSetDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34062,14 +36796,14 @@ func (r DnsRecordSrvSetResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordSrvSetResponse) StatusCode() int {
+func (r DnsRecordSrvSetDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DnsRecordTxtSetResponse struct {
+type DnsRecordTxtSetDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34077,7 +36811,7 @@ type DnsRecordTxtSetResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsRecordTxtSetResponse) Status() string {
+func (r DnsRecordTxtSetDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34085,14 +36819,14 @@ func (r DnsRecordTxtSetResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsRecordTxtSetResponse) StatusCode() int {
+func (r DnsRecordTxtSetDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainGetSpecificDomainOwnershipResponse struct {
+type DomainGetDomainOwnershipResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DeMittwaldV1DomainDomainOwnership
@@ -34102,7 +36836,7 @@ type DomainGetSpecificDomainOwnershipResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainGetSpecificDomainOwnershipResponse) Status() string {
+func (r DomainGetDomainOwnershipResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34110,7 +36844,28 @@ func (r DomainGetSpecificDomainOwnershipResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainGetSpecificDomainOwnershipResponse) StatusCode() int {
+func (r DomainGetDomainOwnershipResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostV2DomainOwnershipsDomainOwnershipIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PostV2DomainOwnershipsDomainOwnershipIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostV2DomainOwnershipsDomainOwnershipIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -34141,18 +36896,18 @@ func (r DomainVerifyDomainOwnershipResponse) StatusCode() int {
 	return 0
 }
 
-type DomainCheckDomainAvailabilityResponse struct {
+type DomainCheckDomainRegistrabilityResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		Available bool `json:"available"`
+		Registrable bool `json:"registrable"`
 	}
 	JSON400     *DeMittwaldV1CommonsValidationError
 	JSONDefault *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainCheckDomainAvailabilityResponse) Status() string {
+func (r DomainCheckDomainRegistrabilityResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34160,14 +36915,37 @@ func (r DomainCheckDomainAvailabilityResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainCheckDomainAvailabilityResponse) StatusCode() int {
+func (r DomainCheckDomainRegistrabilityResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainGetHandleFieldsResponse struct {
+type DomainListTldsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]DeMittwaldV1DomainTopLevel
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DomainListTldsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DomainListTldsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainListTldContactSchemasResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
@@ -34178,7 +36956,7 @@ type DomainGetHandleFieldsResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainGetHandleFieldsResponse) Status() string {
+func (r DomainListTldContactSchemasResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34186,22 +36964,25 @@ func (r DomainGetHandleFieldsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainGetHandleFieldsResponse) StatusCode() int {
+func (r DomainListTldContactSchemasResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainGetSupportedTldsResponse struct {
+type DomainCheckDomainRegistrabilityV2DeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]DeMittwaldV1DomainTopLevel
-	JSONDefault  *DeMittwaldV1CommonsDefaultError
+	JSON200      *struct {
+		Available bool `json:"available"`
+	}
+	JSON400     *DeMittwaldV1CommonsValidationError
+	JSONDefault *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainGetSupportedTldsResponse) Status() string {
+func (r DomainCheckDomainRegistrabilityV2DeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34209,7 +36990,54 @@ func (r DomainGetSupportedTldsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainGetSupportedTldsResponse) StatusCode() int {
+func (r DomainCheckDomainRegistrabilityV2DeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainGetHandleFieldsV2DeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		JsonSchemaAdminC *map[string]interface{} `json:"jsonSchemaAdminC,omitempty"`
+		JsonSchemaOwnerC map[string]interface{}  `json:"jsonSchemaOwnerC"`
+	}
+	JSONDefault *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DomainGetHandleFieldsV2DeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DomainGetHandleFieldsV2DeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV2DomainsSupportedTldsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV2DomainsSupportedTldsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV2DomainsSupportedTldsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -34266,7 +37094,7 @@ func (r DomainGetDomainResponse) StatusCode() int {
 	return 0
 }
 
-type DomainCreateAuthcodeForDomainResponse struct {
+type DomainCreateDomainAuthCodeResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *struct {
@@ -34278,7 +37106,7 @@ type DomainCreateAuthcodeForDomainResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainCreateAuthcodeForDomainResponse) Status() string {
+func (r DomainCreateDomainAuthCodeResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34286,14 +37114,14 @@ func (r DomainCreateAuthcodeForDomainResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainCreateAuthcodeForDomainResponse) StatusCode() int {
+func (r DomainCreateDomainAuthCodeResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainCreateAuthcode2ForDomainResponse struct {
+type DomainCreateDomainAuthCode2Response struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34302,7 +37130,7 @@ type DomainCreateAuthcode2ForDomainResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainCreateAuthcode2ForDomainResponse) Status() string {
+func (r DomainCreateDomainAuthCode2Response) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34310,7 +37138,49 @@ func (r DomainCreateAuthcode2ForDomainResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainCreateAuthcode2ForDomainResponse) StatusCode() int {
+func (r DomainCreateDomainAuthCode2Response) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostV2DomainsDomainIdActionsCreateAuthcodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PostV2DomainsDomainIdActionsCreateAuthcodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostV2DomainsDomainIdActionsCreateAuthcodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostV2DomainsDomainIdActionsCreateAuthcode2Response struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PostV2DomainsDomainIdActionsCreateAuthcode2Response) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostV2DomainsDomainIdActionsCreateAuthcode2Response) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -34335,6 +37205,77 @@ func (r DomainResendDomainEmailResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DomainResendDomainEmailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainUpdateDomainAuthCodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DeMittwaldV1DomainSuccessResponse
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DomainUpdateDomainAuthCodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DomainUpdateDomainAuthCodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchV2DomainsDomainIdAuthcodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchV2DomainsDomainIdAuthcodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchV2DomainsDomainIdAuthcodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainUpdateDomainContactResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DeMittwaldV1DomainSuccessResponse
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DomainUpdateDomainContactResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DomainUpdateDomainContactResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -34391,7 +37332,7 @@ func (r DeprecatedContractGetDetailOfContractByDomainResponse) StatusCode() int 
 	return 0
 }
 
-type DomainAbortDeclareProcessResponse struct {
+type DomainAbortDomainDeclarationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34400,7 +37341,7 @@ type DomainAbortDeclareProcessResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainAbortDeclareProcessResponse) Status() string {
+func (r DomainAbortDomainDeclarationResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34408,14 +37349,35 @@ func (r DomainAbortDeclareProcessResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainAbortDeclareProcessResponse) StatusCode() int {
+func (r DomainAbortDomainDeclarationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainDeclareProcessChangeAuthcodeResponse struct {
+type DeleteV2DomainsDomainIdDeclarationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteV2DomainsDomainIdDeclarationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteV2DomainsDomainIdDeclarationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DeMittwaldV1DomainSuccessResponse
@@ -34425,7 +37387,7 @@ type DomainDeclareProcessChangeAuthcodeResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainDeclareProcessChangeAuthcodeResponse) Status() string {
+func (r DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34433,14 +37395,14 @@ func (r DomainDeclareProcessChangeAuthcodeResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainDeclareProcessChangeAuthcodeResponse) StatusCode() int {
+func (r DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainDeclareProcessChangeHandlesResponse struct {
+type DomainDeclareProcessChangeHandlesV2DeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DeMittwaldV1DomainSuccessResponse
@@ -34450,7 +37412,7 @@ type DomainDeclareProcessChangeHandlesResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainDeclareProcessChangeHandlesResponse) Status() string {
+func (r DomainDeclareProcessChangeHandlesV2DeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34458,14 +37420,14 @@ func (r DomainDeclareProcessChangeHandlesResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainDeclareProcessChangeHandlesResponse) StatusCode() int {
+func (r DomainDeclareProcessChangeHandlesV2DeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainChangeOwnercOfDomainResponse struct {
+type DomainChangeOwnercOfDomainV2DeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DeMittwaldV1DomainSuccessResponse
@@ -34475,7 +37437,7 @@ type DomainChangeOwnercOfDomainResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainChangeOwnercOfDomainResponse) Status() string {
+func (r DomainChangeOwnercOfDomainV2DeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34483,14 +37445,14 @@ func (r DomainChangeOwnercOfDomainResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainChangeOwnercOfDomainResponse) StatusCode() int {
+func (r DomainChangeOwnercOfDomainV2DeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainDeclareNameserversResponse struct {
+type DomainUpdateDomainNameserversResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34499,7 +37461,7 @@ type DomainDeclareNameserversResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainDeclareNameserversResponse) Status() string {
+func (r DomainUpdateDomainNameserversResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34507,14 +37469,14 @@ func (r DomainDeclareNameserversResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainDeclareNameserversResponse) StatusCode() int {
+func (r DomainUpdateDomainNameserversResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type DomainChangeProjectOfDomainResponse struct {
+type DomainDeclareNameserversV2DeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
@@ -34523,7 +37485,7 @@ type DomainChangeProjectOfDomainResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DomainChangeProjectOfDomainResponse) Status() string {
+func (r DomainDeclareNameserversV2DeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -34531,7 +37493,55 @@ func (r DomainChangeProjectOfDomainResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DomainChangeProjectOfDomainResponse) StatusCode() int {
+func (r DomainDeclareNameserversV2DeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainUpdateDomainProjectIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DomainUpdateDomainProjectIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DomainUpdateDomainProjectIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DomainChangeProjectOfDomainV2DeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r DomainChangeProjectOfDomainV2DeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DomainChangeProjectOfDomainV2DeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -34905,99 +37915,19 @@ func (r UserLogoutResponse) StatusCode() int {
 	return 0
 }
 
-type MailMailaddressDeleteResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r MailMailaddressDeleteResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressDeleteResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type MailMailaddressGetSpecificResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *DeMittwaldV1MailMailAddress
-}
-
-// Status returns HTTPResponse.Status
-func (r MailMailaddressGetSpecificResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressGetSpecificResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type MailMailaddressUpdateAddressResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r MailMailaddressUpdateAddressResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdateAddressResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type MailMailaddressUpdateAutoresponderResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r MailMailaddressUpdateAutoresponderResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdateAutoresponderResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type MailMailaddressUpdateCatchallResponse struct {
+type MailDeleteMailAddressResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressUpdateCatchallResponse) Status() string {
+func (r MailDeleteMailAddressResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -35005,20 +37935,27 @@ func (r MailMailaddressUpdateCatchallResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdateCatchallResponse) StatusCode() int {
+func (r MailDeleteMailAddressResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailMailaddressUpdateForwardaddressesResponse struct {
+type MailGetMailAddressResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *DeMittwaldV1MailMailAddress
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressUpdateForwardaddressesResponse) Status() string {
+func (r MailGetMailAddressResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -35026,20 +37963,26 @@ func (r MailMailaddressUpdateForwardaddressesResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdateForwardaddressesResponse) StatusCode() int {
+func (r MailGetMailAddressResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailMailaddressUpdatePasswordResponse struct {
+type MailUpdateMailAddressAddressResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressUpdatePasswordResponse) Status() string {
+func (r MailUpdateMailAddressAddressResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -35047,20 +37990,26 @@ func (r MailMailaddressUpdatePasswordResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdatePasswordResponse) StatusCode() int {
+func (r MailUpdateMailAddressAddressResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailMailaddressUpdateQuotaResponse struct {
+type MailUpdateMailAddressAutoresponderResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressUpdateQuotaResponse) Status() string {
+func (r MailUpdateMailAddressAutoresponderResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -35068,20 +38017,26 @@ func (r MailMailaddressUpdateQuotaResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdateQuotaResponse) StatusCode() int {
+func (r MailUpdateMailAddressAutoresponderResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailMailaddressUpdateSpamprotectionResponse struct {
+type MailUpdateMailAddressCatchallResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressUpdateSpamprotectionResponse) Status() string {
+func (r MailUpdateMailAddressCatchallResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -35089,7 +38044,304 @@ func (r MailMailaddressUpdateSpamprotectionResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressUpdateSpamprotectionResponse) StatusCode() int {
+func (r MailUpdateMailAddressCatchallResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailUpdateMailAddressForwardAddressesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r MailUpdateMailAddressForwardAddressesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailUpdateMailAddressForwardAddressesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailUpdateMailAddressPasswordResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r MailUpdateMailAddressPasswordResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailUpdateMailAddressPasswordResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailUpdateMailAddressQuotaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r MailUpdateMailAddressQuotaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailUpdateMailAddressQuotaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailUpdateMailAddressSpamProtectionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
+}
+
+// Status returns HTTPResponse.Status
+func (r MailUpdateMailAddressSpamProtectionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailUpdateMailAddressSpamProtectionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailMailaddressUpdateAddressDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r MailMailaddressUpdateAddressDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailMailaddressUpdateAddressDeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteV2MailaddressesMailAddressIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteV2MailaddressesMailAddressIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteV2MailaddressesMailAddressIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV2MailaddressesMailAddressIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV2MailaddressesMailAddressIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV2MailaddressesMailAddressIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutV2MailaddressesMailAddressIdAutoResponderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutV2MailaddressesMailAddressIdAutoResponderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutV2MailaddressesMailAddressIdAutoResponderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutV2MailaddressesMailAddressIdCatchAllResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutV2MailaddressesMailAddressIdCatchAllResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutV2MailaddressesMailAddressIdCatchAllResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutV2MailaddressesMailAddressIdForwardaddressesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutV2MailaddressesMailAddressIdForwardaddressesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutV2MailaddressesMailAddressIdForwardaddressesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutV2MailaddressesMailAddressIdPasswordResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutV2MailaddressesMailAddressIdPasswordResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutV2MailaddressesMailAddressIdPasswordResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutV2MailaddressesMailAddressIdQuotaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutV2MailaddressesMailAddressIdQuotaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutV2MailaddressesMailAddressIdQuotaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutV2MailaddressesMailAddressIdSpamprotectionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PutV2MailaddressesMailAddressIdSpamprotectionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutV2MailaddressesMailAddressIdSpamprotectionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -36738,14 +39990,20 @@ func (r CronjobCreateCronjobResponse) StatusCode() int {
 	return 0
 }
 
-type MailDeliveryboxListResponse struct {
+type MailListDeliveryBoxesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]DeMittwaldV1MailDeliverybox
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailDeliveryboxListResponse) Status() string {
+func (r MailListDeliveryBoxesResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -36753,23 +40011,29 @@ func (r MailDeliveryboxListResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailDeliveryboxListResponse) StatusCode() int {
+func (r MailListDeliveryBoxesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailDeliveryboxCreateResponse struct {
+type MailCreateDeliveryboxResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *struct {
 		Id openapi_types.UUID `json:"id"`
 	}
+	JSON400     *DeMittwaldV1CommonsValidationError
+	JSON403     *DeMittwaldV1CommonsDefaultError
+	JSON404     *DeMittwaldV1CommonsNotFoundError
+	JSON500     *DeMittwaldV1CommonsDefaultError
+	JSON503     *DeMittwaldV1CommonsDefaultError
+	JSONDefault *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailDeliveryboxCreateResponse) Status() string {
+func (r MailCreateDeliveryboxResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -36777,7 +40041,49 @@ func (r MailDeliveryboxCreateResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailDeliveryboxCreateResponse) StatusCode() int {
+func (r MailCreateDeliveryboxResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV2ProjectsProjectIdDeliveryboxesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV2ProjectsProjectIdDeliveryboxesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV2ProjectsProjectIdDeliveryboxesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostV2ProjectsProjectIdDeliveryboxesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PostV2ProjectsProjectIdDeliveryboxesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostV2ProjectsProjectIdDeliveryboxesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -36808,7 +40114,7 @@ func (r ProjectUpdateProjectDescriptionResponse) StatusCode() int {
 	return 0
 }
 
-type DnsZonesForProjectResponse struct {
+type DnsListDnsZonesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]DeMittwaldV1DnsZone
@@ -36817,7 +40123,7 @@ type DnsZonesForProjectResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DnsZonesForProjectResponse) Status() string {
+func (r DnsListDnsZonesResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -36825,7 +40131,28 @@ func (r DnsZonesForProjectResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DnsZonesForProjectResponse) StatusCode() int {
+func (r DnsListDnsZonesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV2ProjectsProjectIdDnsZonesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV2ProjectsProjectIdDnsZonesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV2ProjectsProjectIdDnsZonesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -37078,14 +40405,20 @@ func (r ProjectLeaveProjectResponse) StatusCode() int {
 	return 0
 }
 
-type MailMailaddressListResponse struct {
+type MailListMailAddressesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]DeMittwaldV1MailMailAddress
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressListResponse) Status() string {
+func (r MailListMailAddressesResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -37093,24 +40426,29 @@ func (r MailMailaddressListResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressListResponse) StatusCode() int {
+func (r MailListMailAddressesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailMailaddressCreateResponse struct {
+type MailCreateMailAddressResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON201      *struct {
 		Id openapi_types.UUID `json:"id"`
 	}
-	JSON400 *DeMittwaldV1CommonsValidationError
+	JSON400     *DeMittwaldV1CommonsValidationError
+	JSON403     *DeMittwaldV1CommonsDefaultError
+	JSON404     *DeMittwaldV1CommonsNotFoundError
+	JSON500     *DeMittwaldV1CommonsDefaultError
+	JSON503     *DeMittwaldV1CommonsDefaultError
+	JSONDefault *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailMailaddressCreateResponse) Status() string {
+func (r MailCreateMailAddressResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -37118,14 +40456,14 @@ func (r MailMailaddressCreateResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailMailaddressCreateResponse) StatusCode() int {
+func (r MailCreateMailAddressResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailProjectsettingGetSpecificResponse struct {
+type MailListProjectMailSettingsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
@@ -37133,10 +40471,16 @@ type MailProjectsettingGetSpecificResponse struct {
 		ProjectId string                `json:"projectId"`
 		Whitelist []openapi_types.Email `json:"whitelist"`
 	}
+	JSON400     *DeMittwaldV1CommonsValidationError
+	JSON403     *DeMittwaldV1CommonsDefaultError
+	JSON404     *DeMittwaldV1CommonsNotFoundError
+	JSON500     *DeMittwaldV1CommonsDefaultError
+	JSON503     *DeMittwaldV1CommonsDefaultError
+	JSONDefault *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailProjectsettingGetSpecificResponse) Status() string {
+func (r MailListProjectMailSettingsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -37144,20 +40488,26 @@ func (r MailProjectsettingGetSpecificResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailProjectsettingGetSpecificResponse) StatusCode() int {
+func (r MailListProjectMailSettingsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailProjectsettingUpdateBlacklistResponse struct {
+type MailUpdateProjectMailSettingResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON400      *DeMittwaldV1CommonsValidationError
+	JSON403      *DeMittwaldV1CommonsDefaultError
+	JSON404      *DeMittwaldV1CommonsNotFoundError
+	JSON500      *DeMittwaldV1CommonsDefaultError
+	JSON503      *DeMittwaldV1CommonsDefaultError
+	JSONDefault  *DeMittwaldV1CommonsDefaultError
 }
 
 // Status returns HTTPResponse.Status
-func (r MailProjectsettingUpdateBlacklistResponse) Status() string {
+func (r MailUpdateProjectMailSettingResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -37165,20 +40515,20 @@ func (r MailProjectsettingUpdateBlacklistResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailProjectsettingUpdateBlacklistResponse) StatusCode() int {
+func (r MailUpdateProjectMailSettingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type MailProjectsettingUpdateWhitelistResponse struct {
+type GetV2ProjectsProjectIdMailaddressesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 }
 
 // Status returns HTTPResponse.Status
-func (r MailProjectsettingUpdateWhitelistResponse) Status() string {
+func (r GetV2ProjectsProjectIdMailaddressesResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -37186,7 +40536,91 @@ func (r MailProjectsettingUpdateWhitelistResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r MailProjectsettingUpdateWhitelistResponse) StatusCode() int {
+func (r GetV2ProjectsProjectIdMailaddressesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostV2ProjectsProjectIdMailaddressesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r PostV2ProjectsProjectIdMailaddressesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostV2ProjectsProjectIdMailaddressesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetV2ProjectsProjectIdMailsettingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetV2ProjectsProjectIdMailsettingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetV2ProjectsProjectIdMailsettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailProjectsettingUpdateBlacklistDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r MailProjectsettingUpdateBlacklistDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailProjectsettingUpdateBlacklistDeprecatedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MailProjectsettingUpdateWhitelistDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r MailProjectsettingUpdateWhitelistDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MailProjectsettingUpdateWhitelistDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -41308,67 +44742,6 @@ func (c *ClientWithResponses) CustomerCreateCustomerInviteWithResponse(ctx conte
 	return ParseCustomerCreateCustomerInviteResponse(rsp)
 }
 
-// CustomerListOfCustomerCategoriesDeprecatedWithResponse request returning *CustomerListOfCustomerCategoriesDeprecatedResponse
-func (c *ClientWithResponses) CustomerListOfCustomerCategoriesDeprecatedWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*CustomerListOfCustomerCategoriesDeprecatedResponse, error) {
-	rsp, err := c.CustomerListOfCustomerCategoriesDeprecated(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerListOfCustomerCategoriesDeprecatedResponse(rsp)
-}
-
-// CustomerCreateCategoryDeprecatedWithBodyWithResponse request with arbitrary body returning *CustomerCreateCategoryDeprecatedResponse
-func (c *ClientWithResponses) CustomerCreateCategoryDeprecatedWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CustomerCreateCategoryDeprecatedResponse, error) {
-	rsp, err := c.CustomerCreateCategoryDeprecatedWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerCreateCategoryDeprecatedResponse(rsp)
-}
-
-func (c *ClientWithResponses) CustomerCreateCategoryDeprecatedWithResponse(ctx context.Context, body CustomerCreateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*CustomerCreateCategoryDeprecatedResponse, error) {
-	rsp, err := c.CustomerCreateCategoryDeprecated(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerCreateCategoryDeprecatedResponse(rsp)
-}
-
-// CustomerDeleteCategoryDeprecatedWithResponse request returning *CustomerDeleteCategoryDeprecatedResponse
-func (c *ClientWithResponses) CustomerDeleteCategoryDeprecatedWithResponse(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*CustomerDeleteCategoryDeprecatedResponse, error) {
-	rsp, err := c.CustomerDeleteCategoryDeprecated(ctx, categoryId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerDeleteCategoryDeprecatedResponse(rsp)
-}
-
-// CustomerDetailOfCustomerCategoryDeprecatedWithResponse request returning *CustomerDetailOfCustomerCategoryDeprecatedResponse
-func (c *ClientWithResponses) CustomerDetailOfCustomerCategoryDeprecatedWithResponse(ctx context.Context, categoryId string, reqEditors ...RequestEditorFn) (*CustomerDetailOfCustomerCategoryDeprecatedResponse, error) {
-	rsp, err := c.CustomerDetailOfCustomerCategoryDeprecated(ctx, categoryId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerDetailOfCustomerCategoryDeprecatedResponse(rsp)
-}
-
-// CustomerUpdateCategoryDeprecatedWithBodyWithResponse request with arbitrary body returning *CustomerUpdateCategoryDeprecatedResponse
-func (c *ClientWithResponses) CustomerUpdateCategoryDeprecatedWithBodyWithResponse(ctx context.Context, categoryId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CustomerUpdateCategoryDeprecatedResponse, error) {
-	rsp, err := c.CustomerUpdateCategoryDeprecatedWithBody(ctx, categoryId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerUpdateCategoryDeprecatedResponse(rsp)
-}
-
-func (c *ClientWithResponses) CustomerUpdateCategoryDeprecatedWithResponse(ctx context.Context, categoryId string, body CustomerUpdateCategoryDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*CustomerUpdateCategoryDeprecatedResponse, error) {
-	rsp, err := c.CustomerUpdateCategoryDeprecated(ctx, categoryId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCustomerUpdateCategoryDeprecatedResponse(rsp)
-}
-
 // CustomerListCustomersWithResponse request returning *CustomerListCustomersResponse
 func (c *ClientWithResponses) CustomerListCustomersWithResponse(ctx context.Context, params *CustomerListCustomersParams, reqEditors ...RequestEditorFn) (*CustomerListCustomersResponse, error) {
 	rsp, err := c.CustomerListCustomers(ctx, params, reqEditors...)
@@ -41545,210 +44918,357 @@ func (c *ClientWithResponses) OrderListCustomerOrdersWithResponse(ctx context.Co
 	return ParseOrderListCustomerOrdersResponse(rsp)
 }
 
-// MailDeliveryboxDeleteWithResponse request returning *MailDeliveryboxDeleteResponse
-func (c *ClientWithResponses) MailDeliveryboxDeleteWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeliveryboxDeleteResponse, error) {
-	rsp, err := c.MailDeliveryboxDelete(ctx, id, reqEditors...)
+// MailDeleteDeliveryBoxWithResponse request returning *MailDeleteDeliveryBoxResponse
+func (c *ClientWithResponses) MailDeleteDeliveryBoxWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeleteDeliveryBoxResponse, error) {
+	rsp, err := c.MailDeleteDeliveryBox(ctx, deliveryBoxId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxDeleteResponse(rsp)
+	return ParseMailDeleteDeliveryBoxResponse(rsp)
 }
 
-// MailDeliveryboxGetSpecificWithResponse request returning *MailDeliveryboxGetSpecificResponse
-func (c *ClientWithResponses) MailDeliveryboxGetSpecificWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeliveryboxGetSpecificResponse, error) {
-	rsp, err := c.MailDeliveryboxGetSpecific(ctx, id, reqEditors...)
+// MailGetDeliveryBoxWithResponse request returning *MailGetDeliveryBoxResponse
+func (c *ClientWithResponses) MailGetDeliveryBoxWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailGetDeliveryBoxResponse, error) {
+	rsp, err := c.MailGetDeliveryBox(ctx, deliveryBoxId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxGetSpecificResponse(rsp)
+	return ParseMailGetDeliveryBoxResponse(rsp)
 }
 
-// MailDeliveryboxUpdateDescriptionWithBodyWithResponse request with arbitrary body returning *MailDeliveryboxUpdateDescriptionResponse
-func (c *ClientWithResponses) MailDeliveryboxUpdateDescriptionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionResponse, error) {
-	rsp, err := c.MailDeliveryboxUpdateDescriptionWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateDeliveryBoxDescriptionWithBodyWithResponse request with arbitrary body returning *MailUpdateDeliveryBoxDescriptionResponse
+func (c *ClientWithResponses) MailUpdateDeliveryBoxDescriptionWithBodyWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxDescriptionResponse, error) {
+	rsp, err := c.MailUpdateDeliveryBoxDescriptionWithBody(ctx, deliveryBoxId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxUpdateDescriptionResponse(rsp)
+	return ParseMailUpdateDeliveryBoxDescriptionResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailDeliveryboxUpdateDescriptionWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionResponse, error) {
-	rsp, err := c.MailDeliveryboxUpdateDescription(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateDeliveryBoxDescriptionWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxDescriptionResponse, error) {
+	rsp, err := c.MailUpdateDeliveryBoxDescription(ctx, deliveryBoxId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxUpdateDescriptionResponse(rsp)
+	return ParseMailUpdateDeliveryBoxDescriptionResponse(rsp)
 }
 
-// MailDeliveryboxUpdatePasswordWithBodyWithResponse request with arbitrary body returning *MailDeliveryboxUpdatePasswordResponse
-func (c *ClientWithResponses) MailDeliveryboxUpdatePasswordWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordResponse, error) {
-	rsp, err := c.MailDeliveryboxUpdatePasswordWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateDeliveryBoxPasswordWithBodyWithResponse request with arbitrary body returning *MailUpdateDeliveryBoxPasswordResponse
+func (c *ClientWithResponses) MailUpdateDeliveryBoxPasswordWithBodyWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxPasswordResponse, error) {
+	rsp, err := c.MailUpdateDeliveryBoxPasswordWithBody(ctx, deliveryBoxId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxUpdatePasswordResponse(rsp)
+	return ParseMailUpdateDeliveryBoxPasswordResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailDeliveryboxUpdatePasswordWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordResponse, error) {
-	rsp, err := c.MailDeliveryboxUpdatePassword(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateDeliveryBoxPasswordWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, body MailUpdateDeliveryBoxPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateDeliveryBoxPasswordResponse, error) {
+	rsp, err := c.MailUpdateDeliveryBoxPassword(ctx, deliveryBoxId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxUpdatePasswordResponse(rsp)
+	return ParseMailUpdateDeliveryBoxPasswordResponse(rsp)
 }
 
-// DnsSubZoneCreateWithBodyWithResponse request with arbitrary body returning *DnsSubZoneCreateResponse
-func (c *ClientWithResponses) DnsSubZoneCreateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsSubZoneCreateResponse, error) {
-	rsp, err := c.DnsSubZoneCreateWithBody(ctx, contentType, body, reqEditors...)
+// DeleteV2DeliveryboxesDeliveryBoxIdWithResponse request returning *DeleteV2DeliveryboxesDeliveryBoxIdResponse
+func (c *ClientWithResponses) DeleteV2DeliveryboxesDeliveryBoxIdWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2DeliveryboxesDeliveryBoxIdResponse, error) {
+	rsp, err := c.DeleteV2DeliveryboxesDeliveryBoxId(ctx, deliveryBoxId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsSubZoneCreateResponse(rsp)
+	return ParseDeleteV2DeliveryboxesDeliveryBoxIdResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsSubZoneCreateWithResponse(ctx context.Context, body DnsSubZoneCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsSubZoneCreateResponse, error) {
-	rsp, err := c.DnsSubZoneCreate(ctx, body, reqEditors...)
+// GetV2DeliveryboxesDeliveryBoxIdWithResponse request returning *GetV2DeliveryboxesDeliveryBoxIdResponse
+func (c *ClientWithResponses) GetV2DeliveryboxesDeliveryBoxIdWithResponse(ctx context.Context, deliveryBoxId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2DeliveryboxesDeliveryBoxIdResponse, error) {
+	rsp, err := c.GetV2DeliveryboxesDeliveryBoxId(ctx, deliveryBoxId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsSubZoneCreateResponse(rsp)
+	return ParseGetV2DeliveryboxesDeliveryBoxIdResponse(rsp)
 }
 
-// DnsZoneGetSpecificWithResponse request returning *DnsZoneGetSpecificResponse
-func (c *ClientWithResponses) DnsZoneGetSpecificWithResponse(ctx context.Context, zoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsZoneGetSpecificResponse, error) {
-	rsp, err := c.DnsZoneGetSpecific(ctx, zoneId, reqEditors...)
+// MailDeliveryboxUpdateDescriptionDeprecatedWithBodyWithResponse request with arbitrary body returning *MailDeliveryboxUpdateDescriptionDeprecatedResponse
+func (c *ClientWithResponses) MailDeliveryboxUpdateDescriptionDeprecatedWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionDeprecatedResponse, error) {
+	rsp, err := c.MailDeliveryboxUpdateDescriptionDeprecatedWithBody(ctx, id, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsZoneGetSpecificResponse(rsp)
+	return ParseMailDeliveryboxUpdateDescriptionDeprecatedResponse(rsp)
 }
 
-// DnsRecordASetCustomWithBodyWithResponse request with arbitrary body returning *DnsRecordASetCustomResponse
-func (c *ClientWithResponses) DnsRecordASetCustomWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomResponse, error) {
-	rsp, err := c.DnsRecordASetCustomWithBody(ctx, zoneId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) MailDeliveryboxUpdateDescriptionDeprecatedWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdateDescriptionDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdateDescriptionDeprecatedResponse, error) {
+	rsp, err := c.MailDeliveryboxUpdateDescriptionDeprecated(ctx, id, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordASetCustomResponse(rsp)
+	return ParseMailDeliveryboxUpdateDescriptionDeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordASetCustomWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomResponse, error) {
-	rsp, err := c.DnsRecordASetCustom(ctx, zoneId, body, reqEditors...)
+// MailDeliveryboxUpdatePasswordDeprecatedWithBodyWithResponse request with arbitrary body returning *MailDeliveryboxUpdatePasswordDeprecatedResponse
+func (c *ClientWithResponses) MailDeliveryboxUpdatePasswordDeprecatedWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordDeprecatedResponse, error) {
+	rsp, err := c.MailDeliveryboxUpdatePasswordDeprecatedWithBody(ctx, id, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordASetCustomResponse(rsp)
+	return ParseMailDeliveryboxUpdatePasswordDeprecatedResponse(rsp)
 }
 
-// DnsRecordASetManagedByIngressWithBodyWithResponse request with arbitrary body returning *DnsRecordASetManagedByIngressResponse
-func (c *ClientWithResponses) DnsRecordASetManagedByIngressWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressResponse, error) {
-	rsp, err := c.DnsRecordASetManagedByIngressWithBody(ctx, zoneId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) MailDeliveryboxUpdatePasswordDeprecatedWithResponse(ctx context.Context, id openapi_types.UUID, body MailDeliveryboxUpdatePasswordDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxUpdatePasswordDeprecatedResponse, error) {
+	rsp, err := c.MailDeliveryboxUpdatePasswordDeprecated(ctx, id, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordASetManagedByIngressResponse(rsp)
+	return ParseMailDeliveryboxUpdatePasswordDeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordASetManagedByIngressWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressResponse, error) {
-	rsp, err := c.DnsRecordASetManagedByIngress(ctx, zoneId, body, reqEditors...)
+// DnsCreateDnsZoneWithBodyWithResponse request with arbitrary body returning *DnsCreateDnsZoneResponse
+func (c *ClientWithResponses) DnsCreateDnsZoneWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsCreateDnsZoneResponse, error) {
+	rsp, err := c.DnsCreateDnsZoneWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordASetManagedByIngressResponse(rsp)
+	return ParseDnsCreateDnsZoneResponse(rsp)
 }
 
-// DnsRecordCnameSetWithBodyWithResponse request with arbitrary body returning *DnsRecordCnameSetResponse
-func (c *ClientWithResponses) DnsRecordCnameSetWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetResponse, error) {
-	rsp, err := c.DnsRecordCnameSetWithBody(ctx, zoneId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DnsCreateDnsZoneWithResponse(ctx context.Context, body DnsCreateDnsZoneJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsCreateDnsZoneResponse, error) {
+	rsp, err := c.DnsCreateDnsZone(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordCnameSetResponse(rsp)
+	return ParseDnsCreateDnsZoneResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordCnameSetWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetResponse, error) {
-	rsp, err := c.DnsRecordCnameSet(ctx, zoneId, body, reqEditors...)
+// DnsDeleteDnsZoneWithResponse request returning *DnsDeleteDnsZoneResponse
+func (c *ClientWithResponses) DnsDeleteDnsZoneWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsDeleteDnsZoneResponse, error) {
+	rsp, err := c.DnsDeleteDnsZone(ctx, dnsZoneId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordCnameSetResponse(rsp)
+	return ParseDnsDeleteDnsZoneResponse(rsp)
 }
 
-// DnsRecordMxSetCustomWithBodyWithResponse request with arbitrary body returning *DnsRecordMxSetCustomResponse
-func (c *ClientWithResponses) DnsRecordMxSetCustomWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomResponse, error) {
-	rsp, err := c.DnsRecordMxSetCustomWithBody(ctx, zoneId, contentType, body, reqEditors...)
+// DnsGetDnsZoneWithResponse request returning *DnsGetDnsZoneResponse
+func (c *ClientWithResponses) DnsGetDnsZoneWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsGetDnsZoneResponse, error) {
+	rsp, err := c.DnsGetDnsZone(ctx, dnsZoneId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordMxSetCustomResponse(rsp)
+	return ParseDnsGetDnsZoneResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordMxSetCustomWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomResponse, error) {
-	rsp, err := c.DnsRecordMxSetCustom(ctx, zoneId, body, reqEditors...)
+// DnsUpdateRecordSetWithBodyWithResponse request with arbitrary body returning *DnsUpdateRecordSetResponse
+func (c *ClientWithResponses) DnsUpdateRecordSetWithBodyWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsUpdateRecordSetResponse, error) {
+	rsp, err := c.DnsUpdateRecordSetWithBody(ctx, dnsZoneId, recordSet, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordMxSetCustomResponse(rsp)
+	return ParseDnsUpdateRecordSetResponse(rsp)
 }
 
-// DnsRecordMxSetManagedWithBodyWithResponse request with arbitrary body returning *DnsRecordMxSetManagedResponse
-func (c *ClientWithResponses) DnsRecordMxSetManagedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedResponse, error) {
-	rsp, err := c.DnsRecordMxSetManagedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DnsUpdateRecordSetWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet, body DnsUpdateRecordSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsUpdateRecordSetResponse, error) {
+	rsp, err := c.DnsUpdateRecordSet(ctx, dnsZoneId, recordSet, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordMxSetManagedResponse(rsp)
+	return ParseDnsUpdateRecordSetResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordMxSetManagedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedResponse, error) {
-	rsp, err := c.DnsRecordMxSetManaged(ctx, zoneId, body, reqEditors...)
+// DnsSetRecordSetManagedWithBodyWithResponse request with arbitrary body returning *DnsSetRecordSetManagedResponse
+func (c *ClientWithResponses) DnsSetRecordSetManagedWithBodyWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsSetRecordSetManagedResponse, error) {
+	rsp, err := c.DnsSetRecordSetManagedWithBody(ctx, dnsZoneId, recordSet, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordMxSetManagedResponse(rsp)
+	return ParseDnsSetRecordSetManagedResponse(rsp)
 }
 
-// DnsRecordSrvSetWithBodyWithResponse request with arbitrary body returning *DnsRecordSrvSetResponse
-func (c *ClientWithResponses) DnsRecordSrvSetWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetResponse, error) {
-	rsp, err := c.DnsRecordSrvSetWithBody(ctx, zoneId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DnsSetRecordSetManagedWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet, body DnsSetRecordSetManagedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsSetRecordSetManagedResponse, error) {
+	rsp, err := c.DnsSetRecordSetManaged(ctx, dnsZoneId, recordSet, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordSrvSetResponse(rsp)
+	return ParseDnsSetRecordSetManagedResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordSrvSetWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetResponse, error) {
-	rsp, err := c.DnsRecordSrvSet(ctx, zoneId, body, reqEditors...)
+// PostV2DnsZonesWithBodyWithResponse request with arbitrary body returning *PostV2DnsZonesResponse
+func (c *ClientWithResponses) PostV2DnsZonesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DnsZonesResponse, error) {
+	rsp, err := c.PostV2DnsZonesWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordSrvSetResponse(rsp)
+	return ParsePostV2DnsZonesResponse(rsp)
 }
 
-// DnsRecordTxtSetWithBodyWithResponse request with arbitrary body returning *DnsRecordTxtSetResponse
-func (c *ClientWithResponses) DnsRecordTxtSetWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetResponse, error) {
-	rsp, err := c.DnsRecordTxtSetWithBody(ctx, zoneId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) PostV2DnsZonesWithResponse(ctx context.Context, body PostV2DnsZonesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DnsZonesResponse, error) {
+	rsp, err := c.PostV2DnsZones(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordTxtSetResponse(rsp)
+	return ParsePostV2DnsZonesResponse(rsp)
 }
 
-func (c *ClientWithResponses) DnsRecordTxtSetWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetResponse, error) {
-	rsp, err := c.DnsRecordTxtSet(ctx, zoneId, body, reqEditors...)
+// DeleteV2DnsZonesDnsZoneIdWithResponse request returning *DeleteV2DnsZonesDnsZoneIdResponse
+func (c *ClientWithResponses) DeleteV2DnsZonesDnsZoneIdWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2DnsZonesDnsZoneIdResponse, error) {
+	rsp, err := c.DeleteV2DnsZonesDnsZoneId(ctx, dnsZoneId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsRecordTxtSetResponse(rsp)
+	return ParseDeleteV2DnsZonesDnsZoneIdResponse(rsp)
 }
 
-// DomainGetSpecificDomainOwnershipWithResponse request returning *DomainGetSpecificDomainOwnershipResponse
-func (c *ClientWithResponses) DomainGetSpecificDomainOwnershipWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainGetSpecificDomainOwnershipResponse, error) {
-	rsp, err := c.DomainGetSpecificDomainOwnership(ctx, domainOwnershipId, reqEditors...)
+// GetV2DnsZonesDnsZoneIdWithResponse request returning *GetV2DnsZonesDnsZoneIdResponse
+func (c *ClientWithResponses) GetV2DnsZonesDnsZoneIdWithResponse(ctx context.Context, dnsZoneId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2DnsZonesDnsZoneIdResponse, error) {
+	rsp, err := c.GetV2DnsZonesDnsZoneId(ctx, dnsZoneId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainGetSpecificDomainOwnershipResponse(rsp)
+	return ParseGetV2DnsZonesDnsZoneIdResponse(rsp)
+}
+
+// DnsRecordASetCustomDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordASetCustomDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordASetCustomDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordASetCustomDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordASetCustomDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordASetCustomDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetCustomDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordASetCustomDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordASetCustomDeprecatedResponse(rsp)
+}
+
+// DnsRecordASetManagedByIngressDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordASetManagedByIngressDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordASetManagedByIngressDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordASetManagedByIngressDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordASetManagedByIngressDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordASetManagedByIngressDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordASetManagedByIngressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordASetManagedByIngressDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordASetManagedByIngressDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordASetManagedByIngressDeprecatedResponse(rsp)
+}
+
+// DnsRecordCnameSetDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordCnameSetDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordCnameSetDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordCnameSetDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordCnameSetDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordCnameSetDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordCnameSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordCnameSetDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordCnameSetDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordCnameSetDeprecatedResponse(rsp)
+}
+
+// DnsRecordMxSetCustomDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordMxSetCustomDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordMxSetCustomDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordMxSetCustomDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordMxSetCustomDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordMxSetCustomDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetCustomDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetCustomDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordMxSetCustomDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordMxSetCustomDeprecatedResponse(rsp)
+}
+
+// DnsRecordMxSetManagedDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordMxSetManagedDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordMxSetManagedDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordMxSetManagedDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordMxSetManagedDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordMxSetManagedDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordMxSetManagedDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordMxSetManagedDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordMxSetManagedDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordMxSetManagedDeprecatedResponse(rsp)
+}
+
+// DnsRecordSrvSetDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordSrvSetDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordSrvSetDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordSrvSetDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordSrvSetDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordSrvSetDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordSrvSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordSrvSetDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordSrvSetDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordSrvSetDeprecatedResponse(rsp)
+}
+
+// DnsRecordTxtSetDeprecatedWithBodyWithResponse request with arbitrary body returning *DnsRecordTxtSetDeprecatedResponse
+func (c *ClientWithResponses) DnsRecordTxtSetDeprecatedWithBodyWithResponse(ctx context.Context, zoneId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordTxtSetDeprecatedWithBody(ctx, zoneId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordTxtSetDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DnsRecordTxtSetDeprecatedWithResponse(ctx context.Context, zoneId openapi_types.UUID, body DnsRecordTxtSetDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DnsRecordTxtSetDeprecatedResponse, error) {
+	rsp, err := c.DnsRecordTxtSetDeprecated(ctx, zoneId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDnsRecordTxtSetDeprecatedResponse(rsp)
+}
+
+// DomainGetDomainOwnershipWithResponse request returning *DomainGetDomainOwnershipResponse
+func (c *ClientWithResponses) DomainGetDomainOwnershipWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainGetDomainOwnershipResponse, error) {
+	rsp, err := c.DomainGetDomainOwnership(ctx, domainOwnershipId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainGetDomainOwnershipResponse(rsp)
+}
+
+// PostV2DomainOwnershipsDomainOwnershipIdWithBodyWithResponse request with arbitrary body returning *PostV2DomainOwnershipsDomainOwnershipIdResponse
+func (c *ClientWithResponses) PostV2DomainOwnershipsDomainOwnershipIdWithBodyWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DomainOwnershipsDomainOwnershipIdResponse, error) {
+	rsp, err := c.PostV2DomainOwnershipsDomainOwnershipIdWithBody(ctx, domainOwnershipId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2DomainOwnershipsDomainOwnershipIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostV2DomainOwnershipsDomainOwnershipIdWithResponse(ctx context.Context, domainOwnershipId openapi_types.UUID, body PostV2DomainOwnershipsDomainOwnershipIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DomainOwnershipsDomainOwnershipIdResponse, error) {
+	rsp, err := c.PostV2DomainOwnershipsDomainOwnershipId(ctx, domainOwnershipId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2DomainOwnershipsDomainOwnershipIdResponse(rsp)
 }
 
 // DomainVerifyDomainOwnershipWithBodyWithResponse request with arbitrary body returning *DomainVerifyDomainOwnershipResponse
@@ -41768,39 +45288,74 @@ func (c *ClientWithResponses) DomainVerifyDomainOwnershipWithResponse(ctx contex
 	return ParseDomainVerifyDomainOwnershipResponse(rsp)
 }
 
-// DomainCheckDomainAvailabilityWithBodyWithResponse request with arbitrary body returning *DomainCheckDomainAvailabilityResponse
-func (c *ClientWithResponses) DomainCheckDomainAvailabilityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCheckDomainAvailabilityResponse, error) {
-	rsp, err := c.DomainCheckDomainAvailabilityWithBody(ctx, contentType, body, reqEditors...)
+// DomainCheckDomainRegistrabilityWithBodyWithResponse request with arbitrary body returning *DomainCheckDomainRegistrabilityResponse
+func (c *ClientWithResponses) DomainCheckDomainRegistrabilityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityResponse, error) {
+	rsp, err := c.DomainCheckDomainRegistrabilityWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainCheckDomainAvailabilityResponse(rsp)
+	return ParseDomainCheckDomainRegistrabilityResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainCheckDomainAvailabilityWithResponse(ctx context.Context, body DomainCheckDomainAvailabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCheckDomainAvailabilityResponse, error) {
-	rsp, err := c.DomainCheckDomainAvailability(ctx, body, reqEditors...)
+func (c *ClientWithResponses) DomainCheckDomainRegistrabilityWithResponse(ctx context.Context, body DomainCheckDomainRegistrabilityJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityResponse, error) {
+	rsp, err := c.DomainCheckDomainRegistrability(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainCheckDomainAvailabilityResponse(rsp)
+	return ParseDomainCheckDomainRegistrabilityResponse(rsp)
 }
 
-// DomainGetHandleFieldsWithResponse request returning *DomainGetHandleFieldsResponse
-func (c *ClientWithResponses) DomainGetHandleFieldsWithResponse(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*DomainGetHandleFieldsResponse, error) {
-	rsp, err := c.DomainGetHandleFields(ctx, domainName, reqEditors...)
+// DomainListTldsWithResponse request returning *DomainListTldsResponse
+func (c *ClientWithResponses) DomainListTldsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DomainListTldsResponse, error) {
+	rsp, err := c.DomainListTlds(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainGetHandleFieldsResponse(rsp)
+	return ParseDomainListTldsResponse(rsp)
 }
 
-// DomainGetSupportedTldsWithResponse request returning *DomainGetSupportedTldsResponse
-func (c *ClientWithResponses) DomainGetSupportedTldsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DomainGetSupportedTldsResponse, error) {
-	rsp, err := c.DomainGetSupportedTlds(ctx, reqEditors...)
+// DomainListTldContactSchemasWithResponse request returning *DomainListTldContactSchemasResponse
+func (c *ClientWithResponses) DomainListTldContactSchemasWithResponse(ctx context.Context, tld string, reqEditors ...RequestEditorFn) (*DomainListTldContactSchemasResponse, error) {
+	rsp, err := c.DomainListTldContactSchemas(ctx, tld, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainGetSupportedTldsResponse(rsp)
+	return ParseDomainListTldContactSchemasResponse(rsp)
+}
+
+// DomainCheckDomainRegistrabilityV2DeprecatedWithBodyWithResponse request with arbitrary body returning *DomainCheckDomainRegistrabilityV2DeprecatedResponse
+func (c *ClientWithResponses) DomainCheckDomainRegistrabilityV2DeprecatedWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityV2DeprecatedResponse, error) {
+	rsp, err := c.DomainCheckDomainRegistrabilityV2DeprecatedWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainCheckDomainRegistrabilityV2DeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DomainCheckDomainRegistrabilityV2DeprecatedWithResponse(ctx context.Context, body DomainCheckDomainRegistrabilityV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCheckDomainRegistrabilityV2DeprecatedResponse, error) {
+	rsp, err := c.DomainCheckDomainRegistrabilityV2Deprecated(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainCheckDomainRegistrabilityV2DeprecatedResponse(rsp)
+}
+
+// DomainGetHandleFieldsV2DeprecatedWithResponse request returning *DomainGetHandleFieldsV2DeprecatedResponse
+func (c *ClientWithResponses) DomainGetHandleFieldsV2DeprecatedWithResponse(ctx context.Context, domainName string, reqEditors ...RequestEditorFn) (*DomainGetHandleFieldsV2DeprecatedResponse, error) {
+	rsp, err := c.DomainGetHandleFieldsV2Deprecated(ctx, domainName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainGetHandleFieldsV2DeprecatedResponse(rsp)
+}
+
+// GetV2DomainsSupportedTldsWithResponse request returning *GetV2DomainsSupportedTldsResponse
+func (c *ClientWithResponses) GetV2DomainsSupportedTldsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetV2DomainsSupportedTldsResponse, error) {
+	rsp, err := c.GetV2DomainsSupportedTlds(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetV2DomainsSupportedTldsResponse(rsp)
 }
 
 // DomainDeleteDomainWithBodyWithResponse request with arbitrary body returning *DomainDeleteDomainResponse
@@ -41829,38 +45384,72 @@ func (c *ClientWithResponses) DomainGetDomainWithResponse(ctx context.Context, d
 	return ParseDomainGetDomainResponse(rsp)
 }
 
-// DomainCreateAuthcodeForDomainWithBodyWithResponse request with arbitrary body returning *DomainCreateAuthcodeForDomainResponse
-func (c *ClientWithResponses) DomainCreateAuthcodeForDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateAuthcodeForDomainResponse, error) {
-	rsp, err := c.DomainCreateAuthcodeForDomainWithBody(ctx, domainId, contentType, body, reqEditors...)
+// DomainCreateDomainAuthCodeWithBodyWithResponse request with arbitrary body returning *DomainCreateDomainAuthCodeResponse
+func (c *ClientWithResponses) DomainCreateDomainAuthCodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCodeResponse, error) {
+	rsp, err := c.DomainCreateDomainAuthCodeWithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainCreateAuthcodeForDomainResponse(rsp)
+	return ParseDomainCreateDomainAuthCodeResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainCreateAuthcodeForDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcodeForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateAuthcodeForDomainResponse, error) {
-	rsp, err := c.DomainCreateAuthcodeForDomain(ctx, domainId, body, reqEditors...)
+func (c *ClientWithResponses) DomainCreateDomainAuthCodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCodeResponse, error) {
+	rsp, err := c.DomainCreateDomainAuthCode(ctx, domainId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainCreateAuthcodeForDomainResponse(rsp)
+	return ParseDomainCreateDomainAuthCodeResponse(rsp)
 }
 
-// DomainCreateAuthcode2ForDomainWithBodyWithResponse request with arbitrary body returning *DomainCreateAuthcode2ForDomainResponse
-func (c *ClientWithResponses) DomainCreateAuthcode2ForDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateAuthcode2ForDomainResponse, error) {
-	rsp, err := c.DomainCreateAuthcode2ForDomainWithBody(ctx, domainId, contentType, body, reqEditors...)
+// DomainCreateDomainAuthCode2WithBodyWithResponse request with arbitrary body returning *DomainCreateDomainAuthCode2Response
+func (c *ClientWithResponses) DomainCreateDomainAuthCode2WithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCode2Response, error) {
+	rsp, err := c.DomainCreateDomainAuthCode2WithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainCreateAuthcode2ForDomainResponse(rsp)
+	return ParseDomainCreateDomainAuthCode2Response(rsp)
 }
 
-func (c *ClientWithResponses) DomainCreateAuthcode2ForDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateAuthcode2ForDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateAuthcode2ForDomainResponse, error) {
-	rsp, err := c.DomainCreateAuthcode2ForDomain(ctx, domainId, body, reqEditors...)
+func (c *ClientWithResponses) DomainCreateDomainAuthCode2WithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainCreateDomainAuthCode2JSONRequestBody, reqEditors ...RequestEditorFn) (*DomainCreateDomainAuthCode2Response, error) {
+	rsp, err := c.DomainCreateDomainAuthCode2(ctx, domainId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainCreateAuthcode2ForDomainResponse(rsp)
+	return ParseDomainCreateDomainAuthCode2Response(rsp)
+}
+
+// PostV2DomainsDomainIdActionsCreateAuthcodeWithBodyWithResponse request with arbitrary body returning *PostV2DomainsDomainIdActionsCreateAuthcodeResponse
+func (c *ClientWithResponses) PostV2DomainsDomainIdActionsCreateAuthcodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcodeResponse, error) {
+	rsp, err := c.PostV2DomainsDomainIdActionsCreateAuthcodeWithBody(ctx, domainId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2DomainsDomainIdActionsCreateAuthcodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostV2DomainsDomainIdActionsCreateAuthcodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcodeResponse, error) {
+	rsp, err := c.PostV2DomainsDomainIdActionsCreateAuthcode(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2DomainsDomainIdActionsCreateAuthcodeResponse(rsp)
+}
+
+// PostV2DomainsDomainIdActionsCreateAuthcode2WithBodyWithResponse request with arbitrary body returning *PostV2DomainsDomainIdActionsCreateAuthcode2Response
+func (c *ClientWithResponses) PostV2DomainsDomainIdActionsCreateAuthcode2WithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcode2Response, error) {
+	rsp, err := c.PostV2DomainsDomainIdActionsCreateAuthcode2WithBody(ctx, domainId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2DomainsDomainIdActionsCreateAuthcode2Response(rsp)
+}
+
+func (c *ClientWithResponses) PostV2DomainsDomainIdActionsCreateAuthcode2WithResponse(ctx context.Context, domainId openapi_types.UUID, body PostV2DomainsDomainIdActionsCreateAuthcode2JSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2DomainsDomainIdActionsCreateAuthcode2Response, error) {
+	rsp, err := c.PostV2DomainsDomainIdActionsCreateAuthcode2(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2DomainsDomainIdActionsCreateAuthcode2Response(rsp)
 }
 
 // DomainResendDomainEmailWithBodyWithResponse request with arbitrary body returning *DomainResendDomainEmailResponse
@@ -41878,6 +45467,57 @@ func (c *ClientWithResponses) DomainResendDomainEmailWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseDomainResendDomainEmailResponse(rsp)
+}
+
+// DomainUpdateDomainAuthCodeWithBodyWithResponse request with arbitrary body returning *DomainUpdateDomainAuthCodeResponse
+func (c *ClientWithResponses) DomainUpdateDomainAuthCodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainAuthCodeResponse, error) {
+	rsp, err := c.DomainUpdateDomainAuthCodeWithBody(ctx, domainId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainUpdateDomainAuthCodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) DomainUpdateDomainAuthCodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainAuthCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainAuthCodeResponse, error) {
+	rsp, err := c.DomainUpdateDomainAuthCode(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainUpdateDomainAuthCodeResponse(rsp)
+}
+
+// PatchV2DomainsDomainIdAuthcodeWithBodyWithResponse request with arbitrary body returning *PatchV2DomainsDomainIdAuthcodeResponse
+func (c *ClientWithResponses) PatchV2DomainsDomainIdAuthcodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchV2DomainsDomainIdAuthcodeResponse, error) {
+	rsp, err := c.PatchV2DomainsDomainIdAuthcodeWithBody(ctx, domainId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchV2DomainsDomainIdAuthcodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchV2DomainsDomainIdAuthcodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body PatchV2DomainsDomainIdAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchV2DomainsDomainIdAuthcodeResponse, error) {
+	rsp, err := c.PatchV2DomainsDomainIdAuthcode(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchV2DomainsDomainIdAuthcodeResponse(rsp)
+}
+
+// DomainUpdateDomainContactWithBodyWithResponse request with arbitrary body returning *DomainUpdateDomainContactResponse
+func (c *ClientWithResponses) DomainUpdateDomainContactWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainContactResponse, error) {
+	rsp, err := c.DomainUpdateDomainContactWithBody(ctx, domainId, contact, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainUpdateDomainContactResponse(rsp)
+}
+
+func (c *ClientWithResponses) DomainUpdateDomainContactWithResponse(ctx context.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact, body DomainUpdateDomainContactJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainContactResponse, error) {
+	rsp, err := c.DomainUpdateDomainContact(ctx, domainId, contact, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainUpdateDomainContactResponse(rsp)
 }
 
 // ContractGetDetailOfContractByDomainWithResponse request returning *ContractGetDetailOfContractByDomainResponse
@@ -41898,98 +45538,141 @@ func (c *ClientWithResponses) DeprecatedContractGetDetailOfContractByDomainWithR
 	return ParseDeprecatedContractGetDetailOfContractByDomainResponse(rsp)
 }
 
-// DomainAbortDeclareProcessWithResponse request returning *DomainAbortDeclareProcessResponse
-func (c *ClientWithResponses) DomainAbortDeclareProcessWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainAbortDeclareProcessResponse, error) {
-	rsp, err := c.DomainAbortDeclareProcess(ctx, domainId, reqEditors...)
+// DomainAbortDomainDeclarationWithResponse request returning *DomainAbortDomainDeclarationResponse
+func (c *ClientWithResponses) DomainAbortDomainDeclarationWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DomainAbortDomainDeclarationResponse, error) {
+	rsp, err := c.DomainAbortDomainDeclaration(ctx, domainId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainAbortDeclareProcessResponse(rsp)
+	return ParseDomainAbortDomainDeclarationResponse(rsp)
 }
 
-// DomainDeclareProcessChangeAuthcodeWithBodyWithResponse request with arbitrary body returning *DomainDeclareProcessChangeAuthcodeResponse
-func (c *ClientWithResponses) DomainDeclareProcessChangeAuthcodeWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeResponse, error) {
-	rsp, err := c.DomainDeclareProcessChangeAuthcodeWithBody(ctx, domainId, contentType, body, reqEditors...)
+// DeleteV2DomainsDomainIdDeclarationsWithResponse request returning *DeleteV2DomainsDomainIdDeclarationsResponse
+func (c *ClientWithResponses) DeleteV2DomainsDomainIdDeclarationsWithResponse(ctx context.Context, domainId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2DomainsDomainIdDeclarationsResponse, error) {
+	rsp, err := c.DeleteV2DomainsDomainIdDeclarations(ctx, domainId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainDeclareProcessChangeAuthcodeResponse(rsp)
+	return ParseDeleteV2DomainsDomainIdDeclarationsResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainDeclareProcessChangeAuthcodeWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeResponse, error) {
-	rsp, err := c.DomainDeclareProcessChangeAuthcode(ctx, domainId, body, reqEditors...)
+// DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBodyWithResponse request with arbitrary body returning *DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse
+func (c *ClientWithResponses) DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse, error) {
+	rsp, err := c.DomainDeclareProcessChangeAuthcodeV2DeprecatedWithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainDeclareProcessChangeAuthcodeResponse(rsp)
+	return ParseDomainDeclareProcessChangeAuthcodeV2DeprecatedResponse(rsp)
 }
 
-// DomainDeclareProcessChangeHandlesWithBodyWithResponse request with arbitrary body returning *DomainDeclareProcessChangeHandlesResponse
-func (c *ClientWithResponses) DomainDeclareProcessChangeHandlesWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesResponse, error) {
-	rsp, err := c.DomainDeclareProcessChangeHandlesWithBody(ctx, domainId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DomainDeclareProcessChangeAuthcodeV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeAuthcodeV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse, error) {
+	rsp, err := c.DomainDeclareProcessChangeAuthcodeV2Deprecated(ctx, domainId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainDeclareProcessChangeHandlesResponse(rsp)
+	return ParseDomainDeclareProcessChangeAuthcodeV2DeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainDeclareProcessChangeHandlesWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesResponse, error) {
-	rsp, err := c.DomainDeclareProcessChangeHandles(ctx, domainId, body, reqEditors...)
+// DomainDeclareProcessChangeHandlesV2DeprecatedWithBodyWithResponse request with arbitrary body returning *DomainDeclareProcessChangeHandlesV2DeprecatedResponse
+func (c *ClientWithResponses) DomainDeclareProcessChangeHandlesV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesV2DeprecatedResponse, error) {
+	rsp, err := c.DomainDeclareProcessChangeHandlesV2DeprecatedWithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainDeclareProcessChangeHandlesResponse(rsp)
+	return ParseDomainDeclareProcessChangeHandlesV2DeprecatedResponse(rsp)
 }
 
-// DomainChangeOwnercOfDomainWithBodyWithResponse request with arbitrary body returning *DomainChangeOwnercOfDomainResponse
-func (c *ClientWithResponses) DomainChangeOwnercOfDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainResponse, error) {
-	rsp, err := c.DomainChangeOwnercOfDomainWithBody(ctx, domainId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DomainDeclareProcessChangeHandlesV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareProcessChangeHandlesV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareProcessChangeHandlesV2DeprecatedResponse, error) {
+	rsp, err := c.DomainDeclareProcessChangeHandlesV2Deprecated(ctx, domainId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainChangeOwnercOfDomainResponse(rsp)
+	return ParseDomainDeclareProcessChangeHandlesV2DeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainChangeOwnercOfDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainResponse, error) {
-	rsp, err := c.DomainChangeOwnercOfDomain(ctx, domainId, body, reqEditors...)
+// DomainChangeOwnercOfDomainV2DeprecatedWithBodyWithResponse request with arbitrary body returning *DomainChangeOwnercOfDomainV2DeprecatedResponse
+func (c *ClientWithResponses) DomainChangeOwnercOfDomainV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainV2DeprecatedResponse, error) {
+	rsp, err := c.DomainChangeOwnercOfDomainV2DeprecatedWithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainChangeOwnercOfDomainResponse(rsp)
+	return ParseDomainChangeOwnercOfDomainV2DeprecatedResponse(rsp)
 }
 
-// DomainDeclareNameserversWithBodyWithResponse request with arbitrary body returning *DomainDeclareNameserversResponse
-func (c *ClientWithResponses) DomainDeclareNameserversWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversResponse, error) {
-	rsp, err := c.DomainDeclareNameserversWithBody(ctx, domainId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DomainChangeOwnercOfDomainV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeOwnercOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeOwnercOfDomainV2DeprecatedResponse, error) {
+	rsp, err := c.DomainChangeOwnercOfDomainV2Deprecated(ctx, domainId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainDeclareNameserversResponse(rsp)
+	return ParseDomainChangeOwnercOfDomainV2DeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainDeclareNameserversWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversResponse, error) {
-	rsp, err := c.DomainDeclareNameservers(ctx, domainId, body, reqEditors...)
+// DomainUpdateDomainNameserversWithBodyWithResponse request with arbitrary body returning *DomainUpdateDomainNameserversResponse
+func (c *ClientWithResponses) DomainUpdateDomainNameserversWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainNameserversResponse, error) {
+	rsp, err := c.DomainUpdateDomainNameserversWithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainDeclareNameserversResponse(rsp)
+	return ParseDomainUpdateDomainNameserversResponse(rsp)
 }
 
-// DomainChangeProjectOfDomainWithBodyWithResponse request with arbitrary body returning *DomainChangeProjectOfDomainResponse
-func (c *ClientWithResponses) DomainChangeProjectOfDomainWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainResponse, error) {
-	rsp, err := c.DomainChangeProjectOfDomainWithBody(ctx, domainId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DomainUpdateDomainNameserversWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainNameserversJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainNameserversResponse, error) {
+	rsp, err := c.DomainUpdateDomainNameservers(ctx, domainId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainChangeProjectOfDomainResponse(rsp)
+	return ParseDomainUpdateDomainNameserversResponse(rsp)
 }
 
-func (c *ClientWithResponses) DomainChangeProjectOfDomainWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainResponse, error) {
-	rsp, err := c.DomainChangeProjectOfDomain(ctx, domainId, body, reqEditors...)
+// DomainDeclareNameserversV2DeprecatedWithBodyWithResponse request with arbitrary body returning *DomainDeclareNameserversV2DeprecatedResponse
+func (c *ClientWithResponses) DomainDeclareNameserversV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversV2DeprecatedResponse, error) {
+	rsp, err := c.DomainDeclareNameserversV2DeprecatedWithBody(ctx, domainId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDomainChangeProjectOfDomainResponse(rsp)
+	return ParseDomainDeclareNameserversV2DeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DomainDeclareNameserversV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainDeclareNameserversV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainDeclareNameserversV2DeprecatedResponse, error) {
+	rsp, err := c.DomainDeclareNameserversV2Deprecated(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainDeclareNameserversV2DeprecatedResponse(rsp)
+}
+
+// DomainUpdateDomainProjectIdWithBodyWithResponse request with arbitrary body returning *DomainUpdateDomainProjectIdResponse
+func (c *ClientWithResponses) DomainUpdateDomainProjectIdWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainUpdateDomainProjectIdResponse, error) {
+	rsp, err := c.DomainUpdateDomainProjectIdWithBody(ctx, domainId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainUpdateDomainProjectIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) DomainUpdateDomainProjectIdWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainUpdateDomainProjectIdJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainUpdateDomainProjectIdResponse, error) {
+	rsp, err := c.DomainUpdateDomainProjectId(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainUpdateDomainProjectIdResponse(rsp)
+}
+
+// DomainChangeProjectOfDomainV2DeprecatedWithBodyWithResponse request with arbitrary body returning *DomainChangeProjectOfDomainV2DeprecatedResponse
+func (c *ClientWithResponses) DomainChangeProjectOfDomainV2DeprecatedWithBodyWithResponse(ctx context.Context, domainId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainV2DeprecatedResponse, error) {
+	rsp, err := c.DomainChangeProjectOfDomainV2DeprecatedWithBody(ctx, domainId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainChangeProjectOfDomainV2DeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) DomainChangeProjectOfDomainV2DeprecatedWithResponse(ctx context.Context, domainId openapi_types.UUID, body DomainChangeProjectOfDomainV2DeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainChangeProjectOfDomainV2DeprecatedResponse, error) {
+	rsp, err := c.DomainChangeProjectOfDomainV2Deprecated(ctx, domainId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDomainChangeProjectOfDomainV2DeprecatedResponse(rsp)
 }
 
 // DomainGetScreenshotForDomainWithBodyWithResponse request with arbitrary body returning *DomainGetScreenshotForDomainResponse
@@ -42175,141 +45858,278 @@ func (c *ClientWithResponses) UserLogoutWithResponse(ctx context.Context, body U
 	return ParseUserLogoutResponse(rsp)
 }
 
-// MailMailaddressDeleteWithResponse request returning *MailMailaddressDeleteResponse
-func (c *ClientWithResponses) MailMailaddressDeleteWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailMailaddressDeleteResponse, error) {
-	rsp, err := c.MailMailaddressDelete(ctx, id, reqEditors...)
+// MailDeleteMailAddressWithResponse request returning *MailDeleteMailAddressResponse
+func (c *ClientWithResponses) MailDeleteMailAddressWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailDeleteMailAddressResponse, error) {
+	rsp, err := c.MailDeleteMailAddress(ctx, mailAddressId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressDeleteResponse(rsp)
+	return ParseMailDeleteMailAddressResponse(rsp)
 }
 
-// MailMailaddressGetSpecificWithResponse request returning *MailMailaddressGetSpecificResponse
-func (c *ClientWithResponses) MailMailaddressGetSpecificWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailMailaddressGetSpecificResponse, error) {
-	rsp, err := c.MailMailaddressGetSpecific(ctx, id, reqEditors...)
+// MailGetMailAddressWithResponse request returning *MailGetMailAddressResponse
+func (c *ClientWithResponses) MailGetMailAddressWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*MailGetMailAddressResponse, error) {
+	rsp, err := c.MailGetMailAddress(ctx, mailAddressId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressGetSpecificResponse(rsp)
+	return ParseMailGetMailAddressResponse(rsp)
 }
 
-// MailMailaddressUpdateAddressWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateAddressResponse
-func (c *ClientWithResponses) MailMailaddressUpdateAddressWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressResponse, error) {
-	rsp, err := c.MailMailaddressUpdateAddressWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressAddressWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressAddressResponse
+func (c *ClientWithResponses) MailUpdateMailAddressAddressWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAddressResponse, error) {
+	rsp, err := c.MailUpdateMailAddressAddressWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateAddressResponse(rsp)
+	return ParseMailUpdateMailAddressAddressResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdateAddressWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressResponse, error) {
-	rsp, err := c.MailMailaddressUpdateAddress(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressAddressWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAddressResponse, error) {
+	rsp, err := c.MailUpdateMailAddressAddress(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateAddressResponse(rsp)
+	return ParseMailUpdateMailAddressAddressResponse(rsp)
 }
 
-// MailMailaddressUpdateAutoresponderWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateAutoresponderResponse
-func (c *ClientWithResponses) MailMailaddressUpdateAutoresponderWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAutoresponderResponse, error) {
-	rsp, err := c.MailMailaddressUpdateAutoresponderWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressAutoresponderWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressAutoresponderResponse
+func (c *ClientWithResponses) MailUpdateMailAddressAutoresponderWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAutoresponderResponse, error) {
+	rsp, err := c.MailUpdateMailAddressAutoresponderWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateAutoresponderResponse(rsp)
+	return ParseMailUpdateMailAddressAutoresponderResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdateAutoresponderWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAutoresponderResponse, error) {
-	rsp, err := c.MailMailaddressUpdateAutoresponder(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressAutoresponderWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressAutoresponderJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressAutoresponderResponse, error) {
+	rsp, err := c.MailUpdateMailAddressAutoresponder(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateAutoresponderResponse(rsp)
+	return ParseMailUpdateMailAddressAutoresponderResponse(rsp)
 }
 
-// MailMailaddressUpdateCatchallWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateCatchallResponse
-func (c *ClientWithResponses) MailMailaddressUpdateCatchallWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateCatchallResponse, error) {
-	rsp, err := c.MailMailaddressUpdateCatchallWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressCatchallWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressCatchallResponse
+func (c *ClientWithResponses) MailUpdateMailAddressCatchallWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressCatchallResponse, error) {
+	rsp, err := c.MailUpdateMailAddressCatchallWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateCatchallResponse(rsp)
+	return ParseMailUpdateMailAddressCatchallResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdateCatchallWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateCatchallResponse, error) {
-	rsp, err := c.MailMailaddressUpdateCatchall(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressCatchallWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressCatchallJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressCatchallResponse, error) {
+	rsp, err := c.MailUpdateMailAddressCatchall(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateCatchallResponse(rsp)
+	return ParseMailUpdateMailAddressCatchallResponse(rsp)
 }
 
-// MailMailaddressUpdateForwardaddressesWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateForwardaddressesResponse
-func (c *ClientWithResponses) MailMailaddressUpdateForwardaddressesWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateForwardaddressesResponse, error) {
-	rsp, err := c.MailMailaddressUpdateForwardaddressesWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressForwardAddressesWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressForwardAddressesResponse
+func (c *ClientWithResponses) MailUpdateMailAddressForwardAddressesWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressForwardAddressesResponse, error) {
+	rsp, err := c.MailUpdateMailAddressForwardAddressesWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateForwardaddressesResponse(rsp)
+	return ParseMailUpdateMailAddressForwardAddressesResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdateForwardaddressesWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateForwardaddressesResponse, error) {
-	rsp, err := c.MailMailaddressUpdateForwardaddresses(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressForwardAddressesWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressForwardAddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressForwardAddressesResponse, error) {
+	rsp, err := c.MailUpdateMailAddressForwardAddresses(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateForwardaddressesResponse(rsp)
+	return ParseMailUpdateMailAddressForwardAddressesResponse(rsp)
 }
 
-// MailMailaddressUpdatePasswordWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdatePasswordResponse
-func (c *ClientWithResponses) MailMailaddressUpdatePasswordWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdatePasswordResponse, error) {
-	rsp, err := c.MailMailaddressUpdatePasswordWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressPasswordWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressPasswordResponse
+func (c *ClientWithResponses) MailUpdateMailAddressPasswordWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressPasswordResponse, error) {
+	rsp, err := c.MailUpdateMailAddressPasswordWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdatePasswordResponse(rsp)
+	return ParseMailUpdateMailAddressPasswordResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdatePasswordWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdatePasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdatePasswordResponse, error) {
-	rsp, err := c.MailMailaddressUpdatePassword(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressPasswordWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressPasswordResponse, error) {
+	rsp, err := c.MailUpdateMailAddressPassword(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdatePasswordResponse(rsp)
+	return ParseMailUpdateMailAddressPasswordResponse(rsp)
 }
 
-// MailMailaddressUpdateQuotaWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateQuotaResponse
-func (c *ClientWithResponses) MailMailaddressUpdateQuotaWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateQuotaResponse, error) {
-	rsp, err := c.MailMailaddressUpdateQuotaWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressQuotaWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressQuotaResponse
+func (c *ClientWithResponses) MailUpdateMailAddressQuotaWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressQuotaResponse, error) {
+	rsp, err := c.MailUpdateMailAddressQuotaWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateQuotaResponse(rsp)
+	return ParseMailUpdateMailAddressQuotaResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdateQuotaWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateQuotaResponse, error) {
-	rsp, err := c.MailMailaddressUpdateQuota(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressQuotaWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressQuotaResponse, error) {
+	rsp, err := c.MailUpdateMailAddressQuota(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateQuotaResponse(rsp)
+	return ParseMailUpdateMailAddressQuotaResponse(rsp)
 }
 
-// MailMailaddressUpdateSpamprotectionWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateSpamprotectionResponse
-func (c *ClientWithResponses) MailMailaddressUpdateSpamprotectionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateSpamprotectionResponse, error) {
-	rsp, err := c.MailMailaddressUpdateSpamprotectionWithBody(ctx, id, contentType, body, reqEditors...)
+// MailUpdateMailAddressSpamProtectionWithBodyWithResponse request with arbitrary body returning *MailUpdateMailAddressSpamProtectionResponse
+func (c *ClientWithResponses) MailUpdateMailAddressSpamProtectionWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressSpamProtectionResponse, error) {
+	rsp, err := c.MailUpdateMailAddressSpamProtectionWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateSpamprotectionResponse(rsp)
+	return ParseMailUpdateMailAddressSpamProtectionResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressUpdateSpamprotectionWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateSpamprotectionResponse, error) {
-	rsp, err := c.MailMailaddressUpdateSpamprotection(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateMailAddressSpamProtectionWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body MailUpdateMailAddressSpamProtectionJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateMailAddressSpamProtectionResponse, error) {
+	rsp, err := c.MailUpdateMailAddressSpamProtection(ctx, mailAddressId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressUpdateSpamprotectionResponse(rsp)
+	return ParseMailUpdateMailAddressSpamProtectionResponse(rsp)
+}
+
+// MailMailaddressUpdateAddressDeprecatedWithBodyWithResponse request with arbitrary body returning *MailMailaddressUpdateAddressDeprecatedResponse
+func (c *ClientWithResponses) MailMailaddressUpdateAddressDeprecatedWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressDeprecatedResponse, error) {
+	rsp, err := c.MailMailaddressUpdateAddressDeprecatedWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMailMailaddressUpdateAddressDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) MailMailaddressUpdateAddressDeprecatedWithResponse(ctx context.Context, id openapi_types.UUID, body MailMailaddressUpdateAddressDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressUpdateAddressDeprecatedResponse, error) {
+	rsp, err := c.MailMailaddressUpdateAddressDeprecated(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMailMailaddressUpdateAddressDeprecatedResponse(rsp)
+}
+
+// DeleteV2MailaddressesMailAddressIdWithResponse request returning *DeleteV2MailaddressesMailAddressIdResponse
+func (c *ClientWithResponses) DeleteV2MailaddressesMailAddressIdWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteV2MailaddressesMailAddressIdResponse, error) {
+	rsp, err := c.DeleteV2MailaddressesMailAddressId(ctx, mailAddressId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteV2MailaddressesMailAddressIdResponse(rsp)
+}
+
+// GetV2MailaddressesMailAddressIdWithResponse request returning *GetV2MailaddressesMailAddressIdResponse
+func (c *ClientWithResponses) GetV2MailaddressesMailAddressIdWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2MailaddressesMailAddressIdResponse, error) {
+	rsp, err := c.GetV2MailaddressesMailAddressId(ctx, mailAddressId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetV2MailaddressesMailAddressIdResponse(rsp)
+}
+
+// PutV2MailaddressesMailAddressIdAutoResponderWithBodyWithResponse request with arbitrary body returning *PutV2MailaddressesMailAddressIdAutoResponderResponse
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdAutoResponderWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdAutoResponderResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdAutoResponderWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdAutoResponderResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdAutoResponderWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdAutoResponderJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdAutoResponderResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdAutoResponder(ctx, mailAddressId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdAutoResponderResponse(rsp)
+}
+
+// PutV2MailaddressesMailAddressIdCatchAllWithBodyWithResponse request with arbitrary body returning *PutV2MailaddressesMailAddressIdCatchAllResponse
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdCatchAllWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdCatchAllResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdCatchAllWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdCatchAllResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdCatchAllWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdCatchAllJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdCatchAllResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdCatchAll(ctx, mailAddressId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdCatchAllResponse(rsp)
+}
+
+// PutV2MailaddressesMailAddressIdForwardaddressesWithBodyWithResponse request with arbitrary body returning *PutV2MailaddressesMailAddressIdForwardaddressesResponse
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdForwardaddressesWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdForwardaddressesResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdForwardaddressesWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdForwardaddressesResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdForwardaddressesWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdForwardaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdForwardaddressesResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdForwardaddresses(ctx, mailAddressId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdForwardaddressesResponse(rsp)
+}
+
+// PutV2MailaddressesMailAddressIdPasswordWithBodyWithResponse request with arbitrary body returning *PutV2MailaddressesMailAddressIdPasswordResponse
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdPasswordWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdPasswordResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdPasswordWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdPasswordResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdPasswordWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdPasswordResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdPassword(ctx, mailAddressId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdPasswordResponse(rsp)
+}
+
+// PutV2MailaddressesMailAddressIdQuotaWithBodyWithResponse request with arbitrary body returning *PutV2MailaddressesMailAddressIdQuotaResponse
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdQuotaWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdQuotaResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdQuotaWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdQuotaResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdQuotaWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdQuotaJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdQuotaResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdQuota(ctx, mailAddressId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdQuotaResponse(rsp)
+}
+
+// PutV2MailaddressesMailAddressIdSpamprotectionWithBodyWithResponse request with arbitrary body returning *PutV2MailaddressesMailAddressIdSpamprotectionResponse
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdSpamprotectionWithBodyWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdSpamprotectionResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdSpamprotectionWithBody(ctx, mailAddressId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdSpamprotectionResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutV2MailaddressesMailAddressIdSpamprotectionWithResponse(ctx context.Context, mailAddressId openapi_types.UUID, body PutV2MailaddressesMailAddressIdSpamprotectionJSONRequestBody, reqEditors ...RequestEditorFn) (*PutV2MailaddressesMailAddressIdSpamprotectionResponse, error) {
+	rsp, err := c.PutV2MailaddressesMailAddressIdSpamprotection(ctx, mailAddressId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutV2MailaddressesMailAddressIdSpamprotectionResponse(rsp)
 }
 
 // DatabaseListMysqlCharsetsWithResponse request returning *DatabaseListMysqlCharsetsResponse
@@ -42348,8 +46168,8 @@ func (c *ClientWithResponses) DatabaseCreateMysqlUserWithResponse(ctx context.Co
 }
 
 // DatabaseDeleteMysqlDatabaseWithResponse request returning *DatabaseDeleteMysqlDatabaseResponse
-func (c *ClientWithResponses) DatabaseDeleteMysqlDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlDatabaseResponse, error) {
-	rsp, err := c.DatabaseDeleteMysqlDatabase(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseDeleteMysqlDatabaseWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlDatabaseResponse, error) {
+	rsp, err := c.DatabaseDeleteMysqlDatabase(ctx, mysqlDatabaseId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42357,8 +46177,8 @@ func (c *ClientWithResponses) DatabaseDeleteMysqlDatabaseWithResponse(ctx contex
 }
 
 // DatabaseGetMysqlDatabaseWithResponse request returning *DatabaseGetMysqlDatabaseResponse
-func (c *ClientWithResponses) DatabaseGetMysqlDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlDatabaseResponse, error) {
-	rsp, err := c.DatabaseGetMysqlDatabase(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseGetMysqlDatabaseWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlDatabaseResponse, error) {
+	rsp, err := c.DatabaseGetMysqlDatabase(ctx, mysqlDatabaseId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42366,16 +46186,16 @@ func (c *ClientWithResponses) DatabaseGetMysqlDatabaseWithResponse(ctx context.C
 }
 
 // DatabaseUpdateMysqlDatabaseDefaultCharsetWithBodyWithResponse request with arbitrary body returning *DatabaseUpdateMysqlDatabaseDefaultCharsetResponse
-func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDefaultCharsetWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDefaultCharsetWithBodyWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlDatabaseDefaultCharsetWithBody(ctx, mysqlDatabaseId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseUpdateMysqlDatabaseDefaultCharsetResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDefaultCharsetWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlDatabaseDefaultCharset(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDefaultCharsetWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDefaultCharsetJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDefaultCharsetResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlDatabaseDefaultCharset(ctx, mysqlDatabaseId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42383,16 +46203,16 @@ func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDefaultCharsetWithRespo
 }
 
 // DatabaseUpdateMysqlDatabaseDescriptionWithBodyWithResponse request with arbitrary body returning *DatabaseUpdateMysqlDatabaseDescriptionResponse
-func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDescriptionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDescriptionWithBodyWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlDatabaseDescriptionWithBody(ctx, mysqlDatabaseId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseUpdateMysqlDatabaseDescriptionResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDescriptionWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlDatabaseDescription(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDescriptionWithResponse(ctx context.Context, mysqlDatabaseId openapi_types.UUID, body DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlDatabaseDescriptionResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlDatabaseDescription(ctx, mysqlDatabaseId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42400,8 +46220,8 @@ func (c *ClientWithResponses) DatabaseUpdateMysqlDatabaseDescriptionWithResponse
 }
 
 // DatabaseDeleteMysqlUserWithResponse request returning *DatabaseDeleteMysqlUserResponse
-func (c *ClientWithResponses) DatabaseDeleteMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlUserResponse, error) {
-	rsp, err := c.DatabaseDeleteMysqlUser(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseDeleteMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteMysqlUserResponse, error) {
+	rsp, err := c.DatabaseDeleteMysqlUser(ctx, mysqlUserId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42409,8 +46229,8 @@ func (c *ClientWithResponses) DatabaseDeleteMysqlUserWithResponse(ctx context.Co
 }
 
 // DatabaseGetMysqlUserWithResponse request returning *DatabaseGetMysqlUserResponse
-func (c *ClientWithResponses) DatabaseGetMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserResponse, error) {
-	rsp, err := c.DatabaseGetMysqlUser(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseGetMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserResponse, error) {
+	rsp, err := c.DatabaseGetMysqlUser(ctx, mysqlUserId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42418,16 +46238,16 @@ func (c *ClientWithResponses) DatabaseGetMysqlUserWithResponse(ctx context.Conte
 }
 
 // DatabaseUpdateMysqlUserWithBodyWithResponse request with arbitrary body returning *DatabaseUpdateMysqlUserResponse
-func (c *ClientWithResponses) DatabaseUpdateMysqlUserWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlUserWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlUserWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlUserWithBody(ctx, mysqlUserId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseUpdateMysqlUserResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseUpdateMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlUser(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlUser(ctx, mysqlUserId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42435,16 +46255,16 @@ func (c *ClientWithResponses) DatabaseUpdateMysqlUserWithResponse(ctx context.Co
 }
 
 // DatabaseDisableMysqlUserWithBodyWithResponse request with arbitrary body returning *DatabaseDisableMysqlUserResponse
-func (c *ClientWithResponses) DatabaseDisableMysqlUserWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error) {
-	rsp, err := c.DatabaseDisableMysqlUserWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseDisableMysqlUserWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error) {
+	rsp, err := c.DatabaseDisableMysqlUserWithBody(ctx, mysqlUserId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseDisableMysqlUserResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseDisableMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error) {
-	rsp, err := c.DatabaseDisableMysqlUser(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseDisableMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseDisableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseDisableMysqlUserResponse, error) {
+	rsp, err := c.DatabaseDisableMysqlUser(ctx, mysqlUserId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42452,16 +46272,16 @@ func (c *ClientWithResponses) DatabaseDisableMysqlUserWithResponse(ctx context.C
 }
 
 // DatabaseEnableMysqlUserWithBodyWithResponse request with arbitrary body returning *DatabaseEnableMysqlUserResponse
-func (c *ClientWithResponses) DatabaseEnableMysqlUserWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error) {
-	rsp, err := c.DatabaseEnableMysqlUserWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseEnableMysqlUserWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error) {
+	rsp, err := c.DatabaseEnableMysqlUserWithBody(ctx, mysqlUserId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseEnableMysqlUserResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseEnableMysqlUserWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error) {
-	rsp, err := c.DatabaseEnableMysqlUser(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseEnableMysqlUserWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseEnableMysqlUserJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseEnableMysqlUserResponse, error) {
+	rsp, err := c.DatabaseEnableMysqlUser(ctx, mysqlUserId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42469,16 +46289,16 @@ func (c *ClientWithResponses) DatabaseEnableMysqlUserWithResponse(ctx context.Co
 }
 
 // DatabaseUpdateMysqlUserPasswordWithBodyWithResponse request with arbitrary body returning *DatabaseUpdateMysqlUserPasswordResponse
-func (c *ClientWithResponses) DatabaseUpdateMysqlUserPasswordWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlUserPasswordWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlUserPasswordWithBodyWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlUserPasswordWithBody(ctx, mysqlUserId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseUpdateMysqlUserPasswordResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseUpdateMysqlUserPasswordWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error) {
-	rsp, err := c.DatabaseUpdateMysqlUserPassword(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateMysqlUserPasswordWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, body DatabaseUpdateMysqlUserPasswordJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateMysqlUserPasswordResponse, error) {
+	rsp, err := c.DatabaseUpdateMysqlUserPassword(ctx, mysqlUserId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -42486,8 +46306,8 @@ func (c *ClientWithResponses) DatabaseUpdateMysqlUserPasswordWithResponse(ctx co
 }
 
 // DatabaseGetMysqlUserPhpMyAdminUrlWithResponse request returning *DatabaseGetMysqlUserPhpMyAdminUrlResponse
-func (c *ClientWithResponses) DatabaseGetMysqlUserPhpMyAdminUrlWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserPhpMyAdminUrlResponse, error) {
-	rsp, err := c.DatabaseGetMysqlUserPhpMyAdminUrl(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseGetMysqlUserPhpMyAdminUrlWithResponse(ctx context.Context, mysqlUserId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetMysqlUserPhpMyAdminUrlResponse, error) {
+	rsp, err := c.DatabaseGetMysqlUserPhpMyAdminUrl(ctx, mysqlUserId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -43097,30 +46917,56 @@ func (c *ClientWithResponses) CronjobCreateCronjobWithResponse(ctx context.Conte
 	return ParseCronjobCreateCronjobResponse(rsp)
 }
 
-// MailDeliveryboxListWithResponse request returning *MailDeliveryboxListResponse
-func (c *ClientWithResponses) MailDeliveryboxListWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailDeliveryboxListResponse, error) {
-	rsp, err := c.MailDeliveryboxList(ctx, projectId, reqEditors...)
+// MailListDeliveryBoxesWithResponse request returning *MailListDeliveryBoxesResponse
+func (c *ClientWithResponses) MailListDeliveryBoxesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailListDeliveryBoxesResponse, error) {
+	rsp, err := c.MailListDeliveryBoxes(ctx, projectId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxListResponse(rsp)
+	return ParseMailListDeliveryBoxesResponse(rsp)
 }
 
-// MailDeliveryboxCreateWithBodyWithResponse request with arbitrary body returning *MailDeliveryboxCreateResponse
-func (c *ClientWithResponses) MailDeliveryboxCreateWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailDeliveryboxCreateResponse, error) {
-	rsp, err := c.MailDeliveryboxCreateWithBody(ctx, projectId, contentType, body, reqEditors...)
+// MailCreateDeliveryboxWithBodyWithResponse request with arbitrary body returning *MailCreateDeliveryboxResponse
+func (c *ClientWithResponses) MailCreateDeliveryboxWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailCreateDeliveryboxResponse, error) {
+	rsp, err := c.MailCreateDeliveryboxWithBody(ctx, projectId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxCreateResponse(rsp)
+	return ParseMailCreateDeliveryboxResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailDeliveryboxCreateWithResponse(ctx context.Context, projectId string, body MailDeliveryboxCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*MailDeliveryboxCreateResponse, error) {
-	rsp, err := c.MailDeliveryboxCreate(ctx, projectId, body, reqEditors...)
+func (c *ClientWithResponses) MailCreateDeliveryboxWithResponse(ctx context.Context, projectId string, body MailCreateDeliveryboxJSONRequestBody, reqEditors ...RequestEditorFn) (*MailCreateDeliveryboxResponse, error) {
+	rsp, err := c.MailCreateDeliverybox(ctx, projectId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailDeliveryboxCreateResponse(rsp)
+	return ParseMailCreateDeliveryboxResponse(rsp)
+}
+
+// GetV2ProjectsProjectIdDeliveryboxesWithResponse request returning *GetV2ProjectsProjectIdDeliveryboxesResponse
+func (c *ClientWithResponses) GetV2ProjectsProjectIdDeliveryboxesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdDeliveryboxesResponse, error) {
+	rsp, err := c.GetV2ProjectsProjectIdDeliveryboxes(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetV2ProjectsProjectIdDeliveryboxesResponse(rsp)
+}
+
+// PostV2ProjectsProjectIdDeliveryboxesWithBodyWithResponse request with arbitrary body returning *PostV2ProjectsProjectIdDeliveryboxesResponse
+func (c *ClientWithResponses) PostV2ProjectsProjectIdDeliveryboxesWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdDeliveryboxesResponse, error) {
+	rsp, err := c.PostV2ProjectsProjectIdDeliveryboxesWithBody(ctx, projectId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2ProjectsProjectIdDeliveryboxesResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostV2ProjectsProjectIdDeliveryboxesWithResponse(ctx context.Context, projectId string, body PostV2ProjectsProjectIdDeliveryboxesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdDeliveryboxesResponse, error) {
+	rsp, err := c.PostV2ProjectsProjectIdDeliveryboxes(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2ProjectsProjectIdDeliveryboxesResponse(rsp)
 }
 
 // ProjectUpdateProjectDescriptionWithBodyWithResponse request with arbitrary body returning *ProjectUpdateProjectDescriptionResponse
@@ -43140,13 +46986,22 @@ func (c *ClientWithResponses) ProjectUpdateProjectDescriptionWithResponse(ctx co
 	return ParseProjectUpdateProjectDescriptionResponse(rsp)
 }
 
-// DnsZonesForProjectWithResponse request returning *DnsZonesForProjectResponse
-func (c *ClientWithResponses) DnsZonesForProjectWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsZonesForProjectResponse, error) {
-	rsp, err := c.DnsZonesForProject(ctx, projectId, reqEditors...)
+// DnsListDnsZonesWithResponse request returning *DnsListDnsZonesResponse
+func (c *ClientWithResponses) DnsListDnsZonesWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DnsListDnsZonesResponse, error) {
+	rsp, err := c.DnsListDnsZones(ctx, projectId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDnsZonesForProjectResponse(rsp)
+	return ParseDnsListDnsZonesResponse(rsp)
+}
+
+// GetV2ProjectsProjectIdDnsZonesWithResponse request returning *GetV2ProjectsProjectIdDnsZonesResponse
+func (c *ClientWithResponses) GetV2ProjectsProjectIdDnsZonesWithResponse(ctx context.Context, projectId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdDnsZonesResponse, error) {
+	rsp, err := c.GetV2ProjectsProjectIdDnsZones(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetV2ProjectsProjectIdDnsZonesResponse(rsp)
 }
 
 // DomainListDomainOwnershipsWithResponse request returning *DomainListDomainOwnershipsResponse
@@ -43247,73 +47102,125 @@ func (c *ClientWithResponses) ProjectLeaveProjectWithResponse(ctx context.Contex
 	return ParseProjectLeaveProjectResponse(rsp)
 }
 
-// MailMailaddressListWithResponse request returning *MailMailaddressListResponse
-func (c *ClientWithResponses) MailMailaddressListWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailMailaddressListResponse, error) {
-	rsp, err := c.MailMailaddressList(ctx, projectId, reqEditors...)
+// MailListMailAddressesWithResponse request returning *MailListMailAddressesResponse
+func (c *ClientWithResponses) MailListMailAddressesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailListMailAddressesResponse, error) {
+	rsp, err := c.MailListMailAddresses(ctx, projectId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressListResponse(rsp)
+	return ParseMailListMailAddressesResponse(rsp)
 }
 
-// MailMailaddressCreateWithBodyWithResponse request with arbitrary body returning *MailMailaddressCreateResponse
-func (c *ClientWithResponses) MailMailaddressCreateWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailMailaddressCreateResponse, error) {
-	rsp, err := c.MailMailaddressCreateWithBody(ctx, projectId, contentType, body, reqEditors...)
+// MailCreateMailAddressWithBodyWithResponse request with arbitrary body returning *MailCreateMailAddressResponse
+func (c *ClientWithResponses) MailCreateMailAddressWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailCreateMailAddressResponse, error) {
+	rsp, err := c.MailCreateMailAddressWithBody(ctx, projectId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressCreateResponse(rsp)
+	return ParseMailCreateMailAddressResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailMailaddressCreateWithResponse(ctx context.Context, projectId string, body MailMailaddressCreateJSONRequestBody, reqEditors ...RequestEditorFn) (*MailMailaddressCreateResponse, error) {
-	rsp, err := c.MailMailaddressCreate(ctx, projectId, body, reqEditors...)
+func (c *ClientWithResponses) MailCreateMailAddressWithResponse(ctx context.Context, projectId string, body MailCreateMailAddressJSONRequestBody, reqEditors ...RequestEditorFn) (*MailCreateMailAddressResponse, error) {
+	rsp, err := c.MailCreateMailAddress(ctx, projectId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailMailaddressCreateResponse(rsp)
+	return ParseMailCreateMailAddressResponse(rsp)
 }
 
-// MailProjectsettingGetSpecificWithResponse request returning *MailProjectsettingGetSpecificResponse
-func (c *ClientWithResponses) MailProjectsettingGetSpecificWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailProjectsettingGetSpecificResponse, error) {
-	rsp, err := c.MailProjectsettingGetSpecific(ctx, projectId, reqEditors...)
+// MailListProjectMailSettingsWithResponse request returning *MailListProjectMailSettingsResponse
+func (c *ClientWithResponses) MailListProjectMailSettingsWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*MailListProjectMailSettingsResponse, error) {
+	rsp, err := c.MailListProjectMailSettings(ctx, projectId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailProjectsettingGetSpecificResponse(rsp)
+	return ParseMailListProjectMailSettingsResponse(rsp)
 }
 
-// MailProjectsettingUpdateBlacklistWithBodyWithResponse request with arbitrary body returning *MailProjectsettingUpdateBlacklistResponse
-func (c *ClientWithResponses) MailProjectsettingUpdateBlacklistWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistResponse, error) {
-	rsp, err := c.MailProjectsettingUpdateBlacklistWithBody(ctx, projectId, contentType, body, reqEditors...)
+// MailUpdateProjectMailSettingWithBodyWithResponse request with arbitrary body returning *MailUpdateProjectMailSettingResponse
+func (c *ClientWithResponses) MailUpdateProjectMailSettingWithBodyWithResponse(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailUpdateProjectMailSettingResponse, error) {
+	rsp, err := c.MailUpdateProjectMailSettingWithBody(ctx, projectId, setting, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailProjectsettingUpdateBlacklistResponse(rsp)
+	return ParseMailUpdateProjectMailSettingResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailProjectsettingUpdateBlacklistWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistResponse, error) {
-	rsp, err := c.MailProjectsettingUpdateBlacklist(ctx, projectId, body, reqEditors...)
+func (c *ClientWithResponses) MailUpdateProjectMailSettingWithResponse(ctx context.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting, body MailUpdateProjectMailSettingJSONRequestBody, reqEditors ...RequestEditorFn) (*MailUpdateProjectMailSettingResponse, error) {
+	rsp, err := c.MailUpdateProjectMailSetting(ctx, projectId, setting, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailProjectsettingUpdateBlacklistResponse(rsp)
+	return ParseMailUpdateProjectMailSettingResponse(rsp)
 }
 
-// MailProjectsettingUpdateWhitelistWithBodyWithResponse request with arbitrary body returning *MailProjectsettingUpdateWhitelistResponse
-func (c *ClientWithResponses) MailProjectsettingUpdateWhitelistWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistResponse, error) {
-	rsp, err := c.MailProjectsettingUpdateWhitelistWithBody(ctx, projectId, contentType, body, reqEditors...)
+// GetV2ProjectsProjectIdMailaddressesWithResponse request returning *GetV2ProjectsProjectIdMailaddressesResponse
+func (c *ClientWithResponses) GetV2ProjectsProjectIdMailaddressesWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdMailaddressesResponse, error) {
+	rsp, err := c.GetV2ProjectsProjectIdMailaddresses(ctx, projectId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailProjectsettingUpdateWhitelistResponse(rsp)
+	return ParseGetV2ProjectsProjectIdMailaddressesResponse(rsp)
 }
 
-func (c *ClientWithResponses) MailProjectsettingUpdateWhitelistWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistResponse, error) {
-	rsp, err := c.MailProjectsettingUpdateWhitelist(ctx, projectId, body, reqEditors...)
+// PostV2ProjectsProjectIdMailaddressesWithBodyWithResponse request with arbitrary body returning *PostV2ProjectsProjectIdMailaddressesResponse
+func (c *ClientWithResponses) PostV2ProjectsProjectIdMailaddressesWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdMailaddressesResponse, error) {
+	rsp, err := c.PostV2ProjectsProjectIdMailaddressesWithBody(ctx, projectId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseMailProjectsettingUpdateWhitelistResponse(rsp)
+	return ParsePostV2ProjectsProjectIdMailaddressesResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostV2ProjectsProjectIdMailaddressesWithResponse(ctx context.Context, projectId string, body PostV2ProjectsProjectIdMailaddressesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostV2ProjectsProjectIdMailaddressesResponse, error) {
+	rsp, err := c.PostV2ProjectsProjectIdMailaddresses(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostV2ProjectsProjectIdMailaddressesResponse(rsp)
+}
+
+// GetV2ProjectsProjectIdMailsettingsWithResponse request returning *GetV2ProjectsProjectIdMailsettingsResponse
+func (c *ClientWithResponses) GetV2ProjectsProjectIdMailsettingsWithResponse(ctx context.Context, projectId string, reqEditors ...RequestEditorFn) (*GetV2ProjectsProjectIdMailsettingsResponse, error) {
+	rsp, err := c.GetV2ProjectsProjectIdMailsettings(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetV2ProjectsProjectIdMailsettingsResponse(rsp)
+}
+
+// MailProjectsettingUpdateBlacklistDeprecatedWithBodyWithResponse request with arbitrary body returning *MailProjectsettingUpdateBlacklistDeprecatedResponse
+func (c *ClientWithResponses) MailProjectsettingUpdateBlacklistDeprecatedWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistDeprecatedResponse, error) {
+	rsp, err := c.MailProjectsettingUpdateBlacklistDeprecatedWithBody(ctx, projectId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMailProjectsettingUpdateBlacklistDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) MailProjectsettingUpdateBlacklistDeprecatedWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateBlacklistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateBlacklistDeprecatedResponse, error) {
+	rsp, err := c.MailProjectsettingUpdateBlacklistDeprecated(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMailProjectsettingUpdateBlacklistDeprecatedResponse(rsp)
+}
+
+// MailProjectsettingUpdateWhitelistDeprecatedWithBodyWithResponse request with arbitrary body returning *MailProjectsettingUpdateWhitelistDeprecatedResponse
+func (c *ClientWithResponses) MailProjectsettingUpdateWhitelistDeprecatedWithBodyWithResponse(ctx context.Context, projectId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistDeprecatedResponse, error) {
+	rsp, err := c.MailProjectsettingUpdateWhitelistDeprecatedWithBody(ctx, projectId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMailProjectsettingUpdateWhitelistDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) MailProjectsettingUpdateWhitelistDeprecatedWithResponse(ctx context.Context, projectId string, body MailProjectsettingUpdateWhitelistDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*MailProjectsettingUpdateWhitelistDeprecatedResponse, error) {
+	rsp, err := c.MailProjectsettingUpdateWhitelistDeprecated(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMailProjectsettingUpdateWhitelistDeprecatedResponse(rsp)
 }
 
 // ProjectListMembershipsForProjectWithResponse request returning *ProjectListMembershipsForProjectResponse
@@ -43448,8 +47355,8 @@ func (c *ClientWithResponses) SshUserCreateSshUserWithResponse(ctx context.Conte
 }
 
 // DatabaseDeleteRedisDatabaseWithResponse request returning *DatabaseDeleteRedisDatabaseResponse
-func (c *ClientWithResponses) DatabaseDeleteRedisDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteRedisDatabaseResponse, error) {
-	rsp, err := c.DatabaseDeleteRedisDatabase(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseDeleteRedisDatabaseWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseDeleteRedisDatabaseResponse, error) {
+	rsp, err := c.DatabaseDeleteRedisDatabase(ctx, redisDatabaseId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -43457,8 +47364,8 @@ func (c *ClientWithResponses) DatabaseDeleteRedisDatabaseWithResponse(ctx contex
 }
 
 // DatabaseGetRedisDatabaseWithResponse request returning *DatabaseGetRedisDatabaseResponse
-func (c *ClientWithResponses) DatabaseGetRedisDatabaseWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetRedisDatabaseResponse, error) {
-	rsp, err := c.DatabaseGetRedisDatabase(ctx, id, reqEditors...)
+func (c *ClientWithResponses) DatabaseGetRedisDatabaseWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DatabaseGetRedisDatabaseResponse, error) {
+	rsp, err := c.DatabaseGetRedisDatabase(ctx, redisDatabaseId, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -43466,16 +47373,16 @@ func (c *ClientWithResponses) DatabaseGetRedisDatabaseWithResponse(ctx context.C
 }
 
 // DatabaseUpdateRedisDatabaseConfigurationWithBodyWithResponse request with arbitrary body returning *DatabaseUpdateRedisDatabaseConfigurationResponse
-func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseConfigurationWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error) {
-	rsp, err := c.DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseConfigurationWithBodyWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error) {
+	rsp, err := c.DatabaseUpdateRedisDatabaseConfigurationWithBody(ctx, redisDatabaseId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseUpdateRedisDatabaseConfigurationResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseConfigurationWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error) {
-	rsp, err := c.DatabaseUpdateRedisDatabaseConfiguration(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseConfigurationWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseConfigurationJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseConfigurationResponse, error) {
+	rsp, err := c.DatabaseUpdateRedisDatabaseConfiguration(ctx, redisDatabaseId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -43483,16 +47390,16 @@ func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseConfigurationWithRespon
 }
 
 // DatabaseUpdateRedisDatabaseDescriptionWithBodyWithResponse request with arbitrary body returning *DatabaseUpdateRedisDatabaseDescriptionResponse
-func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseDescriptionWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error) {
-	rsp, err := c.DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx, id, contentType, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseDescriptionWithBodyWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error) {
+	rsp, err := c.DatabaseUpdateRedisDatabaseDescriptionWithBody(ctx, redisDatabaseId, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseDatabaseUpdateRedisDatabaseDescriptionResponse(rsp)
 }
 
-func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseDescriptionWithResponse(ctx context.Context, id openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error) {
-	rsp, err := c.DatabaseUpdateRedisDatabaseDescription(ctx, id, body, reqEditors...)
+func (c *ClientWithResponses) DatabaseUpdateRedisDatabaseDescriptionWithResponse(ctx context.Context, redisDatabaseId openapi_types.UUID, body DatabaseUpdateRedisDatabaseDescriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*DatabaseUpdateRedisDatabaseDescriptionResponse, error) {
+	rsp, err := c.DatabaseUpdateRedisDatabaseDescription(ctx, redisDatabaseId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -47903,206 +51810,6 @@ func ParseCustomerCreateCustomerInviteResponse(rsp *http.Response) (*CustomerCre
 	return response, nil
 }
 
-// ParseCustomerListOfCustomerCategoriesDeprecatedResponse parses an HTTP response from a CustomerListOfCustomerCategoriesDeprecatedWithResponse call
-func ParseCustomerListOfCustomerCategoriesDeprecatedResponse(rsp *http.Response) (*CustomerListOfCustomerCategoriesDeprecatedResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CustomerListOfCustomerCategoriesDeprecatedResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Categories *[]DeMittwaldV1CustomerCategory `json:"categories,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCustomerCreateCategoryDeprecatedResponse parses an HTTP response from a CustomerCreateCategoryDeprecatedWithResponse call
-func ParseCustomerCreateCategoryDeprecatedResponse(rsp *http.Response) (*CustomerCreateCategoryDeprecatedResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CustomerCreateCategoryDeprecatedResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest struct {
-			CustomerId            *string `json:"customerId,omitempty"`
-			IsPublic              *bool   `json:"isPublic,omitempty"`
-			Name                  *string `json:"name,omitempty"`
-			UseAgencyDomainPrices *bool   `json:"useAgencyDomainPrices,omitempty"`
-			UseAgencySslPrices    *bool   `json:"useAgencySslPrices,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest DeMittwaldV1CommonsValidationError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCustomerDeleteCategoryDeprecatedResponse parses an HTTP response from a CustomerDeleteCategoryDeprecatedWithResponse call
-func ParseCustomerDeleteCategoryDeprecatedResponse(rsp *http.Response) (*CustomerDeleteCategoryDeprecatedResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CustomerDeleteCategoryDeprecatedResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest DeMittwaldV1CustomerGenericResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCustomerDetailOfCustomerCategoryDeprecatedResponse parses an HTTP response from a CustomerDetailOfCustomerCategoryDeprecatedWithResponse call
-func ParseCustomerDetailOfCustomerCategoryDeprecatedResponse(rsp *http.Response) (*CustomerDetailOfCustomerCategoryDeprecatedResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CustomerDetailOfCustomerCategoryDeprecatedResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest DeMittwaldV1CustomerCategory
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCustomerUpdateCategoryDeprecatedResponse parses an HTTP response from a CustomerUpdateCategoryDeprecatedWithResponse call
-func ParseCustomerUpdateCategoryDeprecatedResponse(rsp *http.Response) (*CustomerUpdateCategoryDeprecatedResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CustomerUpdateCategoryDeprecatedResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			CustomerId            *string `json:"customerId,omitempty"`
-			IsPublic              *bool   `json:"isPublic,omitempty"`
-			Name                  *string `json:"name,omitempty"`
-			UseAgencyDomainPrices *bool   `json:"useAgencyDomainPrices,omitempty"`
-			UseAgencySslPrices    *bool   `json:"useAgencySslPrices,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest DeMittwaldV1CommonsValidationError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest DeMittwaldV1CommonsNotFoundError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseCustomerListCustomersResponse parses an HTTP response from a CustomerListCustomersWithResponse call
 func ParseCustomerListCustomersResponse(rsp *http.Response) (*CustomerListCustomersResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -48813,31 +52520,76 @@ func ParseOrderListCustomerOrdersResponse(rsp *http.Response) (*OrderListCustome
 	return response, nil
 }
 
-// ParseMailDeliveryboxDeleteResponse parses an HTTP response from a MailDeliveryboxDeleteWithResponse call
-func ParseMailDeliveryboxDeleteResponse(rsp *http.Response) (*MailDeliveryboxDeleteResponse, error) {
+// ParseMailDeleteDeliveryBoxResponse parses an HTTP response from a MailDeleteDeliveryBoxWithResponse call
+func ParseMailDeleteDeliveryBoxResponse(rsp *http.Response) (*MailDeleteDeliveryBoxResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailDeliveryboxDeleteResponse{
+	response := &MailDeleteDeliveryBoxResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailDeliveryboxGetSpecificResponse parses an HTTP response from a MailDeliveryboxGetSpecificWithResponse call
-func ParseMailDeliveryboxGetSpecificResponse(rsp *http.Response) (*MailDeliveryboxGetSpecificResponse, error) {
+// ParseMailGetDeliveryBoxResponse parses an HTTP response from a MailGetDeliveryBoxWithResponse call
+func ParseMailGetDeliveryBoxResponse(rsp *http.Response) (*MailGetDeliveryBoxResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailDeliveryboxGetSpecificResponse{
+	response := &MailGetDeliveryBoxResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -48850,20 +52602,184 @@ func ParseMailDeliveryboxGetSpecificResponse(rsp *http.Response) (*MailDeliveryb
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailDeliveryboxUpdateDescriptionResponse parses an HTTP response from a MailDeliveryboxUpdateDescriptionWithResponse call
-func ParseMailDeliveryboxUpdateDescriptionResponse(rsp *http.Response) (*MailDeliveryboxUpdateDescriptionResponse, error) {
+// ParseMailUpdateDeliveryBoxDescriptionResponse parses an HTTP response from a MailUpdateDeliveryBoxDescriptionWithResponse call
+func ParseMailUpdateDeliveryBoxDescriptionResponse(rsp *http.Response) (*MailUpdateDeliveryBoxDescriptionResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailDeliveryboxUpdateDescriptionResponse{
+	response := &MailUpdateDeliveryBoxDescriptionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateDeliveryBoxPasswordResponse parses an HTTP response from a MailUpdateDeliveryBoxPasswordWithResponse call
+func ParseMailUpdateDeliveryBoxPasswordResponse(rsp *http.Response) (*MailUpdateDeliveryBoxPasswordResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateDeliveryBoxPasswordResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteV2DeliveryboxesDeliveryBoxIdResponse parses an HTTP response from a DeleteV2DeliveryboxesDeliveryBoxIdWithResponse call
+func ParseDeleteV2DeliveryboxesDeliveryBoxIdResponse(rsp *http.Response) (*DeleteV2DeliveryboxesDeliveryBoxIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteV2DeliveryboxesDeliveryBoxIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -48871,15 +52787,15 @@ func ParseMailDeliveryboxUpdateDescriptionResponse(rsp *http.Response) (*MailDel
 	return response, nil
 }
 
-// ParseMailDeliveryboxUpdatePasswordResponse parses an HTTP response from a MailDeliveryboxUpdatePasswordWithResponse call
-func ParseMailDeliveryboxUpdatePasswordResponse(rsp *http.Response) (*MailDeliveryboxUpdatePasswordResponse, error) {
+// ParseGetV2DeliveryboxesDeliveryBoxIdResponse parses an HTTP response from a GetV2DeliveryboxesDeliveryBoxIdWithResponse call
+func ParseGetV2DeliveryboxesDeliveryBoxIdResponse(rsp *http.Response) (*GetV2DeliveryboxesDeliveryBoxIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailDeliveryboxUpdatePasswordResponse{
+	response := &GetV2DeliveryboxesDeliveryBoxIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -48887,15 +52803,47 @@ func ParseMailDeliveryboxUpdatePasswordResponse(rsp *http.Response) (*MailDelive
 	return response, nil
 }
 
-// ParseDnsSubZoneCreateResponse parses an HTTP response from a DnsSubZoneCreateWithResponse call
-func ParseDnsSubZoneCreateResponse(rsp *http.Response) (*DnsSubZoneCreateResponse, error) {
+// ParseMailDeliveryboxUpdateDescriptionDeprecatedResponse parses an HTTP response from a MailDeliveryboxUpdateDescriptionDeprecatedWithResponse call
+func ParseMailDeliveryboxUpdateDescriptionDeprecatedResponse(rsp *http.Response) (*MailDeliveryboxUpdateDescriptionDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsSubZoneCreateResponse{
+	response := &MailDeliveryboxUpdateDescriptionDeprecatedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseMailDeliveryboxUpdatePasswordDeprecatedResponse parses an HTTP response from a MailDeliveryboxUpdatePasswordDeprecatedWithResponse call
+func ParseMailDeliveryboxUpdatePasswordDeprecatedResponse(rsp *http.Response) (*MailDeliveryboxUpdatePasswordDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailDeliveryboxUpdatePasswordDeprecatedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDnsCreateDnsZoneResponse parses an HTTP response from a DnsCreateDnsZoneWithResponse call
+func ParseDnsCreateDnsZoneResponse(rsp *http.Response) (*DnsCreateDnsZoneResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DnsCreateDnsZoneResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -48929,15 +52877,48 @@ func ParseDnsSubZoneCreateResponse(rsp *http.Response) (*DnsSubZoneCreateRespons
 	return response, nil
 }
 
-// ParseDnsZoneGetSpecificResponse parses an HTTP response from a DnsZoneGetSpecificWithResponse call
-func ParseDnsZoneGetSpecificResponse(rsp *http.Response) (*DnsZoneGetSpecificResponse, error) {
+// ParseDnsDeleteDnsZoneResponse parses an HTTP response from a DnsDeleteDnsZoneWithResponse call
+func ParseDnsDeleteDnsZoneResponse(rsp *http.Response) (*DnsDeleteDnsZoneResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsZoneGetSpecificResponse{
+	response := &DnsDeleteDnsZoneResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDnsGetDnsZoneResponse parses an HTTP response from a DnsGetDnsZoneWithResponse call
+func ParseDnsGetDnsZoneResponse(rsp *http.Response) (*DnsGetDnsZoneResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DnsGetDnsZoneResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -48969,15 +52950,15 @@ func ParseDnsZoneGetSpecificResponse(rsp *http.Response) (*DnsZoneGetSpecificRes
 	return response, nil
 }
 
-// ParseDnsRecordASetCustomResponse parses an HTTP response from a DnsRecordASetCustomWithResponse call
-func ParseDnsRecordASetCustomResponse(rsp *http.Response) (*DnsRecordASetCustomResponse, error) {
+// ParseDnsUpdateRecordSetResponse parses an HTTP response from a DnsUpdateRecordSetWithResponse call
+func ParseDnsUpdateRecordSetResponse(rsp *http.Response) (*DnsUpdateRecordSetResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordASetCustomResponse{
+	response := &DnsUpdateRecordSetResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49002,15 +52983,138 @@ func ParseDnsRecordASetCustomResponse(rsp *http.Response) (*DnsRecordASetCustomR
 	return response, nil
 }
 
-// ParseDnsRecordASetManagedByIngressResponse parses an HTTP response from a DnsRecordASetManagedByIngressWithResponse call
-func ParseDnsRecordASetManagedByIngressResponse(rsp *http.Response) (*DnsRecordASetManagedByIngressResponse, error) {
+// ParseDnsSetRecordSetManagedResponse parses an HTTP response from a DnsSetRecordSetManagedWithResponse call
+func ParseDnsSetRecordSetManagedResponse(rsp *http.Response) (*DnsSetRecordSetManagedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordASetManagedByIngressResponse{
+	response := &DnsSetRecordSetManagedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+		var dest struct {
+			IngressId *openapi_types.UUID `json:"ingressId,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON204 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostV2DnsZonesResponse parses an HTTP response from a PostV2DnsZonesWithResponse call
+func ParsePostV2DnsZonesResponse(rsp *http.Response) (*PostV2DnsZonesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostV2DnsZonesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDeleteV2DnsZonesDnsZoneIdResponse parses an HTTP response from a DeleteV2DnsZonesDnsZoneIdWithResponse call
+func ParseDeleteV2DnsZonesDnsZoneIdResponse(rsp *http.Response) (*DeleteV2DnsZonesDnsZoneIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteV2DnsZonesDnsZoneIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetV2DnsZonesDnsZoneIdResponse parses an HTTP response from a GetV2DnsZonesDnsZoneIdWithResponse call
+func ParseGetV2DnsZonesDnsZoneIdResponse(rsp *http.Response) (*GetV2DnsZonesDnsZoneIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetV2DnsZonesDnsZoneIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDnsRecordASetCustomDeprecatedResponse parses an HTTP response from a DnsRecordASetCustomDeprecatedWithResponse call
+func ParseDnsRecordASetCustomDeprecatedResponse(rsp *http.Response) (*DnsRecordASetCustomDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DnsRecordASetCustomDeprecatedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDnsRecordASetManagedByIngressDeprecatedResponse parses an HTTP response from a DnsRecordASetManagedByIngressDeprecatedWithResponse call
+func ParseDnsRecordASetManagedByIngressDeprecatedResponse(rsp *http.Response) (*DnsRecordASetManagedByIngressDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DnsRecordASetManagedByIngressDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49044,15 +53148,15 @@ func ParseDnsRecordASetManagedByIngressResponse(rsp *http.Response) (*DnsRecordA
 	return response, nil
 }
 
-// ParseDnsRecordCnameSetResponse parses an HTTP response from a DnsRecordCnameSetWithResponse call
-func ParseDnsRecordCnameSetResponse(rsp *http.Response) (*DnsRecordCnameSetResponse, error) {
+// ParseDnsRecordCnameSetDeprecatedResponse parses an HTTP response from a DnsRecordCnameSetDeprecatedWithResponse call
+func ParseDnsRecordCnameSetDeprecatedResponse(rsp *http.Response) (*DnsRecordCnameSetDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordCnameSetResponse{
+	response := &DnsRecordCnameSetDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49077,15 +53181,15 @@ func ParseDnsRecordCnameSetResponse(rsp *http.Response) (*DnsRecordCnameSetRespo
 	return response, nil
 }
 
-// ParseDnsRecordMxSetCustomResponse parses an HTTP response from a DnsRecordMxSetCustomWithResponse call
-func ParseDnsRecordMxSetCustomResponse(rsp *http.Response) (*DnsRecordMxSetCustomResponse, error) {
+// ParseDnsRecordMxSetCustomDeprecatedResponse parses an HTTP response from a DnsRecordMxSetCustomDeprecatedWithResponse call
+func ParseDnsRecordMxSetCustomDeprecatedResponse(rsp *http.Response) (*DnsRecordMxSetCustomDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordMxSetCustomResponse{
+	response := &DnsRecordMxSetCustomDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49110,15 +53214,15 @@ func ParseDnsRecordMxSetCustomResponse(rsp *http.Response) (*DnsRecordMxSetCusto
 	return response, nil
 }
 
-// ParseDnsRecordMxSetManagedResponse parses an HTTP response from a DnsRecordMxSetManagedWithResponse call
-func ParseDnsRecordMxSetManagedResponse(rsp *http.Response) (*DnsRecordMxSetManagedResponse, error) {
+// ParseDnsRecordMxSetManagedDeprecatedResponse parses an HTTP response from a DnsRecordMxSetManagedDeprecatedWithResponse call
+func ParseDnsRecordMxSetManagedDeprecatedResponse(rsp *http.Response) (*DnsRecordMxSetManagedDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordMxSetManagedResponse{
+	response := &DnsRecordMxSetManagedDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49143,15 +53247,15 @@ func ParseDnsRecordMxSetManagedResponse(rsp *http.Response) (*DnsRecordMxSetMana
 	return response, nil
 }
 
-// ParseDnsRecordSrvSetResponse parses an HTTP response from a DnsRecordSrvSetWithResponse call
-func ParseDnsRecordSrvSetResponse(rsp *http.Response) (*DnsRecordSrvSetResponse, error) {
+// ParseDnsRecordSrvSetDeprecatedResponse parses an HTTP response from a DnsRecordSrvSetDeprecatedWithResponse call
+func ParseDnsRecordSrvSetDeprecatedResponse(rsp *http.Response) (*DnsRecordSrvSetDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordSrvSetResponse{
+	response := &DnsRecordSrvSetDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49176,15 +53280,15 @@ func ParseDnsRecordSrvSetResponse(rsp *http.Response) (*DnsRecordSrvSetResponse,
 	return response, nil
 }
 
-// ParseDnsRecordTxtSetResponse parses an HTTP response from a DnsRecordTxtSetWithResponse call
-func ParseDnsRecordTxtSetResponse(rsp *http.Response) (*DnsRecordTxtSetResponse, error) {
+// ParseDnsRecordTxtSetDeprecatedResponse parses an HTTP response from a DnsRecordTxtSetDeprecatedWithResponse call
+func ParseDnsRecordTxtSetDeprecatedResponse(rsp *http.Response) (*DnsRecordTxtSetDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsRecordTxtSetResponse{
+	response := &DnsRecordTxtSetDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49209,15 +53313,15 @@ func ParseDnsRecordTxtSetResponse(rsp *http.Response) (*DnsRecordTxtSetResponse,
 	return response, nil
 }
 
-// ParseDomainGetSpecificDomainOwnershipResponse parses an HTTP response from a DomainGetSpecificDomainOwnershipWithResponse call
-func ParseDomainGetSpecificDomainOwnershipResponse(rsp *http.Response) (*DomainGetSpecificDomainOwnershipResponse, error) {
+// ParseDomainGetDomainOwnershipResponse parses an HTTP response from a DomainGetDomainOwnershipWithResponse call
+func ParseDomainGetDomainOwnershipResponse(rsp *http.Response) (*DomainGetDomainOwnershipResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainGetSpecificDomainOwnershipResponse{
+	response := &DomainGetDomainOwnershipResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49251,6 +53355,22 @@ func ParseDomainGetSpecificDomainOwnershipResponse(rsp *http.Response) (*DomainG
 		}
 		response.JSONDefault = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParsePostV2DomainOwnershipsDomainOwnershipIdResponse parses an HTTP response from a PostV2DomainOwnershipsDomainOwnershipIdWithResponse call
+func ParsePostV2DomainOwnershipsDomainOwnershipIdResponse(rsp *http.Response) (*PostV2DomainOwnershipsDomainOwnershipIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostV2DomainOwnershipsDomainOwnershipIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -49296,15 +53416,126 @@ func ParseDomainVerifyDomainOwnershipResponse(rsp *http.Response) (*DomainVerify
 	return response, nil
 }
 
-// ParseDomainCheckDomainAvailabilityResponse parses an HTTP response from a DomainCheckDomainAvailabilityWithResponse call
-func ParseDomainCheckDomainAvailabilityResponse(rsp *http.Response) (*DomainCheckDomainAvailabilityResponse, error) {
+// ParseDomainCheckDomainRegistrabilityResponse parses an HTTP response from a DomainCheckDomainRegistrabilityWithResponse call
+func ParseDomainCheckDomainRegistrabilityResponse(rsp *http.Response) (*DomainCheckDomainRegistrabilityResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainCheckDomainAvailabilityResponse{
+	response := &DomainCheckDomainRegistrabilityResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Registrable bool `json:"registrable"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainListTldsResponse parses an HTTP response from a DomainListTldsWithResponse call
+func ParseDomainListTldsResponse(rsp *http.Response) (*DomainListTldsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainListTldsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []DeMittwaldV1DomainTopLevel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainListTldContactSchemasResponse parses an HTTP response from a DomainListTldContactSchemasWithResponse call
+func ParseDomainListTldContactSchemasResponse(rsp *http.Response) (*DomainListTldContactSchemasResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainListTldContactSchemasResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			JsonSchemaAdminC *map[string]interface{} `json:"jsonSchemaAdminC,omitempty"`
+			JsonSchemaOwnerC map[string]interface{}  `json:"jsonSchemaOwnerC"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainCheckDomainRegistrabilityV2DeprecatedResponse parses an HTTP response from a DomainCheckDomainRegistrabilityV2DeprecatedWithResponse call
+func ParseDomainCheckDomainRegistrabilityV2DeprecatedResponse(rsp *http.Response) (*DomainCheckDomainRegistrabilityV2DeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainCheckDomainRegistrabilityV2DeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49338,15 +53569,15 @@ func ParseDomainCheckDomainAvailabilityResponse(rsp *http.Response) (*DomainChec
 	return response, nil
 }
 
-// ParseDomainGetHandleFieldsResponse parses an HTTP response from a DomainGetHandleFieldsWithResponse call
-func ParseDomainGetHandleFieldsResponse(rsp *http.Response) (*DomainGetHandleFieldsResponse, error) {
+// ParseDomainGetHandleFieldsV2DeprecatedResponse parses an HTTP response from a DomainGetHandleFieldsV2DeprecatedWithResponse call
+func ParseDomainGetHandleFieldsV2DeprecatedResponse(rsp *http.Response) (*DomainGetHandleFieldsV2DeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainGetHandleFieldsResponse{
+	response := &DomainGetHandleFieldsV2DeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49374,34 +53605,17 @@ func ParseDomainGetHandleFieldsResponse(rsp *http.Response) (*DomainGetHandleFie
 	return response, nil
 }
 
-// ParseDomainGetSupportedTldsResponse parses an HTTP response from a DomainGetSupportedTldsWithResponse call
-func ParseDomainGetSupportedTldsResponse(rsp *http.Response) (*DomainGetSupportedTldsResponse, error) {
+// ParseGetV2DomainsSupportedTldsResponse parses an HTTP response from a GetV2DomainsSupportedTldsWithResponse call
+func ParseGetV2DomainsSupportedTldsResponse(rsp *http.Response) (*GetV2DomainsSupportedTldsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainGetSupportedTldsResponse{
+	response := &GetV2DomainsSupportedTldsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []DeMittwaldV1DomainTopLevel
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
 	}
 
 	return response, nil
@@ -49501,15 +53715,15 @@ func ParseDomainGetDomainResponse(rsp *http.Response) (*DomainGetDomainResponse,
 	return response, nil
 }
 
-// ParseDomainCreateAuthcodeForDomainResponse parses an HTTP response from a DomainCreateAuthcodeForDomainWithResponse call
-func ParseDomainCreateAuthcodeForDomainResponse(rsp *http.Response) (*DomainCreateAuthcodeForDomainResponse, error) {
+// ParseDomainCreateDomainAuthCodeResponse parses an HTTP response from a DomainCreateDomainAuthCodeWithResponse call
+func ParseDomainCreateDomainAuthCodeResponse(rsp *http.Response) (*DomainCreateDomainAuthCodeResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainCreateAuthcodeForDomainResponse{
+	response := &DomainCreateDomainAuthCodeResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49550,15 +53764,15 @@ func ParseDomainCreateAuthcodeForDomainResponse(rsp *http.Response) (*DomainCrea
 	return response, nil
 }
 
-// ParseDomainCreateAuthcode2ForDomainResponse parses an HTTP response from a DomainCreateAuthcode2ForDomainWithResponse call
-func ParseDomainCreateAuthcode2ForDomainResponse(rsp *http.Response) (*DomainCreateAuthcode2ForDomainResponse, error) {
+// ParseDomainCreateDomainAuthCode2Response parses an HTTP response from a DomainCreateDomainAuthCode2WithResponse call
+func ParseDomainCreateDomainAuthCode2Response(rsp *http.Response) (*DomainCreateDomainAuthCode2Response, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainCreateAuthcode2ForDomainResponse{
+	response := &DomainCreateDomainAuthCode2Response{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49590,6 +53804,38 @@ func ParseDomainCreateAuthcode2ForDomainResponse(rsp *http.Response) (*DomainCre
 	return response, nil
 }
 
+// ParsePostV2DomainsDomainIdActionsCreateAuthcodeResponse parses an HTTP response from a PostV2DomainsDomainIdActionsCreateAuthcodeWithResponse call
+func ParsePostV2DomainsDomainIdActionsCreateAuthcodeResponse(rsp *http.Response) (*PostV2DomainsDomainIdActionsCreateAuthcodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostV2DomainsDomainIdActionsCreateAuthcodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePostV2DomainsDomainIdActionsCreateAuthcode2Response parses an HTTP response from a PostV2DomainsDomainIdActionsCreateAuthcode2WithResponse call
+func ParsePostV2DomainsDomainIdActionsCreateAuthcode2Response(rsp *http.Response) (*PostV2DomainsDomainIdActionsCreateAuthcode2Response, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostV2DomainsDomainIdActionsCreateAuthcode2Response{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseDomainResendDomainEmailResponse parses an HTTP response from a DomainResendDomainEmailWithResponse call
 func ParseDomainResendDomainEmailResponse(rsp *http.Response) (*DomainResendDomainEmailResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -49604,6 +53850,116 @@ func ParseDomainResendDomainEmailResponse(rsp *http.Response) (*DomainResendDoma
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainUpdateDomainAuthCodeResponse parses an HTTP response from a DomainUpdateDomainAuthCodeWithResponse call
+func ParseDomainUpdateDomainAuthCodeResponse(rsp *http.Response) (*DomainUpdateDomainAuthCodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainUpdateDomainAuthCodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DeMittwaldV1DomainSuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchV2DomainsDomainIdAuthcodeResponse parses an HTTP response from a PatchV2DomainsDomainIdAuthcodeWithResponse call
+func ParsePatchV2DomainsDomainIdAuthcodeResponse(rsp *http.Response) (*PatchV2DomainsDomainIdAuthcodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchV2DomainsDomainIdAuthcodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDomainUpdateDomainContactResponse parses an HTTP response from a DomainUpdateDomainContactWithResponse call
+func ParseDomainUpdateDomainContactResponse(rsp *http.Response) (*DomainUpdateDomainContactResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainUpdateDomainContactResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DeMittwaldV1DomainSuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest DeMittwaldV1CommonsValidationError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -49724,15 +54080,15 @@ func ParseDeprecatedContractGetDetailOfContractByDomainResponse(rsp *http.Respon
 	return response, nil
 }
 
-// ParseDomainAbortDeclareProcessResponse parses an HTTP response from a DomainAbortDeclareProcessWithResponse call
-func ParseDomainAbortDeclareProcessResponse(rsp *http.Response) (*DomainAbortDeclareProcessResponse, error) {
+// ParseDomainAbortDomainDeclarationResponse parses an HTTP response from a DomainAbortDomainDeclarationWithResponse call
+func ParseDomainAbortDomainDeclarationResponse(rsp *http.Response) (*DomainAbortDomainDeclarationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainAbortDeclareProcessResponse{
+	response := &DomainAbortDomainDeclarationResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49764,62 +54120,31 @@ func ParseDomainAbortDeclareProcessResponse(rsp *http.Response) (*DomainAbortDec
 	return response, nil
 }
 
-// ParseDomainDeclareProcessChangeAuthcodeResponse parses an HTTP response from a DomainDeclareProcessChangeAuthcodeWithResponse call
-func ParseDomainDeclareProcessChangeAuthcodeResponse(rsp *http.Response) (*DomainDeclareProcessChangeAuthcodeResponse, error) {
+// ParseDeleteV2DomainsDomainIdDeclarationsResponse parses an HTTP response from a DeleteV2DomainsDomainIdDeclarationsWithResponse call
+func ParseDeleteV2DomainsDomainIdDeclarationsResponse(rsp *http.Response) (*DeleteV2DomainsDomainIdDeclarationsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainDeclareProcessChangeAuthcodeResponse{
+	response := &DeleteV2DomainsDomainIdDeclarationsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest DeMittwaldV1DomainSuccessResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest DeMittwaldV1CommonsValidationError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest DeMittwaldV1CommonsNotFoundError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest DeMittwaldV1CommonsDefaultError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
 	}
 
 	return response, nil
 }
 
-// ParseDomainDeclareProcessChangeHandlesResponse parses an HTTP response from a DomainDeclareProcessChangeHandlesWithResponse call
-func ParseDomainDeclareProcessChangeHandlesResponse(rsp *http.Response) (*DomainDeclareProcessChangeHandlesResponse, error) {
+// ParseDomainDeclareProcessChangeAuthcodeV2DeprecatedResponse parses an HTTP response from a DomainDeclareProcessChangeAuthcodeV2DeprecatedWithResponse call
+func ParseDomainDeclareProcessChangeAuthcodeV2DeprecatedResponse(rsp *http.Response) (*DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainDeclareProcessChangeHandlesResponse{
+	response := &DomainDeclareProcessChangeAuthcodeV2DeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49858,15 +54183,15 @@ func ParseDomainDeclareProcessChangeHandlesResponse(rsp *http.Response) (*Domain
 	return response, nil
 }
 
-// ParseDomainChangeOwnercOfDomainResponse parses an HTTP response from a DomainChangeOwnercOfDomainWithResponse call
-func ParseDomainChangeOwnercOfDomainResponse(rsp *http.Response) (*DomainChangeOwnercOfDomainResponse, error) {
+// ParseDomainDeclareProcessChangeHandlesV2DeprecatedResponse parses an HTTP response from a DomainDeclareProcessChangeHandlesV2DeprecatedWithResponse call
+func ParseDomainDeclareProcessChangeHandlesV2DeprecatedResponse(rsp *http.Response) (*DomainDeclareProcessChangeHandlesV2DeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainChangeOwnercOfDomainResponse{
+	response := &DomainDeclareProcessChangeHandlesV2DeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49905,15 +54230,62 @@ func ParseDomainChangeOwnercOfDomainResponse(rsp *http.Response) (*DomainChangeO
 	return response, nil
 }
 
-// ParseDomainDeclareNameserversResponse parses an HTTP response from a DomainDeclareNameserversWithResponse call
-func ParseDomainDeclareNameserversResponse(rsp *http.Response) (*DomainDeclareNameserversResponse, error) {
+// ParseDomainChangeOwnercOfDomainV2DeprecatedResponse parses an HTTP response from a DomainChangeOwnercOfDomainV2DeprecatedWithResponse call
+func ParseDomainChangeOwnercOfDomainV2DeprecatedResponse(rsp *http.Response) (*DomainChangeOwnercOfDomainV2DeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainDeclareNameserversResponse{
+	response := &DomainChangeOwnercOfDomainV2DeprecatedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DeMittwaldV1DomainSuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainUpdateDomainNameserversResponse parses an HTTP response from a DomainUpdateDomainNameserversWithResponse call
+func ParseDomainUpdateDomainNameserversResponse(rsp *http.Response) (*DomainUpdateDomainNameserversResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainUpdateDomainNameserversResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -49945,15 +54317,95 @@ func ParseDomainDeclareNameserversResponse(rsp *http.Response) (*DomainDeclareNa
 	return response, nil
 }
 
-// ParseDomainChangeProjectOfDomainResponse parses an HTTP response from a DomainChangeProjectOfDomainWithResponse call
-func ParseDomainChangeProjectOfDomainResponse(rsp *http.Response) (*DomainChangeProjectOfDomainResponse, error) {
+// ParseDomainDeclareNameserversV2DeprecatedResponse parses an HTTP response from a DomainDeclareNameserversV2DeprecatedWithResponse call
+func ParseDomainDeclareNameserversV2DeprecatedResponse(rsp *http.Response) (*DomainDeclareNameserversV2DeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DomainChangeProjectOfDomainResponse{
+	response := &DomainDeclareNameserversV2DeprecatedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainUpdateDomainProjectIdResponse parses an HTTP response from a DomainUpdateDomainProjectIdWithResponse call
+func ParseDomainUpdateDomainProjectIdResponse(rsp *http.Response) (*DomainUpdateDomainProjectIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainUpdateDomainProjectIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDomainChangeProjectOfDomainV2DeprecatedResponse parses an HTTP response from a DomainChangeProjectOfDomainV2DeprecatedWithResponse call
+func ParseDomainChangeProjectOfDomainV2DeprecatedResponse(rsp *http.Response) (*DomainChangeProjectOfDomainV2DeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DomainChangeProjectOfDomainV2DeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -50598,89 +55050,15 @@ func ParseUserLogoutResponse(rsp *http.Response) (*UserLogoutResponse, error) {
 	return response, nil
 }
 
-// ParseMailMailaddressDeleteResponse parses an HTTP response from a MailMailaddressDeleteWithResponse call
-func ParseMailMailaddressDeleteResponse(rsp *http.Response) (*MailMailaddressDeleteResponse, error) {
+// ParseMailDeleteMailAddressResponse parses an HTTP response from a MailDeleteMailAddressWithResponse call
+func ParseMailDeleteMailAddressResponse(rsp *http.Response) (*MailDeleteMailAddressResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressDeleteResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseMailMailaddressGetSpecificResponse parses an HTTP response from a MailMailaddressGetSpecificWithResponse call
-func ParseMailMailaddressGetSpecificResponse(rsp *http.Response) (*MailMailaddressGetSpecificResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &MailMailaddressGetSpecificResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest DeMittwaldV1MailMailAddress
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseMailMailaddressUpdateAddressResponse parses an HTTP response from a MailMailaddressUpdateAddressWithResponse call
-func ParseMailMailaddressUpdateAddressResponse(rsp *http.Response) (*MailMailaddressUpdateAddressResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &MailMailaddressUpdateAddressResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseMailMailaddressUpdateAutoresponderResponse parses an HTTP response from a MailMailaddressUpdateAutoresponderWithResponse call
-func ParseMailMailaddressUpdateAutoresponderResponse(rsp *http.Response) (*MailMailaddressUpdateAutoresponderResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &MailMailaddressUpdateAutoresponderResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseMailMailaddressUpdateCatchallResponse parses an HTTP response from a MailMailaddressUpdateCatchallWithResponse call
-func ParseMailMailaddressUpdateCatchallResponse(rsp *http.Response) (*MailMailaddressUpdateCatchallResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &MailMailaddressUpdateCatchallResponse{
+	response := &MailDeleteMailAddressResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -50693,20 +55071,550 @@ func ParseMailMailaddressUpdateCatchallResponse(rsp *http.Response) (*MailMailad
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailMailaddressUpdateForwardaddressesResponse parses an HTTP response from a MailMailaddressUpdateForwardaddressesWithResponse call
-func ParseMailMailaddressUpdateForwardaddressesResponse(rsp *http.Response) (*MailMailaddressUpdateForwardaddressesResponse, error) {
+// ParseMailGetMailAddressResponse parses an HTTP response from a MailGetMailAddressWithResponse call
+func ParseMailGetMailAddressResponse(rsp *http.Response) (*MailGetMailAddressResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressUpdateForwardaddressesResponse{
+	response := &MailGetMailAddressResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DeMittwaldV1MailMailAddress
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressAddressResponse parses an HTTP response from a MailUpdateMailAddressAddressWithResponse call
+func ParseMailUpdateMailAddressAddressResponse(rsp *http.Response) (*MailUpdateMailAddressAddressResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressAddressResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressAutoresponderResponse parses an HTTP response from a MailUpdateMailAddressAutoresponderWithResponse call
+func ParseMailUpdateMailAddressAutoresponderResponse(rsp *http.Response) (*MailUpdateMailAddressAutoresponderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressAutoresponderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressCatchallResponse parses an HTTP response from a MailUpdateMailAddressCatchallWithResponse call
+func ParseMailUpdateMailAddressCatchallResponse(rsp *http.Response) (*MailUpdateMailAddressCatchallResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressCatchallResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressForwardAddressesResponse parses an HTTP response from a MailUpdateMailAddressForwardAddressesWithResponse call
+func ParseMailUpdateMailAddressForwardAddressesResponse(rsp *http.Response) (*MailUpdateMailAddressForwardAddressesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressForwardAddressesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressPasswordResponse parses an HTTP response from a MailUpdateMailAddressPasswordWithResponse call
+func ParseMailUpdateMailAddressPasswordResponse(rsp *http.Response) (*MailUpdateMailAddressPasswordResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressPasswordResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressQuotaResponse parses an HTTP response from a MailUpdateMailAddressQuotaWithResponse call
+func ParseMailUpdateMailAddressQuotaResponse(rsp *http.Response) (*MailUpdateMailAddressQuotaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressQuotaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailUpdateMailAddressSpamProtectionResponse parses an HTTP response from a MailUpdateMailAddressSpamProtectionWithResponse call
+func ParseMailUpdateMailAddressSpamProtectionResponse(rsp *http.Response) (*MailUpdateMailAddressSpamProtectionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailUpdateMailAddressSpamProtectionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMailMailaddressUpdateAddressDeprecatedResponse parses an HTTP response from a MailMailaddressUpdateAddressDeprecatedWithResponse call
+func ParseMailMailaddressUpdateAddressDeprecatedResponse(rsp *http.Response) (*MailMailaddressUpdateAddressDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailMailaddressUpdateAddressDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -50714,15 +55622,15 @@ func ParseMailMailaddressUpdateForwardaddressesResponse(rsp *http.Response) (*Ma
 	return response, nil
 }
 
-// ParseMailMailaddressUpdatePasswordResponse parses an HTTP response from a MailMailaddressUpdatePasswordWithResponse call
-func ParseMailMailaddressUpdatePasswordResponse(rsp *http.Response) (*MailMailaddressUpdatePasswordResponse, error) {
+// ParseDeleteV2MailaddressesMailAddressIdResponse parses an HTTP response from a DeleteV2MailaddressesMailAddressIdWithResponse call
+func ParseDeleteV2MailaddressesMailAddressIdResponse(rsp *http.Response) (*DeleteV2MailaddressesMailAddressIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressUpdatePasswordResponse{
+	response := &DeleteV2MailaddressesMailAddressIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -50730,15 +55638,15 @@ func ParseMailMailaddressUpdatePasswordResponse(rsp *http.Response) (*MailMailad
 	return response, nil
 }
 
-// ParseMailMailaddressUpdateQuotaResponse parses an HTTP response from a MailMailaddressUpdateQuotaWithResponse call
-func ParseMailMailaddressUpdateQuotaResponse(rsp *http.Response) (*MailMailaddressUpdateQuotaResponse, error) {
+// ParseGetV2MailaddressesMailAddressIdResponse parses an HTTP response from a GetV2MailaddressesMailAddressIdWithResponse call
+func ParseGetV2MailaddressesMailAddressIdResponse(rsp *http.Response) (*GetV2MailaddressesMailAddressIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressUpdateQuotaResponse{
+	response := &GetV2MailaddressesMailAddressIdResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -50746,15 +55654,95 @@ func ParseMailMailaddressUpdateQuotaResponse(rsp *http.Response) (*MailMailaddre
 	return response, nil
 }
 
-// ParseMailMailaddressUpdateSpamprotectionResponse parses an HTTP response from a MailMailaddressUpdateSpamprotectionWithResponse call
-func ParseMailMailaddressUpdateSpamprotectionResponse(rsp *http.Response) (*MailMailaddressUpdateSpamprotectionResponse, error) {
+// ParsePutV2MailaddressesMailAddressIdAutoResponderResponse parses an HTTP response from a PutV2MailaddressesMailAddressIdAutoResponderWithResponse call
+func ParsePutV2MailaddressesMailAddressIdAutoResponderResponse(rsp *http.Response) (*PutV2MailaddressesMailAddressIdAutoResponderResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressUpdateSpamprotectionResponse{
+	response := &PutV2MailaddressesMailAddressIdAutoResponderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePutV2MailaddressesMailAddressIdCatchAllResponse parses an HTTP response from a PutV2MailaddressesMailAddressIdCatchAllWithResponse call
+func ParsePutV2MailaddressesMailAddressIdCatchAllResponse(rsp *http.Response) (*PutV2MailaddressesMailAddressIdCatchAllResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutV2MailaddressesMailAddressIdCatchAllResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePutV2MailaddressesMailAddressIdForwardaddressesResponse parses an HTTP response from a PutV2MailaddressesMailAddressIdForwardaddressesWithResponse call
+func ParsePutV2MailaddressesMailAddressIdForwardaddressesResponse(rsp *http.Response) (*PutV2MailaddressesMailAddressIdForwardaddressesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutV2MailaddressesMailAddressIdForwardaddressesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePutV2MailaddressesMailAddressIdPasswordResponse parses an HTTP response from a PutV2MailaddressesMailAddressIdPasswordWithResponse call
+func ParsePutV2MailaddressesMailAddressIdPasswordResponse(rsp *http.Response) (*PutV2MailaddressesMailAddressIdPasswordResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutV2MailaddressesMailAddressIdPasswordResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePutV2MailaddressesMailAddressIdQuotaResponse parses an HTTP response from a PutV2MailaddressesMailAddressIdQuotaWithResponse call
+func ParsePutV2MailaddressesMailAddressIdQuotaResponse(rsp *http.Response) (*PutV2MailaddressesMailAddressIdQuotaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutV2MailaddressesMailAddressIdQuotaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePutV2MailaddressesMailAddressIdSpamprotectionResponse parses an HTTP response from a PutV2MailaddressesMailAddressIdSpamprotectionWithResponse call
+func ParsePutV2MailaddressesMailAddressIdSpamprotectionResponse(rsp *http.Response) (*PutV2MailaddressesMailAddressIdSpamprotectionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutV2MailaddressesMailAddressIdSpamprotectionResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -53477,15 +58465,15 @@ func ParseCronjobCreateCronjobResponse(rsp *http.Response) (*CronjobCreateCronjo
 	return response, nil
 }
 
-// ParseMailDeliveryboxListResponse parses an HTTP response from a MailDeliveryboxListWithResponse call
-func ParseMailDeliveryboxListResponse(rsp *http.Response) (*MailDeliveryboxListResponse, error) {
+// ParseMailListDeliveryBoxesResponse parses an HTTP response from a MailListDeliveryBoxesWithResponse call
+func ParseMailListDeliveryBoxesResponse(rsp *http.Response) (*MailListDeliveryBoxesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailDeliveryboxListResponse{
+	response := &MailListDeliveryBoxesResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -53498,20 +58486,62 @@ func ParseMailDeliveryboxListResponse(rsp *http.Response) (*MailDeliveryboxListR
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailDeliveryboxCreateResponse parses an HTTP response from a MailDeliveryboxCreateWithResponse call
-func ParseMailDeliveryboxCreateResponse(rsp *http.Response) (*MailDeliveryboxCreateResponse, error) {
+// ParseMailCreateDeliveryboxResponse parses an HTTP response from a MailCreateDeliveryboxWithResponse call
+func ParseMailCreateDeliveryboxResponse(rsp *http.Response) (*MailCreateDeliveryboxResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailDeliveryboxCreateResponse{
+	response := &MailCreateDeliveryboxResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -53526,6 +58556,80 @@ func ParseMailDeliveryboxCreateResponse(rsp *http.Response) (*MailDeliveryboxCre
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetV2ProjectsProjectIdDeliveryboxesResponse parses an HTTP response from a GetV2ProjectsProjectIdDeliveryboxesWithResponse call
+func ParseGetV2ProjectsProjectIdDeliveryboxesResponse(rsp *http.Response) (*GetV2ProjectsProjectIdDeliveryboxesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetV2ProjectsProjectIdDeliveryboxesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParsePostV2ProjectsProjectIdDeliveryboxesResponse parses an HTTP response from a PostV2ProjectsProjectIdDeliveryboxesWithResponse call
+func ParsePostV2ProjectsProjectIdDeliveryboxesResponse(rsp *http.Response) (*PostV2ProjectsProjectIdDeliveryboxesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostV2ProjectsProjectIdDeliveryboxesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -53571,15 +58675,15 @@ func ParseProjectUpdateProjectDescriptionResponse(rsp *http.Response) (*ProjectU
 	return response, nil
 }
 
-// ParseDnsZonesForProjectResponse parses an HTTP response from a DnsZonesForProjectWithResponse call
-func ParseDnsZonesForProjectResponse(rsp *http.Response) (*DnsZonesForProjectResponse, error) {
+// ParseDnsListDnsZonesResponse parses an HTTP response from a DnsListDnsZonesWithResponse call
+func ParseDnsListDnsZonesResponse(rsp *http.Response) (*DnsListDnsZonesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DnsZonesForProjectResponse{
+	response := &DnsListDnsZonesResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -53606,6 +58710,22 @@ func ParseDnsZonesForProjectResponse(rsp *http.Response) (*DnsZonesForProjectRes
 		}
 		response.JSONDefault = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseGetV2ProjectsProjectIdDnsZonesResponse parses an HTTP response from a GetV2ProjectsProjectIdDnsZonesWithResponse call
+func ParseGetV2ProjectsProjectIdDnsZonesResponse(rsp *http.Response) (*GetV2ProjectsProjectIdDnsZonesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetV2ProjectsProjectIdDnsZonesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -54053,15 +59173,15 @@ func ParseProjectLeaveProjectResponse(rsp *http.Response) (*ProjectLeaveProjectR
 	return response, nil
 }
 
-// ParseMailMailaddressListResponse parses an HTTP response from a MailMailaddressListWithResponse call
-func ParseMailMailaddressListResponse(rsp *http.Response) (*MailMailaddressListResponse, error) {
+// ParseMailListMailAddressesResponse parses an HTTP response from a MailListMailAddressesWithResponse call
+func ParseMailListMailAddressesResponse(rsp *http.Response) (*MailListMailAddressesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressListResponse{
+	response := &MailListMailAddressesResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -54074,20 +59194,62 @@ func ParseMailMailaddressListResponse(rsp *http.Response) (*MailMailaddressListR
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailMailaddressCreateResponse parses an HTTP response from a MailMailaddressCreateWithResponse call
-func ParseMailMailaddressCreateResponse(rsp *http.Response) (*MailMailaddressCreateResponse, error) {
+// ParseMailCreateMailAddressResponse parses an HTTP response from a MailCreateMailAddressWithResponse call
+func ParseMailCreateMailAddressResponse(rsp *http.Response) (*MailCreateMailAddressResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailMailaddressCreateResponse{
+	response := &MailCreateMailAddressResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -54109,20 +59271,55 @@ func ParseMailMailaddressCreateResponse(rsp *http.Response) (*MailMailaddressCre
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailProjectsettingGetSpecificResponse parses an HTTP response from a MailProjectsettingGetSpecificWithResponse call
-func ParseMailProjectsettingGetSpecificResponse(rsp *http.Response) (*MailProjectsettingGetSpecificResponse, error) {
+// ParseMailListProjectMailSettingsResponse parses an HTTP response from a MailListProjectMailSettingsWithResponse call
+func ParseMailListProjectMailSettingsResponse(rsp *http.Response) (*MailListProjectMailSettingsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailProjectsettingGetSpecificResponse{
+	response := &MailListProjectMailSettingsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -54139,20 +59336,123 @@ func ParseMailProjectsettingGetSpecificResponse(rsp *http.Response) (*MailProjec
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
 	}
 
 	return response, nil
 }
 
-// ParseMailProjectsettingUpdateBlacklistResponse parses an HTTP response from a MailProjectsettingUpdateBlacklistWithResponse call
-func ParseMailProjectsettingUpdateBlacklistResponse(rsp *http.Response) (*MailProjectsettingUpdateBlacklistResponse, error) {
+// ParseMailUpdateProjectMailSettingResponse parses an HTTP response from a MailUpdateProjectMailSettingWithResponse call
+func ParseMailUpdateProjectMailSettingResponse(rsp *http.Response) (*MailUpdateProjectMailSettingResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailProjectsettingUpdateBlacklistResponse{
+	response := &MailUpdateProjectMailSettingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest DeMittwaldV1CommonsValidationError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest DeMittwaldV1CommonsNotFoundError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest DeMittwaldV1CommonsDefaultError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetV2ProjectsProjectIdMailaddressesResponse parses an HTTP response from a GetV2ProjectsProjectIdMailaddressesWithResponse call
+func ParseGetV2ProjectsProjectIdMailaddressesResponse(rsp *http.Response) (*GetV2ProjectsProjectIdMailaddressesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetV2ProjectsProjectIdMailaddressesResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -54160,15 +59460,63 @@ func ParseMailProjectsettingUpdateBlacklistResponse(rsp *http.Response) (*MailPr
 	return response, nil
 }
 
-// ParseMailProjectsettingUpdateWhitelistResponse parses an HTTP response from a MailProjectsettingUpdateWhitelistWithResponse call
-func ParseMailProjectsettingUpdateWhitelistResponse(rsp *http.Response) (*MailProjectsettingUpdateWhitelistResponse, error) {
+// ParsePostV2ProjectsProjectIdMailaddressesResponse parses an HTTP response from a PostV2ProjectsProjectIdMailaddressesWithResponse call
+func ParsePostV2ProjectsProjectIdMailaddressesResponse(rsp *http.Response) (*PostV2ProjectsProjectIdMailaddressesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &MailProjectsettingUpdateWhitelistResponse{
+	response := &PostV2ProjectsProjectIdMailaddressesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetV2ProjectsProjectIdMailsettingsResponse parses an HTTP response from a GetV2ProjectsProjectIdMailsettingsWithResponse call
+func ParseGetV2ProjectsProjectIdMailsettingsResponse(rsp *http.Response) (*GetV2ProjectsProjectIdMailsettingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetV2ProjectsProjectIdMailsettingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseMailProjectsettingUpdateBlacklistDeprecatedResponse parses an HTTP response from a MailProjectsettingUpdateBlacklistDeprecatedWithResponse call
+func ParseMailProjectsettingUpdateBlacklistDeprecatedResponse(rsp *http.Response) (*MailProjectsettingUpdateBlacklistDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailProjectsettingUpdateBlacklistDeprecatedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseMailProjectsettingUpdateWhitelistDeprecatedResponse parses an HTTP response from a MailProjectsettingUpdateWhitelistDeprecatedWithResponse call
+func ParseMailProjectsettingUpdateWhitelistDeprecatedResponse(rsp *http.Response) (*MailProjectsettingUpdateWhitelistDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MailProjectsettingUpdateWhitelistDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -59087,21 +64435,6 @@ type ServerInterface interface {
 	// Create a CustomerInvite.
 	// (POST /v2/customer/{customerId}/invites)
 	CustomerCreateCustomerInvite(ctx echo.Context, customerId openapi_types.UUID) error
-	// Get all customer categories.
-	// (GET /v2/customercategories)
-	CustomerListOfCustomerCategoriesDeprecated(ctx echo.Context) error
-	// Create a new customer category.
-	// (POST /v2/customercategories)
-	CustomerCreateCategoryDeprecated(ctx echo.Context) error
-	// Delete a customer category.
-	// (DELETE /v2/customercategories/{categoryId})
-	CustomerDeleteCategoryDeprecated(ctx echo.Context, categoryId string) error
-	// Get a customer category.
-	// (GET /v2/customercategories/{categoryId})
-	CustomerDetailOfCustomerCategoryDeprecated(ctx echo.Context, categoryId string) error
-	// Update a customer category.
-	// (PUT /v2/customercategories/{categoryId})
-	CustomerUpdateCategoryDeprecated(ctx echo.Context, categoryId string) error
 	// Get all customer profiles the authenticated user has access to.
 	// (GET /v2/customers)
 	CustomerListCustomers(ctx echo.Context, params CustomerListCustomersParams) error
@@ -59150,99 +64483,165 @@ type ServerInterface interface {
 	// Get list of Orders of a Customer.
 	// (GET /v2/customers/{customerId}/orders)
 	OrderListCustomerOrders(ctx echo.Context, customerId string, params OrderListCustomerOrdersParams) error
-	// Delete a specific deliverybox
-	// (DELETE /v2/deliveryboxes/{id})
-	MailDeliveryboxDelete(ctx echo.Context, id openapi_types.UUID) error
-	// Get a specific deliverybox
-	// (GET /v2/deliveryboxes/{id})
-	MailDeliveryboxGetSpecific(ctx echo.Context, id openapi_types.UUID) error
+	// Delete a DeliveryBox.
+	// (DELETE /v2/delivery-boxes/{deliveryBoxId})
+	MailDeleteDeliveryBox(ctx echo.Context, deliveryBoxId openapi_types.UUID) error
+	// Get a DeliveryBox.
+	// (GET /v2/delivery-boxes/{deliveryBoxId})
+	MailGetDeliveryBox(ctx echo.Context, deliveryBoxId openapi_types.UUID) error
+	// Update the description of a DeliveryBox.
+	// (PATCH /v2/delivery-boxes/{deliveryBoxId}/description)
+	MailUpdateDeliveryBoxDescription(ctx echo.Context, deliveryBoxId openapi_types.UUID) error
+	// Update the password of a DeliveryBox.
+	// (PATCH /v2/delivery-boxes/{deliveryBoxId}/password)
+	MailUpdateDeliveryBoxPassword(ctx echo.Context, deliveryBoxId openapi_types.UUID) error
+	// Delete a DeliveryBox.
+	// (DELETE /v2/deliveryboxes/{deliveryBoxId})
+	DeleteV2DeliveryboxesDeliveryBoxId(ctx echo.Context, deliveryBoxId openapi_types.UUID) error
+	// Get a DeliveryBox.
+	// (GET /v2/deliveryboxes/{deliveryBoxId})
+	GetV2DeliveryboxesDeliveryBoxId(ctx echo.Context, deliveryBoxId openapi_types.UUID) error
 	// Update the description of an deliverybox
 	// (PUT /v2/deliveryboxes/{id}/description)
-	MailDeliveryboxUpdateDescription(ctx echo.Context, id openapi_types.UUID) error
+	MailDeliveryboxUpdateDescriptionDeprecated(ctx echo.Context, id openapi_types.UUID) error
 	// Update the password for a specific deliverybox
 	// (PUT /v2/deliveryboxes/{id}/password)
-	MailDeliveryboxUpdatePassword(ctx echo.Context, id openapi_types.UUID) error
-	// creates a sub zone for a given dns zone
+	MailDeliveryboxUpdatePasswordDeprecated(ctx echo.Context, id openapi_types.UUID) error
+	// Create a DNSZone.
+	// (POST /v2/dns-zones)
+	DnsCreateDnsZone(ctx echo.Context) error
+	// Delete a DNSZone.
+	// (DELETE /v2/dns-zones/{dnsZoneId})
+	DnsDeleteDnsZone(ctx echo.Context, dnsZoneId openapi_types.UUID) error
+	// Get a DNSZone.
+	// (GET /v2/dns-zones/{dnsZoneId})
+	DnsGetDnsZone(ctx echo.Context, dnsZoneId openapi_types.UUID) error
+	// Update a record set on a DNSZone.
+	// (PUT /v2/dns-zones/{dnsZoneId}/record-sets/{recordSet})
+	DnsUpdateRecordSet(ctx echo.Context, dnsZoneId openapi_types.UUID, recordSet DnsUpdateRecordSetParamsRecordSet) error
+	// Set a record set on a DNSZone to managed.
+	// (POST /v2/dns-zones/{dnsZoneId}/record-sets/{recordSet}/actions/set-managed)
+	DnsSetRecordSetManaged(ctx echo.Context, dnsZoneId openapi_types.UUID, recordSet DnsSetRecordSetManagedParamsRecordSet) error
+	// Create a DNSZone.
 	// (POST /v2/dns/zones)
-	DnsSubZoneCreate(ctx echo.Context) error
-	// gets a specific zone
-	// (GET /v2/dns/zones/{zoneId})
-	DnsZoneGetSpecific(ctx echo.Context, zoneId openapi_types.UUID) error
+	PostV2DnsZones(ctx echo.Context) error
+	// Delete a DNSZone.
+	// (DELETE /v2/dns/zones/{dnsZoneId})
+	DeleteV2DnsZonesDnsZoneId(ctx echo.Context, dnsZoneId openapi_types.UUID) error
+	// Get a DNSZone.
+	// (GET /v2/dns/zones/{dnsZoneId})
+	GetV2DnsZonesDnsZoneId(ctx echo.Context, dnsZoneId openapi_types.UUID) error
 	// updates a-records for a specific zone
 	// (PUT /v2/dns/zones/{zoneId}/recordset/acombined/custom)
-	DnsRecordASetCustom(ctx echo.Context, zoneId openapi_types.UUID) error
+	DnsRecordASetCustomDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
 	// set a-records managed by ingress for a specific zone
 	// (POST /v2/dns/zones/{zoneId}/recordset/acombined/managed/ingress)
-	DnsRecordASetManagedByIngress(ctx echo.Context, zoneId openapi_types.UUID) error
+	DnsRecordASetManagedByIngressDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
 	// updates cname-record for a specific zone
 	// (PUT /v2/dns/zones/{zoneId}/recordset/cname)
-	DnsRecordCnameSet(ctx echo.Context, zoneId openapi_types.UUID) error
+	DnsRecordCnameSetDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
 	// updates mx-records for a specific zone
 	// (PUT /v2/dns/zones/{zoneId}/recordset/mx/custom)
-	DnsRecordMxSetCustom(ctx echo.Context, zoneId openapi_types.UUID) error
+	DnsRecordMxSetCustomDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
 	// sets mx-records to managed for a specific zone
 	// (POST /v2/dns/zones/{zoneId}/recordset/mx/managed)
-	DnsRecordMxSetManaged(ctx echo.Context, zoneId openapi_types.UUID) error
+	DnsRecordMxSetManagedDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
 	// updates srv-records for a specific zone
 	// (PUT /v2/dns/zones/{zoneId}/recordset/srv)
-	DnsRecordSrvSet(ctx echo.Context, zoneId openapi_types.UUID) error
+	DnsRecordSrvSetDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
 	// updates txt-records for a specific zone
 	// (PUT /v2/dns/zones/{zoneId}/recordset/txt)
-	DnsRecordTxtSet(ctx echo.Context, zoneId openapi_types.UUID) error
-	// Get a domain ownership.
+	DnsRecordTxtSetDeprecated(ctx echo.Context, zoneId openapi_types.UUID) error
+	// Get a DomainOwnership.
 	// (GET /v2/domain-ownerships/{domainOwnershipId})
-	DomainGetSpecificDomainOwnership(ctx echo.Context, domainOwnershipId openapi_types.UUID) error
-	// Verify a domain ownership.
+	DomainGetDomainOwnership(ctx echo.Context, domainOwnershipId openapi_types.UUID) error
+	// Verify a DomainOwnership.
 	// (POST /v2/domain-ownerships/{domainOwnershipId})
+	PostV2DomainOwnershipsDomainOwnershipId(ctx echo.Context, domainOwnershipId openapi_types.UUID) error
+	// Verify a DomainOwnership.
+	// (POST /v2/domain-ownerships/{domainOwnershipId}/actions/verify)
 	DomainVerifyDomainOwnership(ctx echo.Context, domainOwnershipId openapi_types.UUID) error
 	// Check if a Domain is available to register.
+	// (POST /v2/domain-registrable)
+	DomainCheckDomainRegistrability(ctx echo.Context) error
+	// List TLDs.
+	// (GET /v2/domain-tlds)
+	DomainListTlds(ctx echo.Context) error
+	// List the contact schemas for a TLD.
+	// (GET /v2/domain-tlds/{tld}/contact-schemas)
+	DomainListTldContactSchemas(ctx echo.Context, tld string) error
+	// Check if a Domain is available to register.
 	// (POST /v2/domains)
-	DomainCheckDomainAvailability(ctx echo.Context) error
+	DomainCheckDomainRegistrabilityV2Deprecated(ctx echo.Context) error
 	// Get a HandleSchema.
 	// (GET /v2/domains/handle-schema/{domainName})
-	DomainGetHandleFields(ctx echo.Context, domainName string) error
-	// List all supported top level domains.
+	DomainGetHandleFieldsV2Deprecated(ctx echo.Context, domainName string) error
+	// List TLDs.
 	// (GET /v2/domains/supported-tlds)
-	DomainGetSupportedTlds(ctx echo.Context) error
+	GetV2DomainsSupportedTlds(ctx echo.Context) error
 	// Delete a Domain.
 	// (DELETE /v2/domains/{domainId})
 	DomainDeleteDomain(ctx echo.Context, domainId openapi_types.UUID) error
 	// Get a Domain.
 	// (GET /v2/domains/{domainId})
 	DomainGetDomain(ctx echo.Context, domainId openapi_types.UUID) error
-	// Create an AuthCode for a Domains transfer out process.
+	// Create an auth code for a Domains transfer-out process.
+	// (POST /v2/domains/{domainId}/actions/auth-code)
+	DomainCreateDomainAuthCode(ctx echo.Context, domainId openapi_types.UUID) error
+	// Create an auth code 2.
+	// (POST /v2/domains/{domainId}/actions/auth-code-2)
+	DomainCreateDomainAuthCode2(ctx echo.Context, domainId openapi_types.UUID) error
+	// Create an auth code for a Domains transfer-out process.
 	// (POST /v2/domains/{domainId}/actions/create-authcode)
-	DomainCreateAuthcodeForDomain(ctx echo.Context, domainId openapi_types.UUID) error
-	// Create an AuthCode2.
+	PostV2DomainsDomainIdActionsCreateAuthcode(ctx echo.Context, domainId openapi_types.UUID) error
+	// Create an auth code 2.
 	// (POST /v2/domains/{domainId}/actions/create-authcode2)
-	DomainCreateAuthcode2ForDomain(ctx echo.Context, domainId openapi_types.UUID) error
-	// Resend a domain email.
+	PostV2DomainsDomainIdActionsCreateAuthcode2(ctx echo.Context, domainId openapi_types.UUID) error
+	// Resend a Domain email.
 	// (POST /v2/domains/{domainId}/actions/resend-email)
 	DomainResendDomainEmail(ctx echo.Context, domainId openapi_types.UUID) error
+	// Update the auth code of a Domain.
+	// (PATCH /v2/domains/{domainId}/auth-code)
+	DomainUpdateDomainAuthCode(ctx echo.Context, domainId openapi_types.UUID) error
+	// Update the auth code of a Domain.
+	// (PATCH /v2/domains/{domainId}/authcode)
+	PatchV2DomainsDomainIdAuthcode(ctx echo.Context, domainId openapi_types.UUID) error
+	// Update a contact of a Domain.
+	// (PATCH /v2/domains/{domainId}/contacts/{contact})
+	DomainUpdateDomainContact(ctx echo.Context, domainId openapi_types.UUID, contact DomainUpdateDomainContactParamsContact) error
 	// Return the Contract for the given Domain.
 	// (GET /v2/domains/{domainId}/contract)
 	ContractGetDetailOfContractByDomain(ctx echo.Context, domainId openapi_types.UUID) error
 	// Return the Contract for the given Domain.
 	// (GET /v2/domains/{domainId}/contracts)
 	DeprecatedContractGetDetailOfContractByDomain(ctx echo.Context, domainId openapi_types.UUID) error
-	// Abort a declare process.
+	// Abort a Domain declaration.
+	// (DELETE /v2/domains/{domainId}/declaration)
+	DomainAbortDomainDeclaration(ctx echo.Context, domainId openapi_types.UUID) error
+	// Abort a Domain declaration.
 	// (DELETE /v2/domains/{domainId}/declarations)
-	DomainAbortDeclareProcess(ctx echo.Context, domainId openapi_types.UUID) error
+	DeleteV2DomainsDomainIdDeclarations(ctx echo.Context, domainId openapi_types.UUID) error
 	// Update an AuthCode.
 	// (PUT /v2/domains/{domainId}/declarations/authcode)
-	DomainDeclareProcessChangeAuthcode(ctx echo.Context, domainId openapi_types.UUID) error
+	DomainDeclareProcessChangeAuthcodeV2Deprecated(ctx echo.Context, domainId openapi_types.UUID) error
 	// Update a Domain's OwnerC handle.
 	// (PUT /v2/domains/{domainId}/declarations/handles)
-	DomainDeclareProcessChangeHandles(ctx echo.Context, domainId openapi_types.UUID) error
+	DomainDeclareProcessChangeHandlesV2Deprecated(ctx echo.Context, domainId openapi_types.UUID) error
 	// Change the owner contact of a domain.
 	// (PUT /v2/domains/{domainId}/handles/ownerc)
-	DomainChangeOwnercOfDomain(ctx echo.Context, domainId openapi_types.UUID) error
+	DomainChangeOwnercOfDomainV2Deprecated(ctx echo.Context, domainId openapi_types.UUID) error
+	// Update the nameservers of a Domain.
+	// (PATCH /v2/domains/{domainId}/nameservers)
+	DomainUpdateDomainNameservers(ctx echo.Context, domainId openapi_types.UUID) error
 	// Change all nameservers of a Domain.
 	// (PUT /v2/domains/{domainId}/nameservers)
-	DomainDeclareNameservers(ctx echo.Context, domainId openapi_types.UUID) error
+	DomainDeclareNameserversV2Deprecated(ctx echo.Context, domainId openapi_types.UUID) error
+	// Update a Domain's project id.
+	// (PATCH /v2/domains/{domainId}/project-id)
+	DomainUpdateDomainProjectId(ctx echo.Context, domainId openapi_types.UUID) error
 	// Change the Project relation of a Domain.
 	// (PUT /v2/domains/{domainId}/projectId)
-	DomainChangeProjectOfDomain(ctx echo.Context, domainId openapi_types.UUID) error
+	DomainChangeProjectOfDomainV2Deprecated(ctx echo.Context, domainId openapi_types.UUID) error
 	// Get File Service Reference for a Screenshot of a domain.
 	// (GET /v2/domains/{domainId}/screenshots/newest)
 	DomainGetScreenshotForDomain(ctx echo.Context, domainId openapi_types.UUID) error
@@ -59288,33 +64687,60 @@ type ServerInterface interface {
 	// Terminate session and invalidate access token.
 	// (PUT /v2/logout)
 	UserLogout(ctx echo.Context) error
-	// Delete a specific mail address
-	// (DELETE /v2/mailaddresses/{id})
-	MailMailaddressDelete(ctx echo.Context, id openapi_types.UUID) error
-	// Get a specific mail address
-	// (GET /v2/mailaddresses/{id})
-	MailMailaddressGetSpecific(ctx echo.Context, id openapi_types.UUID) error
+	// Delete a MailAddress.
+	// (DELETE /v2/mail-addresses/{mailAddressId})
+	MailDeleteMailAddress(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Get a MailAddress.
+	// (GET /v2/mail-addresses/{mailAddressId})
+	MailGetMailAddress(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update a MailAddress.
+	// (PATCH /v2/mail-addresses/{mailAddressId}/address)
+	MailUpdateMailAddressAddress(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the autoresponder of a MailAddress.
+	// (PUT /v2/mail-addresses/{mailAddressId}/autoresponder)
+	MailUpdateMailAddressAutoresponder(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the catchall of a MailAddress.
+	// (PUT /v2/mail-addresses/{mailAddressId}/catchall)
+	MailUpdateMailAddressCatchall(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the forward addresses of a MailAddresses.
+	// (PUT /v2/mail-addresses/{mailAddressId}/forward-addresses)
+	MailUpdateMailAddressForwardAddresses(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the password for a MailAddress.
+	// (PUT /v2/mail-addresses/{mailAddressId}/password)
+	MailUpdateMailAddressPassword(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the quota of a MailAddress.
+	// (PUT /v2/mail-addresses/{mailAddressId}/quota)
+	MailUpdateMailAddressQuota(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the spam protection of a MailAddress.
+	// (PUT /v2/mail-addresses/{mailAddressId}/spam-protection)
+	MailUpdateMailAddressSpamProtection(ctx echo.Context, mailAddressId openapi_types.UUID) error
 	// Update mail-address
 	// (PUT /v2/mailaddresses/{id}/address)
-	MailMailaddressUpdateAddress(ctx echo.Context, id openapi_types.UUID) error
-	// Update the auto responder of a mail address
-	// (PUT /v2/mailaddresses/{id}/autoResponder)
-	MailMailaddressUpdateAutoresponder(ctx echo.Context, id openapi_types.UUID) error
-	// Enable or disable the catchAll flag for a specific mail address
-	// (PUT /v2/mailaddresses/{id}/catchAll)
-	MailMailaddressUpdateCatchall(ctx echo.Context, id openapi_types.UUID) error
-	// Update the addresses an email is forwarded to
-	// (PUT /v2/mailaddresses/{id}/forwardaddresses)
-	MailMailaddressUpdateForwardaddresses(ctx echo.Context, id openapi_types.UUID) error
-	// Update the password for a specific mail address
-	// (PUT /v2/mailaddresses/{id}/password)
-	MailMailaddressUpdatePassword(ctx echo.Context, id openapi_types.UUID) error
-	// Update the quota of a mailbox
-	// (PUT /v2/mailaddresses/{id}/quota)
-	MailMailaddressUpdateQuota(ctx echo.Context, id openapi_types.UUID) error
-	// Update the spamprotection of a mailbox
-	// (PUT /v2/mailaddresses/{id}/spamprotection)
-	MailMailaddressUpdateSpamprotection(ctx echo.Context, id openapi_types.UUID) error
+	MailMailaddressUpdateAddressDeprecated(ctx echo.Context, id openapi_types.UUID) error
+	// Delete a MailAddress.
+	// (DELETE /v2/mailaddresses/{mailAddressId})
+	DeleteV2MailaddressesMailAddressId(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Get a MailAddress.
+	// (GET /v2/mailaddresses/{mailAddressId})
+	GetV2MailaddressesMailAddressId(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the autoresponder of a MailAddress.
+	// (PUT /v2/mailaddresses/{mailAddressId}/autoResponder)
+	PutV2MailaddressesMailAddressIdAutoResponder(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the catchall of a MailAddress.
+	// (PUT /v2/mailaddresses/{mailAddressId}/catchAll)
+	PutV2MailaddressesMailAddressIdCatchAll(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the forward addresses of a MailAddresses.
+	// (PUT /v2/mailaddresses/{mailAddressId}/forwardaddresses)
+	PutV2MailaddressesMailAddressIdForwardaddresses(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the password for a MailAddress.
+	// (PUT /v2/mailaddresses/{mailAddressId}/password)
+	PutV2MailaddressesMailAddressIdPassword(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the quota of a MailAddress.
+	// (PUT /v2/mailaddresses/{mailAddressId}/quota)
+	PutV2MailaddressesMailAddressIdQuota(ctx echo.Context, mailAddressId openapi_types.UUID) error
+	// Update the spam protection of a MailAddress.
+	// (PUT /v2/mailaddresses/{mailAddressId}/spamprotection)
+	PutV2MailaddressesMailAddressIdSpamprotection(ctx echo.Context, mailAddressId openapi_types.UUID) error
 	// List available MySQL character sets and collations, optionally filtered by a MySQLVersion.
 	// (GET /v2/mysql-charsets)
 	DatabaseListMysqlCharsets(ctx echo.Context, params DatabaseListMysqlCharsetsParams) error
@@ -59325,38 +64751,38 @@ type ServerInterface interface {
 	// (POST /v2/mysql-databases/{databaseId}/users)
 	DatabaseCreateMysqlUser(ctx echo.Context, databaseId openapi_types.UUID) error
 	// Delete a MySQLDatabase.
-	// (DELETE /v2/mysql-databases/{id})
-	DatabaseDeleteMysqlDatabase(ctx echo.Context, id openapi_types.UUID) error
+	// (DELETE /v2/mysql-databases/{mysqlDatabaseId})
+	DatabaseDeleteMysqlDatabase(ctx echo.Context, mysqlDatabaseId openapi_types.UUID) error
 	// Get a MySQLDatabase.
-	// (GET /v2/mysql-databases/{id})
-	DatabaseGetMysqlDatabase(ctx echo.Context, id openapi_types.UUID) error
+	// (GET /v2/mysql-databases/{mysqlDatabaseId})
+	DatabaseGetMysqlDatabase(ctx echo.Context, mysqlDatabaseId openapi_types.UUID) error
 	// Update a MySQLDatabase's default character settings.
-	// (PATCH /v2/mysql-databases/{id}/default-charset)
-	DatabaseUpdateMysqlDatabaseDefaultCharset(ctx echo.Context, id openapi_types.UUID) error
+	// (PATCH /v2/mysql-databases/{mysqlDatabaseId}/default-charset)
+	DatabaseUpdateMysqlDatabaseDefaultCharset(ctx echo.Context, mysqlDatabaseId openapi_types.UUID) error
 	// Update a MySQLDatabase's description.
-	// (PATCH /v2/mysql-databases/{id}/description)
-	DatabaseUpdateMysqlDatabaseDescription(ctx echo.Context, id openapi_types.UUID) error
+	// (PATCH /v2/mysql-databases/{mysqlDatabaseId}/description)
+	DatabaseUpdateMysqlDatabaseDescription(ctx echo.Context, mysqlDatabaseId openapi_types.UUID) error
 	// Delete a MySQLUser.
-	// (DELETE /v2/mysql-users/{id})
-	DatabaseDeleteMysqlUser(ctx echo.Context, id openapi_types.UUID) error
+	// (DELETE /v2/mysql-users/{mysqlUserId})
+	DatabaseDeleteMysqlUser(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// Get a MySQLUser.
-	// (GET /v2/mysql-users/{id})
-	DatabaseGetMysqlUser(ctx echo.Context, id openapi_types.UUID) error
+	// (GET /v2/mysql-users/{mysqlUserId})
+	DatabaseGetMysqlUser(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// Update a MySQLUser.
-	// (PUT /v2/mysql-users/{id})
-	DatabaseUpdateMysqlUser(ctx echo.Context, id openapi_types.UUID) error
+	// (PUT /v2/mysql-users/{mysqlUserId})
+	DatabaseUpdateMysqlUser(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// Disable a MySQLUser.
-	// (POST /v2/mysql-users/{id}/actions/disable)
-	DatabaseDisableMysqlUser(ctx echo.Context, id openapi_types.UUID) error
+	// (POST /v2/mysql-users/{mysqlUserId}/actions/disable)
+	DatabaseDisableMysqlUser(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// Enable a MySQLUser.
-	// (POST /v2/mysql-users/{id}/actions/enable)
-	DatabaseEnableMysqlUser(ctx echo.Context, id openapi_types.UUID) error
+	// (POST /v2/mysql-users/{mysqlUserId}/actions/enable)
+	DatabaseEnableMysqlUser(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// Update a MySQLUser's password.
-	// (PATCH /v2/mysql-users/{id}/password)
-	DatabaseUpdateMysqlUserPassword(ctx echo.Context, id openapi_types.UUID) error
+	// (PATCH /v2/mysql-users/{mysqlUserId}/password)
+	DatabaseUpdateMysqlUserPassword(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// Get a MySQLUser's PhpMyAdmin-URL.
-	// (GET /v2/mysql-users/{id}/php-my-admin-url)
-	DatabaseGetMysqlUserPhpMyAdminUrl(ctx echo.Context, id openapi_types.UUID) error
+	// (GET /v2/mysql-users/{mysqlUserId}/php-my-admin-url)
+	DatabaseGetMysqlUserPhpMyAdminUrl(ctx echo.Context, mysqlUserId openapi_types.UUID) error
 	// List MySQLVersions.
 	// (GET /v2/mysql-versions)
 	DatabaseListMysqlVersions(ctx echo.Context, params DatabaseListMysqlVersionsParams) error
@@ -59510,19 +64936,28 @@ type ServerInterface interface {
 	// Create a Cronjob.
 	// (POST /v2/projects/{projectId}/cronjobs)
 	CronjobCreateCronjob(ctx echo.Context, projectId openapi_types.UUID) error
-	// Get all deliveryboxes by project ID
+	// List DeliveryBoxes belonging to a Project.
+	// (GET /v2/projects/{projectId}/delivery-boxes)
+	MailListDeliveryBoxes(ctx echo.Context, projectId string) error
+	// Create a DeliveryBox.
+	// (POST /v2/projects/{projectId}/delivery-boxes)
+	MailCreateDeliverybox(ctx echo.Context, projectId string) error
+	// List DeliveryBoxes belonging to a Project.
 	// (GET /v2/projects/{projectId}/deliveryboxes)
-	MailDeliveryboxList(ctx echo.Context, projectId string) error
-	// Create a new deliverybox
+	GetV2ProjectsProjectIdDeliveryboxes(ctx echo.Context, projectId string) error
+	// Create a DeliveryBox.
 	// (POST /v2/projects/{projectId}/deliveryboxes)
-	MailDeliveryboxCreate(ctx echo.Context, projectId string) error
+	PostV2ProjectsProjectIdDeliveryboxes(ctx echo.Context, projectId string) error
 	// Update a Project's description.
 	// (PATCH /v2/projects/{projectId}/description)
 	ProjectUpdateProjectDescription(ctx echo.Context, projectId openapi_types.UUID) error
-	// gets all dns zones by project id
+	// List DNSZones belonging to a Project.
+	// (GET /v2/projects/{projectId}/dns-zones)
+	DnsListDnsZones(ctx echo.Context, projectId openapi_types.UUID) error
+	// List DNSZones belonging to a Project.
 	// (GET /v2/projects/{projectId}/dns/zones)
-	DnsZonesForProject(ctx echo.Context, projectId openapi_types.UUID) error
-	// List all domain ownerships of a project.
+	GetV2ProjectsProjectIdDnsZones(ctx echo.Context, projectId openapi_types.UUID) error
+	// List the DomainOwnerships of a project.
 	// (GET /v2/projects/{projectId}/domain-ownerships)
 	DomainListDomainOwnerships(ctx echo.Context, projectId openapi_types.UUID) error
 	// List Domains belonging to a Project.
@@ -59552,21 +64987,33 @@ type ServerInterface interface {
 	// Leave a Project.
 	// (POST /v2/projects/{projectId}/leave)
 	ProjectLeaveProject(ctx echo.Context, projectId openapi_types.UUID) error
-	// Get all mail addresses for a project ID
+	// List MailAddresses belonging to a Project.
+	// (GET /v2/projects/{projectId}/mail-addresses)
+	MailListMailAddresses(ctx echo.Context, projectId string) error
+	// Create a MailAddress.
+	// (POST /v2/projects/{projectId}/mail-addresses)
+	MailCreateMailAddress(ctx echo.Context, projectId string) error
+	// List mail settings of a Project.
+	// (GET /v2/projects/{projectId}/mail-settings)
+	MailListProjectMailSettings(ctx echo.Context, projectId string) error
+	// Update a mail setting of a Project.
+	// (PUT /v2/projects/{projectId}/mail-settings/{setting})
+	MailUpdateProjectMailSetting(ctx echo.Context, projectId string, setting MailUpdateProjectMailSettingParamsSetting) error
+	// List MailAddresses belonging to a Project.
 	// (GET /v2/projects/{projectId}/mailaddresses)
-	MailMailaddressList(ctx echo.Context, projectId string) error
-	// Create a new mail address
+	GetV2ProjectsProjectIdMailaddresses(ctx echo.Context, projectId string) error
+	// Create a MailAddress.
 	// (POST /v2/projects/{projectId}/mailaddresses)
-	MailMailaddressCreate(ctx echo.Context, projectId string) error
-	// Get settings for a given project ID
+	PostV2ProjectsProjectIdMailaddresses(ctx echo.Context, projectId string) error
+	// List mail settings of a Project.
 	// (GET /v2/projects/{projectId}/mailsettings)
-	MailProjectsettingGetSpecific(ctx echo.Context, projectId string) error
+	GetV2ProjectsProjectIdMailsettings(ctx echo.Context, projectId string) error
 	// Update blacklist for a given project ID
 	// (PUT /v2/projects/{projectId}/mailsettings/blacklist)
-	MailProjectsettingUpdateBlacklist(ctx echo.Context, projectId string) error
+	MailProjectsettingUpdateBlacklistDeprecated(ctx echo.Context, projectId string) error
 	// Update whitelist for a given project ID
 	// (PUT /v2/projects/{projectId}/mailsettings/whitelist)
-	MailProjectsettingUpdateWhitelist(ctx echo.Context, projectId string) error
+	MailProjectsettingUpdateWhitelistDeprecated(ctx echo.Context, projectId string) error
 	// List Memberships belonging to a Project.
 	// (GET /v2/projects/{projectId}/memberships)
 	ProjectListMembershipsForProject(ctx echo.Context, projectId string, params ProjectListMembershipsForProjectParams) error
@@ -59601,17 +65048,17 @@ type ServerInterface interface {
 	// (POST /v2/projects/{projectId}/ssh-users)
 	SshUserCreateSshUser(ctx echo.Context, projectId string) error
 	// Delete a RedisDatabase.
-	// (DELETE /v2/redis-databases/{id})
-	DatabaseDeleteRedisDatabase(ctx echo.Context, id openapi_types.UUID) error
+	// (DELETE /v2/redis-databases/{redisDatabaseId})
+	DatabaseDeleteRedisDatabase(ctx echo.Context, redisDatabaseId openapi_types.UUID) error
 	// Get a RedisDatabase.
-	// (GET /v2/redis-databases/{id})
-	DatabaseGetRedisDatabase(ctx echo.Context, id openapi_types.UUID) error
+	// (GET /v2/redis-databases/{redisDatabaseId})
+	DatabaseGetRedisDatabase(ctx echo.Context, redisDatabaseId openapi_types.UUID) error
 	// Update a RedisDatabase's configuration.
-	// (PATCH /v2/redis-databases/{id}/configuration)
-	DatabaseUpdateRedisDatabaseConfiguration(ctx echo.Context, id openapi_types.UUID) error
+	// (PATCH /v2/redis-databases/{redisDatabaseId}/configuration)
+	DatabaseUpdateRedisDatabaseConfiguration(ctx echo.Context, redisDatabaseId openapi_types.UUID) error
 	// Update a RedisDatabase's description.
-	// (PATCH /v2/redis-databases/{id}/description)
-	DatabaseUpdateRedisDatabaseDescription(ctx echo.Context, id openapi_types.UUID) error
+	// (PATCH /v2/redis-databases/{redisDatabaseId}/description)
+	DatabaseUpdateRedisDatabaseDescription(ctx echo.Context, redisDatabaseId openapi_types.UUID) error
 	// List RedisVersions.
 	// (GET /v2/redis-versions)
 	DatabaseListRedisVersions(ctx echo.Context, params DatabaseListRedisVersionsParams) error
@@ -61410,82 +66857,6 @@ func (w *ServerInterfaceWrapper) CustomerCreateCustomerInvite(ctx echo.Context) 
 	return err
 }
 
-// CustomerListOfCustomerCategoriesDeprecated converts echo context to params.
-func (w *ServerInterfaceWrapper) CustomerListOfCustomerCategoriesDeprecated(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CustomerListOfCustomerCategoriesDeprecated(ctx)
-	return err
-}
-
-// CustomerCreateCategoryDeprecated converts echo context to params.
-func (w *ServerInterfaceWrapper) CustomerCreateCategoryDeprecated(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CustomerCreateCategoryDeprecated(ctx)
-	return err
-}
-
-// CustomerDeleteCategoryDeprecated converts echo context to params.
-func (w *ServerInterfaceWrapper) CustomerDeleteCategoryDeprecated(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "categoryId" -------------
-	var categoryId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "categoryId", runtime.ParamLocationPath, ctx.Param("categoryId"), &categoryId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter categoryId: %s", err))
-	}
-
-	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CustomerDeleteCategoryDeprecated(ctx, categoryId)
-	return err
-}
-
-// CustomerDetailOfCustomerCategoryDeprecated converts echo context to params.
-func (w *ServerInterfaceWrapper) CustomerDetailOfCustomerCategoryDeprecated(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "categoryId" -------------
-	var categoryId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "categoryId", runtime.ParamLocationPath, ctx.Param("categoryId"), &categoryId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter categoryId: %s", err))
-	}
-
-	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CustomerDetailOfCustomerCategoryDeprecated(ctx, categoryId)
-	return err
-}
-
-// CustomerUpdateCategoryDeprecated converts echo context to params.
-func (w *ServerInterfaceWrapper) CustomerUpdateCategoryDeprecated(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "categoryId" -------------
-	var categoryId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "categoryId", runtime.ParamLocationPath, ctx.Param("categoryId"), &categoryId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter categoryId: %s", err))
-	}
-
-	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CustomerUpdateCategoryDeprecated(ctx, categoryId)
-	return err
-}
-
 // CustomerListCustomers converts echo context to params.
 func (w *ServerInterfaceWrapper) CustomerListCustomers(ctx echo.Context) error {
 	var err error
@@ -61927,8 +67298,116 @@ func (w *ServerInterfaceWrapper) OrderListCustomerOrders(ctx echo.Context) error
 	return err
 }
 
-// MailDeliveryboxDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) MailDeliveryboxDelete(ctx echo.Context) error {
+// MailDeleteDeliveryBox converts echo context to params.
+func (w *ServerInterfaceWrapper) MailDeleteDeliveryBox(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "deliveryBoxId" -------------
+	var deliveryBoxId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, ctx.Param("deliveryBoxId"), &deliveryBoxId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter deliveryBoxId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailDeleteDeliveryBox(ctx, deliveryBoxId)
+	return err
+}
+
+// MailGetDeliveryBox converts echo context to params.
+func (w *ServerInterfaceWrapper) MailGetDeliveryBox(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "deliveryBoxId" -------------
+	var deliveryBoxId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, ctx.Param("deliveryBoxId"), &deliveryBoxId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter deliveryBoxId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailGetDeliveryBox(ctx, deliveryBoxId)
+	return err
+}
+
+// MailUpdateDeliveryBoxDescription converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateDeliveryBoxDescription(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "deliveryBoxId" -------------
+	var deliveryBoxId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, ctx.Param("deliveryBoxId"), &deliveryBoxId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter deliveryBoxId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailUpdateDeliveryBoxDescription(ctx, deliveryBoxId)
+	return err
+}
+
+// MailUpdateDeliveryBoxPassword converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateDeliveryBoxPassword(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "deliveryBoxId" -------------
+	var deliveryBoxId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, ctx.Param("deliveryBoxId"), &deliveryBoxId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter deliveryBoxId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailUpdateDeliveryBoxPassword(ctx, deliveryBoxId)
+	return err
+}
+
+// DeleteV2DeliveryboxesDeliveryBoxId converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteV2DeliveryboxesDeliveryBoxId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "deliveryBoxId" -------------
+	var deliveryBoxId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, ctx.Param("deliveryBoxId"), &deliveryBoxId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter deliveryBoxId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteV2DeliveryboxesDeliveryBoxId(ctx, deliveryBoxId)
+	return err
+}
+
+// GetV2DeliveryboxesDeliveryBoxId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2DeliveryboxesDeliveryBoxId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "deliveryBoxId" -------------
+	var deliveryBoxId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "deliveryBoxId", runtime.ParamLocationPath, ctx.Param("deliveryBoxId"), &deliveryBoxId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter deliveryBoxId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetV2DeliveryboxesDeliveryBoxId(ctx, deliveryBoxId)
+	return err
+}
+
+// MailDeliveryboxUpdateDescriptionDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) MailDeliveryboxUpdateDescriptionDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id openapi_types.UUID
@@ -61941,12 +67420,12 @@ func (w *ServerInterfaceWrapper) MailDeliveryboxDelete(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailDeliveryboxDelete(ctx, id)
+	err = w.Handler.MailDeliveryboxUpdateDescriptionDeprecated(ctx, id)
 	return err
 }
 
-// MailDeliveryboxGetSpecific converts echo context to params.
-func (w *ServerInterfaceWrapper) MailDeliveryboxGetSpecific(ctx echo.Context) error {
+// MailDeliveryboxUpdatePasswordDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) MailDeliveryboxUpdatePasswordDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id openapi_types.UUID
@@ -61959,59 +67438,158 @@ func (w *ServerInterfaceWrapper) MailDeliveryboxGetSpecific(ctx echo.Context) er
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailDeliveryboxGetSpecific(ctx, id)
+	err = w.Handler.MailDeliveryboxUpdatePasswordDeprecated(ctx, id)
 	return err
 }
 
-// MailDeliveryboxUpdateDescription converts echo context to params.
-func (w *ServerInterfaceWrapper) MailDeliveryboxUpdateDescription(ctx echo.Context) error {
+// DnsCreateDnsZone converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsCreateDnsZone(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DnsCreateDnsZone(ctx)
+	return err
+}
+
+// DnsDeleteDnsZone converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsDeleteDnsZone(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "dnsZoneId" -------------
+	var dnsZoneId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, ctx.Param("dnsZoneId"), &dnsZoneId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dnsZoneId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailDeliveryboxUpdateDescription(ctx, id)
+	err = w.Handler.DnsDeleteDnsZone(ctx, dnsZoneId)
 	return err
 }
 
-// MailDeliveryboxUpdatePassword converts echo context to params.
-func (w *ServerInterfaceWrapper) MailDeliveryboxUpdatePassword(ctx echo.Context) error {
+// DnsGetDnsZone converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsGetDnsZone(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "dnsZoneId" -------------
+	var dnsZoneId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, ctx.Param("dnsZoneId"), &dnsZoneId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dnsZoneId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailDeliveryboxUpdatePassword(ctx, id)
+	err = w.Handler.DnsGetDnsZone(ctx, dnsZoneId)
 	return err
 }
 
-// DnsSubZoneCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsSubZoneCreate(ctx echo.Context) error {
+// DnsUpdateRecordSet converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsUpdateRecordSet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "dnsZoneId" -------------
+	var dnsZoneId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, ctx.Param("dnsZoneId"), &dnsZoneId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dnsZoneId: %s", err))
+	}
+
+	// ------------- Path parameter "recordSet" -------------
+	var recordSet DnsUpdateRecordSetParamsRecordSet
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "recordSet", runtime.ParamLocationPath, ctx.Param("recordSet"), &recordSet)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter recordSet: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DnsUpdateRecordSet(ctx, dnsZoneId, recordSet)
+	return err
+}
+
+// DnsSetRecordSetManaged converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsSetRecordSetManaged(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "dnsZoneId" -------------
+	var dnsZoneId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, ctx.Param("dnsZoneId"), &dnsZoneId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dnsZoneId: %s", err))
+	}
+
+	// ------------- Path parameter "recordSet" -------------
+	var recordSet DnsSetRecordSetManagedParamsRecordSet
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "recordSet", runtime.ParamLocationPath, ctx.Param("recordSet"), &recordSet)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter recordSet: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DnsSetRecordSetManaged(ctx, dnsZoneId, recordSet)
+	return err
+}
+
+// PostV2DnsZones converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV2DnsZones(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsSubZoneCreate(ctx)
+	err = w.Handler.PostV2DnsZones(ctx)
 	return err
 }
 
-// DnsZoneGetSpecific converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsZoneGetSpecific(ctx echo.Context) error {
+// DeleteV2DnsZonesDnsZoneId converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteV2DnsZonesDnsZoneId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "dnsZoneId" -------------
+	var dnsZoneId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, ctx.Param("dnsZoneId"), &dnsZoneId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dnsZoneId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteV2DnsZonesDnsZoneId(ctx, dnsZoneId)
+	return err
+}
+
+// GetV2DnsZonesDnsZoneId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2DnsZonesDnsZoneId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "dnsZoneId" -------------
+	var dnsZoneId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "dnsZoneId", runtime.ParamLocationPath, ctx.Param("dnsZoneId"), &dnsZoneId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dnsZoneId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetV2DnsZonesDnsZoneId(ctx, dnsZoneId)
+	return err
+}
+
+// DnsRecordASetCustomDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordASetCustomDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62024,12 +67602,12 @@ func (w *ServerInterfaceWrapper) DnsZoneGetSpecific(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsZoneGetSpecific(ctx, zoneId)
+	err = w.Handler.DnsRecordASetCustomDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordASetCustom converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordASetCustom(ctx echo.Context) error {
+// DnsRecordASetManagedByIngressDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordASetManagedByIngressDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62042,12 +67620,12 @@ func (w *ServerInterfaceWrapper) DnsRecordASetCustom(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordASetCustom(ctx, zoneId)
+	err = w.Handler.DnsRecordASetManagedByIngressDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordASetManagedByIngress converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordASetManagedByIngress(ctx echo.Context) error {
+// DnsRecordCnameSetDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordCnameSetDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62060,12 +67638,12 @@ func (w *ServerInterfaceWrapper) DnsRecordASetManagedByIngress(ctx echo.Context)
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordASetManagedByIngress(ctx, zoneId)
+	err = w.Handler.DnsRecordCnameSetDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordCnameSet converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordCnameSet(ctx echo.Context) error {
+// DnsRecordMxSetCustomDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordMxSetCustomDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62078,12 +67656,12 @@ func (w *ServerInterfaceWrapper) DnsRecordCnameSet(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordCnameSet(ctx, zoneId)
+	err = w.Handler.DnsRecordMxSetCustomDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordMxSetCustom converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordMxSetCustom(ctx echo.Context) error {
+// DnsRecordMxSetManagedDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordMxSetManagedDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62096,12 +67674,12 @@ func (w *ServerInterfaceWrapper) DnsRecordMxSetCustom(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordMxSetCustom(ctx, zoneId)
+	err = w.Handler.DnsRecordMxSetManagedDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordMxSetManaged converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordMxSetManaged(ctx echo.Context) error {
+// DnsRecordSrvSetDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordSrvSetDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62114,12 +67692,12 @@ func (w *ServerInterfaceWrapper) DnsRecordMxSetManaged(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordMxSetManaged(ctx, zoneId)
+	err = w.Handler.DnsRecordSrvSetDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordSrvSet converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordSrvSet(ctx echo.Context) error {
+// DnsRecordTxtSetDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsRecordTxtSetDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "zoneId" -------------
 	var zoneId openapi_types.UUID
@@ -62132,30 +67710,12 @@ func (w *ServerInterfaceWrapper) DnsRecordSrvSet(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordSrvSet(ctx, zoneId)
+	err = w.Handler.DnsRecordTxtSetDeprecated(ctx, zoneId)
 	return err
 }
 
-// DnsRecordTxtSet converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsRecordTxtSet(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "zoneId" -------------
-	var zoneId openapi_types.UUID
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "zoneId", runtime.ParamLocationPath, ctx.Param("zoneId"), &zoneId)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter zoneId: %s", err))
-	}
-
-	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsRecordTxtSet(ctx, zoneId)
-	return err
-}
-
-// DomainGetSpecificDomainOwnership converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainGetSpecificDomainOwnership(ctx echo.Context) error {
+// DomainGetDomainOwnership converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainGetDomainOwnership(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainOwnershipId" -------------
 	var domainOwnershipId openapi_types.UUID
@@ -62168,7 +67728,25 @@ func (w *ServerInterfaceWrapper) DomainGetSpecificDomainOwnership(ctx echo.Conte
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainGetSpecificDomainOwnership(ctx, domainOwnershipId)
+	err = w.Handler.DomainGetDomainOwnership(ctx, domainOwnershipId)
+	return err
+}
+
+// PostV2DomainOwnershipsDomainOwnershipId converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV2DomainOwnershipsDomainOwnershipId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainOwnershipId" -------------
+	var domainOwnershipId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainOwnershipId", runtime.ParamLocationPath, ctx.Param("domainOwnershipId"), &domainOwnershipId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainOwnershipId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostV2DomainOwnershipsDomainOwnershipId(ctx, domainOwnershipId)
 	return err
 }
 
@@ -62190,17 +67768,51 @@ func (w *ServerInterfaceWrapper) DomainVerifyDomainOwnership(ctx echo.Context) e
 	return err
 }
 
-// DomainCheckDomainAvailability converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainCheckDomainAvailability(ctx echo.Context) error {
+// DomainCheckDomainRegistrability converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainCheckDomainRegistrability(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainCheckDomainAvailability(ctx)
+	err = w.Handler.DomainCheckDomainRegistrability(ctx)
 	return err
 }
 
-// DomainGetHandleFields converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainGetHandleFields(ctx echo.Context) error {
+// DomainListTlds converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainListTlds(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainListTlds(ctx)
+	return err
+}
+
+// DomainListTldContactSchemas converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainListTldContactSchemas(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "tld" -------------
+	var tld string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "tld", runtime.ParamLocationPath, ctx.Param("tld"), &tld)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter tld: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainListTldContactSchemas(ctx, tld)
+	return err
+}
+
+// DomainCheckDomainRegistrabilityV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainCheckDomainRegistrabilityV2Deprecated(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainCheckDomainRegistrabilityV2Deprecated(ctx)
+	return err
+}
+
+// DomainGetHandleFieldsV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainGetHandleFieldsV2Deprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainName" -------------
 	var domainName string
@@ -62211,16 +67823,16 @@ func (w *ServerInterfaceWrapper) DomainGetHandleFields(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainGetHandleFields(ctx, domainName)
+	err = w.Handler.DomainGetHandleFieldsV2Deprecated(ctx, domainName)
 	return err
 }
 
-// DomainGetSupportedTlds converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainGetSupportedTlds(ctx echo.Context) error {
+// GetV2DomainsSupportedTlds converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2DomainsSupportedTlds(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainGetSupportedTlds(ctx)
+	err = w.Handler.GetV2DomainsSupportedTlds(ctx)
 	return err
 }
 
@@ -62260,8 +67872,8 @@ func (w *ServerInterfaceWrapper) DomainGetDomain(ctx echo.Context) error {
 	return err
 }
 
-// DomainCreateAuthcodeForDomain converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainCreateAuthcodeForDomain(ctx echo.Context) error {
+// DomainCreateDomainAuthCode converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainCreateDomainAuthCode(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62274,12 +67886,12 @@ func (w *ServerInterfaceWrapper) DomainCreateAuthcodeForDomain(ctx echo.Context)
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainCreateAuthcodeForDomain(ctx, domainId)
+	err = w.Handler.DomainCreateDomainAuthCode(ctx, domainId)
 	return err
 }
 
-// DomainCreateAuthcode2ForDomain converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainCreateAuthcode2ForDomain(ctx echo.Context) error {
+// DomainCreateDomainAuthCode2 converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainCreateDomainAuthCode2(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62292,7 +67904,43 @@ func (w *ServerInterfaceWrapper) DomainCreateAuthcode2ForDomain(ctx echo.Context
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainCreateAuthcode2ForDomain(ctx, domainId)
+	err = w.Handler.DomainCreateDomainAuthCode2(ctx, domainId)
+	return err
+}
+
+// PostV2DomainsDomainIdActionsCreateAuthcode converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV2DomainsDomainIdActionsCreateAuthcode(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostV2DomainsDomainIdActionsCreateAuthcode(ctx, domainId)
+	return err
+}
+
+// PostV2DomainsDomainIdActionsCreateAuthcode2 converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV2DomainsDomainIdActionsCreateAuthcode2(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostV2DomainsDomainIdActionsCreateAuthcode2(ctx, domainId)
 	return err
 }
 
@@ -62311,6 +67959,68 @@ func (w *ServerInterfaceWrapper) DomainResendDomainEmail(ctx echo.Context) error
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.DomainResendDomainEmail(ctx, domainId)
+	return err
+}
+
+// DomainUpdateDomainAuthCode converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainUpdateDomainAuthCode(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainUpdateDomainAuthCode(ctx, domainId)
+	return err
+}
+
+// PatchV2DomainsDomainIdAuthcode converts echo context to params.
+func (w *ServerInterfaceWrapper) PatchV2DomainsDomainIdAuthcode(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PatchV2DomainsDomainIdAuthcode(ctx, domainId)
+	return err
+}
+
+// DomainUpdateDomainContact converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainUpdateDomainContact(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	// ------------- Path parameter "contact" -------------
+	var contact DomainUpdateDomainContactParamsContact
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "contact", runtime.ParamLocationPath, ctx.Param("contact"), &contact)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter contact: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainUpdateDomainContact(ctx, domainId, contact)
 	return err
 }
 
@@ -62350,8 +68060,8 @@ func (w *ServerInterfaceWrapper) DeprecatedContractGetDetailOfContractByDomain(c
 	return err
 }
 
-// DomainAbortDeclareProcess converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainAbortDeclareProcess(ctx echo.Context) error {
+// DomainAbortDomainDeclaration converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainAbortDomainDeclaration(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62364,12 +68074,12 @@ func (w *ServerInterfaceWrapper) DomainAbortDeclareProcess(ctx echo.Context) err
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainAbortDeclareProcess(ctx, domainId)
+	err = w.Handler.DomainAbortDomainDeclaration(ctx, domainId)
 	return err
 }
 
-// DomainDeclareProcessChangeAuthcode converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainDeclareProcessChangeAuthcode(ctx echo.Context) error {
+// DeleteV2DomainsDomainIdDeclarations converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteV2DomainsDomainIdDeclarations(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62382,12 +68092,12 @@ func (w *ServerInterfaceWrapper) DomainDeclareProcessChangeAuthcode(ctx echo.Con
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainDeclareProcessChangeAuthcode(ctx, domainId)
+	err = w.Handler.DeleteV2DomainsDomainIdDeclarations(ctx, domainId)
 	return err
 }
 
-// DomainDeclareProcessChangeHandles converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainDeclareProcessChangeHandles(ctx echo.Context) error {
+// DomainDeclareProcessChangeAuthcodeV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainDeclareProcessChangeAuthcodeV2Deprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62400,12 +68110,12 @@ func (w *ServerInterfaceWrapper) DomainDeclareProcessChangeHandles(ctx echo.Cont
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainDeclareProcessChangeHandles(ctx, domainId)
+	err = w.Handler.DomainDeclareProcessChangeAuthcodeV2Deprecated(ctx, domainId)
 	return err
 }
 
-// DomainChangeOwnercOfDomain converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainChangeOwnercOfDomain(ctx echo.Context) error {
+// DomainDeclareProcessChangeHandlesV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainDeclareProcessChangeHandlesV2Deprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62418,12 +68128,12 @@ func (w *ServerInterfaceWrapper) DomainChangeOwnercOfDomain(ctx echo.Context) er
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainChangeOwnercOfDomain(ctx, domainId)
+	err = w.Handler.DomainDeclareProcessChangeHandlesV2Deprecated(ctx, domainId)
 	return err
 }
 
-// DomainDeclareNameservers converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainDeclareNameservers(ctx echo.Context) error {
+// DomainChangeOwnercOfDomainV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainChangeOwnercOfDomainV2Deprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62436,12 +68146,12 @@ func (w *ServerInterfaceWrapper) DomainDeclareNameservers(ctx echo.Context) erro
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainDeclareNameservers(ctx, domainId)
+	err = w.Handler.DomainChangeOwnercOfDomainV2Deprecated(ctx, domainId)
 	return err
 }
 
-// DomainChangeProjectOfDomain converts echo context to params.
-func (w *ServerInterfaceWrapper) DomainChangeProjectOfDomain(ctx echo.Context) error {
+// DomainUpdateDomainNameservers converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainUpdateDomainNameservers(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "domainId" -------------
 	var domainId openapi_types.UUID
@@ -62454,7 +68164,61 @@ func (w *ServerInterfaceWrapper) DomainChangeProjectOfDomain(ctx echo.Context) e
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DomainChangeProjectOfDomain(ctx, domainId)
+	err = w.Handler.DomainUpdateDomainNameservers(ctx, domainId)
+	return err
+}
+
+// DomainDeclareNameserversV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainDeclareNameserversV2Deprecated(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainDeclareNameserversV2Deprecated(ctx, domainId)
+	return err
+}
+
+// DomainUpdateDomainProjectId converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainUpdateDomainProjectId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainUpdateDomainProjectId(ctx, domainId)
+	return err
+}
+
+// DomainChangeProjectOfDomainV2Deprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) DomainChangeProjectOfDomainV2Deprecated(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "domainId" -------------
+	var domainId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "domainId", runtime.ParamLocationPath, ctx.Param("domainId"), &domainId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter domainId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DomainChangeProjectOfDomainV2Deprecated(ctx, domainId)
 	return err
 }
 
@@ -62748,152 +68512,170 @@ func (w *ServerInterfaceWrapper) UserLogout(ctx echo.Context) error {
 	return err
 }
 
-// MailMailaddressDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressDelete(ctx echo.Context) error {
+// MailDeleteMailAddress converts echo context to params.
+func (w *ServerInterfaceWrapper) MailDeleteMailAddress(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressDelete(ctx, id)
+	err = w.Handler.MailDeleteMailAddress(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressGetSpecific converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressGetSpecific(ctx echo.Context) error {
+// MailGetMailAddress converts echo context to params.
+func (w *ServerInterfaceWrapper) MailGetMailAddress(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressGetSpecific(ctx, id)
+	err = w.Handler.MailGetMailAddress(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdateAddress converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdateAddress(ctx echo.Context) error {
+// MailUpdateMailAddressAddress converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressAddress(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdateAddress(ctx, id)
+	err = w.Handler.MailUpdateMailAddressAddress(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdateAutoresponder converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdateAutoresponder(ctx echo.Context) error {
+// MailUpdateMailAddressAutoresponder converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressAutoresponder(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdateAutoresponder(ctx, id)
+	err = w.Handler.MailUpdateMailAddressAutoresponder(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdateCatchall converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdateCatchall(ctx echo.Context) error {
+// MailUpdateMailAddressCatchall converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressCatchall(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdateCatchall(ctx, id)
+	err = w.Handler.MailUpdateMailAddressCatchall(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdateForwardaddresses converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdateForwardaddresses(ctx echo.Context) error {
+// MailUpdateMailAddressForwardAddresses converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressForwardAddresses(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdateForwardaddresses(ctx, id)
+	err = w.Handler.MailUpdateMailAddressForwardAddresses(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdatePassword converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdatePassword(ctx echo.Context) error {
+// MailUpdateMailAddressPassword converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressPassword(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdatePassword(ctx, id)
+	err = w.Handler.MailUpdateMailAddressPassword(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdateQuota converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdateQuota(ctx echo.Context) error {
+// MailUpdateMailAddressQuota converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressQuota(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdateQuota(ctx, id)
+	err = w.Handler.MailUpdateMailAddressQuota(ctx, mailAddressId)
 	return err
 }
 
-// MailMailaddressUpdateSpamprotection converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressUpdateSpamprotection(ctx echo.Context) error {
+// MailUpdateMailAddressSpamProtection converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateMailAddressSpamProtection(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailUpdateMailAddressSpamProtection(ctx, mailAddressId)
+	return err
+}
+
+// MailMailaddressUpdateAddressDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) MailMailaddressUpdateAddressDeprecated(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id openapi_types.UUID
@@ -62906,7 +68688,151 @@ func (w *ServerInterfaceWrapper) MailMailaddressUpdateSpamprotection(ctx echo.Co
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressUpdateSpamprotection(ctx, id)
+	err = w.Handler.MailMailaddressUpdateAddressDeprecated(ctx, id)
+	return err
+}
+
+// DeleteV2MailaddressesMailAddressId converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteV2MailaddressesMailAddressId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteV2MailaddressesMailAddressId(ctx, mailAddressId)
+	return err
+}
+
+// GetV2MailaddressesMailAddressId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2MailaddressesMailAddressId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetV2MailaddressesMailAddressId(ctx, mailAddressId)
+	return err
+}
+
+// PutV2MailaddressesMailAddressIdAutoResponder converts echo context to params.
+func (w *ServerInterfaceWrapper) PutV2MailaddressesMailAddressIdAutoResponder(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutV2MailaddressesMailAddressIdAutoResponder(ctx, mailAddressId)
+	return err
+}
+
+// PutV2MailaddressesMailAddressIdCatchAll converts echo context to params.
+func (w *ServerInterfaceWrapper) PutV2MailaddressesMailAddressIdCatchAll(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutV2MailaddressesMailAddressIdCatchAll(ctx, mailAddressId)
+	return err
+}
+
+// PutV2MailaddressesMailAddressIdForwardaddresses converts echo context to params.
+func (w *ServerInterfaceWrapper) PutV2MailaddressesMailAddressIdForwardaddresses(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutV2MailaddressesMailAddressIdForwardaddresses(ctx, mailAddressId)
+	return err
+}
+
+// PutV2MailaddressesMailAddressIdPassword converts echo context to params.
+func (w *ServerInterfaceWrapper) PutV2MailaddressesMailAddressIdPassword(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutV2MailaddressesMailAddressIdPassword(ctx, mailAddressId)
+	return err
+}
+
+// PutV2MailaddressesMailAddressIdQuota converts echo context to params.
+func (w *ServerInterfaceWrapper) PutV2MailaddressesMailAddressIdQuota(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutV2MailaddressesMailAddressIdQuota(ctx, mailAddressId)
+	return err
+}
+
+// PutV2MailaddressesMailAddressIdSpamprotection converts echo context to params.
+func (w *ServerInterfaceWrapper) PutV2MailaddressesMailAddressIdSpamprotection(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "mailAddressId" -------------
+	var mailAddressId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mailAddressId", runtime.ParamLocationPath, ctx.Param("mailAddressId"), &mailAddressId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mailAddressId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutV2MailaddressesMailAddressIdSpamprotection(ctx, mailAddressId)
 	return err
 }
 
@@ -62969,198 +68895,198 @@ func (w *ServerInterfaceWrapper) DatabaseCreateMysqlUser(ctx echo.Context) error
 // DatabaseDeleteMysqlDatabase converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseDeleteMysqlDatabase(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlDatabaseId" -------------
+	var mysqlDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, ctx.Param("mysqlDatabaseId"), &mysqlDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseDeleteMysqlDatabase(ctx, id)
+	err = w.Handler.DatabaseDeleteMysqlDatabase(ctx, mysqlDatabaseId)
 	return err
 }
 
 // DatabaseGetMysqlDatabase converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseGetMysqlDatabase(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlDatabaseId" -------------
+	var mysqlDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, ctx.Param("mysqlDatabaseId"), &mysqlDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseGetMysqlDatabase(ctx, id)
+	err = w.Handler.DatabaseGetMysqlDatabase(ctx, mysqlDatabaseId)
 	return err
 }
 
 // DatabaseUpdateMysqlDatabaseDefaultCharset converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseUpdateMysqlDatabaseDefaultCharset(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlDatabaseId" -------------
+	var mysqlDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, ctx.Param("mysqlDatabaseId"), &mysqlDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseUpdateMysqlDatabaseDefaultCharset(ctx, id)
+	err = w.Handler.DatabaseUpdateMysqlDatabaseDefaultCharset(ctx, mysqlDatabaseId)
 	return err
 }
 
 // DatabaseUpdateMysqlDatabaseDescription converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseUpdateMysqlDatabaseDescription(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlDatabaseId" -------------
+	var mysqlDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlDatabaseId", runtime.ParamLocationPath, ctx.Param("mysqlDatabaseId"), &mysqlDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseUpdateMysqlDatabaseDescription(ctx, id)
+	err = w.Handler.DatabaseUpdateMysqlDatabaseDescription(ctx, mysqlDatabaseId)
 	return err
 }
 
 // DatabaseDeleteMysqlUser converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseDeleteMysqlUser(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseDeleteMysqlUser(ctx, id)
+	err = w.Handler.DatabaseDeleteMysqlUser(ctx, mysqlUserId)
 	return err
 }
 
 // DatabaseGetMysqlUser converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseGetMysqlUser(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseGetMysqlUser(ctx, id)
+	err = w.Handler.DatabaseGetMysqlUser(ctx, mysqlUserId)
 	return err
 }
 
 // DatabaseUpdateMysqlUser converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseUpdateMysqlUser(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseUpdateMysqlUser(ctx, id)
+	err = w.Handler.DatabaseUpdateMysqlUser(ctx, mysqlUserId)
 	return err
 }
 
 // DatabaseDisableMysqlUser converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseDisableMysqlUser(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseDisableMysqlUser(ctx, id)
+	err = w.Handler.DatabaseDisableMysqlUser(ctx, mysqlUserId)
 	return err
 }
 
 // DatabaseEnableMysqlUser converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseEnableMysqlUser(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseEnableMysqlUser(ctx, id)
+	err = w.Handler.DatabaseEnableMysqlUser(ctx, mysqlUserId)
 	return err
 }
 
 // DatabaseUpdateMysqlUserPassword converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseUpdateMysqlUserPassword(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseUpdateMysqlUserPassword(ctx, id)
+	err = w.Handler.DatabaseUpdateMysqlUserPassword(ctx, mysqlUserId)
 	return err
 }
 
 // DatabaseGetMysqlUserPhpMyAdminUrl converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseGetMysqlUserPhpMyAdminUrl(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "mysqlUserId" -------------
+	var mysqlUserId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "mysqlUserId", runtime.ParamLocationPath, ctx.Param("mysqlUserId"), &mysqlUserId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter mysqlUserId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseGetMysqlUserPhpMyAdminUrl(ctx, id)
+	err = w.Handler.DatabaseGetMysqlUserPhpMyAdminUrl(ctx, mysqlUserId)
 	return err
 }
 
@@ -64157,8 +70083,8 @@ func (w *ServerInterfaceWrapper) CronjobCreateCronjob(ctx echo.Context) error {
 	return err
 }
 
-// MailDeliveryboxList converts echo context to params.
-func (w *ServerInterfaceWrapper) MailDeliveryboxList(ctx echo.Context) error {
+// MailListDeliveryBoxes converts echo context to params.
+func (w *ServerInterfaceWrapper) MailListDeliveryBoxes(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64171,12 +70097,12 @@ func (w *ServerInterfaceWrapper) MailDeliveryboxList(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailDeliveryboxList(ctx, projectId)
+	err = w.Handler.MailListDeliveryBoxes(ctx, projectId)
 	return err
 }
 
-// MailDeliveryboxCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) MailDeliveryboxCreate(ctx echo.Context) error {
+// MailCreateDeliverybox converts echo context to params.
+func (w *ServerInterfaceWrapper) MailCreateDeliverybox(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64189,7 +70115,43 @@ func (w *ServerInterfaceWrapper) MailDeliveryboxCreate(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailDeliveryboxCreate(ctx, projectId)
+	err = w.Handler.MailCreateDeliverybox(ctx, projectId)
+	return err
+}
+
+// GetV2ProjectsProjectIdDeliveryboxes converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2ProjectsProjectIdDeliveryboxes(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetV2ProjectsProjectIdDeliveryboxes(ctx, projectId)
+	return err
+}
+
+// PostV2ProjectsProjectIdDeliveryboxes converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV2ProjectsProjectIdDeliveryboxes(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostV2ProjectsProjectIdDeliveryboxes(ctx, projectId)
 	return err
 }
 
@@ -64211,8 +70173,8 @@ func (w *ServerInterfaceWrapper) ProjectUpdateProjectDescription(ctx echo.Contex
 	return err
 }
 
-// DnsZonesForProject converts echo context to params.
-func (w *ServerInterfaceWrapper) DnsZonesForProject(ctx echo.Context) error {
+// DnsListDnsZones converts echo context to params.
+func (w *ServerInterfaceWrapper) DnsListDnsZones(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId openapi_types.UUID
@@ -64225,7 +70187,25 @@ func (w *ServerInterfaceWrapper) DnsZonesForProject(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DnsZonesForProject(ctx, projectId)
+	err = w.Handler.DnsListDnsZones(ctx, projectId)
+	return err
+}
+
+// GetV2ProjectsProjectIdDnsZones converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2ProjectsProjectIdDnsZones(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetV2ProjectsProjectIdDnsZones(ctx, projectId)
 	return err
 }
 
@@ -64526,8 +70506,8 @@ func (w *ServerInterfaceWrapper) ProjectLeaveProject(ctx echo.Context) error {
 	return err
 }
 
-// MailMailaddressList converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressList(ctx echo.Context) error {
+// MailListMailAddresses converts echo context to params.
+func (w *ServerInterfaceWrapper) MailListMailAddresses(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64540,12 +70520,12 @@ func (w *ServerInterfaceWrapper) MailMailaddressList(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressList(ctx, projectId)
+	err = w.Handler.MailListMailAddresses(ctx, projectId)
 	return err
 }
 
-// MailMailaddressCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) MailMailaddressCreate(ctx echo.Context) error {
+// MailCreateMailAddress converts echo context to params.
+func (w *ServerInterfaceWrapper) MailCreateMailAddress(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64558,12 +70538,12 @@ func (w *ServerInterfaceWrapper) MailMailaddressCreate(ctx echo.Context) error {
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailMailaddressCreate(ctx, projectId)
+	err = w.Handler.MailCreateMailAddress(ctx, projectId)
 	return err
 }
 
-// MailProjectsettingGetSpecific converts echo context to params.
-func (w *ServerInterfaceWrapper) MailProjectsettingGetSpecific(ctx echo.Context) error {
+// MailListProjectMailSettings converts echo context to params.
+func (w *ServerInterfaceWrapper) MailListProjectMailSettings(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64576,12 +70556,12 @@ func (w *ServerInterfaceWrapper) MailProjectsettingGetSpecific(ctx echo.Context)
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailProjectsettingGetSpecific(ctx, projectId)
+	err = w.Handler.MailListProjectMailSettings(ctx, projectId)
 	return err
 }
 
-// MailProjectsettingUpdateBlacklist converts echo context to params.
-func (w *ServerInterfaceWrapper) MailProjectsettingUpdateBlacklist(ctx echo.Context) error {
+// MailUpdateProjectMailSetting converts echo context to params.
+func (w *ServerInterfaceWrapper) MailUpdateProjectMailSetting(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64591,15 +70571,23 @@ func (w *ServerInterfaceWrapper) MailProjectsettingUpdateBlacklist(ctx echo.Cont
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
 	}
 
+	// ------------- Path parameter "setting" -------------
+	var setting MailUpdateProjectMailSettingParamsSetting
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "setting", runtime.ParamLocationPath, ctx.Param("setting"), &setting)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter setting: %s", err))
+	}
+
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailProjectsettingUpdateBlacklist(ctx, projectId)
+	err = w.Handler.MailUpdateProjectMailSetting(ctx, projectId, setting)
 	return err
 }
 
-// MailProjectsettingUpdateWhitelist converts echo context to params.
-func (w *ServerInterfaceWrapper) MailProjectsettingUpdateWhitelist(ctx echo.Context) error {
+// GetV2ProjectsProjectIdMailaddresses converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2ProjectsProjectIdMailaddresses(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectId" -------------
 	var projectId string
@@ -64612,7 +70600,79 @@ func (w *ServerInterfaceWrapper) MailProjectsettingUpdateWhitelist(ctx echo.Cont
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MailProjectsettingUpdateWhitelist(ctx, projectId)
+	err = w.Handler.GetV2ProjectsProjectIdMailaddresses(ctx, projectId)
+	return err
+}
+
+// PostV2ProjectsProjectIdMailaddresses converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV2ProjectsProjectIdMailaddresses(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostV2ProjectsProjectIdMailaddresses(ctx, projectId)
+	return err
+}
+
+// GetV2ProjectsProjectIdMailsettings converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV2ProjectsProjectIdMailsettings(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetV2ProjectsProjectIdMailsettings(ctx, projectId)
+	return err
+}
+
+// MailProjectsettingUpdateBlacklistDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) MailProjectsettingUpdateBlacklistDeprecated(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailProjectsettingUpdateBlacklistDeprecated(ctx, projectId)
+	return err
+}
+
+// MailProjectsettingUpdateWhitelistDeprecated converts echo context to params.
+func (w *ServerInterfaceWrapper) MailProjectsettingUpdateWhitelistDeprecated(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectId" -------------
+	var projectId string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectId", runtime.ParamLocationPath, ctx.Param("projectId"), &projectId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MailProjectsettingUpdateWhitelistDeprecated(ctx, projectId)
 	return err
 }
 
@@ -64909,72 +70969,72 @@ func (w *ServerInterfaceWrapper) SshUserCreateSshUser(ctx echo.Context) error {
 // DatabaseDeleteRedisDatabase converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseDeleteRedisDatabase(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "redisDatabaseId" -------------
+	var redisDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, ctx.Param("redisDatabaseId"), &redisDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter redisDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseDeleteRedisDatabase(ctx, id)
+	err = w.Handler.DatabaseDeleteRedisDatabase(ctx, redisDatabaseId)
 	return err
 }
 
 // DatabaseGetRedisDatabase converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseGetRedisDatabase(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "redisDatabaseId" -------------
+	var redisDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, ctx.Param("redisDatabaseId"), &redisDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter redisDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseGetRedisDatabase(ctx, id)
+	err = w.Handler.DatabaseGetRedisDatabase(ctx, redisDatabaseId)
 	return err
 }
 
 // DatabaseUpdateRedisDatabaseConfiguration converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseUpdateRedisDatabaseConfiguration(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "redisDatabaseId" -------------
+	var redisDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, ctx.Param("redisDatabaseId"), &redisDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter redisDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseUpdateRedisDatabaseConfiguration(ctx, id)
+	err = w.Handler.DatabaseUpdateRedisDatabaseConfiguration(ctx, redisDatabaseId)
 	return err
 }
 
 // DatabaseUpdateRedisDatabaseDescription converts echo context to params.
 func (w *ServerInterfaceWrapper) DatabaseUpdateRedisDatabaseDescription(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	// ------------- Path parameter "redisDatabaseId" -------------
+	var redisDatabaseId openapi_types.UUID
 
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	err = runtime.BindStyledParameterWithLocation("simple", false, "redisDatabaseId", runtime.ParamLocationPath, ctx.Param("redisDatabaseId"), &redisDatabaseId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter redisDatabaseId: %s", err))
 	}
 
 	ctx.Set(De_mittwald_v1_commons_AccessTokenScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DatabaseUpdateRedisDatabaseDescription(ctx, id)
+	err = w.Handler.DatabaseUpdateRedisDatabaseDescription(ctx, redisDatabaseId)
 	return err
 }
 
@@ -66902,11 +72962,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/v2/customer-token-invite", wrapper.CustomerGetCustomerTokenInvite)
 	router.POST(baseURL+"/v2/customer/:customerId/actions/leave", wrapper.CustomerLeaveCustomer)
 	router.POST(baseURL+"/v2/customer/:customerId/invites", wrapper.CustomerCreateCustomerInvite)
-	router.GET(baseURL+"/v2/customercategories", wrapper.CustomerListOfCustomerCategoriesDeprecated)
-	router.POST(baseURL+"/v2/customercategories", wrapper.CustomerCreateCategoryDeprecated)
-	router.DELETE(baseURL+"/v2/customercategories/:categoryId", wrapper.CustomerDeleteCategoryDeprecated)
-	router.GET(baseURL+"/v2/customercategories/:categoryId", wrapper.CustomerDetailOfCustomerCategoryDeprecated)
-	router.PUT(baseURL+"/v2/customercategories/:categoryId", wrapper.CustomerUpdateCategoryDeprecated)
 	router.GET(baseURL+"/v2/customers", wrapper.CustomerListCustomers)
 	router.POST(baseURL+"/v2/customers", wrapper.CustomerCreateCustomer)
 	router.DELETE(baseURL+"/v2/customers/:customerId", wrapper.CustomerDeleteCustomer)
@@ -66923,37 +72978,59 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/v2/customers/:customerId/legally-competent", wrapper.CustomerIsCustomerLegallyCompetent)
 	router.GET(baseURL+"/v2/customers/:customerId/memberships", wrapper.CustomerListMembershipsForCustomer)
 	router.GET(baseURL+"/v2/customers/:customerId/orders", wrapper.OrderListCustomerOrders)
-	router.DELETE(baseURL+"/v2/deliveryboxes/:id", wrapper.MailDeliveryboxDelete)
-	router.GET(baseURL+"/v2/deliveryboxes/:id", wrapper.MailDeliveryboxGetSpecific)
-	router.PUT(baseURL+"/v2/deliveryboxes/:id/description", wrapper.MailDeliveryboxUpdateDescription)
-	router.PUT(baseURL+"/v2/deliveryboxes/:id/password", wrapper.MailDeliveryboxUpdatePassword)
-	router.POST(baseURL+"/v2/dns/zones", wrapper.DnsSubZoneCreate)
-	router.GET(baseURL+"/v2/dns/zones/:zoneId", wrapper.DnsZoneGetSpecific)
-	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/acombined/custom", wrapper.DnsRecordASetCustom)
-	router.POST(baseURL+"/v2/dns/zones/:zoneId/recordset/acombined/managed/ingress", wrapper.DnsRecordASetManagedByIngress)
-	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/cname", wrapper.DnsRecordCnameSet)
-	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/mx/custom", wrapper.DnsRecordMxSetCustom)
-	router.POST(baseURL+"/v2/dns/zones/:zoneId/recordset/mx/managed", wrapper.DnsRecordMxSetManaged)
-	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/srv", wrapper.DnsRecordSrvSet)
-	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/txt", wrapper.DnsRecordTxtSet)
-	router.GET(baseURL+"/v2/domain-ownerships/:domainOwnershipId", wrapper.DomainGetSpecificDomainOwnership)
-	router.POST(baseURL+"/v2/domain-ownerships/:domainOwnershipId", wrapper.DomainVerifyDomainOwnership)
-	router.POST(baseURL+"/v2/domains", wrapper.DomainCheckDomainAvailability)
-	router.GET(baseURL+"/v2/domains/handle-schema/:domainName", wrapper.DomainGetHandleFields)
-	router.GET(baseURL+"/v2/domains/supported-tlds", wrapper.DomainGetSupportedTlds)
+	router.DELETE(baseURL+"/v2/delivery-boxes/:deliveryBoxId", wrapper.MailDeleteDeliveryBox)
+	router.GET(baseURL+"/v2/delivery-boxes/:deliveryBoxId", wrapper.MailGetDeliveryBox)
+	router.PATCH(baseURL+"/v2/delivery-boxes/:deliveryBoxId/description", wrapper.MailUpdateDeliveryBoxDescription)
+	router.PATCH(baseURL+"/v2/delivery-boxes/:deliveryBoxId/password", wrapper.MailUpdateDeliveryBoxPassword)
+	router.DELETE(baseURL+"/v2/deliveryboxes/:deliveryBoxId", wrapper.DeleteV2DeliveryboxesDeliveryBoxId)
+	router.GET(baseURL+"/v2/deliveryboxes/:deliveryBoxId", wrapper.GetV2DeliveryboxesDeliveryBoxId)
+	router.PUT(baseURL+"/v2/deliveryboxes/:id/description", wrapper.MailDeliveryboxUpdateDescriptionDeprecated)
+	router.PUT(baseURL+"/v2/deliveryboxes/:id/password", wrapper.MailDeliveryboxUpdatePasswordDeprecated)
+	router.POST(baseURL+"/v2/dns-zones", wrapper.DnsCreateDnsZone)
+	router.DELETE(baseURL+"/v2/dns-zones/:dnsZoneId", wrapper.DnsDeleteDnsZone)
+	router.GET(baseURL+"/v2/dns-zones/:dnsZoneId", wrapper.DnsGetDnsZone)
+	router.PUT(baseURL+"/v2/dns-zones/:dnsZoneId/record-sets/:recordSet", wrapper.DnsUpdateRecordSet)
+	router.POST(baseURL+"/v2/dns-zones/:dnsZoneId/record-sets/:recordSet/actions/set-managed", wrapper.DnsSetRecordSetManaged)
+	router.POST(baseURL+"/v2/dns/zones", wrapper.PostV2DnsZones)
+	router.DELETE(baseURL+"/v2/dns/zones/:dnsZoneId", wrapper.DeleteV2DnsZonesDnsZoneId)
+	router.GET(baseURL+"/v2/dns/zones/:dnsZoneId", wrapper.GetV2DnsZonesDnsZoneId)
+	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/acombined/custom", wrapper.DnsRecordASetCustomDeprecated)
+	router.POST(baseURL+"/v2/dns/zones/:zoneId/recordset/acombined/managed/ingress", wrapper.DnsRecordASetManagedByIngressDeprecated)
+	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/cname", wrapper.DnsRecordCnameSetDeprecated)
+	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/mx/custom", wrapper.DnsRecordMxSetCustomDeprecated)
+	router.POST(baseURL+"/v2/dns/zones/:zoneId/recordset/mx/managed", wrapper.DnsRecordMxSetManagedDeprecated)
+	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/srv", wrapper.DnsRecordSrvSetDeprecated)
+	router.PUT(baseURL+"/v2/dns/zones/:zoneId/recordset/txt", wrapper.DnsRecordTxtSetDeprecated)
+	router.GET(baseURL+"/v2/domain-ownerships/:domainOwnershipId", wrapper.DomainGetDomainOwnership)
+	router.POST(baseURL+"/v2/domain-ownerships/:domainOwnershipId", wrapper.PostV2DomainOwnershipsDomainOwnershipId)
+	router.POST(baseURL+"/v2/domain-ownerships/:domainOwnershipId/actions/verify", wrapper.DomainVerifyDomainOwnership)
+	router.POST(baseURL+"/v2/domain-registrable", wrapper.DomainCheckDomainRegistrability)
+	router.GET(baseURL+"/v2/domain-tlds", wrapper.DomainListTlds)
+	router.GET(baseURL+"/v2/domain-tlds/:tld/contact-schemas", wrapper.DomainListTldContactSchemas)
+	router.POST(baseURL+"/v2/domains", wrapper.DomainCheckDomainRegistrabilityV2Deprecated)
+	router.GET(baseURL+"/v2/domains/handle-schema/:domainName", wrapper.DomainGetHandleFieldsV2Deprecated)
+	router.GET(baseURL+"/v2/domains/supported-tlds", wrapper.GetV2DomainsSupportedTlds)
 	router.DELETE(baseURL+"/v2/domains/:domainId", wrapper.DomainDeleteDomain)
 	router.GET(baseURL+"/v2/domains/:domainId", wrapper.DomainGetDomain)
-	router.POST(baseURL+"/v2/domains/:domainId/actions/create-authcode", wrapper.DomainCreateAuthcodeForDomain)
-	router.POST(baseURL+"/v2/domains/:domainId/actions/create-authcode2", wrapper.DomainCreateAuthcode2ForDomain)
+	router.POST(baseURL+"/v2/domains/:domainId/actions/auth-code", wrapper.DomainCreateDomainAuthCode)
+	router.POST(baseURL+"/v2/domains/:domainId/actions/auth-code-2", wrapper.DomainCreateDomainAuthCode2)
+	router.POST(baseURL+"/v2/domains/:domainId/actions/create-authcode", wrapper.PostV2DomainsDomainIdActionsCreateAuthcode)
+	router.POST(baseURL+"/v2/domains/:domainId/actions/create-authcode2", wrapper.PostV2DomainsDomainIdActionsCreateAuthcode2)
 	router.POST(baseURL+"/v2/domains/:domainId/actions/resend-email", wrapper.DomainResendDomainEmail)
+	router.PATCH(baseURL+"/v2/domains/:domainId/auth-code", wrapper.DomainUpdateDomainAuthCode)
+	router.PATCH(baseURL+"/v2/domains/:domainId/authcode", wrapper.PatchV2DomainsDomainIdAuthcode)
+	router.PATCH(baseURL+"/v2/domains/:domainId/contacts/:contact", wrapper.DomainUpdateDomainContact)
 	router.GET(baseURL+"/v2/domains/:domainId/contract", wrapper.ContractGetDetailOfContractByDomain)
 	router.GET(baseURL+"/v2/domains/:domainId/contracts", wrapper.DeprecatedContractGetDetailOfContractByDomain)
-	router.DELETE(baseURL+"/v2/domains/:domainId/declarations", wrapper.DomainAbortDeclareProcess)
-	router.PUT(baseURL+"/v2/domains/:domainId/declarations/authcode", wrapper.DomainDeclareProcessChangeAuthcode)
-	router.PUT(baseURL+"/v2/domains/:domainId/declarations/handles", wrapper.DomainDeclareProcessChangeHandles)
-	router.PUT(baseURL+"/v2/domains/:domainId/handles/ownerc", wrapper.DomainChangeOwnercOfDomain)
-	router.PUT(baseURL+"/v2/domains/:domainId/nameservers", wrapper.DomainDeclareNameservers)
-	router.PUT(baseURL+"/v2/domains/:domainId/projectId", wrapper.DomainChangeProjectOfDomain)
+	router.DELETE(baseURL+"/v2/domains/:domainId/declaration", wrapper.DomainAbortDomainDeclaration)
+	router.DELETE(baseURL+"/v2/domains/:domainId/declarations", wrapper.DeleteV2DomainsDomainIdDeclarations)
+	router.PUT(baseURL+"/v2/domains/:domainId/declarations/authcode", wrapper.DomainDeclareProcessChangeAuthcodeV2Deprecated)
+	router.PUT(baseURL+"/v2/domains/:domainId/declarations/handles", wrapper.DomainDeclareProcessChangeHandlesV2Deprecated)
+	router.PUT(baseURL+"/v2/domains/:domainId/handles/ownerc", wrapper.DomainChangeOwnercOfDomainV2Deprecated)
+	router.PATCH(baseURL+"/v2/domains/:domainId/nameservers", wrapper.DomainUpdateDomainNameservers)
+	router.PUT(baseURL+"/v2/domains/:domainId/nameservers", wrapper.DomainDeclareNameserversV2Deprecated)
+	router.PATCH(baseURL+"/v2/domains/:domainId/project-id", wrapper.DomainUpdateDomainProjectId)
+	router.PUT(baseURL+"/v2/domains/:domainId/projectId", wrapper.DomainChangeProjectOfDomainV2Deprecated)
 	router.GET(baseURL+"/v2/domains/:domainId/screenshots/newest", wrapper.DomainGetScreenshotForDomain)
 	router.GET(baseURL+"/v2/file-token-rules/:token", wrapper.FileGetFileTokenRules)
 	router.GET(baseURL+"/v2/file-type-rules/:name", wrapper.FileGetFileTypeRules)
@@ -66969,29 +73046,38 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PUT(baseURL+"/v2/ingresses/:ingressId/tls", wrapper.IngressTls)
 	router.POST(baseURL+"/v2/legacy-tariff-change", wrapper.RelocationCreateLegacyTariffChange)
 	router.PUT(baseURL+"/v2/logout", wrapper.UserLogout)
-	router.DELETE(baseURL+"/v2/mailaddresses/:id", wrapper.MailMailaddressDelete)
-	router.GET(baseURL+"/v2/mailaddresses/:id", wrapper.MailMailaddressGetSpecific)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/address", wrapper.MailMailaddressUpdateAddress)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/autoResponder", wrapper.MailMailaddressUpdateAutoresponder)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/catchAll", wrapper.MailMailaddressUpdateCatchall)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/forwardaddresses", wrapper.MailMailaddressUpdateForwardaddresses)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/password", wrapper.MailMailaddressUpdatePassword)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/quota", wrapper.MailMailaddressUpdateQuota)
-	router.PUT(baseURL+"/v2/mailaddresses/:id/spamprotection", wrapper.MailMailaddressUpdateSpamprotection)
+	router.DELETE(baseURL+"/v2/mail-addresses/:mailAddressId", wrapper.MailDeleteMailAddress)
+	router.GET(baseURL+"/v2/mail-addresses/:mailAddressId", wrapper.MailGetMailAddress)
+	router.PATCH(baseURL+"/v2/mail-addresses/:mailAddressId/address", wrapper.MailUpdateMailAddressAddress)
+	router.PUT(baseURL+"/v2/mail-addresses/:mailAddressId/autoresponder", wrapper.MailUpdateMailAddressAutoresponder)
+	router.PUT(baseURL+"/v2/mail-addresses/:mailAddressId/catchall", wrapper.MailUpdateMailAddressCatchall)
+	router.PUT(baseURL+"/v2/mail-addresses/:mailAddressId/forward-addresses", wrapper.MailUpdateMailAddressForwardAddresses)
+	router.PUT(baseURL+"/v2/mail-addresses/:mailAddressId/password", wrapper.MailUpdateMailAddressPassword)
+	router.PUT(baseURL+"/v2/mail-addresses/:mailAddressId/quota", wrapper.MailUpdateMailAddressQuota)
+	router.PUT(baseURL+"/v2/mail-addresses/:mailAddressId/spam-protection", wrapper.MailUpdateMailAddressSpamProtection)
+	router.PUT(baseURL+"/v2/mailaddresses/:id/address", wrapper.MailMailaddressUpdateAddressDeprecated)
+	router.DELETE(baseURL+"/v2/mailaddresses/:mailAddressId", wrapper.DeleteV2MailaddressesMailAddressId)
+	router.GET(baseURL+"/v2/mailaddresses/:mailAddressId", wrapper.GetV2MailaddressesMailAddressId)
+	router.PUT(baseURL+"/v2/mailaddresses/:mailAddressId/autoResponder", wrapper.PutV2MailaddressesMailAddressIdAutoResponder)
+	router.PUT(baseURL+"/v2/mailaddresses/:mailAddressId/catchAll", wrapper.PutV2MailaddressesMailAddressIdCatchAll)
+	router.PUT(baseURL+"/v2/mailaddresses/:mailAddressId/forwardaddresses", wrapper.PutV2MailaddressesMailAddressIdForwardaddresses)
+	router.PUT(baseURL+"/v2/mailaddresses/:mailAddressId/password", wrapper.PutV2MailaddressesMailAddressIdPassword)
+	router.PUT(baseURL+"/v2/mailaddresses/:mailAddressId/quota", wrapper.PutV2MailaddressesMailAddressIdQuota)
+	router.PUT(baseURL+"/v2/mailaddresses/:mailAddressId/spamprotection", wrapper.PutV2MailaddressesMailAddressIdSpamprotection)
 	router.GET(baseURL+"/v2/mysql-charsets", wrapper.DatabaseListMysqlCharsets)
 	router.GET(baseURL+"/v2/mysql-databases/:databaseId/users", wrapper.DatabaseListMysqlUsers)
 	router.POST(baseURL+"/v2/mysql-databases/:databaseId/users", wrapper.DatabaseCreateMysqlUser)
-	router.DELETE(baseURL+"/v2/mysql-databases/:id", wrapper.DatabaseDeleteMysqlDatabase)
-	router.GET(baseURL+"/v2/mysql-databases/:id", wrapper.DatabaseGetMysqlDatabase)
-	router.PATCH(baseURL+"/v2/mysql-databases/:id/default-charset", wrapper.DatabaseUpdateMysqlDatabaseDefaultCharset)
-	router.PATCH(baseURL+"/v2/mysql-databases/:id/description", wrapper.DatabaseUpdateMysqlDatabaseDescription)
-	router.DELETE(baseURL+"/v2/mysql-users/:id", wrapper.DatabaseDeleteMysqlUser)
-	router.GET(baseURL+"/v2/mysql-users/:id", wrapper.DatabaseGetMysqlUser)
-	router.PUT(baseURL+"/v2/mysql-users/:id", wrapper.DatabaseUpdateMysqlUser)
-	router.POST(baseURL+"/v2/mysql-users/:id/actions/disable", wrapper.DatabaseDisableMysqlUser)
-	router.POST(baseURL+"/v2/mysql-users/:id/actions/enable", wrapper.DatabaseEnableMysqlUser)
-	router.PATCH(baseURL+"/v2/mysql-users/:id/password", wrapper.DatabaseUpdateMysqlUserPassword)
-	router.GET(baseURL+"/v2/mysql-users/:id/php-my-admin-url", wrapper.DatabaseGetMysqlUserPhpMyAdminUrl)
+	router.DELETE(baseURL+"/v2/mysql-databases/:mysqlDatabaseId", wrapper.DatabaseDeleteMysqlDatabase)
+	router.GET(baseURL+"/v2/mysql-databases/:mysqlDatabaseId", wrapper.DatabaseGetMysqlDatabase)
+	router.PATCH(baseURL+"/v2/mysql-databases/:mysqlDatabaseId/default-charset", wrapper.DatabaseUpdateMysqlDatabaseDefaultCharset)
+	router.PATCH(baseURL+"/v2/mysql-databases/:mysqlDatabaseId/description", wrapper.DatabaseUpdateMysqlDatabaseDescription)
+	router.DELETE(baseURL+"/v2/mysql-users/:mysqlUserId", wrapper.DatabaseDeleteMysqlUser)
+	router.GET(baseURL+"/v2/mysql-users/:mysqlUserId", wrapper.DatabaseGetMysqlUser)
+	router.PUT(baseURL+"/v2/mysql-users/:mysqlUserId", wrapper.DatabaseUpdateMysqlUser)
+	router.POST(baseURL+"/v2/mysql-users/:mysqlUserId/actions/disable", wrapper.DatabaseDisableMysqlUser)
+	router.POST(baseURL+"/v2/mysql-users/:mysqlUserId/actions/enable", wrapper.DatabaseEnableMysqlUser)
+	router.PATCH(baseURL+"/v2/mysql-users/:mysqlUserId/password", wrapper.DatabaseUpdateMysqlUserPassword)
+	router.GET(baseURL+"/v2/mysql-users/:mysqlUserId/php-my-admin-url", wrapper.DatabaseGetMysqlUserPhpMyAdminUrl)
 	router.GET(baseURL+"/v2/mysql-versions", wrapper.DatabaseListMysqlVersions)
 	router.POST(baseURL+"/v2/newsletter-subscriptions", wrapper.NewsletterSubscribeUser)
 	router.DELETE(baseURL+"/v2/newsletter-subscriptions/self", wrapper.NewsletterUnsubscribeUser)
@@ -67043,10 +73129,13 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/v2/projects/:projectId/contracts", wrapper.DeprecatedContractGetDetailOfContractByProject)
 	router.GET(baseURL+"/v2/projects/:projectId/cronjobs", wrapper.CronjobListCronjobs)
 	router.POST(baseURL+"/v2/projects/:projectId/cronjobs", wrapper.CronjobCreateCronjob)
-	router.GET(baseURL+"/v2/projects/:projectId/deliveryboxes", wrapper.MailDeliveryboxList)
-	router.POST(baseURL+"/v2/projects/:projectId/deliveryboxes", wrapper.MailDeliveryboxCreate)
+	router.GET(baseURL+"/v2/projects/:projectId/delivery-boxes", wrapper.MailListDeliveryBoxes)
+	router.POST(baseURL+"/v2/projects/:projectId/delivery-boxes", wrapper.MailCreateDeliverybox)
+	router.GET(baseURL+"/v2/projects/:projectId/deliveryboxes", wrapper.GetV2ProjectsProjectIdDeliveryboxes)
+	router.POST(baseURL+"/v2/projects/:projectId/deliveryboxes", wrapper.PostV2ProjectsProjectIdDeliveryboxes)
 	router.PATCH(baseURL+"/v2/projects/:projectId/description", wrapper.ProjectUpdateProjectDescription)
-	router.GET(baseURL+"/v2/projects/:projectId/dns/zones", wrapper.DnsZonesForProject)
+	router.GET(baseURL+"/v2/projects/:projectId/dns-zones", wrapper.DnsListDnsZones)
+	router.GET(baseURL+"/v2/projects/:projectId/dns/zones", wrapper.GetV2ProjectsProjectIdDnsZones)
 	router.GET(baseURL+"/v2/projects/:projectId/domain-ownerships", wrapper.DomainListDomainOwnerships)
 	router.GET(baseURL+"/v2/projects/:projectId/domains", wrapper.DomainListDomains)
 	router.GET(baseURL+"/v2/projects/:projectId/filesystem/directories", wrapper.ProjectFileSystemGetDirectories)
@@ -67057,11 +73146,15 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/v2/projects/:projectId/invites", wrapper.ProjectListInvitesForProject)
 	router.GET(baseURL+"/v2/projects/:projectId/jwt", wrapper.ProjectFileSystemGetJwt)
 	router.POST(baseURL+"/v2/projects/:projectId/leave", wrapper.ProjectLeaveProject)
-	router.GET(baseURL+"/v2/projects/:projectId/mailaddresses", wrapper.MailMailaddressList)
-	router.POST(baseURL+"/v2/projects/:projectId/mailaddresses", wrapper.MailMailaddressCreate)
-	router.GET(baseURL+"/v2/projects/:projectId/mailsettings", wrapper.MailProjectsettingGetSpecific)
-	router.PUT(baseURL+"/v2/projects/:projectId/mailsettings/blacklist", wrapper.MailProjectsettingUpdateBlacklist)
-	router.PUT(baseURL+"/v2/projects/:projectId/mailsettings/whitelist", wrapper.MailProjectsettingUpdateWhitelist)
+	router.GET(baseURL+"/v2/projects/:projectId/mail-addresses", wrapper.MailListMailAddresses)
+	router.POST(baseURL+"/v2/projects/:projectId/mail-addresses", wrapper.MailCreateMailAddress)
+	router.GET(baseURL+"/v2/projects/:projectId/mail-settings", wrapper.MailListProjectMailSettings)
+	router.PUT(baseURL+"/v2/projects/:projectId/mail-settings/:setting", wrapper.MailUpdateProjectMailSetting)
+	router.GET(baseURL+"/v2/projects/:projectId/mailaddresses", wrapper.GetV2ProjectsProjectIdMailaddresses)
+	router.POST(baseURL+"/v2/projects/:projectId/mailaddresses", wrapper.PostV2ProjectsProjectIdMailaddresses)
+	router.GET(baseURL+"/v2/projects/:projectId/mailsettings", wrapper.GetV2ProjectsProjectIdMailsettings)
+	router.PUT(baseURL+"/v2/projects/:projectId/mailsettings/blacklist", wrapper.MailProjectsettingUpdateBlacklistDeprecated)
+	router.PUT(baseURL+"/v2/projects/:projectId/mailsettings/whitelist", wrapper.MailProjectsettingUpdateWhitelistDeprecated)
 	router.GET(baseURL+"/v2/projects/:projectId/memberships", wrapper.ProjectListMembershipsForProject)
 	router.GET(baseURL+"/v2/projects/:projectId/memberships/self", wrapper.ProjectGetSelfMembershipForProject)
 	router.GET(baseURL+"/v2/projects/:projectId/mysql-databases", wrapper.DatabaseListMysqlDatabases)
@@ -67073,10 +73166,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/v2/projects/:projectId/sftp-users", wrapper.SftpUserCreateSftpUser)
 	router.GET(baseURL+"/v2/projects/:projectId/ssh-users", wrapper.SshUserListSshUsers)
 	router.POST(baseURL+"/v2/projects/:projectId/ssh-users", wrapper.SshUserCreateSshUser)
-	router.DELETE(baseURL+"/v2/redis-databases/:id", wrapper.DatabaseDeleteRedisDatabase)
-	router.GET(baseURL+"/v2/redis-databases/:id", wrapper.DatabaseGetRedisDatabase)
-	router.PATCH(baseURL+"/v2/redis-databases/:id/configuration", wrapper.DatabaseUpdateRedisDatabaseConfiguration)
-	router.PATCH(baseURL+"/v2/redis-databases/:id/description", wrapper.DatabaseUpdateRedisDatabaseDescription)
+	router.DELETE(baseURL+"/v2/redis-databases/:redisDatabaseId", wrapper.DatabaseDeleteRedisDatabase)
+	router.GET(baseURL+"/v2/redis-databases/:redisDatabaseId", wrapper.DatabaseGetRedisDatabase)
+	router.PATCH(baseURL+"/v2/redis-databases/:redisDatabaseId/configuration", wrapper.DatabaseUpdateRedisDatabaseConfiguration)
+	router.PATCH(baseURL+"/v2/redis-databases/:redisDatabaseId/description", wrapper.DatabaseUpdateRedisDatabaseDescription)
 	router.GET(baseURL+"/v2/redis-versions", wrapper.DatabaseListRedisVersions)
 	router.POST(baseURL+"/v2/register", wrapper.UserRegister)
 	router.POST(baseURL+"/v2/relocation", wrapper.RelocationCreateRelocation)
@@ -67204,736 +73297,760 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"ggYA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

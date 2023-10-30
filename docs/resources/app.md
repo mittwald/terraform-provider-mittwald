@@ -64,6 +64,7 @@ resource "mittwald_app" "custom_php" {
 - `database_id` (String) The ID of the database the app uses
 - `description` (String) The description of the app
 - `document_root` (String) The document root of the app
+- `user_inputs` (Map of String) The user inputs of the app
 
 ### Read-Only
 

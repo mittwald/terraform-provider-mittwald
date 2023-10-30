@@ -112,6 +112,7 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 			"user_inputs": schema.MapAttribute{
 				MarkdownDescription: "The user inputs of the app",
 				Optional:            true,
+				ElementType:         types.StringType,
 			},
 		},
 	}

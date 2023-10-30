@@ -7,8 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2"
-	appsv2 "github.com/mittwald/terraform-provider-mittwald/internal/mittwaldv2/models/apps"
+	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"strings"
 )
 
@@ -21,7 +20,7 @@ func NewAppDataSource() datasource.DataSource {
 
 // AppDataSource defines the data source implementation.
 type AppDataSource struct {
-	client *mittwaldv2.Client
+	client mittwaldv2.ClientBuilder
 }
 
 // AppsDataSourceModel describes the data source data model.
@@ -30,11 +29,11 @@ type AppsDataSourceModel struct {
 	Name types.String `tfsdk:"name"`
 }
 
-func (d *AppDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *AppDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_app"
 }
 
-func (d *AppDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *AppDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "A data source that returns a list of apps.",
@@ -58,7 +57,7 @@ func (d *AppDataSource) Configure(ctx context.Context, req datasource.ConfigureR
 		return
 	}
 
-	client, ok := req.ProviderData.(*mittwaldv2.Client)
+	client, ok := req.ProviderData.(mittwaldv2.ClientBuilder)
 
 	if !ok {
 		resp.Diagnostics.AddError(
@@ -82,16 +81,7 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := d.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read example, got error: %s", err))
-	//     return
-	// }
-
-	apps := make([]appsv2.App, 0)
-	err := d.client.Get(ctx, "/apps", &apps)
+	apps, err := d.client.App().ListApps(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read example, got error: %s", err))
 		return
@@ -100,7 +90,7 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if !data.Name.IsNull() {
 		for _, app := range apps {
 			if strings.EqualFold(app.Name, data.Name.ValueString()) {
-				data.Id = types.StringValue(app.ID)
+				data.Id = types.StringValue(app.Id)
 				break
 			}
 		}

@@ -132,3 +132,16 @@ func (c *AppClient) ListAppVersions(ctx context.Context, appID string) ([]DeMitt
 
 	return nil, errUnexpectedStatus(response.StatusCode(), response.Body)
 }
+
+func (c *AppClient) ListApps(ctx context.Context) ([]DeMittwaldV1AppApp, error) {
+	response, err := c.client.AppListAppsWithResponse(ctx, &AppListAppsParams{})
+	if err != nil {
+		return nil, err
+	}
+
+	if response.JSON200 != nil {
+		return *response.JSON200, nil
+	}
+
+	return nil, errUnexpectedStatus(response.StatusCode(), response.Body)
+}
