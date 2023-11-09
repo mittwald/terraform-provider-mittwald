@@ -46,6 +46,21 @@ resource "mittwald_app" "custom_php" {
   description   = "Martins Test-App"
   document_root = "/public"
   update_policy = "none"
+
+  dependencies = {
+    "php" = {
+      version       = "8.2.8"
+      update_policy = "patchLevel"
+    }
+    "composer" = {
+      update_policy = "patchLevel"
+      version       = "2.3.10"
+    },
+    "mysql" = {
+      update_policy = "patchLevel"
+      version       = "8.0.28"
+    },
+  }
 }
 ```
 

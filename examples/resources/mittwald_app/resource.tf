@@ -34,7 +34,7 @@ resource "mittwald_app" "custom_php" {
 
   dependencies = {
     "php" = {
-      version = "8.2.8"
+      version       = "8.2.8"
       update_policy = "patchLevel"
     }
     "composer" = {
