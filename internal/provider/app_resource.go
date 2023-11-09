@@ -3,13 +3,16 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 )
 
@@ -47,6 +50,13 @@ type AppResourceModel struct {
 	InstallationPath types.String `tfsdk:"installation_path"`
 	UpdatePolicy     types.String `tfsdk:"update_policy"`
 	UserInputs       types.Map    `tfsdk:"user_inputs"`
+	Dependencies     types.Map    `tfsdk:"dependencies"`
+}
+
+type DependencyModel struct {
+	Version string `tfsdk:"version"`
+	//VersionCurrent string `tfsdk:"version_current"`
+	UpdatePolicy string `tfsdk:"update_policy"`
 }
 
 func (r *AppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -114,6 +124,26 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Optional:            true,
 				ElementType:         types.StringType,
 			},
+			"dependencies": schema.MapNestedAttribute{
+				MarkdownDescription: "The dependencies of the app",
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"version": schema.StringAttribute{
+							MarkdownDescription: "The version of the dependency; this may be a semantic version constraint",
+							Required:            true,
+						},
+						//"version_current": schema.StringAttribute{
+						//	MarkdownDescription: "The current version of the dependency",
+						//	Computed:            true,
+						//},
+						"update_policy": schema.StringAttribute{
+							MarkdownDescription: "The update policy of the dependency; one of `none`, `patchLevel` or `all`",
+							Required:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -180,10 +210,84 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	data.ID = types.StringValue(appID)
 
+	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
+
+	if !data.DocumentRoot.IsNull() {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationDocumentRoot(data.DocumentRoot.ValueString()))
+	}
+
+	if !data.UpdatePolicy.IsNull() {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationUpdatePolicy(mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(data.UpdatePolicy.ValueString())))
+	}
+
+	if !data.Dependencies.IsNull() {
+		depUpdater := ErrorValueToDiag(r.appDependenciesToUpdater(ctx, &data))(&resp.Diagnostics, "Dependency version error")
+		updaters = append(updaters, depUpdater)
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if len(updaters) > 0 {
+		ErrorToDiag(appClient.UpdateAppInstallation(ctx, data.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
+	}
+
+	if !data.DatabaseID.IsNull() {
+		ErrorToDiag(appClient.LinkAppInstallationToDatabase(
+			ctx,
+			data.ID.ValueString(),
+			data.DatabaseID.ValueString(),
+			mittwaldv2.AppLinkDatabaseJSONBodyPurposePrimary,
+		))(&resp.Diagnostics, "API Error")
+	}
+
 	ErrorToDiag(appClient.WaitUntilAppInstallationIsReady(ctx, appID))(&resp.Diagnostics, "API Error")
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *AppResource) appDependenciesToUpdater(ctx context.Context, d *AppResourceModel) (mittwaldv2.AppInstallationUpdater, error) {
+	appClient := r.client.App()
+	updater := make(mittwaldv2.AppInstallationUpdaterChain, 0)
+	for name, options := range d.Dependencies.Elements() {
+		dependency, ok, err := appClient.GetSystemSoftwareByName(ctx, name)
+		if err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, fmt.Errorf("dependency %s not found", name)
+		}
+
+		optionsObj, ok := options.(types.Object)
+		if !ok {
+			return nil, fmt.Errorf("expected types.Object, got %T", options)
+		}
+
+		optionsModel := DependencyModel{}
+		optionsObj.As(ctx, &optionsModel, basetypes.ObjectAsOptions{})
+
+		versions, err := appClient.SelectSystemSoftwareVersion(ctx, dependency.Id, optionsModel.Version)
+		if err != nil {
+			return nil, err
+		}
+
+		recommended, ok := versions.Recommended()
+		if !ok {
+			return nil, fmt.Errorf("no recommended version found for %s", name)
+		}
+
+		updater = append(
+			updater,
+			mittwaldv2.UpdateAppInstallationSystemSoftware(
+				dependency.Id,
+				recommended.Id.String(),
+				mittwaldv2.DeMittwaldV1AppSystemSoftwareUpdatePolicy(optionsModel.UpdatePolicy),
+			),
+		)
+	}
+
+	return updater, nil
 }
 
 func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -237,6 +341,12 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 
 	data.Version = types.StringValue(appDesiredVersion.InternalVersion)
 
+	if appInstallation.UpdatePolicy != nil {
+		data.UpdatePolicy = types.StringValue(string(*appInstallation.UpdatePolicy))
+	} else {
+		data.UpdatePolicy = types.StringNull()
+	}
+
 	data.DatabaseID = func() types.String {
 		if appInstallation.LinkedDatabases == nil {
 			return types.StringNull()
@@ -256,12 +366,82 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 		}
 	}
 
+	modType := types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"version":       types.StringType,
+			"update_policy": types.StringType,
+		},
+	}
+
+	if appInstallation.SystemSoftware != nil {
+		dependencyMapValues := make(map[string]attr.Value)
+		for _, dep := range *appInstallation.SystemSoftware {
+			systemSoftware, version, err := appClient.GetSystemSoftwareAndVersion(
+				ctx,
+				dep.SystemSoftwareId.String(),
+				dep.SystemSoftwareVersion.Desired,
+			)
+
+			if err != nil {
+				ErrorToDiag(err)(&res, "API Error")
+				return
+			}
+
+			mod := types.Object{}
+
+			tfsdk.ValueFrom(ctx, DependencyModel{
+				Version:      version.InternalVersion,
+				UpdatePolicy: string(dep.UpdatePolicy),
+			}, modType, &mod)
+
+			dependencyMapValues[systemSoftware.Name] = mod
+		}
+
+		dependencyMap, d := basetypes.NewMapValue(modType, dependencyMapValues)
+		if d.HasError() {
+			res.Append(d...)
+			return
+		}
+
+		data.Dependencies = dependencyMap
+	}
+
 	return
 }
 
 func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	//TODO implement me
-	panic("implement me")
+	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
+	planData := AppResourceModel{}
+	currentData := AppResourceModel{}
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &currentData)...)
+
+	appClient := r.client.App()
+
+	if !planData.DocumentRoot.Equal(currentData.DocumentRoot) {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationDocumentRoot(planData.DocumentRoot.ValueString()))
+	}
+
+	if !planData.UpdatePolicy.Equal(currentData.UpdatePolicy) {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationUpdatePolicy(mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(planData.UpdatePolicy.ValueString())))
+	}
+
+	if len(updaters) > 0 {
+		ErrorToDiag(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
+	}
+
+	if !planData.DatabaseID.Equal(currentData.DatabaseID) {
+		ErrorToDiag(appClient.LinkAppInstallationToDatabase(
+			ctx,
+			planData.ID.ValueString(),
+			planData.DatabaseID.ValueString(),
+			mittwaldv2.AppLinkDatabaseJSONBodyPurposePrimary,
+		))(&resp.Diagnostics, "API Error")
+	}
+
+	resp.Diagnostics.Append(r.read(ctx, &planData)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 }
 
 func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

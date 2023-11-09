@@ -5,3 +5,9 @@ package mittwaldv2
 
 type DeMittwaldV1SignupRemovingLastOwnerNotAllowedErrorName string
 type DeMittwaldV1SignupSecondFactorRequiredErrorName string
+
+type AppPatchInstallationSystemSoftwareItem = struct {
+	SystemSoftwareVersion *string                                    `json:"systemSoftwareVersion,omitempty"`
+	UpdatePolicy          *DeMittwaldV1AppSystemSoftwareUpdatePolicy `json:"updatePolicy,omitempty"`
+}
+type AppPatchInstallationSystemSoftware = map[string]AppPatchInstallationSystemSoftwareItem

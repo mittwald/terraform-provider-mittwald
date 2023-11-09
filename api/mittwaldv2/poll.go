@@ -30,11 +30,15 @@ func poll[T any](ctx context.Context, f func() (T, error)) (T, error) {
 			if e != nil {
 				if notFound := (ErrNotFound{}); errors.As(e, &notFound) {
 					continue
+				} else if permissionDenied := (ErrPermissionDenied{}); errors.As(e, &permissionDenied) {
+					continue
 				} else {
 					err <- e
+					return
 				}
 			} else {
 				res <- r
+				return
 			}
 		}
 	}()

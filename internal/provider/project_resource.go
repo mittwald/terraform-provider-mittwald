@@ -147,7 +147,7 @@ func (r *ProjectResource) Read(ctx context.Context, req resource.ReadRequest, re
 func (r *ProjectResource) read(ctx context.Context, data *ProjectResourceModel) (res diag.Diagnostics) {
 	project, err := r.client.Project().PollProject(ctx, data.ID.ValueString())
 	if err != nil {
-		res.AddError("API error", err.Error())
+		res.AddError("API error while polling project", err.Error())
 		return
 	}
 

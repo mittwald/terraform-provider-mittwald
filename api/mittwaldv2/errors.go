@@ -7,14 +7,23 @@ import (
 
 type ErrNotFound struct{}
 
+type ErrPermissionDenied struct{}
+
 func (e ErrNotFound) Error() string {
 	return "resource not found"
 }
 
-func errUnexpectedStatus(status int, body []byte) error {
-	if status == http.StatusNotFound {
-		return ErrNotFound{}
-	}
+func (e ErrPermissionDenied) Error() string {
+	return "permission denied"
+}
 
-	return fmt.Errorf("unexpected status code %d: %s", status, string(body))
+func errUnexpectedStatus(status int, body []byte) error {
+	switch status {
+	case http.StatusNotFound:
+		return ErrNotFound{}
+	case http.StatusForbidden:
+		return ErrPermissionDenied{}
+	default:
+		return fmt.Errorf("unexpected status code %d: %s", status, string(body))
+	}
 }
