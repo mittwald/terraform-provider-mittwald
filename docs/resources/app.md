@@ -62,6 +62,7 @@ resource "mittwald_app" "custom_php" {
 ### Optional
 
 - `database_id` (String) The ID of the database the app uses
+- `dependencies` (Attributes Map) The dependencies of the app (see [below for nested schema](#nestedatt--dependencies))
 - `description` (String) The description of the app
 - `document_root` (String) The document root of the app
 - `user_inputs` (Map of String) The user inputs of the app
@@ -71,3 +72,11 @@ resource "mittwald_app" "custom_php" {
 - `id` (String) The ID of the app
 - `installation_path` (String) The installation path of the app
 - `version_current` (String) The current version of the app
+
+<a id="nestedatt--dependencies"></a>
+### Nested Schema for `dependencies`
+
+Required:
+
+- `update_policy` (String) The update policy of the dependency; one of `none`, `patchLevel` or `all`
+- `version` (String) The version of the dependency; this may be a semantic version constraint
