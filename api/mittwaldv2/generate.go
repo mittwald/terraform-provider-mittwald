@@ -1,5 +1,4 @@
-//go:build generate
-// +build generate
+//go:build generate_api
 
 package mittwaldv2
 
