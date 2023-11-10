@@ -5,17 +5,17 @@ variable "admin_password" {
 }
 
 data "mittwald_systemsoftware" "php" {
-  name = "php"
+  name     = "php"
   selector = "^8.2"
 }
 
 data "mittwald_systemsoftware" "composer" {
-  name = "composer"
+  name        = "composer"
   recommended = true
 }
 
 data "mittwald_systemsoftware" "mysql" {
-  name = "composer"
+  name        = "composer"
   recommended = true
 }
 
