@@ -3,7 +3,7 @@ module github.com/mittwald/terraform-provider-mittwald
 go 1.21
 
 require (
-	github.com/Masterminds/semver/v3 v3.1.1
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
