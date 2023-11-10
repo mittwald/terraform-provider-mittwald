@@ -44,8 +44,10 @@ func (d *SystemSoftwareDataSource) Metadata(_ context.Context, req datasource.Me
 
 func (d *SystemSoftwareDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "A data source that selects versions of system components, such as PHP, MySQL, etc.",
+		MarkdownDescription: `A data source that selects versions of system components, such as PHP, MySQL, etc.
+
+This data source should typically be used in conjunction with the ` + "`mittwald_app`" + `
+resource to select the respective versions for the ` + "`dependencies`" + ` attribute.`,
 
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
@@ -57,7 +59,7 @@ func (d *SystemSoftwareDataSource) Schema(_ context.Context, _ datasource.Schema
 				Optional:            true,
 			},
 			"selector": schema.StringAttribute{
-				MarkdownDescription: "A version selector, such as `>= 7.4`",
+				MarkdownDescription: "A version selector, such as `>= 7.4`; if omitted, this will default to `*` (all versions)",
 				Optional:            true,
 			},
 			"version": schema.StringAttribute{

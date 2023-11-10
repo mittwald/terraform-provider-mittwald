@@ -4,11 +4,16 @@ page_title: "mittwald_systemsoftware Data Source - terraform-provider-mittwald"
 subcategory: ""
 description: |-
   A data source that selects versions of system components, such as PHP, MySQL, etc.
+  This data source should typically be used in conjunction with the mittwald_app
+  resource to select the respective versions for the dependencies attribute.
 ---
 
 # mittwald_systemsoftware (Data Source)
 
 A data source that selects versions of system components, such as PHP, MySQL, etc.
+
+This data source should typically be used in conjunction with the `mittwald_app`
+resource to select the respective versions for the `dependencies` attribute.
 
 
 
@@ -22,7 +27,7 @@ A data source that selects versions of system components, such as PHP, MySQL, et
 ### Optional
 
 - `recommended` (Boolean) Set this to just select the recommended version
-- `selector` (String) A version selector, such as `>= 7.4`
+- `selector` (String) A version selector, such as `>= 7.4`; if omitted, this will default to `*` (all versions)
 
 ### Read-Only
 
