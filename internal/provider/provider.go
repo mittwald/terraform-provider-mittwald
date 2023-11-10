@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"os"
@@ -76,10 +75,6 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 	if apiKey == "" {
 		resp.Diagnostics.AddAttributeError(path.Root("api_key"), "unknown mittwald API key", "cannot create the mittwald API client because no API key was supplied")
 	}
-
-	// Example client configuration for data sources and resources
-
-	fmt.Println("found API key", apiKey)
 
 	client := mittwaldv2.NewWithAPIToken(apiKey)
 
