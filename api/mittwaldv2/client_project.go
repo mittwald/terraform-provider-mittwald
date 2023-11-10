@@ -2,6 +2,7 @@ package mittwaldv2
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 )
 
@@ -94,4 +95,23 @@ func (c *ProjectClient) PollProject(ctx context.Context, projectID string) (*DeM
 
 		return nil, errUnexpectedStatus(response.StatusCode(), response.Body)
 	})
+}
+
+func (c *ProjectClient) GetProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error) {
+	response, err := c.client.IngressListForProjectWithResponse(ctx, uuid.MustParse(projectID))
+	if err != nil {
+		return nil, err
+	}
+
+	if response.JSON200 == nil {
+		return nil, errUnexpectedStatus(response.StatusCode(), response.Body)
+	}
+
+	for _, ingress := range *response.JSON200 {
+		if ingress.IsDefault {
+			return ingress.Ips.V4, nil
+		}
+	}
+
+	return nil, fmt.Errorf("could not determine default ingress for project %s", projectID)
 }

@@ -33,6 +33,7 @@ type ProjectResourceModel struct {
 	ServerID    types.String `tfsdk:"server_id"`
 	Description types.String `tfsdk:"description"`
 	Directories types.Map    `tfsdk:"directories"`
+	DefaultIPs  types.List   `tfsdk:"default_ips"`
 }
 
 func (r *ProjectResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -62,6 +63,11 @@ func (r *ProjectResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"directories": schema.MapAttribute{
 				Computed:            true,
 				MarkdownDescription: "Contains a map of data directories within the project",
+				ElementType:         types.StringType,
+			},
+			"default_ips": schema.ListAttribute{
+				Computed:            true,
+				MarkdownDescription: "Contains a list of default IP addresses for the project",
 				ElementType:         types.StringType,
 			},
 		},
@@ -151,6 +157,12 @@ func (r *ProjectResource) read(ctx context.Context, data *ProjectResourceModel) 
 		return
 	}
 
+	ips, err := r.client.Project().GetProjectDefaultIPs(ctx, data.ID.ValueString())
+	if err != nil {
+		res.AddError("API error while getting project ips", err.Error())
+		return
+	}
+
 	data.ID = types.StringValue(project.Id.String())
 	data.Description = types.StringValue(project.Description)
 
@@ -165,6 +177,13 @@ func (r *ProjectResource) read(ctx context.Context, data *ProjectResourceModel) 
 		data.ServerID = types.StringValue(project.ServerId.String())
 	} else {
 		data.ServerID = types.StringNull()
+	}
+
+	if ipValues, d := types.ListValueFrom(ctx, types.StringType, ips); d.HasError() {
+		res.Append(d...)
+		return
+	} else {
+		data.DefaultIPs = ipValues
 	}
 
 	return
