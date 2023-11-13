@@ -30,12 +30,12 @@ type MittwaldProviderModel struct {
 	APIKey   types.String `tfsdk:"api_key"`
 }
 
-func (p *MittwaldProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (p *MittwaldProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "mittwald"
 	resp.Version = p.version
 }
 
-func (p *MittwaldProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *MittwaldProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
@@ -60,9 +60,6 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
-
 	if data.APIKey.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(path.Root("api_key"), "unknown mittwald API key", "cannot create the mittwald API client because an unknown value was supplied for the API key")
 	}
@@ -72,11 +69,19 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 		apiKey = data.APIKey.ValueString()
 	}
 
-	if apiKey == "" {
+	opts := make([]mittwaldv2.ClientBuilderOption, 0)
+
+	if apiKey != "" {
+		opts = append(opts, mittwaldv2.WithAPIToken(apiKey))
+	} else {
 		resp.Diagnostics.AddAttributeError(path.Root("api_key"), "unknown mittwald API key", "cannot create the mittwald API client because no API key was supplied")
 	}
 
-	client := mittwaldv2.NewWithAPIToken(apiKey)
+	if !data.Endpoint.IsNull() {
+		opts = append(opts, mittwaldv2.WithEndpoint(data.Endpoint.ValueString()))
+	}
+
+	client := mittwaldv2.New(opts...)
 
 	resp.DataSourceData = client
 	resp.ResourceData = client

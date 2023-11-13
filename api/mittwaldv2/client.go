@@ -12,19 +12,22 @@ func apiTokenRequestEditor(token string) RequestEditorFn {
 	}
 }
 
-func NewWithAPIToken(token string) ClientBuilder {
+func New(opts ...ClientBuilderOption) ClientBuilder {
 	httpClient := http.DefaultClient
-	client := ClientWithResponses{
-		ClientInterface: &Client{
-			Server: "https://api.mittwald.de/v2",
-			Client: httpClient,
-			RequestEditors: []RequestEditorFn{
-				apiTokenRequestEditor(token),
-			},
+	internalClient := Client{
+		Server: "https://api.mittwald.de/v2",
+		Client: httpClient,
+	}
+
+	builder := &clientBuilder{
+		internalClient: &ClientWithResponses{
+			ClientInterface: &internalClient,
 		},
 	}
 
-	return &clientBuilder{
-		internalClient: &client,
+	for _, opt := range opts {
+		opt(builder, &internalClient)
 	}
+
+	return builder
 }
