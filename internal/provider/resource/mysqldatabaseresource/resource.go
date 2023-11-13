@@ -1,4 +1,4 @@
-package provider
+package mysqldatabaseresource
 
 import (
 	"context"
@@ -11,51 +11,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &MySQLDatabaseResource{}
-var _ resource.ResourceWithImportState = &MySQLDatabaseResource{}
+var _ resource.Resource = &Resource{}
+var _ resource.ResourceWithImportState = &Resource{}
 
-func NewMySQLDatabaseResource() resource.Resource {
-	return &MySQLDatabaseResource{}
+func New() resource.Resource {
+	return &Resource{}
 }
 
-type MySQLDatabaseResource struct {
+type Resource struct {
 	client mittwaldv2.ClientBuilder
 }
 
-// ProjectResourceModel describes the resource data model.
-type MySQLDatabaseResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	ProjectID   types.String `tfsdk:"project_id"`
-	Version     types.String `tfsdk:"version"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Hostname    types.String `tfsdk:"hostname"`
-
-	CharacterSettings types.Object `tfsdk:"character_settings"`
-	User              types.Object `tfsdk:"user"`
-}
-
-type MySQLDatabaseUserModel struct {
-	ID             types.String `tfsdk:"id"`
-	Name           types.String `tfsdk:"name"`
-	Password       types.String `tfsdk:"password"`
-	AccessLevel    types.String `tfsdk:"access_level"`
-	ExternalAccess types.Bool   `tfsdk:"external_access"`
-}
-
-type MySQLDatabaseCharsetModel struct {
-	Charset   types.String `tfsdk:"character_set"`
-	Collation types.String `tfsdk:"collation"`
-}
-
-func (d *MySQLDatabaseResource) Metadata(ctx context.Context, request resource.MetadataRequest, response *resource.MetadataResponse) {
+func (d *Resource) Metadata(_ context.Context, request resource.MetadataRequest, response *resource.MetadataResponse) {
 	response.TypeName = request.ProviderTypeName + "_mysql_database"
 }
 
-func (d *MySQLDatabaseResource) Schema(ctx context.Context, request resource.SchemaRequest, response *resource.SchemaResponse) {
+func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response *resource.SchemaResponse) {
 	response.Schema = schema.Schema{
 		MarkdownDescription: "Models a MySQL database on the mittwald plattform",
 
@@ -148,12 +123,12 @@ func (d *MySQLDatabaseResource) Schema(ctx context.Context, request resource.Sch
 	}
 }
 
-func (d *MySQLDatabaseResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	d.client = clientFromProviderData(req.ProviderData, &resp.Diagnostics)
+func (d *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	d.client = providerutil.ClientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
-func (d *MySQLDatabaseResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	data := MySQLDatabaseResourceModel{}
+func (d *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	data := ResourceModel{}
 	dataUser := MySQLDatabaseUserModel{}
 	dataCharset := MySQLDatabaseCharsetModel{}
 
@@ -203,8 +178,8 @@ func (d *MySQLDatabaseResource) Create(ctx context.Context, req resource.CreateR
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("character_settings"), &dataCharset)...)
 }
 
-func (d *MySQLDatabaseResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	data := MySQLDatabaseResourceModel{}
+func (d *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	data := ResourceModel{}
 	dataUser := MySQLDatabaseUserModel{}
 	dataCharset := MySQLDatabaseCharsetModel{}
 
@@ -222,7 +197,7 @@ func (d *MySQLDatabaseResource) Read(ctx context.Context, req resource.ReadReque
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("character_settings"), &dataCharset)...)
 }
 
-func (d *MySQLDatabaseResource) read(ctx context.Context, data *MySQLDatabaseResourceModel, charset *MySQLDatabaseCharsetModel) (res diag.Diagnostics) {
+func (d *Resource) read(ctx context.Context, data *ResourceModel, charset *MySQLDatabaseCharsetModel) (res diag.Diagnostics) {
 	database, err := d.client.Database().PollMySQLDatabase(ctx, data.ID.ValueString())
 	if err != nil {
 		res.AddError("Client Error", err.Error())
@@ -241,7 +216,7 @@ func (d *MySQLDatabaseResource) read(ctx context.Context, data *MySQLDatabaseRes
 	return
 }
 
-func (d *MySQLDatabaseResource) readUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (res diag.Diagnostics) {
+func (d *Resource) readUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (res diag.Diagnostics) {
 	if data.ID.IsNull() {
 		databaseUserList, err := d.client.Database().PollMySQLUsersForDatabase(ctx, databaseID)
 		if err != nil {
@@ -270,8 +245,8 @@ func (d *MySQLDatabaseResource) readUser(ctx context.Context, databaseID string,
 	return
 }
 
-func (d *MySQLDatabaseResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var planData, stateData MySQLDatabaseResourceModel
+func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var planData, stateData ResourceModel
 	dataUser := MySQLDatabaseUserModel{}
 	dataCharset := MySQLDatabaseCharsetModel{}
 
@@ -305,8 +280,8 @@ func (d *MySQLDatabaseResource) Update(ctx context.Context, req resource.UpdateR
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("character_settings"), &dataCharset)...)
 }
 
-func (d *MySQLDatabaseResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data MySQLDatabaseResourceModel
+func (d *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data ResourceModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -321,6 +296,6 @@ func (d *MySQLDatabaseResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 }
 
-func (d *MySQLDatabaseResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (d *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

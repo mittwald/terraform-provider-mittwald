@@ -1,4 +1,4 @@
-package provider
+package providerutil
 
 import "github.com/hashicorp/terraform-plugin-framework/diag"
 

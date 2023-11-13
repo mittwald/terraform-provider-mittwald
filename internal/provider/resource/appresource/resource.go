@@ -1,4 +1,4 @@
-package provider
+package appresource
 
 import (
 	"context"
@@ -14,12 +14,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ resource.Resource = &AppResource{}
-var _ resource.ResourceWithImportState = &AppResource{}
+var _ resource.Resource = &Resource{}
+var _ resource.ResourceWithImportState = &Resource{}
 
 var appNames = map[string]string{
 	"static":    "d20baefd-81d2-42aa-bfba-9a3220ae839b",
@@ -31,40 +32,19 @@ var appNames = map[string]string{
 	"shopware5": "a23acf9c-9298-4082-9e7d-25356f9976dc",
 }
 
-func NewAppResource() resource.Resource {
-	return &AppResource{}
+func New() resource.Resource {
+	return &Resource{}
 }
 
-type AppResource struct {
+type Resource struct {
 	client mittwaldv2.ClientBuilder
 }
 
-type AppResourceModel struct {
-	ID               types.String `tfsdk:"id"`
-	ProjectID        types.String `tfsdk:"project_id"`
-	DatabaseID       types.String `tfsdk:"database_id"` // TODO: There may theoretically be multiple database links
-	Description      types.String `tfsdk:"description"`
-	App              types.String `tfsdk:"app"`
-	Version          types.String `tfsdk:"version"`
-	VersionCurrent   types.String `tfsdk:"version_current"`
-	DocumentRoot     types.String `tfsdk:"document_root"`
-	InstallationPath types.String `tfsdk:"installation_path"`
-	UpdatePolicy     types.String `tfsdk:"update_policy"`
-	UserInputs       types.Map    `tfsdk:"user_inputs"`
-	Dependencies     types.Map    `tfsdk:"dependencies"`
-}
-
-type DependencyModel struct {
-	Version string `tfsdk:"version"`
-	//VersionCurrent string `tfsdk:"version_current"`
-	UpdatePolicy string `tfsdk:"update_policy"`
-}
-
-func (r *AppResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_app"
 }
 
-func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Models an app installation on the mittwald platform",
 		Attributes: map[string]schema.Attribute{
@@ -148,12 +128,12 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 	}
 }
 
-func (r *AppResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	r.client = clientFromProviderData(req.ProviderData, &resp.Diagnostics)
+func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	r.client = providerutil.ClientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
-func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	data := AppResourceModel{}
+func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	data := ResourceModel{}
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -169,7 +149,7 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		UpdatePolicy: mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(data.UpdatePolicy.ValueString()),
 	}
 
-	appVersions := ErrorValueToDiag(appClient.ListAppVersions(ctx, appID))(&resp.Diagnostics, "API Error")
+	appVersions := providerutil.ErrorValueToDiag(appClient.ListAppVersions(ctx, appID))(&resp.Diagnostics, "API Error")
 	for _, appVersion := range appVersions {
 		if appVersion.InternalVersion == data.Version.ValueString() {
 			appInput.AppVersionId = appVersion.Id
@@ -206,7 +186,7 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	if !data.Dependencies.IsNull() {
-		depUpdater := ErrorValueToDiag(r.appDependenciesToUpdater(ctx, &data))(&resp.Diagnostics, "Dependency version error")
+		depUpdater := providerutil.ErrorValueToDiag(r.appDependenciesToUpdater(ctx, &data))(&resp.Diagnostics, "Dependency version error")
 		updaters = append(updaters, depUpdater)
 	}
 
@@ -215,11 +195,11 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	if len(updaters) > 0 {
-		ErrorToDiag(appClient.UpdateAppInstallation(ctx, data.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
+		providerutil.ErrorToDiag(appClient.UpdateAppInstallation(ctx, data.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
 	}
 
 	if !data.DatabaseID.IsNull() {
-		ErrorToDiag(appClient.LinkAppInstallationToDatabase(
+		providerutil.ErrorToDiag(appClient.LinkAppInstallationToDatabase(
 			ctx,
 			data.ID.ValueString(),
 			data.DatabaseID.ValueString(),
@@ -227,13 +207,13 @@ func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, re
 		))(&resp.Diagnostics, "API Error")
 	}
 
-	ErrorToDiag(appClient.WaitUntilAppInstallationIsReady(ctx, appID))(&resp.Diagnostics, "API Error")
+	providerutil.ErrorToDiag(appClient.WaitUntilAppInstallationIsReady(ctx, appID))(&resp.Diagnostics, "API Error")
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *AppResource) appDependenciesToUpdater(ctx context.Context, d *AppResourceModel) (mittwaldv2.AppInstallationUpdater, error) {
+func (r *Resource) appDependenciesToUpdater(ctx context.Context, d *ResourceModel) (mittwaldv2.AppInstallationUpdater, error) {
 	appClient := r.client.App()
 	updater := make(mittwaldv2.AppInstallationUpdaterChain, 0)
 	for name, options := range d.Dependencies.Elements() {
@@ -275,8 +255,8 @@ func (r *AppResource) appDependenciesToUpdater(ctx context.Context, d *AppResour
 	return updater, nil
 }
 
-func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	data := AppResourceModel{}
+func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	data := ResourceModel{}
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -288,15 +268,15 @@ func (r *AppResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res diag.Diagnostics) {
+func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	appClient := r.client.App()
 
-	appInstallation := ErrorValueToDiag(appClient.GetAppInstallation(ctx, data.ID.ValueString()))(&res, "API Error")
+	appInstallation := providerutil.ErrorValueToDiag(appClient.GetAppInstallation(ctx, data.ID.ValueString()))(&res, "API Error")
 	if res.HasError() {
 		return
 	}
 
-	appDesiredVersion := ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))(&res, "API Error")
+	appDesiredVersion := providerutil.ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))(&res, "API Error")
 	if res.HasError() {
 		return
 	}
@@ -331,7 +311,7 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 	}()
 
 	if appInstallation.AppVersion.Current != nil {
-		if appDesiredVersion := ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))(&res, "API Error"); appDesiredVersion != nil {
+		if appDesiredVersion := providerutil.ErrorValueToDiag(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))(&res, "API Error"); appDesiredVersion != nil {
 			data.VersionCurrent = types.StringValue(appDesiredVersion.InternalVersion)
 		}
 	}
@@ -353,7 +333,7 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 			)
 
 			if err != nil {
-				ErrorToDiag(err)(&res, "API Error")
+				providerutil.ErrorToDiag(err)(&res, "API Error")
 				return
 			}
 
@@ -379,10 +359,10 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 	return
 }
 
-func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
-	planData := AppResourceModel{}
-	currentData := AppResourceModel{}
+	planData := ResourceModel{}
+	currentData := ResourceModel{}
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &currentData)...)
@@ -398,11 +378,11 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	if len(updaters) > 0 {
-		ErrorToDiag(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
+		providerutil.ErrorToDiag(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
 	}
 
 	if !planData.DatabaseID.Equal(currentData.DatabaseID) {
-		ErrorToDiag(appClient.LinkAppInstallationToDatabase(
+		providerutil.ErrorToDiag(appClient.LinkAppInstallationToDatabase(
 			ctx,
 			planData.ID.ValueString(),
 			planData.DatabaseID.ValueString(),
@@ -414,8 +394,8 @@ func (r *AppResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 }
 
-func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data AppResourceModel
+func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data ResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -423,9 +403,9 @@ func (r *AppResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	ErrorToDiag(r.client.App().UninstallApp(ctx, data.ID.ValueString()))(&resp.Diagnostics, "API Error")
+	providerutil.ErrorToDiag(r.client.App().UninstallApp(ctx, data.ID.ValueString()))(&resp.Diagnostics, "API Error")
 }
 
-func (r *AppResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -4,6 +4,11 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/appresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -87,19 +92,18 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 	resp.ResourceData = client
 }
 
-func (p *MittwaldProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewProjectResource,
-		NewAppResource,
-		NewMySQLDatabaseResource,
+		projectresource.New,
+		appresource.New,
+		mysqldatabaseresource.New,
 	}
 }
 
-func (p *MittwaldProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewProjectByShortIdDataSource,
-		NewSystemSoftwareDataSource,
-		NewAppDataSource,
+		projectdatasource.NewByShortIdDataSource,
+		systemsoftwaredatasource.New,
 	}
 }
 

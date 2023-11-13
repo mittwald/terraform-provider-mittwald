@@ -1,4 +1,4 @@
-package provider
+package providerutil
 
 import (
 	"fmt"
@@ -6,9 +6,9 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 )
 
-// clientFromProviderData is a helper function to extract the client from the
+// ClientFromProviderData is a helper function to extract the client from the
 // provider data.
-func clientFromProviderData(providerData any, d *diag.Diagnostics) mittwaldv2.ClientBuilder {
+func ClientFromProviderData(providerData any, d *diag.Diagnostics) mittwaldv2.ClientBuilder {
 	if providerData == nil {
 		d.AddError(
 			"Unexpected Resource Configure Type",

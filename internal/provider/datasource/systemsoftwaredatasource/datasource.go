@@ -1,4 +1,4 @@
-package provider
+package systemsoftwaredatasource
 
 import (
 	"context"
@@ -7,42 +7,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
-var _ datasource.DataSource = &SystemSoftwareDataSource{}
+var _ datasource.DataSource = &DataSource{}
 
-func NewSystemSoftwareDataSource() datasource.DataSource {
-	return &SystemSoftwareDataSource{}
+func New() datasource.DataSource {
+	return &DataSource{}
 }
 
-// ProjectByShortIdDataSource defines the data source implementation.
-type SystemSoftwareDataSource struct {
+// DataSource defines the data source implementation.
+type DataSource struct {
 	client mittwaldv2.ClientBuilder
 }
 
-// SystemSoftwareDataSourceModel describes the data source data model.
-type SystemSoftwareDataSourceModel struct {
-	Name        types.String `tfsdk:"name"`
-	Recommended types.Bool   `tfsdk:"recommended"`
-	Selector    types.String `tfsdk:"selector"`
-
-	Version   types.String `tfsdk:"version"`
-	VersionID types.String `tfsdk:"version_id"`
-}
-
-func (m *SystemSoftwareDataSourceModel) SelectorOrDefault() string {
-	if m.Selector.IsNull() {
-		return "*"
-	}
-	return m.Selector.ValueString()
-}
-
-func (d *SystemSoftwareDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_systemsoftware"
 }
 
-func (d *SystemSoftwareDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: `A data source that selects versions of system components, such as PHP, MySQL, etc.
 
@@ -74,12 +58,12 @@ resource to select the respective versions for the ` + "`dependencies`" + ` attr
 	}
 }
 
-func (d *SystemSoftwareDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	d.client = clientFromProviderData(req.ProviderData, &resp.Diagnostics)
+func (d *DataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	d.client = providerutil.ClientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
-func (d *SystemSoftwareDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data SystemSoftwareDataSourceModel
+func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data DataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
