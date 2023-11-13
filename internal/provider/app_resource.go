@@ -88,6 +88,9 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 			"app": schema.StringAttribute{
 				MarkdownDescription: "The name of the app",
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"version": schema.StringAttribute{
 				MarkdownDescription: "The desired version of the app",
@@ -130,13 +133,9 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"version": schema.StringAttribute{
-							MarkdownDescription: "The version of the dependency; this may be a semantic version constraint",
+							MarkdownDescription: "The version of the dependency; please take note that this must be an *exact* version string; to select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source.",
 							Required:            true,
 						},
-						//"version_current": schema.StringAttribute{
-						//	MarkdownDescription: "The current version of the dependency",
-						//	Computed:            true,
-						//},
 						"update_policy": schema.StringAttribute{
 							MarkdownDescription: "The update policy of the dependency; one of `none`, `patchLevel` or `all`",
 							Required:            true,

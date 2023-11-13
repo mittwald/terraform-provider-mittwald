@@ -109,4 +109,4 @@ resource "mittwald_app" "custom_php" {
 Required:
 
 - `update_policy` (String) The update policy of the dependency; one of `none`, `patchLevel` or `all`
-- `version` (String) The version of the dependency; this may be a semantic version constraint
+- `version` (String) The version of the dependency; please take note that this must be an *exact* version string; to select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source.
