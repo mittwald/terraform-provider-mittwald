@@ -19,6 +19,10 @@ This provider offers the following resources:
 - [`mittwald_app`](./docs/resources/app.md)
 - [`mittwald_mysql_database`](./docs/resources/mysql_database.md)
 
+and the following data sources:
+
+- [`mittwald_systemsoftware`](./docs/data-sources/systemsoftware.md)
+
 Coming soon:
 
 - `mittwald_mysql_user`
