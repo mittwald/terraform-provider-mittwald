@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -148,7 +149,7 @@ func (r *AppResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 }
 
 func (r *AppResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	r.client = clientFromProviderData(&req, resp)
+	r.client = clientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
 func (r *AppResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -311,25 +312,10 @@ func (r *AppResource) read(ctx context.Context, data *AppResourceModel) (res dia
 		return types.StringNull()
 	}()
 
-	if appInstallation.CustomDocumentRoot != nil {
-		data.DocumentRoot = types.StringValue(*appInstallation.CustomDocumentRoot)
-	} else {
-		data.DocumentRoot = types.StringNull()
-	}
-
-	if appInstallation.Description != "" {
-		data.Description = types.StringValue(appInstallation.Description)
-	} else {
-		data.Description = types.StringNull()
-	}
-
+	data.DocumentRoot = valueutil.StringPtrOrNull(appInstallation.CustomDocumentRoot)
+	data.Description = valueutil.StringOrNull(appInstallation.Description)
 	data.Version = types.StringValue(appDesiredVersion.InternalVersion)
-
-	if appInstallation.UpdatePolicy != nil {
-		data.UpdatePolicy = types.StringValue(string(*appInstallation.UpdatePolicy))
-	} else {
-		data.UpdatePolicy = types.StringNull()
-	}
+	data.UpdatePolicy = valueutil.StringPtrOrNull(appInstallation.UpdatePolicy)
 
 	data.DatabaseID = func() types.String {
 		if appInstallation.LinkedDatabases == nil {

@@ -149,7 +149,7 @@ func (d *MySQLDatabaseResource) Schema(ctx context.Context, request resource.Sch
 }
 
 func (d *MySQLDatabaseResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	d.client = clientFromProviderData(&req, resp)
+	d.client = clientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
 func (d *MySQLDatabaseResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

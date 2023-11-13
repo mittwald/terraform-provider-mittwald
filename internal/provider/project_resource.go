@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -74,7 +75,7 @@ func (r *ProjectResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 }
 
 func (r *ProjectResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	r.client = clientFromProviderData(&req, resp)
+	r.client = clientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
 func (r *ProjectResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -156,11 +157,7 @@ func (r *ProjectResource) read(ctx context.Context, data *ProjectResourceModel) 
 		data.Directories = dirs
 	}
 
-	if project.ServerId != nil {
-		data.ServerID = types.StringValue(project.ServerId.String())
-	} else {
-		data.ServerID = types.StringNull()
-	}
+	data.ServerID = valueutil.StringerOrNull(project.ServerId)
 
 	if ipValues, d := types.ListValueFrom(ctx, types.StringType, ips); d.HasError() {
 		res.Append(d...)
