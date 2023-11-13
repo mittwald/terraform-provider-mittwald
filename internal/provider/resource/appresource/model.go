@@ -18,6 +18,6 @@ type ResourceModel struct {
 }
 
 type DependencyModel struct {
-	Version      string `tfsdk:"version"`
-	UpdatePolicy string `tfsdk:"update_policy"`
+	Version      types.String `tfsdk:"version"`
+	UpdatePolicy types.String `tfsdk:"update_policy"`
 }

@@ -11,7 +11,7 @@ import (
 func ClientFromProviderData(providerData any, d *diag.Diagnostics) mittwaldv2.ClientBuilder {
 	if providerData == nil {
 		d.AddError(
-			"Unexpected Resource Configure Type",
+			"mittwald API client is not set",
 			"Expected mittwaldv2.ClientBuilder, got: nil. Please report this issue to the provider developers at https://github.com/mittwald/terraform-provider-mittwald/issues.",
 		)
 
@@ -22,7 +22,7 @@ func ClientFromProviderData(providerData any, d *diag.Diagnostics) mittwaldv2.Cl
 
 	if !ok {
 		d.AddError(
-			"Unexpected Resource Configure Type",
+			"mittwald API client has unexpected type",
 			fmt.Sprintf("Expected mittwaldv2.ClientBuilder, got: %T. Please report this issue to the provider developers at https://github.com/mittwald/terraform-provider-mittwald/issues.", providerData),
 		)
 

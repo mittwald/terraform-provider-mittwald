@@ -232,7 +232,7 @@ func (r *Resource) appDependenciesToUpdater(ctx context.Context, d *ResourceMode
 		optionsModel := DependencyModel{}
 		optionsObj.As(ctx, &optionsModel, basetypes.ObjectAsOptions{})
 
-		versions, err := appClient.SelectSystemSoftwareVersion(ctx, dependency.Id, optionsModel.Version)
+		versions, err := appClient.SelectSystemSoftwareVersion(ctx, dependency.Id, optionsModel.Version.ValueString())
 		if err != nil {
 			return nil, err
 		}
@@ -247,7 +247,7 @@ func (r *Resource) appDependenciesToUpdater(ctx context.Context, d *ResourceMode
 			mittwaldv2.UpdateAppInstallationSystemSoftware(
 				dependency.Id,
 				recommended.Id.String(),
-				mittwaldv2.DeMittwaldV1AppSystemSoftwareUpdatePolicy(optionsModel.UpdatePolicy),
+				mittwaldv2.DeMittwaldV1AppSystemSoftwareUpdatePolicy(optionsModel.UpdatePolicy.ValueString()),
 			),
 		)
 	}
@@ -340,8 +340,8 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 			mod := types.Object{}
 
 			tfsdk.ValueFrom(ctx, DependencyModel{
-				Version:      version.InternalVersion,
-				UpdatePolicy: string(dep.UpdatePolicy),
+				Version:      types.StringValue(version.InternalVersion),
+				UpdatePolicy: types.StringValue(string(dep.UpdatePolicy)),
 			}, modType, &mod)
 
 			dependencyMapValues[systemSoftware.Name] = mod
