@@ -2,7 +2,7 @@ package mittwaldv2
 
 type ClientBuilder interface {
 	Project() *ProjectClient
-	App() *AppClient
+	App() AppClient
 	Database() *DatabaseClient
 }
 
@@ -22,8 +22,8 @@ func (b *clientBuilder) Database() *DatabaseClient {
 	}
 }
 
-func (b *clientBuilder) App() *AppClient {
-	return &AppClient{
+func (b *clientBuilder) App() AppClient {
+	return &appClient{
 		client: b.internalClient,
 	}
 }

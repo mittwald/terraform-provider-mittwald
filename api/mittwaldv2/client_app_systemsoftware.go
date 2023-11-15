@@ -11,7 +11,7 @@ import (
 
 type DeMittwaldV1AppSystemSoftwareVersionSet []DeMittwaldV1AppSystemSoftwareVersion
 
-func (c *AppClient) GetSystemSoftwareByName(ctx context.Context, name string) (*DeMittwaldV1AppSystemSoftware, bool, error) {
+func (c *appClient) GetSystemSoftwareByName(ctx context.Context, name string) (*DeMittwaldV1AppSystemSoftware, bool, error) {
 	systemSoftwares, err := c.client.AppListSystemsoftwaresWithResponse(ctx, &AppListSystemsoftwaresParams{})
 	if err != nil {
 		return nil, false, err
@@ -30,7 +30,7 @@ func (c *AppClient) GetSystemSoftwareByName(ctx context.Context, name string) (*
 	return nil, false, nil
 }
 
-func (c *AppClient) SelectSystemSoftwareVersion(ctx context.Context, systemSoftwareID, versionSelector string) (DeMittwaldV1AppSystemSoftwareVersionSet, error) {
+func (c *appClient) SelectSystemSoftwareVersion(ctx context.Context, systemSoftwareID, versionSelector string) (DeMittwaldV1AppSystemSoftwareVersionSet, error) {
 	versions, err := c.client.AppListSystemsoftwareversionsWithResponse(ctx, uuid.MustParse(systemSoftwareID), &AppListSystemsoftwareversionsParams{VersionRange: &versionSelector})
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c *AppClient) SelectSystemSoftwareVersion(ctx context.Context, systemSoftw
 	return set, nil
 }
 
-func (c *AppClient) GetSystemSoftwareAndVersion(ctx context.Context, systemSoftwareID, systemSoftwareVersionID string) (*DeMittwaldV1AppSystemSoftware, *DeMittwaldV1AppSystemSoftwareVersion, error) {
+func (c *appClient) GetSystemSoftwareAndVersion(ctx context.Context, systemSoftwareID, systemSoftwareVersionID string) (*DeMittwaldV1AppSystemSoftware, *DeMittwaldV1AppSystemSoftwareVersion, error) {
 	systemSoftware, err := c.client.AppGetSystemsoftwareWithResponse(ctx, uuid.MustParse(systemSoftwareID))
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get system software '%s': %w", systemSoftwareID, err)

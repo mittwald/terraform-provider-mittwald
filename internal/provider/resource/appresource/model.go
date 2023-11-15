@@ -16,8 +16,3 @@ type ResourceModel struct {
 	UserInputs       types.Map    `tfsdk:"user_inputs"`
 	Dependencies     types.Map    `tfsdk:"dependencies"`
 }
-
-type DependencyModel struct {
-	Version      types.String `tfsdk:"version"`
-	UpdatePolicy types.String `tfsdk:"update_policy"`
-}

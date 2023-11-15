@@ -54,7 +54,7 @@ func UpdateAppInstallationSystemSoftware(systemSoftwareID, systemSoftwareVersion
 	})
 }
 
-func (c *AppClient) UpdateAppInstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
+func (c *appClient) UpdateAppInstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
 	body := AppPatchAppinstallationJSONRequestBody{}
 
 	for _, u := range updater {

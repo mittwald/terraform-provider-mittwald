@@ -3,14 +3,12 @@ package appresource
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
@@ -316,44 +314,8 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		}
 	}
 
-	modType := types.ObjectType{
-		AttrTypes: map[string]attr.Type{
-			"version":       types.StringType,
-			"update_policy": types.StringType,
-		},
-	}
-
 	if appInstallation.SystemSoftware != nil {
-		dependencyMapValues := make(map[string]attr.Value)
-		for _, dep := range *appInstallation.SystemSoftware {
-			systemSoftware, version, err := appClient.GetSystemSoftwareAndVersion(
-				ctx,
-				dep.SystemSoftwareId.String(),
-				dep.SystemSoftwareVersion.Desired,
-			)
-
-			if err != nil {
-				providerutil.ErrorToDiag(err)(&res, "API Error")
-				return
-			}
-
-			mod := types.Object{}
-
-			tfsdk.ValueFrom(ctx, DependencyModel{
-				Version:      types.StringValue(version.InternalVersion),
-				UpdatePolicy: types.StringValue(string(dep.UpdatePolicy)),
-			}, modType, &mod)
-
-			dependencyMapValues[systemSoftware.Name] = mod
-		}
-
-		dependencyMap, d := basetypes.NewMapValue(modType, dependencyMapValues)
-		if d.HasError() {
-			res.Append(d...)
-			return
-		}
-
-		data.Dependencies = dependencyMap
+		data.Dependencies = InstalledSystemSoftwareToDependencyModelMap(ctx, res, appClient, *appInstallation.SystemSoftware)
 	}
 
 	return
