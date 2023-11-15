@@ -18,3 +18,10 @@ func ErrorToDiag(err error) func(d *diag.Diagnostics, summary string) {
 		}
 	}
 }
+
+func EmbedDiag[T any](resultValue T, resultDiag diag.Diagnostics) func(outDiag *diag.Diagnostics) T {
+	return func(out *diag.Diagnostics) T {
+		out.Append(resultDiag...)
+		return resultValue
+	}
+}
