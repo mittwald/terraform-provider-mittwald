@@ -10,11 +10,6 @@ import (
 // provider data.
 func ClientFromProviderData(providerData any, d *diag.Diagnostics) mittwaldv2.ClientBuilder {
 	if providerData == nil {
-		d.AddError(
-			"mittwald API client is not set",
-			"Expected mittwaldv2.ClientBuilder, got: nil. Please report this issue to the provider developers at https://github.com/mittwald/terraform-provider-mittwald/issues.",
-		)
-
 		return nil
 	}
 
