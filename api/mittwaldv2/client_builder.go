@@ -1,7 +1,7 @@
 package mittwaldv2
 
 type ClientBuilder interface {
-	Project() *ProjectClient
+	Project() ProjectClient
 	App() AppClient
 	Database() DatabaseClient
 }
@@ -10,8 +10,8 @@ type clientBuilder struct {
 	internalClient ClientWithResponsesInterface
 }
 
-func (b *clientBuilder) Project() *ProjectClient {
-	return &ProjectClient{
+func (b *clientBuilder) Project() ProjectClient {
+	return &projectClient{
 		client: b.internalClient,
 	}
 }
