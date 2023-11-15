@@ -3,7 +3,7 @@ package mittwaldv2
 type ClientBuilder interface {
 	Project() *ProjectClient
 	App() AppClient
-	Database() *DatabaseClient
+	Database() DatabaseClient
 }
 
 type clientBuilder struct {
@@ -16,8 +16,8 @@ func (b *clientBuilder) Project() *ProjectClient {
 	}
 }
 
-func (b *clientBuilder) Database() *DatabaseClient {
-	return &DatabaseClient{
+func (b *clientBuilder) Database() DatabaseClient {
+	return &databaseClient{
 		client: b.internalClient,
 	}
 }
