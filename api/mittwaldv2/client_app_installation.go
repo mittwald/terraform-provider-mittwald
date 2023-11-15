@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (c *AppClient) RequestAppInstallation(ctx context.Context, projectID string, body AppRequestAppinstallationJSONRequestBody) (string, error) {
+func (c *appClient) RequestAppInstallation(ctx context.Context, projectID string, body AppRequestAppinstallationJSONRequestBody) (string, error) {
 	response, err := c.client.AppRequestAppinstallationWithResponse(ctx, uuid.MustParse(projectID), body)
 	if err != nil {
 		return "", err
@@ -19,7 +19,7 @@ func (c *AppClient) RequestAppInstallation(ctx context.Context, projectID string
 	return "", errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *AppClient) GetAppInstallation(ctx context.Context, appInstallationID string) (*DeMittwaldV1AppAppInstallation, error) {
+func (c *appClient) GetAppInstallation(ctx context.Context, appInstallationID string) (*DeMittwaldV1AppAppInstallation, error) {
 	return poll(ctx, func() (*DeMittwaldV1AppAppInstallation, error) {
 		response, err := c.client.AppGetAppinstallationWithResponse(ctx, uuid.MustParse(appInstallationID))
 		if err != nil {
@@ -34,7 +34,7 @@ func (c *AppClient) GetAppInstallation(ctx context.Context, appInstallationID st
 	})
 }
 
-func (c *AppClient) WaitUntilAppInstallationIsReady(ctx context.Context, appID string) error {
+func (c *appClient) WaitUntilAppInstallationIsReady(ctx context.Context, appID string) error {
 	runner := func() (bool, error) {
 		response, err := c.client.AppGetAppinstallationWithResponse(ctx, uuid.MustParse(appID))
 		if err != nil {
@@ -90,7 +90,7 @@ func (c *AppClient) WaitUntilAppInstallationIsReady(ctx context.Context, appID s
 	}
 }
 
-func (c *AppClient) UninstallApp(ctx context.Context, appInstallationID string) error {
+func (c *appClient) UninstallApp(ctx context.Context, appInstallationID string) error {
 	response, err := c.client.AppUninstallAppinstallationWithResponse(ctx, uuid.MustParse(appInstallationID))
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (c *AppClient) UninstallApp(ctx context.Context, appInstallationID string) 
 	return errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *AppClient) LinkAppInstallationToDatabase(
+func (c *appClient) LinkAppInstallationToDatabase(
 	ctx context.Context,
 	appInstallationID string,
 	databaseID string,

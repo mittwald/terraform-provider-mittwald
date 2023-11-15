@@ -5,11 +5,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type DatabaseClient struct {
+type DatabaseClient interface {
+	CreateMySQLDatabase(ctx context.Context, projectID string, body DatabaseCreateMysqlDatabaseJSONRequestBody) (string, string, error)
+	SetMySQLDatabaseDescription(ctx context.Context, databaseID string, description string) error
+	DeleteMySQLDatabase(ctx context.Context, databaseID string) error
+	PollMySQLDatabase(ctx context.Context, databaseID string) (*DeMittwaldV1DatabaseMySqlDatabase, error)
+	SetMySQLUserPassword(ctx context.Context, userID string, password string) error
+	PollMySQLUsersForDatabase(ctx context.Context, databaseID string) ([]DeMittwaldV1DatabaseMySqlUser, error)
+	PollMySQLUser(ctx context.Context, userID string) (*DeMittwaldV1DatabaseMySqlUser, error)
+}
+
+type databaseClient struct {
 	client ClientWithResponsesInterface
 }
 
-func (c *DatabaseClient) CreateMySQLDatabase(ctx context.Context, projectID string, body DatabaseCreateMysqlDatabaseJSONRequestBody) (string, string, error) {
+func (c *databaseClient) CreateMySQLDatabase(ctx context.Context, projectID string, body DatabaseCreateMysqlDatabaseJSONRequestBody) (string, string, error) {
 	response, err := c.client.DatabaseCreateMysqlDatabaseWithResponse(ctx, uuid.MustParse(projectID), body)
 	if err != nil {
 		return "", "", err
@@ -22,7 +32,7 @@ func (c *DatabaseClient) CreateMySQLDatabase(ctx context.Context, projectID stri
 	return "", "", errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *DatabaseClient) SetMySQLDatabaseDescription(ctx context.Context, databaseID string, description string) error {
+func (c *databaseClient) SetMySQLDatabaseDescription(ctx context.Context, databaseID string, description string) error {
 	response, err := c.client.DatabaseUpdateMysqlDatabaseDescriptionWithResponse(ctx, uuid.MustParse(databaseID), DatabaseUpdateMysqlDatabaseDescriptionJSONRequestBody{
 		Description: description,
 	})
@@ -37,7 +47,7 @@ func (c *DatabaseClient) SetMySQLDatabaseDescription(ctx context.Context, databa
 	return errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *DatabaseClient) DeleteMySQLDatabase(ctx context.Context, databaseID string) error {
+func (c *databaseClient) DeleteMySQLDatabase(ctx context.Context, databaseID string) error {
 	response, err := c.client.DatabaseDeleteMysqlDatabaseWithResponse(ctx, uuid.MustParse(databaseID))
 	if err != nil {
 		return err
@@ -50,7 +60,7 @@ func (c *DatabaseClient) DeleteMySQLDatabase(ctx context.Context, databaseID str
 	return errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *DatabaseClient) PollMySQLDatabase(ctx context.Context, databaseID string) (*DeMittwaldV1DatabaseMySqlDatabase, error) {
+func (c *databaseClient) PollMySQLDatabase(ctx context.Context, databaseID string) (*DeMittwaldV1DatabaseMySqlDatabase, error) {
 	return poll(ctx, func() (*DeMittwaldV1DatabaseMySqlDatabase, error) {
 		response, err := c.client.DatabaseGetMysqlDatabaseWithResponse(ctx, uuid.MustParse(databaseID))
 		if err != nil {
@@ -65,7 +75,7 @@ func (c *DatabaseClient) PollMySQLDatabase(ctx context.Context, databaseID strin
 	})
 }
 
-func (c *DatabaseClient) SetMySQLUserPassword(ctx context.Context, userID string, password string) error {
+func (c *databaseClient) SetMySQLUserPassword(ctx context.Context, userID string, password string) error {
 	response, err := c.client.DatabaseUpdateMysqlUserPasswordWithResponse(ctx, uuid.MustParse(userID), DatabaseUpdateMysqlUserPasswordJSONRequestBody{
 		Password: password,
 	})
@@ -80,7 +90,7 @@ func (c *DatabaseClient) SetMySQLUserPassword(ctx context.Context, userID string
 	return errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *DatabaseClient) PollMySQLUsersForDatabase(ctx context.Context, databaseID string) ([]DeMittwaldV1DatabaseMySqlUser, error) {
+func (c *databaseClient) PollMySQLUsersForDatabase(ctx context.Context, databaseID string) ([]DeMittwaldV1DatabaseMySqlUser, error) {
 	return poll(ctx, func() ([]DeMittwaldV1DatabaseMySqlUser, error) {
 		response, err := c.client.DatabaseListMysqlUsersWithResponse(ctx, uuid.MustParse(databaseID))
 		if err != nil {
@@ -95,7 +105,7 @@ func (c *DatabaseClient) PollMySQLUsersForDatabase(ctx context.Context, database
 	})
 }
 
-func (c *DatabaseClient) PollMySQLUser(ctx context.Context, userID string) (*DeMittwaldV1DatabaseMySqlUser, error) {
+func (c *databaseClient) PollMySQLUser(ctx context.Context, userID string) (*DeMittwaldV1DatabaseMySqlUser, error) {
 	return poll(ctx, func() (*DeMittwaldV1DatabaseMySqlUser, error) {
 		response, err := c.client.DatabaseGetMysqlUserWithResponse(ctx, uuid.MustParse(userID))
 		if err != nil {

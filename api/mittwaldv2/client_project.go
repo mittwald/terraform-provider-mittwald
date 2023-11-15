@@ -6,11 +6,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type ProjectClient struct {
+type ProjectClient interface {
+	ListProjects(ctx context.Context) ([]DeMittwaldV1ProjectProject, error)
+	CreateProjectOnServer(ctx context.Context, serverID string, body ProjectCreateProjectJSONRequestBody) (string, error)
+	DeleteProject(ctx context.Context, projectID string) error
+	PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error)
+	GetProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error)
+}
+
+type projectClient struct {
 	client ClientWithResponsesInterface
 }
 
-func (c *ProjectClient) ListProjects(ctx context.Context) ([]DeMittwaldV1ProjectProject, error) {
+func (c *projectClient) ListProjects(ctx context.Context) ([]DeMittwaldV1ProjectProject, error) {
 	response, err := c.client.ProjectListProjectsWithResponse(ctx, &ProjectListProjectsParams{})
 	if err != nil {
 		return nil, err
@@ -51,7 +59,7 @@ func (c *ProjectClient) ListProjects(ctx context.Context) ([]DeMittwaldV1Project
 	return nil, errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *ProjectClient) CreateProjectOnServer(ctx context.Context, serverID string, body ProjectCreateProjectJSONRequestBody) (string, error) {
+func (c *projectClient) CreateProjectOnServer(ctx context.Context, serverID string, body ProjectCreateProjectJSONRequestBody) (string, error) {
 	response, err := c.client.ProjectCreateProjectWithResponse(
 		ctx,
 		uuid.MustParse(serverID),
@@ -69,7 +77,7 @@ func (c *ProjectClient) CreateProjectOnServer(ctx context.Context, serverID stri
 	return "", errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *ProjectClient) DeleteProject(ctx context.Context, projectID string) error {
+func (c *projectClient) DeleteProject(ctx context.Context, projectID string) error {
 	response, err := c.client.ProjectDeleteProjectWithResponse(ctx, projectID)
 	if err != nil {
 		return err
@@ -82,7 +90,7 @@ func (c *ProjectClient) DeleteProject(ctx context.Context, projectID string) err
 	return errUnexpectedStatus(response.StatusCode(), response.Body)
 }
 
-func (c *ProjectClient) PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error) {
+func (c *projectClient) PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error) {
 	return poll(ctx, func() (*DeMittwaldV1ProjectProject, error) {
 		response, err := c.client.ProjectGetProjectWithResponse(ctx, uuid.MustParse(projectID))
 		if err != nil {
@@ -97,7 +105,7 @@ func (c *ProjectClient) PollProject(ctx context.Context, projectID string) (*DeM
 	})
 }
 
-func (c *ProjectClient) GetProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error) {
+func (c *projectClient) GetProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error) {
 	response, err := c.client.IngressListForProjectWithResponse(ctx, uuid.MustParse(projectID))
 	if err != nil {
 		return nil, err

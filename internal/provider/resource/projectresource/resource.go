@@ -130,22 +130,9 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 
 	data.ID = types.StringValue(project.Id.String())
 	data.Description = types.StringValue(project.Description)
-
-	if dirs, d := types.MapValueFrom(ctx, types.StringType, project.Directories); d.HasError() {
-		res.Append(d...)
-		return
-	} else {
-		data.Directories = dirs
-	}
-
+	data.Directories = providerutil.EmbedDiag(types.MapValueFrom(ctx, types.StringType, project.Directories))(&res)
 	data.ServerID = valueutil.StringerOrNull(project.ServerId)
-
-	if ipValues, d := types.ListValueFrom(ctx, types.StringType, ips); d.HasError() {
-		res.Append(d...)
-		return
-	} else {
-		data.DefaultIPs = ipValues
-	}
+	data.DefaultIPs = providerutil.EmbedDiag(types.ListValueFrom(ctx, types.StringType, ips))(&res)
 
 	return
 }
