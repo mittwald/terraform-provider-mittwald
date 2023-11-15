@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -55,11 +57,17 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Computed:            true,
 				MarkdownDescription: "Contains a map of data directories within the project",
 				ElementType:         types.StringType,
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_ips": schema.ListAttribute{
 				Computed:            true,
 				MarkdownDescription: "Contains a list of default IP addresses for the project",
 				ElementType:         types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
@@ -138,19 +146,27 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data ResourceModel
+	var dataPlan, dataState ResourceModel
 
-	// Read Terraform plan data into the model
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &dataPlan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &dataState)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// TODO: implement update logic
+	if !dataPlan.Description.Equal(dataState.Description) {
+		if err := r.client.Project().UpdateProjectDescription(ctx, dataState.ID.ValueString(), dataPlan.Description.ValueString()); err != nil {
+			resp.Diagnostics.AddError("Error while updating project description", err.Error())
+		}
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &dataPlan)...)
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

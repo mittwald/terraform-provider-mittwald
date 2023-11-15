@@ -12,6 +12,7 @@ type ProjectClient interface {
 	DeleteProject(ctx context.Context, projectID string) error
 	PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error)
 	GetProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error)
+	UpdateProjectDescription(ctx context.Context, projectID, description string) error
 }
 
 type projectClient struct {
@@ -75,6 +76,22 @@ func (c *projectClient) CreateProjectOnServer(ctx context.Context, serverID stri
 	}
 
 	return "", errUnexpectedStatus(response.StatusCode(), response.Body)
+}
+
+func (c *projectClient) UpdateProjectDescription(ctx context.Context, projectID, description string) error {
+	response, err := c.client.ProjectUpdateProjectDescriptionWithResponse(ctx, uuid.MustParse(projectID), ProjectUpdateProjectDescriptionJSONRequestBody{
+		Description: description,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating project description: %w", err)
+	}
+
+	if response.StatusCode() >= 400 {
+		return errUnexpectedStatus(response.StatusCode(), response.Body)
+	}
+
+	return nil
 }
 
 func (c *projectClient) DeleteProject(ctx context.Context, projectID string) error {
