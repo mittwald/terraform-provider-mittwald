@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"strings"
 )
 
@@ -24,6 +25,8 @@ type ResourceDestinationModel struct {
 	Command types.Object `tfsdk:"command"`
 }
 
+type ResourceDestinationURLModel string
+
 type ResourceDestinationCommandModel struct {
 	Interpreter types.String `tfsdk:"interpreter"`
 	Path        types.String `tfsdk:"path"`
@@ -36,13 +39,13 @@ func (m *ResourceModel) GetDestination(ctx context.Context, d diag.Diagnostics) 
 	return &out
 }
 
-func (m *ResourceDestinationModel) GetURL(ctx context.Context, d diag.Diagnostics) (string, bool) {
+func (m *ResourceDestinationModel) GetURL(ctx context.Context, d diag.Diagnostics) (ResourceDestinationURLModel, bool) {
 	if m == nil {
 		return "", false
 	}
 
 	if !m.URL.IsNull() {
-		return m.URL.ValueString(), true
+		return ResourceDestinationURLModel(m.URL.ValueString()), true
 	}
 
 	return "", false
@@ -60,6 +63,12 @@ func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d diag.Diagno
 	}
 
 	return nil, false
+}
+
+func (m ResourceDestinationURLModel) AsAPIModel() mittwaldv2.DeMittwaldV1CronjobCronjobUrl {
+	return mittwaldv2.DeMittwaldV1CronjobCronjobUrl{
+		Url: string(m),
+	}
 }
 
 func (m *ResourceDestinationCommandModel) ParametersAsStrSlice() []string {
@@ -83,4 +92,12 @@ func (m *ResourceDestinationCommandModel) ParametersAsStr() *string {
 	}
 	outAsStr := strings.Join(out, " ")
 	return &outAsStr
+}
+
+func (m *ResourceDestinationCommandModel) AsAPIModel() mittwaldv2.DeMittwaldV1CronjobCronjobCommand {
+	return mittwaldv2.DeMittwaldV1CronjobCronjobCommand{
+		Interpreter: m.Interpreter.ValueString(),
+		Path:        m.Path.ValueString(),
+		Parameters:  m.ParametersAsStr(),
+	}
 }

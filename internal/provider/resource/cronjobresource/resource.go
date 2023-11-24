@@ -119,22 +119,14 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	dest := data.GetDestination(ctx, resp.Diagnostics)
 	if url, ok := dest.GetURL(ctx, resp.Diagnostics); ok {
-		err := createCronjobBody.Destination.FromDeMittwaldV1CronjobCronjobUrl(mittwaldv2.DeMittwaldV1CronjobCronjobUrl{
-			Url: url,
-		})
-		if err != nil {
+		if err := createCronjobBody.Destination.FromDeMittwaldV1CronjobCronjobUrl(url.AsAPIModel()); err != nil {
 			resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
 			return
 		}
 	}
 
 	if cmd, ok := dest.GetCommand(ctx, resp.Diagnostics); ok {
-		err := createCronjobBody.Destination.FromDeMittwaldV1CronjobCronjobCommand(mittwaldv2.DeMittwaldV1CronjobCronjobCommand{
-			Interpreter: cmd.Interpreter.ValueString(),
-			Path:        cmd.Path.ValueString(),
-			Parameters:  cmd.ParametersAsStr(),
-		})
-		if err != nil {
+		if err := createCronjobBody.Destination.FromDeMittwaldV1CronjobCronjobCommand(cmd.AsAPIModel()); err != nil {
 			resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
 			return
 		}
@@ -193,22 +185,14 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 		dest := planData.GetDestination(ctx, resp.Diagnostics)
 		if url, ok := dest.GetURL(ctx, resp.Diagnostics); ok {
-			err := body.Destination.FromDeMittwaldV1CronjobCronjobUrl(mittwaldv2.DeMittwaldV1CronjobCronjobUrl{
-				Url: url,
-			})
-			if err != nil {
+			if err := body.Destination.FromDeMittwaldV1CronjobCronjobUrl(url.AsAPIModel()); err != nil {
 				resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
 				return
 			}
 		}
 
 		if cmd, ok := dest.GetCommand(ctx, resp.Diagnostics); ok {
-			err := body.Destination.FromDeMittwaldV1CronjobCronjobCommand(mittwaldv2.DeMittwaldV1CronjobCronjobCommand{
-				Interpreter: cmd.Interpreter.ValueString(),
-				Path:        cmd.Path.ValueString(),
-				Parameters:  cmd.ParametersAsStr(),
-			})
-			if err != nil {
+			if err := body.Destination.FromDeMittwaldV1CronjobCronjobCommand(cmd.AsAPIModel()); err != nil {
 				resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
 				return
 			}
@@ -227,11 +211,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	var data ResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
-	if err := r.client.Cronjob().DeleteCronjob(ctx, data.ID.ValueString()); err != nil {
-		resp.Diagnostics.AddError("API error while deleting cron job", err.Error())
-		return
-	}
+	providerutil.ErrorToDiag(r.client.Cronjob().DeleteCronjob(ctx, data.ID.ValueString()))(&resp.Diagnostics, "API error while deleting cron job")
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
