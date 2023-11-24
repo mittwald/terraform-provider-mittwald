@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/ptrutil"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -169,22 +170,19 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	if !planData.Description.Equal(stateData.Description) {
 		if !planData.Description.IsNull() {
-			desc := planData.Description.ValueString()
-			body.Description = &desc
+			body.Description = ptrutil.To(planData.Description.ValueString())
 		} else {
 			// no known way to unset a description. :(
 		}
 	}
 
 	if !planData.Interval.Equal(stateData.Interval) {
-		interval := planData.Interval.ValueString()
-		body.Interval = &interval
+		body.Interval = ptrutil.To(planData.Interval.ValueString())
 	}
 
 	if !planData.Email.Equal(stateData.Email) {
 		if !planData.Email.IsNull() {
-			email := openapi_types.Email(planData.Email.ValueString())
-			body.Email = &email
+			body.Email = ptrutil.To(openapi_types.Email(planData.Email.ValueString()))
 		} else {
 			// no known way to unset the email address :(
 		}
