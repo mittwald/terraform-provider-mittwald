@@ -31,4 +31,5 @@ provider "mittwald" {
 ### Optional
 
 - `api_key` (String, Sensitive) API key for the Mittwald API; if omitted, the `MITTWALD_API_TOKEN` environment variable will be used.
+- `debug_request_bodies` (Boolean) Whether to log request bodies when debugging is enabled. CAUTION: This will log sensitive data such as passwords in plain text!
 - `endpoint` (String) API endpoint for the Mittwald API. Default to `https://api.mittwald.de/v2` if omitted.

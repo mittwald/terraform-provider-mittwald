@@ -23,12 +23,15 @@ func WithEndpoint(endpoint string) ClientBuilderOption {
 	}
 }
 
-func WithDebugging() ClientBuilderOption {
+func WithDebugging(withRequestBodies bool) ClientBuilderOption {
 	return func(_ *clientBuilder, c *Client) {
 		c.RequestEditors = append(c.RequestEditors, func(ctx context.Context, req *http.Request) error {
-			logParams := map[string]any{}
+			logParams := map[string]any{
+				"method": req.Method,
+				"url":    req.URL.String(),
+			}
 
-			if req.Body != nil {
+			if req.Body != nil && withRequestBodies {
 				body, err := io.ReadAll(req.Body)
 				if err != nil {
 					return err
