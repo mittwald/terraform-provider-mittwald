@@ -2,18 +2,15 @@ package cronjobresource
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
-	"github.com/mittwald/terraform-provider-mittwald/internal/ptrutil"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -62,32 +59,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Required:            true,
 				MarkdownDescription: "Description for your cron job",
 			},
-			"destination": schema.SingleNestedAttribute{
-				Required: true,
-				Validators: []validator.Object{
-					&cronjobDestinationValidator{},
-				},
-				Attributes: map[string]schema.Attribute{
-					"url": schema.StringAttribute{
-						Optional: true,
-					},
-					"command": schema.SingleNestedAttribute{
-						Optional: true,
-						Attributes: map[string]schema.Attribute{
-							"interpreter": schema.StringAttribute{
-								Required: true,
-							},
-							"path": schema.StringAttribute{
-								Required: true,
-							},
-							"parameters": schema.ListAttribute{
-								Optional:    true,
-								ElementType: types.StringType,
-							},
-						},
-					},
-				},
-			},
+			"destination": modelDestinationSchema,
 			"interval": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "The interval of the cron job; this should be a cron expression",
@@ -109,47 +81,49 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
-	createCronjobBody := mittwaldv2.CronjobCreateCronjobJSONRequestBody{
-		Description: data.Description.ValueString(),
-		Active:      true,
-		AppId:       uuid.MustParse(data.AppID.ValueString()),
-		Interval:    data.Interval.ValueString(),
-		Destination: mittwaldv2.DeMittwaldV1CronjobCronjobRequest_Destination{},
+	createCronjobBody := data.ToCreateRequest(ctx, resp.Diagnostics)
+
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	dest := data.GetDestination(ctx, resp.Diagnostics)
-	if url, ok := dest.GetURL(ctx, resp.Diagnostics); ok {
-		if err := createCronjobBody.Destination.FromDeMittwaldV1CronjobCronjobUrl(url.AsAPIModel()); err != nil {
-			resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
-			return
-		}
-	}
+	id := providerutil.
+		Try[string](&resp.Diagnostics, "API error while updating cron job").
+		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), createCronjobBody))
 
-	if cmd, ok := dest.GetCommand(ctx, resp.Diagnostics); ok {
-		if err := createCronjobBody.Destination.FromDeMittwaldV1CronjobCronjobCommand(cmd.AsAPIModel()); err != nil {
-			resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
-			return
-		}
-	}
-
-	if !data.Email.IsNull() {
-		e := openapi_types.Email(data.Email.ValueString())
-		createCronjobBody.Email = &e
-	}
-
-	id, err := r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), createCronjobBody)
-	if err != nil {
-		resp.Diagnostics.AddError("API error while creating cron job", err.Error())
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	data.ID = types.StringValue(id)
 
+	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	data := ResourceModel{}
 
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(r.read(ctx, &data)...)
+}
+
+func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	cronjob := providerutil.
+		Try[*mittwaldv2.DeMittwaldV1CronjobCronjob](&res, "API error while fetching cron job").
+		DoVal(r.client.Cronjob().GetCronjob(ctx, data.ID.ValueString()))
+
+	if res.HasError() {
+		return
+	}
+
+	res.Append(data.FromAPIModel(ctx, cronjob)...)
+
+	return
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -158,52 +132,16 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 
-	body := mittwaldv2.CronjobUpdateCronjobJSONRequestBody{}
-
-	if !planData.Description.Equal(stateData.Description) {
-		if !planData.Description.IsNull() {
-			body.Description = ptrutil.To(planData.Description.ValueString())
-		} else {
-			// no known way to unset a description. :(
-		}
-	}
-
-	if !planData.Interval.Equal(stateData.Interval) {
-		body.Interval = ptrutil.To(planData.Interval.ValueString())
-	}
-
-	if !planData.Email.Equal(stateData.Email) {
-		if !planData.Email.IsNull() {
-			body.Email = ptrutil.To(openapi_types.Email(planData.Email.ValueString()))
-		} else {
-			// no known way to unset the email address :(
-		}
-	}
-
-	if !planData.Destination.Equal(stateData.Destination) {
-		body.Destination = &mittwaldv2.CronjobUpdateCronjobJSONBody_Destination{}
-
-		dest := planData.GetDestination(ctx, resp.Diagnostics)
-		if url, ok := dest.GetURL(ctx, resp.Diagnostics); ok {
-			if err := body.Destination.FromDeMittwaldV1CronjobCronjobUrl(url.AsAPIModel()); err != nil {
-				resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
-				return
-			}
-		}
-
-		if cmd, ok := dest.GetCommand(ctx, resp.Diagnostics); ok {
-			if err := body.Destination.FromDeMittwaldV1CronjobCronjobCommand(cmd.AsAPIModel()); err != nil {
-				resp.Diagnostics.AddError("Mapping error while building cron job request", err.Error())
-				return
-			}
-		}
-	}
-
-	if err := r.client.Cronjob().UpdateCronjob(ctx, planData.ID.ValueString(), body); err != nil {
-		resp.Diagnostics.AddError("API error while updating cron job", err.Error())
+	body := planData.ToUpdateRequest(ctx, resp.Diagnostics, &stateData)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	providerutil.
+		Try[any](&resp.Diagnostics, "API error while updating cron job").
+		Do(r.client.Cronjob().UpdateCronjob(ctx, planData.ID.ValueString(), body))
+
+	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
@@ -211,7 +149,9 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	var data ResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-	providerutil.ErrorToDiag(r.client.Cronjob().DeleteCronjob(ctx, data.ID.ValueString()))(&resp.Diagnostics, "API error while deleting cron job")
+	providerutil.
+		Try[any](&resp.Diagnostics, "API error while deleting cron job").
+		Do(r.client.Cronjob().DeleteCronjob(ctx, data.ID.ValueString()))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

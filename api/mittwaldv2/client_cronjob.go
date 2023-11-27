@@ -7,6 +7,7 @@ import (
 )
 
 type CronjobClient interface {
+	GetCronjob(ctx context.Context, cronjobID string) (*DeMittwaldV1CronjobCronjob, error)
 	CreateCronjob(ctx context.Context, projectID string, body CronjobCreateCronjobJSONRequestBody) (string, error)
 	UpdateCronjob(ctx context.Context, cronjobID string, body CronjobUpdateCronjobJSONRequestBody) error
 	DeleteCronjob(ctx context.Context, cronjobID string) error
@@ -14,6 +15,19 @@ type CronjobClient interface {
 
 type cronjobClient struct {
 	client ClientWithResponsesInterface
+}
+
+func (c *cronjobClient) GetCronjob(ctx context.Context, cronjobID string) (*DeMittwaldV1CronjobCronjob, error) {
+	resp, err := c.client.CronjobGetCronjobWithResponse(ctx, uuid.MustParse(cronjobID))
+	if err != nil {
+		return nil, fmt.Errorf("error getting cronjob: %w", err)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, errUnexpectedStatus(resp.StatusCode(), resp.Body)
+	}
+
+	return resp.JSON200, nil
 }
 
 func (c *cronjobClient) CreateCronjob(ctx context.Context, projectID string, body CronjobCreateCronjobJSONRequestBody) (string, error) {

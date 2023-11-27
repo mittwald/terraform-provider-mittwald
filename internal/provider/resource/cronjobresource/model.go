@@ -3,6 +3,7 @@ package cronjobresource
 import (
 	"context"
 	"github.com/alessio/shellescape"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -65,9 +66,31 @@ func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d diag.Diagno
 	return nil, false
 }
 
+func (m *ResourceDestinationModel) AsObject(ctx context.Context, d diag.Diagnostics) types.Object {
+	obj, d2 := types.ObjectValueFrom(ctx, map[string]attr.Type{
+		"url": types.StringType,
+		"command": types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"interpreter": types.StringType,
+				"path":        types.StringType,
+				"parameters":  types.ListType{ElemType: types.StringType},
+			},
+		},
+	}, m)
+
+	d.Append(d2...)
+	return obj
+}
+
 func (m ResourceDestinationURLModel) AsAPIModel() mittwaldv2.DeMittwaldV1CronjobCronjobUrl {
 	return mittwaldv2.DeMittwaldV1CronjobCronjobUrl{
 		Url: string(m),
+	}
+}
+
+func (m ResourceDestinationURLModel) AsDestinationModel() *ResourceDestinationModel {
+	return &ResourceDestinationModel{
+		URL: types.StringValue(string(m)),
 	}
 }
 
@@ -99,5 +122,17 @@ func (m *ResourceDestinationCommandModel) AsAPIModel() mittwaldv2.DeMittwaldV1Cr
 		Interpreter: m.Interpreter.ValueString(),
 		Path:        m.Path.ValueString(),
 		Parameters:  m.ParametersAsStr(),
+	}
+}
+
+func (m *ResourceDestinationCommandModel) AsDestinationModel(ctx context.Context, d diag.Diagnostics) *ResourceDestinationModel {
+	value, d := types.ObjectValueFrom(ctx, map[string]attr.Type{
+		"interpreter": types.StringType,
+		"path":        types.StringType,
+		"parameters":  types.ListType{ElemType: types.StringType},
+	}, m)
+
+	return &ResourceDestinationModel{
+		Command: value,
 	}
 }

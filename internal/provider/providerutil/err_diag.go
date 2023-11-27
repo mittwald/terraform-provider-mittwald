@@ -19,6 +19,26 @@ func ErrorToDiag(err error) func(d *diag.Diagnostics, summary string) {
 	}
 }
 
+type WrappedError[T any] struct {
+	diag    *diag.Diagnostics
+	summary string
+}
+
+func (w *WrappedError[T]) Do(err error) {
+	if err != nil {
+		w.diag.AddError(w.summary, err.Error())
+	}
+}
+
+func (w *WrappedError[T]) DoVal(res T, err error) T {
+	w.Do(err)
+	return res
+}
+
+func Try[T any](d *diag.Diagnostics, summary string) *WrappedError[T] {
+	return &WrappedError[T]{d, summary}
+}
+
 func EmbedDiag[T any](resultValue T, resultDiag diag.Diagnostics) func(outDiag *diag.Diagnostics) T {
 	return func(out *diag.Diagnostics) T {
 		out.Append(resultDiag...)
