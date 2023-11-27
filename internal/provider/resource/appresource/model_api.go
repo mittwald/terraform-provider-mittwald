@@ -29,7 +29,7 @@ func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d diag.Diagnostics
 	if !m.Dependencies.IsNull() {
 		depUpdater := providerutil.
 			Try[mittwaldv2.AppInstallationUpdater](&d, "error while building dependency updaters").
-			DoVal(m.dependenciesToUpdater(ctx, appClient))
+			DoVal(m.dependenciesToUpdater(ctx, appClient, nil))
 		updaters = append(updaters, depUpdater)
 	}
 
@@ -64,6 +64,27 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 	}
 
 	return
+}
+
+func (m *ResourceModel) ToUpdateUpdaters(ctx context.Context, d diag.Diagnostics, current *ResourceModel, appClient mittwaldv2.AppClient) []mittwaldv2.AppInstallationUpdater {
+	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
+
+	if !m.DocumentRoot.Equal(current.DocumentRoot) {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationDocumentRoot(m.DocumentRoot.ValueString()))
+	}
+
+	if !m.UpdatePolicy.Equal(current.UpdatePolicy) {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationUpdatePolicy(mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(m.UpdatePolicy.ValueString())))
+	}
+
+	if !m.Dependencies.Equal(current.Dependencies) {
+		depUpdater := providerutil.
+			Try[mittwaldv2.AppInstallationUpdater](&d, "error while building dependency updaters").
+			DoVal(m.dependenciesToUpdater(ctx, appClient, &current.Dependencies))
+		updaters = append(updaters, depUpdater)
+	}
+
+	return updaters
 }
 
 func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittwaldv2.DeMittwaldV1AppAppInstallation, appClient mittwaldv2.AppClient) (res diag.Diagnostics) {
@@ -120,9 +141,13 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittw
 	return
 }
 
-func (m *ResourceModel) dependenciesToUpdater(ctx context.Context, appClient mittwaldv2.AppClient) (mittwaldv2.AppInstallationUpdater, error) {
+func (m *ResourceModel) dependenciesToUpdater(ctx context.Context, appClient mittwaldv2.AppClient, currentDependencies *types.Map) (mittwaldv2.AppInstallationUpdater, error) {
 	updater := make(mittwaldv2.AppInstallationUpdaterChain, 0)
+	seen := make(map[string]struct{})
+
 	for name, options := range m.Dependencies.Elements() {
+		seen[name] = struct{}{}
+
 		dependency, ok, err := appClient.GetSystemSoftwareByName(ctx, name)
 		if err != nil {
 			return nil, err
@@ -156,6 +181,21 @@ func (m *ResourceModel) dependenciesToUpdater(ctx context.Context, appClient mit
 				mittwaldv2.DeMittwaldV1AppSystemSoftwareUpdatePolicy(optionsModel.UpdatePolicy.ValueString()),
 			),
 		)
+	}
+
+	if currentDependencies != nil {
+		for name := range currentDependencies.Elements() {
+			if _, ok := seen[name]; !ok {
+				dependency, ok, err := appClient.GetSystemSoftwareByName(ctx, name)
+				if err != nil {
+					return nil, err
+				} else if !ok {
+					return nil, fmt.Errorf("dependency %s not found", name)
+				}
+
+				updater = append(updater, mittwaldv2.RemoveAppInstallationSystemSoftware(dependency.Id))
+			}
+		}
 	}
 
 	return updater, nil

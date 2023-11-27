@@ -200,7 +200,6 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
 	planData := ResourceModel{}
 	currentData := ResourceModel{}
 
@@ -208,26 +207,21 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &currentData)...)
 
 	appClient := r.client.App()
+	updaters := planData.ToUpdateUpdaters(ctx, resp.Diagnostics, &currentData, appClient)
 
-	if !planData.DocumentRoot.Equal(currentData.DocumentRoot) {
-		updaters = append(updaters, mittwaldv2.UpdateAppInstallationDocumentRoot(planData.DocumentRoot.ValueString()))
-	}
-
-	if !planData.UpdatePolicy.Equal(currentData.UpdatePolicy) {
-		updaters = append(updaters, mittwaldv2.UpdateAppInstallationUpdatePolicy(mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(planData.UpdatePolicy.ValueString())))
-	}
+	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
 
 	if len(updaters) > 0 {
-		providerutil.ErrorToDiag(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))(&resp.Diagnostics, "API Error")
+		try.Do(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))
 	}
 
 	if !planData.DatabaseID.Equal(currentData.DatabaseID) {
-		providerutil.ErrorToDiag(appClient.LinkAppInstallationToDatabase(
+		try.Do(appClient.LinkAppInstallationToDatabase(
 			ctx,
 			planData.ID.ValueString(),
 			planData.DatabaseID.ValueString(),
 			mittwaldv2.AppLinkDatabaseJSONBodyPurposePrimary,
-		))(&resp.Diagnostics, "API Error")
+		))
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &planData)...)

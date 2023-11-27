@@ -54,6 +54,20 @@ func UpdateAppInstallationSystemSoftware(systemSoftwareID, systemSoftwareVersion
 	})
 }
 
+func RemoveAppInstallationSystemSoftware(systemSoftwareID string) AppInstallationUpdater {
+	return AppInstallationUpdaterFunc(func(b *AppPatchAppinstallationJSONRequestBody) {
+		if b.SystemSoftware == nil {
+			systemSoftware := make(AppPatchInstallationSystemSoftware)
+			b.SystemSoftware = &systemSoftware
+		}
+
+		(*b.SystemSoftware)[systemSoftwareID] = AppPatchInstallationSystemSoftwareItem{
+			SystemSoftwareVersion: nil,
+			UpdatePolicy:          nil,
+		}
+	})
+}
+
 func (c *appClient) UpdateAppInstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
 	body := AppPatchAppinstallationJSONRequestBody{}
 
