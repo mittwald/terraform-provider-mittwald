@@ -4,6 +4,7 @@ type ClientBuilder interface {
 	Project() ProjectClient
 	App() AppClient
 	Database() DatabaseClient
+	Cronjob() CronjobClient
 }
 
 type clientBuilder struct {
@@ -24,6 +25,12 @@ func (b *clientBuilder) Database() DatabaseClient {
 
 func (b *clientBuilder) App() AppClient {
 	return &appClient{
+		client: b.internalClient,
+	}
+}
+
+func (b *clientBuilder) Cronjob() CronjobClient {
+	return &cronjobClient{
 		client: b.internalClient,
 	}
 }
