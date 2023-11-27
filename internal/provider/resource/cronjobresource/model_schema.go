@@ -10,24 +10,29 @@ var modelDestinationCommandSchema = schema.SingleNestedAttribute{
 	Optional: true,
 	Attributes: map[string]schema.Attribute{
 		"interpreter": schema.StringAttribute{
-			Required: true,
+			MarkdownDescription: "The interpreter to use for the command. Must be a valid path to an executable within the project environment (typically, `/bin/bash` or `/usr/bin/php` should work).",
+			Required:            true,
 		},
 		"path": schema.StringAttribute{
-			Required: true,
+			MarkdownDescription: "The path to the file to run. Must be a valid path to an executable file within the project environment.",
+			Required:            true,
 		},
 		"parameters": schema.ListAttribute{
-			Optional:    true,
-			ElementType: types.StringType,
+			MarkdownDescription: "A list of parameters to pass to the command. Each parameter must be a valid string.",
+			Optional:            true,
+			ElementType:         types.StringType,
 		},
 	},
 }
 
 var modelDestinationURLSchema = schema.StringAttribute{
-	Optional: true,
+	Description: "The URL that should be requested by the cron job",
+	Optional:    true,
 }
 
 var modelDestinationSchema = schema.SingleNestedAttribute{
-	Required: true,
+	Required:            true,
+	MarkdownDescription: "Models the action to be executed by the cron job. Exactly one of `url` or `command` must be set.",
 	Validators: []validator.Object{
 		&cronjobDestinationValidator{},
 	},

@@ -37,7 +37,7 @@ resource "mittwald_cronjob" "demo" {
 
 - `app_id` (String) The ID of the app the cron job belongs to
 - `description` (String) Description for your cron job
-- `destination` (Attributes) (see [below for nested schema](#nestedatt--destination))
+- `destination` (Attributes) Models the action to be executed by the cron job. Exactly one of `url` or `command` must be set. (see [below for nested schema](#nestedatt--destination))
 - `interval` (String) The interval of the cron job; this should be a cron expression
 - `project_id` (String) The ID of the project the cron job belongs to
 
@@ -55,16 +55,16 @@ resource "mittwald_cronjob" "demo" {
 Optional:
 
 - `command` (Attributes) (see [below for nested schema](#nestedatt--destination--command))
-- `url` (String)
+- `url` (String) The URL that should be requested by the cron job
 
 <a id="nestedatt--destination--command"></a>
 ### Nested Schema for `destination.command`
 
 Required:
 
-- `interpreter` (String)
-- `path` (String)
+- `interpreter` (String) The interpreter to use for the command. Must be a valid path to an executable within the project environment (typically, `/bin/bash` or `/usr/bin/php` should work).
+- `path` (String) The path to the file to run. Must be a valid path to an executable file within the project environment.
 
 Optional:
 
-- `parameters` (List of String)
+- `parameters` (List of String) A list of parameters to pass to the command. Each parameter must be a valid string.
