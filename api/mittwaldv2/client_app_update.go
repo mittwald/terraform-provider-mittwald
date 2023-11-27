@@ -69,6 +69,10 @@ func RemoveAppInstallationSystemSoftware(systemSoftwareID string) AppInstallatio
 }
 
 func (c *appClient) UpdateAppInstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
+	if len(updater) == 0 {
+		return nil
+	}
+
 	body := AppPatchAppinstallationJSONRequestBody{}
 
 	for _, u := range updater {

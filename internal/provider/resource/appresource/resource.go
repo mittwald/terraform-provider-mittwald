@@ -150,10 +150,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	data.ID = types.StringValue(installationID)
 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
-
-	if len(appUpdaters) > 0 {
-		try.Do(appClient.UpdateAppInstallation(ctx, installationID, appUpdaters...))
-	}
+	try.Do(appClient.UpdateAppInstallation(ctx, installationID, appUpdaters...))
 
 	if !data.DatabaseID.IsNull() {
 		try.Do(appClient.LinkAppInstallationToDatabase(
@@ -210,10 +207,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	updaters := planData.ToUpdateUpdaters(ctx, resp.Diagnostics, &currentData, appClient)
 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
-
-	if len(updaters) > 0 {
-		try.Do(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))
-	}
+	try.Do(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))
 
 	if !planData.DatabaseID.Equal(currentData.DatabaseID) {
 		try.Do(appClient.LinkAppInstallationToDatabase(
