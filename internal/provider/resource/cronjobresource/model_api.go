@@ -73,24 +73,16 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d diag.Diagnostics,
 	body := mittwaldv2.CronjobUpdateCronjobJSONRequestBody{}
 	try := providerutil.Try[any](&d, "Mapping error while building cron job request")
 
-	if !m.Description.Equal(current.Description) {
-		if !m.Description.IsNull() {
-			body.Description = ptrutil.To(m.Description.ValueString())
-		} else {
-			// no known way to unset a description. :(
-		}
+	if !m.Description.Equal(current.Description) && !m.Description.IsNull() {
+		body.Description = ptrutil.To(m.Description.ValueString())
 	}
 
 	if !m.Interval.Equal(current.Interval) {
 		body.Interval = ptrutil.To(m.Interval.ValueString())
 	}
 
-	if !m.Email.Equal(current.Email) {
-		if !m.Email.IsNull() {
-			body.Email = ptrutil.To(openapi_types.Email(m.Email.ValueString()))
-		} else {
-			// no known way to unset the email address :(
-		}
+	if !m.Email.Equal(current.Email) && !m.Email.IsNull() {
+		body.Email = ptrutil.To(openapi_types.Email(m.Email.ValueString()))
 	}
 
 	if !m.Destination.Equal(current.Destination) {

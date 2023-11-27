@@ -125,12 +125,14 @@ func (m *ResourceDestinationCommandModel) AsAPIModel() mittwaldv2.DeMittwaldV1Cr
 	}
 }
 
-func (m *ResourceDestinationCommandModel) AsDestinationModel(ctx context.Context, d diag.Diagnostics) *ResourceDestinationModel {
+func (m *ResourceDestinationCommandModel) AsDestinationModel(ctx context.Context, diag diag.Diagnostics) *ResourceDestinationModel {
 	value, d := types.ObjectValueFrom(ctx, map[string]attr.Type{
 		"interpreter": types.StringType,
 		"path":        types.StringType,
 		"parameters":  types.ListType{ElemType: types.StringType},
 	}, m)
+
+	diag.Append(d...)
 
 	return &ResourceDestinationModel{
 		Command: value,
