@@ -87,6 +87,8 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 		opts = append(opts, mittwaldv2.WithEndpoint(data.Endpoint.ValueString()))
 	}
 
+	opts = append(opts, mittwaldv2.WithDebugging())
+
 	client := mittwaldv2.New(opts...)
 
 	resp.DataSourceData = client
