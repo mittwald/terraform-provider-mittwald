@@ -18,6 +18,7 @@ This provider offers the following resources:
 - [`mittwald_project`](./docs/resources/project.md)
 - [`mittwald_app`](./docs/resources/app.md)
 - [`mittwald_mysql_database`](./docs/resources/mysql_database.md)
+- [`mittwald_cronjob`](./docs/resources/cronjob.md)
 
 and the following data sources:
 
@@ -27,7 +28,6 @@ Coming soon:
 
 - `mittwald_mysql_user`
 - `mittwald_redis_database`
-- `mittwald_cronjob`
 - `mittwald_ssh_user`
 - `mittwald_ingress`
 - `mittwald_dns_zone`
