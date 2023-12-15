@@ -109,6 +109,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {

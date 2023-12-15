@@ -30,12 +30,12 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.D
 	}
 
 	if asURL.Url != "" {
-		m.Destination = ResourceDestinationURLModel(asURL.Url).AsDestinationModel().AsObject(ctx, res)
+		m.Destination = ResourceDestinationURLModel(asURL.Url).AsDestinationModel().AsObject(ctx, &res)
 	} else {
 		cmdModel := ResourceDestinationCommandModel{}
 
 		res.Append(cmdModel.FromAPIModel(ctx, &asCommand)...)
-		m.Destination = cmdModel.AsDestinationModel(ctx, res).AsObject(ctx, res)
+		m.Destination = cmdModel.AsDestinationModel(ctx, &res).AsObject(ctx, &res)
 	}
 
 	return
@@ -118,6 +118,8 @@ func (m *ResourceDestinationCommandModel) FromAPIModel(ctx context.Context, apiM
 
 		res.Append(d...)
 		m.Parameters = params
+	} else {
+		m.Parameters = types.ListNull(types.StringType)
 	}
 
 	return
