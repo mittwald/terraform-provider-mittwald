@@ -11,8 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"time"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -167,19 +169,37 @@ func (d *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(d.read(ctx, &data)...)
+	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	resp.Diagnostics.Append(d.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (d *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	client := d.client.Database()
 
+	dataUser := MySQLDatabaseUserModel{}
+
+	if !data.User.IsNull() {
+		res.Append(data.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
+	}
+
+	if res.HasError() {
+		return
+	}
+
 	database := providerutil.
 		Try[*mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase](&res, "error while reading database").
+		IgnoreNotFound().
 		DoVal(client.PollMySQLDatabase(ctx, data.ID.ValueString()))
 	databaseUser := providerutil.
 		Try[*mittwaldv2.DeMittwaldV1DatabaseMySqlUser](&res, "error while reading database user").
-		DoVal(d.findDatabaseUser(ctx, data.ID.ValueString(), &MySQLDatabaseUserModel{}))
+		DoVal(d.findDatabaseUser(ctx, data.ID.ValueString(), &dataUser))
+
+	if res.HasError() {
+		return
+	}
 
 	res.Append(data.FromAPIModel(ctx, database, databaseUser)...)
 
@@ -249,8 +269,14 @@ func (d *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
+	if data.ID.IsNull() {
+		tflog.Debug(ctx, "database is null, skipping deletion")
+		return
+	}
+
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while deleting database").
+		IgnoreNotFound().
 		Do(d.client.Database().DeleteMySQLDatabase(ctx, data.ID.ValueString()))
 }
 

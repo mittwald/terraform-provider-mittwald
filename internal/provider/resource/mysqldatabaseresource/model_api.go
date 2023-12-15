@@ -31,12 +31,32 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics)
 	}
 }
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase, apiUser *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) (res diag.Diagnostics) {
-	characterSet := &MySQLDatabaseCharsetModel{}
-	user := &MySQLDatabaseUserModel{}
+func (m *ResourceModel) Reset() {
+	m.Name = types.StringNull()
+	m.Hostname = types.StringNull()
+	m.Description = types.StringNull()
+	m.Version = types.StringNull()
+	m.ProjectID = types.StringNull()
+	m.CharacterSettings = types.ObjectNull(charsetAttrs)
+	m.User = types.ObjectNull(userAttrs)
+}
 
-	res.Append(m.CharacterSettings.As(ctx, &characterSet, basetypes.ObjectAsOptions{})...)
-	res.Append(m.User.As(ctx, &user, basetypes.ObjectAsOptions{})...)
+func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase, apiUser *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) (res diag.Diagnostics) {
+	if apiDatabase == nil {
+		m.Reset()
+		return
+	}
+
+	characterSet := MySQLDatabaseCharsetModel{}
+	user := MySQLDatabaseUserModel{}
+
+	if !m.CharacterSettings.IsNull() {
+		res.Append(m.CharacterSettings.As(ctx, &characterSet, basetypes.ObjectAsOptions{})...)
+	}
+
+	if !m.User.IsNull() {
+		res.Append(m.User.As(ctx, &user, basetypes.ObjectAsOptions{})...)
+	}
 
 	m.Name = types.StringValue(apiDatabase.Name)
 	m.Hostname = types.StringValue(apiDatabase.Hostname)
@@ -45,10 +65,14 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *mittwaldv
 	m.ProjectID = types.StringValue(apiDatabase.ProjectId.String())
 
 	characterSet.FromAPIModel(&apiDatabase.CharacterSettings)
-	user.FromAPIModel(apiUser)
-
 	m.CharacterSettings = characterSet.AsObject(ctx, res)
-	m.User = user.AsObject(ctx, res)
+
+	if apiUser != nil {
+		user.FromAPIModel(apiUser)
+		m.User = user.AsObject(ctx, res)
+	} else {
+		m.User = types.ObjectNull(userAttrs)
+	}
 
 	return
 }
@@ -59,6 +83,7 @@ func (m *MySQLDatabaseCharsetModel) FromAPIModel(apiCharset *mittwaldv2.DeMittwa
 }
 
 func (m *MySQLDatabaseUserModel) FromAPIModel(apiUser *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) {
+	m.ID = types.StringValue(apiUser.Id.String())
 	m.Name = types.StringValue(apiUser.Name)
 	m.AccessLevel = types.StringValue(string(apiUser.AccessLevel))
 	m.ExternalAccess = types.BoolValue(apiUser.ExternalAccess)

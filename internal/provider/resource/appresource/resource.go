@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -57,9 +58,29 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"database_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the database the app uses",
+			"databases": schema.SetNestedAttribute{
+				MarkdownDescription: "The databases the app uses",
 				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "The ID of the database",
+							Required:            true,
+						},
+						"user_id": schema.StringAttribute{
+							MarkdownDescription: "The ID of the database user that the app should use",
+							Required:            true,
+						},
+						"purpose": schema.StringAttribute{
+							MarkdownDescription: "The purpose of the database; use 'primary' for the primary data storage, or 'cache' for a cache database",
+							Required:            true,
+						},
+						"kind": schema.StringAttribute{
+							MarkdownDescription: "The kind of the database; one of `mysql` or `redis`",
+							Required:            true,
+						},
+					},
+				},
 			},
 			"app": schema.StringAttribute{
 				MarkdownDescription: "The name of the app",
@@ -129,8 +150,10 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	data := ResourceModel{}
+	databases := make([]DatabaseModel, 0)
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(data.Databases.ElementsAs(ctx, &databases, false)...)
 
 	appClient := r.client.App()
 	appInput, appUpdaters := data.ToCreateRequestWithUpdaters(ctx, resp.Diagnostics, appClient)
@@ -152,11 +175,12 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
 	try.Do(appClient.UpdateAppInstallation(ctx, installationID, appUpdaters...))
 
-	if !data.DatabaseID.IsNull() {
+	for _, database := range databases {
 		try.Do(appClient.LinkAppInstallationToDatabase(
 			ctx,
 			data.ID.ValueString(),
-			data.DatabaseID.ValueString(),
+			database.ID.ValueString(),
+			database.UserID.ValueString(),
 			mittwaldv2.AppLinkDatabaseJSONBodyPurposePrimary,
 		))
 	}
@@ -209,13 +233,55 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
 	try.Do(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))
 
-	if !planData.DatabaseID.Equal(currentData.DatabaseID) {
-		try.Do(appClient.LinkAppInstallationToDatabase(
-			ctx,
-			planData.ID.ValueString(),
-			planData.DatabaseID.ValueString(),
-			mittwaldv2.AppLinkDatabaseJSONBodyPurposePrimary,
-		))
+	linkedDatabasesInState := make([]DatabaseModel, 0)
+	linkedDatabasesInPlan := make([]DatabaseModel, 0)
+
+	resp.Diagnostics.Append(planData.Databases.ElementsAs(ctx, &linkedDatabasesInPlan, false)...)
+	resp.Diagnostics.Append(currentData.Databases.ElementsAs(ctx, &linkedDatabasesInState, false)...)
+
+	linkedDatabasesInStateByID := make(map[string]DatabaseModel)
+	linkedDatabasesInPlanByID := make(map[string]DatabaseModel)
+
+	for _, database := range linkedDatabasesInState {
+		linkedDatabasesInStateByID[database.ID.ValueString()] = database
+	}
+
+	for _, database := range linkedDatabasesInPlan {
+		linkedDatabasesInPlanByID[database.ID.ValueString()] = database
+
+		existing, exists := linkedDatabasesInStateByID[database.ID.ValueString()]
+		if exists && !existing.Equals(&database) {
+			tflog.Debug(ctx, "database link changed; dropping", map[string]any{"database_id": database.ID.String()})
+			try.Do(appClient.UnlinkAppInstallationFromDatabase(
+				ctx,
+				planData.ID.ValueString(),
+				database.ID.ValueString(),
+			))
+			exists = false
+		}
+
+		if !exists {
+			tflog.Debug(ctx, "creating database link", map[string]any{"database_id": database.ID.String()})
+			try.Do(appClient.LinkAppInstallationToDatabase(
+				ctx,
+				planData.ID.ValueString(),
+				database.ID.ValueString(),
+				database.UserID.ValueString(),
+				mittwaldv2.AppLinkDatabaseJSONBodyPurpose(database.Purpose.ValueString()),
+			))
+		}
+	}
+
+	for _, database := range linkedDatabasesInState {
+		_, planned := linkedDatabasesInPlanByID[database.ID.ValueString()]
+		if !planned {
+			tflog.Debug(ctx, "dropping database link", map[string]any{"database_id": database.ID.String()})
+			try.Do(appClient.UnlinkAppInstallationFromDatabase(
+				ctx,
+				planData.ID.ValueString(),
+				database.ID.ValueString(),
+			))
+		}
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &planData)...)

@@ -112,18 +112,32 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittw
 	m.Version = types.StringValue(appDesiredVersion.InternalVersion)
 	m.UpdatePolicy = valueutil.StringPtrOrNull(appInstallation.UpdatePolicy)
 
-	m.DatabaseID = func() types.String {
-		if appInstallation.LinkedDatabases == nil {
-			return types.StringNull()
+	if appInstallation.LinkedDatabases != nil {
+		databases := make([]DatabaseModel, 0)
+		for _, db := range *appInstallation.LinkedDatabases {
+			model := DatabaseModel{
+				ID:      types.StringValue(db.DatabaseId.String()),
+				Kind:    types.StringValue(string(db.Kind)),
+				Purpose: types.StringValue(string(db.Purpose)),
+			}
+
+			if db.DatabaseUserIds != nil {
+				userID, ok := (*db.DatabaseUserIds)["admin"]
+				if ok {
+					model.UserID = types.StringValue(userID)
+				}
+			}
+
+			databases = append(databases, model)
 		}
 
-		for _, link := range *appInstallation.LinkedDatabases {
-			if link.Purpose == "primary" {
-				return types.StringValue(link.DatabaseId.String())
-			}
-		}
-		return types.StringNull()
-	}()
+		databaseModels, d := types.SetValueFrom(ctx, &databaseModelAttrType, databases)
+		res.Append(d...)
+
+		m.Databases = databaseModels
+	} else {
+		m.Databases = types.SetNull(&databaseModelAttrType)
+	}
 
 	if appInstallation.AppVersion.Current != nil {
 		appCurrentVersion := providerutil.

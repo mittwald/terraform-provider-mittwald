@@ -13,7 +13,8 @@ type AppClient interface {
 	GetAppInstallation(ctx context.Context, appInstallationID string) (*DeMittwaldV1AppAppInstallation, error)
 	WaitUntilAppInstallationIsReady(ctx context.Context, appID string) error
 	UninstallApp(ctx context.Context, appInstallationID string) error
-	LinkAppInstallationToDatabase(ctx context.Context, appInstallationID string, databaseID string, purpose AppLinkDatabaseJSONBodyPurpose) error
+	LinkAppInstallationToDatabase(ctx context.Context, appInstallationID string, databaseID string, userID string, purpose AppLinkDatabaseJSONBodyPurpose) error
+	UnlinkAppInstallationFromDatabase(ctx context.Context, appInstallationID string, databaseID string) error
 	GetSystemSoftwareByName(ctx context.Context, name string) (*DeMittwaldV1AppSystemSoftware, bool, error)
 	SelectSystemSoftwareVersion(ctx context.Context, systemSoftwareID, versionSelector string) (DeMittwaldV1AppSystemSoftwareVersionSet, error)
 	GetSystemSoftwareAndVersion(ctx context.Context, systemSoftwareID, systemSoftwareVersionID string) (*DeMittwaldV1AppSystemSoftware, *DeMittwaldV1AppSystemSoftwareVersion, error)
