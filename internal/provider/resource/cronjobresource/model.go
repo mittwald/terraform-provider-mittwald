@@ -34,13 +34,13 @@ type ResourceDestinationCommandModel struct {
 	Parameters  types.List   `tfsdk:"parameters"`
 }
 
-func (m *ResourceModel) GetDestination(ctx context.Context, d diag.Diagnostics) *ResourceDestinationModel {
+func (m *ResourceModel) GetDestination(ctx context.Context, d *diag.Diagnostics) *ResourceDestinationModel {
 	out := ResourceDestinationModel{}
 	d.Append(m.Destination.As(ctx, &out, basetypes.ObjectAsOptions{})...)
 	return &out
 }
 
-func (m *ResourceDestinationModel) GetURL(ctx context.Context, d diag.Diagnostics) (ResourceDestinationURLModel, bool) {
+func (m *ResourceDestinationModel) GetURL(ctx context.Context, d *diag.Diagnostics) (ResourceDestinationURLModel, bool) {
 	if m == nil {
 		return "", false
 	}
@@ -52,7 +52,7 @@ func (m *ResourceDestinationModel) GetURL(ctx context.Context, d diag.Diagnostic
 	return "", false
 }
 
-func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d diag.Diagnostics) (*ResourceDestinationCommandModel, bool) {
+func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d *diag.Diagnostics) (*ResourceDestinationCommandModel, bool) {
 	if m == nil {
 		return nil, false
 	}

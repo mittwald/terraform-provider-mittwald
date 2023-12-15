@@ -41,16 +41,16 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.D
 	return
 }
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics) mittwaldv2.CronjobCreateCronjobJSONRequestBody {
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) mittwaldv2.CronjobCreateCronjobJSONRequestBody {
 	createCronjobBody := mittwaldv2.CronjobCreateCronjobJSONRequestBody{
 		Description: m.Description.ValueString(),
 		Active:      true,
 		Interval:    m.Interval.ValueString(),
-		AppId:       providerutil.ParseUUID(m.AppID.ValueString(), &d),
+		AppId:       providerutil.ParseUUID(m.AppID.ValueString(), d),
 		Destination: mittwaldv2.DeMittwaldV1CronjobCronjobRequest_Destination{},
 	}
 
-	try := providerutil.Try[any](&d, "Mapping error while building cron job request")
+	try := providerutil.Try[any](d, "Mapping error while building cron job request")
 
 	dest := m.GetDestination(ctx, d)
 	if url, ok := dest.GetURL(ctx, d); ok {
@@ -69,9 +69,9 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics)
 	return createCronjobBody
 }
 
-func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d diag.Diagnostics, current *ResourceModel) mittwaldv2.CronjobUpdateCronjobJSONRequestBody {
+func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel) mittwaldv2.CronjobUpdateCronjobJSONRequestBody {
 	body := mittwaldv2.CronjobUpdateCronjobJSONRequestBody{}
-	try := providerutil.Try[any](&d, "Mapping error while building cron job request")
+	try := providerutil.Try[any](d, "Mapping error while building cron job request")
 
 	if !m.Description.Equal(current.Description) && !m.Description.IsNull() {
 		body.Description = ptrutil.To(m.Description.ValueString())

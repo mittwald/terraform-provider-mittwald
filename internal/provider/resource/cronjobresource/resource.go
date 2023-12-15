@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -88,7 +87,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	id := providerutil.
 		Try[string](&resp.Diagnostics, "API error while updating cron job").
-		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, resp.Diagnostics)))
+		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, &resp.Diagnostics)))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -117,8 +116,6 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		Try[*mittwaldv2.DeMittwaldV1CronjobCronjob](&res, "API error while fetching cron job").
 		DoVal(r.client.Cronjob().GetCronjob(ctx, data.ID.ValueString()))
 
-	tflog.Debug(ctx, "got cronjob", map[string]any{"cronjob": cronjob})
-
 	if res.HasError() {
 		return
 	}
@@ -134,7 +131,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 
-	body := planData.ToUpdateRequest(ctx, resp.Diagnostics, &stateData)
+	body := planData.ToUpdateRequest(ctx, &resp.Diagnostics, &stateData)
 	if resp.Diagnostics.HasError() {
 		return
 	}
