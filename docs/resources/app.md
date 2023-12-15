@@ -52,8 +52,7 @@ resource "mittwald_app" "wordpress" {
 }
 
 resource "mittwald_app" "custom_php" {
-  project_id  = mittwald_project.foobar.id
-  database_id = mittwald_mysql_database.foobar_database.id
+  project_id = mittwald_project.foobar.id
 
   app     = "php"
   version = "1.0.0"
@@ -61,6 +60,15 @@ resource "mittwald_app" "custom_php" {
   description   = "Martins Test-App"
   document_root = "/public"
   update_policy = "none"
+
+  databases = [
+    {
+      kind    = "mysql"
+      purpose = "primary"
+      id      = mittwald_mysql_database.foobar_database.id
+      user_id = mittwald_mysql_database.foobar_database.user.id
+    }
+  ]
 
   dependencies = {
     (data.mittwald_systemsoftware.php.name) = {
@@ -91,7 +99,7 @@ resource "mittwald_app" "custom_php" {
 
 ### Optional
 
-- `database_id` (String) The ID of the database the app uses
+- `databases` (Attributes Set) The databases the app uses (see [below for nested schema](#nestedatt--databases))
 - `dependencies` (Attributes Map) The dependencies of the app (see [below for nested schema](#nestedatt--dependencies))
 - `description` (String) The description of the app
 - `document_root` (String) The document root of the app
@@ -102,6 +110,17 @@ resource "mittwald_app" "custom_php" {
 - `id` (String) The ID of the app
 - `installation_path` (String) The installation path of the app
 - `version_current` (String) The current version of the app
+
+<a id="nestedatt--databases"></a>
+### Nested Schema for `databases`
+
+Required:
+
+- `id` (String) The ID of the database
+- `kind` (String) The kind of the database; one of `mysql` or `redis`
+- `purpose` (String) The purpose of the database; use 'primary' for the primary data storage, or 'cache' for a cache database
+- `user_id` (String) The ID of the database user that the app should use
+
 
 <a id="nestedatt--dependencies"></a>
 ### Nested Schema for `dependencies`
