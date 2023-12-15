@@ -2,6 +2,7 @@ package mysqldatabaseresource
 
 import (
 	"context"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -10,8 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"time"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -136,29 +139,11 @@ func (d *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	resp.Diagnostics.Append(data.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.CharacterSettings.As(ctx, &dataCharset, basetypes.ObjectAsOptions{})...)
 
-	if data.ProjectID.IsNull() {
-		resp.Diagnostics.AddError("Invalid Input", "project_id is required")
-		return
-	}
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	createReq := mittwaldv2.DatabaseCreateMysqlDatabaseJSONRequestBody{
-		Database: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlDatabase{
-			Description: data.Description.ValueString(),
-			Version:     data.Version.ValueString(),
-			CharacterSettings: &mittwaldv2.DeMittwaldV1DatabaseCharacterSettings{
-				CharacterSet: dataCharset.Charset.ValueString(),
-				Collation:    dataCharset.Collation.ValueString(),
-			},
-		},
-		User: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlUserWithDatabase{
-			Password:    dataUser.Password.ValueString(),
-			AccessLevel: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
-		},
-	}
+	createReq := data.ToCreateRequest(ctx, resp.Diagnostics)
 
 	dbID, userID, err := d.client.Database().CreateMySQLDatabase(ctx, data.ProjectID.ValueString(), createReq)
 	if err != nil {
@@ -166,22 +151,17 @@ func (d *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	data.ID = types.StringValue(dbID)
 	dataUser.ID = types.StringValue(userID)
 
-	resp.Diagnostics.Append(d.read(ctx, &data, &dataCharset)...)
-	resp.Diagnostics.Append(d.readUser(ctx, dbID, &dataUser)...)
+	data.ID = types.StringValue(dbID)
+	data.User = dataUser.AsObject(ctx, resp.Diagnostics)
 
-	// Save updated data into Terraform state
+	resp.Diagnostics.Append(d.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("user"), &dataUser)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("character_settings"), &dataCharset)...)
 }
 
 func (d *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	data := ResourceModel{}
-	dataUser := MySQLDatabaseUserModel{}
-	dataCharset := MySQLDatabaseCharsetModel{}
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -189,64 +169,72 @@ func (d *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(d.read(ctx, &data, &dataCharset)...)
-	resp.Diagnostics.Append(d.readUser(ctx, data.ID.ValueString(), &dataUser)...)
+	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
+	resp.Diagnostics.Append(d.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("user"), &dataUser)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("character_settings"), &dataCharset)...)
 }
 
-func (d *Resource) read(ctx context.Context, data *ResourceModel, charset *MySQLDatabaseCharsetModel) (res diag.Diagnostics) {
-	database, err := d.client.Database().PollMySQLDatabase(ctx, data.ID.ValueString())
-	if err != nil {
-		res.AddError("Client Error", err.Error())
+func (d *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	client := d.client.Database()
+
+	dataUser := MySQLDatabaseUserModel{}
+
+	if !data.User.IsNull() {
+		res.Append(data.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
+	}
+
+	if res.HasError() {
 		return
 	}
 
-	data.Name = types.StringValue(database.Name)
-	data.Hostname = types.StringValue(database.Hostname)
-	data.Description = types.StringValue(database.Description)
-	data.Version = types.StringValue(database.Version)
-	data.ProjectID = types.StringValue(database.ProjectId.String())
+	database := providerutil.
+		Try[*mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase](&res, "error while reading database").
+		IgnoreNotFound().
+		DoVal(client.PollMySQLDatabase(ctx, data.ID.ValueString()))
+	databaseUser := providerutil.
+		Try[*mittwaldv2.DeMittwaldV1DatabaseMySqlUser](&res, "error while reading database user").
+		DoVal(d.findDatabaseUser(ctx, data.ID.ValueString(), &dataUser))
 
-	charset.Charset = types.StringValue(database.CharacterSettings.CharacterSet)
-	charset.Collation = types.StringValue(database.CharacterSettings.Collation)
+	if res.HasError() {
+		return
+	}
+
+	res.Append(data.FromAPIModel(ctx, database, databaseUser)...)
 
 	return
 }
 
-func (d *Resource) readUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (res diag.Diagnostics) {
-	if data.ID.IsNull() {
-		databaseUserList, err := d.client.Database().PollMySQLUsersForDatabase(ctx, databaseID)
-		if err != nil {
-			res.AddError("Client Error", err.Error())
-			return
-		}
+func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (*mittwaldv2.DeMittwaldV1DatabaseMySqlUser, error) {
+	client := d.client.Database()
 
-		for _, user := range databaseUserList {
-			if user.MainUser {
-				data.ID = types.StringValue(user.Id.String())
-				break
-			}
-		}
+	// This should be the regular case, in which we can simply look up the user by ID.
+	if !data.ID.IsNull() {
+		return client.PollMySQLUser(ctx, data.ID.ValueString())
 	}
 
-	databaseUser, err := d.client.Database().PollMySQLUser(ctx, data.ID.ValueString())
+	// If the user ID is not set, we need to look up the user by database ID and check which one is the main user.
+	databaseUserList, err := client.PollMySQLUsersForDatabase(ctx, databaseID)
 	if err != nil {
-		res.AddError("Client Error", err.Error())
-		return
+		return nil, err
 	}
 
-	data.Name = types.StringValue(databaseUser.Name)
-	data.AccessLevel = types.StringValue(string(databaseUser.AccessLevel))
-	data.ExternalAccess = types.BoolValue(databaseUser.ExternalAccess)
+	for _, user := range databaseUserList {
+		if user.MainUser {
+			data.ID = types.StringValue(user.Id.String())
+			return &user, nil
+		}
+	}
 
-	return
+	return nil, fmt.Errorf("could not find main user for database %s", databaseID)
 }
 
 func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var planData, stateData ResourceModel
+
+	client := d.client.Database()
+
 	dataUser := MySQLDatabaseUserModel{}
 	dataCharset := MySQLDatabaseCharsetModel{}
 
@@ -260,40 +248,36 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	if !planData.Description.Equal(stateData.Description) {
-		if err := d.client.Database().SetMySQLDatabaseDescription(ctx, planData.ID.ValueString(), planData.Description.ValueString()); err != nil {
-			resp.Diagnostics.AddError("Client Error", err.Error())
-			return
-		}
+		providerutil.
+			Try[any](&resp.Diagnostics, "error while updating database").
+			Do(client.SetMySQLDatabaseDescription(ctx, planData.ID.ValueString(), planData.Description.ValueString()))
 	}
 
-	if err := d.client.Database().SetMySQLUserPassword(ctx, dataUser.ID.ValueString(), dataUser.Password.ValueString()); err != nil {
-		resp.Diagnostics.AddError("Client Error", err.Error())
-		return
-	}
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while setting database user password").
+		Do(client.SetMySQLUserPassword(ctx, dataUser.ID.ValueString(), dataUser.Password.ValueString()))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
-	resp.Diagnostics.Append(d.read(ctx, &planData, &dataCharset)...)
-	resp.Diagnostics.Append(d.readUser(ctx, planData.ID.ValueString(), &dataUser)...)
-
-	//resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("user"), &dataUser)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("character_settings"), &dataCharset)...)
 }
 
 func (d *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data ResourceModel
 
-	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if err := d.client.Database().DeleteMySQLDatabase(ctx, data.ID.ValueString()); err != nil {
-		resp.Diagnostics.AddError("Client Error", err.Error())
+	if data.ID.IsNull() {
+		tflog.Debug(ctx, "database is null, skipping deletion")
 		return
 	}
+
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while deleting database").
+		IgnoreNotFound().
+		Do(d.client.Database().DeleteMySQLDatabase(ctx, data.ID.ValueString()))
 }
 
 func (d *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

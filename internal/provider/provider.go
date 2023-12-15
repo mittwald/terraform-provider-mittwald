@@ -32,8 +32,9 @@ type MittwaldProvider struct {
 
 // MittwaldProviderModel describes the provider data model.
 type MittwaldProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
-	APIKey   types.String `tfsdk:"api_key"`
+	Endpoint           types.String `tfsdk:"endpoint"`
+	APIKey             types.String `tfsdk:"api_key"`
+	DebugRequestBodies types.Bool   `tfsdk:"debug_request_bodies"`
 }
 
 func (p *MittwaldProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -52,6 +53,10 @@ func (p *MittwaldProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				MarkdownDescription: "API key for the Mittwald API; if omitted, the `MITTWALD_API_TOKEN` environment variable will be used.",
 				Optional:            true,
 				Sensitive:           true,
+			},
+			"debug_request_bodies": schema.BoolAttribute{
+				MarkdownDescription: "Whether to log request bodies when debugging is enabled. CAUTION: This will log sensitive data such as passwords in plain text!",
+				Optional:            true,
 			},
 		},
 	}
@@ -86,6 +91,8 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 	if !data.Endpoint.IsNull() {
 		opts = append(opts, mittwaldv2.WithEndpoint(data.Endpoint.ValueString()))
 	}
+
+	opts = append(opts, mittwaldv2.WithDebugging(data.DebugRequestBodies.ValueBool()))
 
 	client := mittwaldv2.New(opts...)
 

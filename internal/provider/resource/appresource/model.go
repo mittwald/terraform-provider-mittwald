@@ -5,7 +5,7 @@ import "github.com/hashicorp/terraform-plugin-framework/types"
 type ResourceModel struct {
 	ID               types.String `tfsdk:"id"`
 	ProjectID        types.String `tfsdk:"project_id"`
-	DatabaseID       types.String `tfsdk:"database_id"` // TODO: There may theoretically be multiple database links
+	Databases        types.Set    `tfsdk:"databases"`
 	Description      types.String `tfsdk:"description"`
 	App              types.String `tfsdk:"app"`
 	Version          types.String `tfsdk:"version"`

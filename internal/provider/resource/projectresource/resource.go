@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
-	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
+	"time"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -80,7 +80,8 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data ResourceModel
 
-	// Read Terraform plan data into the model
+	client := r.client.Project()
+
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	resp.Diagnostics.Append(data.Validate()...)
 
@@ -88,16 +89,15 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	projectID, err := r.client.Project().CreateProjectOnServer(
-		ctx,
-		data.ServerID.ValueString(),
-		mittwaldv2.ProjectCreateProjectJSONRequestBody{
-			Description: data.Description.ValueString(),
-		},
-	)
+	projectID := providerutil.
+		Try[string](&resp.Diagnostics, "error while creating project").
+		DoVal(client.CreateProjectOnServer(
+			ctx,
+			data.ServerID.ValueString(),
+			data.ToCreateRequest(),
+		))
 
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", err.Error())
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -117,30 +117,25 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	readCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
 
-	// Save updated data into Terraform state
+	resp.Diagnostics.Append(r.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
-	project, err := r.client.Project().PollProject(ctx, data.ID.ValueString())
-	if err != nil {
-		res.AddError("API error while polling project", err.Error())
-		return
-	}
+	project := providerutil.
+		Try[*mittwaldv2.DeMittwaldV1ProjectProject](&res, "error while reading project").
+		IgnoreNotFound().
+		DoVal(r.client.Project().PollProject(ctx, data.ID.ValueString()))
 
-	ips, err := r.client.Project().GetProjectDefaultIPs(ctx, data.ID.ValueString())
-	if err != nil {
-		res.AddError("API error while getting project ips", err.Error())
-		return
-	}
+	ips := providerutil.
+		Try[[]string](&res, "error while reading project ips").
+		IgnoreNotFound().
+		DoVal(r.client.Project().GetProjectDefaultIPs(ctx, data.ID.ValueString()))
 
-	data.ID = types.StringValue(project.Id.String())
-	data.Description = types.StringValue(project.Description)
-	data.Directories = providerutil.EmbedDiag(types.MapValueFrom(ctx, types.StringType, project.Directories))(&res)
-	data.ServerID = valueutil.StringerOrNull(project.ServerId)
-	data.DefaultIPs = providerutil.EmbedDiag(types.ListValueFrom(ctx, types.StringType, ips))(&res)
+	res.Append(data.FromAPIModel(ctx, project, ips)...)
 
 	return
 }
@@ -178,10 +173,10 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
-	if err := r.client.Project().DeleteProject(ctx, data.ID.ValueString()); err != nil {
-		resp.Diagnostics.AddError("Error while deleting project", err.Error())
-		return
-	}
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while deleting project").
+		IgnoreNotFound().
+		Do(r.client.Project().DeleteProject(ctx, data.ID.ValueString()))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

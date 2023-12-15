@@ -107,11 +107,17 @@ func (c *appClient) LinkAppInstallationToDatabase(
 	ctx context.Context,
 	appInstallationID string,
 	databaseID string,
+	userID string,
 	purpose AppLinkDatabaseJSONBodyPurpose,
 ) error {
+	userIDs := map[string]string{
+		"admin": userID,
+	}
+
 	response, err := c.client.AppLinkDatabaseWithResponse(ctx, uuid.MustParse(appInstallationID), AppLinkDatabaseJSONRequestBody{
-		DatabaseId: uuid.MustParse(databaseID),
-		Purpose:    purpose,
+		DatabaseId:      uuid.MustParse(databaseID),
+		Purpose:         purpose,
+		DatabaseUserIds: &userIDs,
 	})
 	if err != nil {
 		return err
@@ -122,4 +128,17 @@ func (c *appClient) LinkAppInstallationToDatabase(
 	}
 
 	return errUnexpectedStatus(response.StatusCode(), response.Body)
+}
+
+func (c *appClient) UnlinkAppInstallationFromDatabase(ctx context.Context, appInstallationID string, databaseID string) error {
+	resp, err := c.client.AppUnlinkDatabaseWithResponse(ctx, uuid.MustParse(appInstallationID), uuid.MustParse(databaseID))
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() >= 200 && resp.StatusCode() < 300 {
+		return nil
+	}
+
+	return errUnexpectedStatus(resp.StatusCode(), resp.Body)
 }

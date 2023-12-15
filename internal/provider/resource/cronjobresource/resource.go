@@ -81,15 +81,13 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
-	createCronjobBody := data.ToCreateRequest(ctx, resp.Diagnostics)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	id := providerutil.
 		Try[string](&resp.Diagnostics, "API error while updating cron job").
-		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), createCronjobBody))
+		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, &resp.Diagnostics)))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -110,6 +108,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
@@ -132,7 +131,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 
-	body := planData.ToUpdateRequest(ctx, resp.Diagnostics, &stateData)
+	body := planData.ToUpdateRequest(ctx, &resp.Diagnostics, &stateData)
 	if resp.Diagnostics.HasError() {
 		return
 	}

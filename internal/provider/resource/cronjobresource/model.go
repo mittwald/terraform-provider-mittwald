@@ -34,13 +34,13 @@ type ResourceDestinationCommandModel struct {
 	Parameters  types.List   `tfsdk:"parameters"`
 }
 
-func (m *ResourceModel) GetDestination(ctx context.Context, d diag.Diagnostics) *ResourceDestinationModel {
+func (m *ResourceModel) GetDestination(ctx context.Context, d *diag.Diagnostics) *ResourceDestinationModel {
 	out := ResourceDestinationModel{}
 	d.Append(m.Destination.As(ctx, &out, basetypes.ObjectAsOptions{})...)
 	return &out
 }
 
-func (m *ResourceDestinationModel) GetURL(ctx context.Context, d diag.Diagnostics) (ResourceDestinationURLModel, bool) {
+func (m *ResourceDestinationModel) GetURL(ctx context.Context, d *diag.Diagnostics) (ResourceDestinationURLModel, bool) {
 	if m == nil {
 		return "", false
 	}
@@ -52,7 +52,7 @@ func (m *ResourceDestinationModel) GetURL(ctx context.Context, d diag.Diagnostic
 	return "", false
 }
 
-func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d diag.Diagnostics) (*ResourceDestinationCommandModel, bool) {
+func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d *diag.Diagnostics) (*ResourceDestinationCommandModel, bool) {
 	if m == nil {
 		return nil, false
 	}
@@ -66,7 +66,7 @@ func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d diag.Diagno
 	return nil, false
 }
 
-func (m *ResourceDestinationModel) AsObject(ctx context.Context, d diag.Diagnostics) types.Object {
+func (m *ResourceDestinationModel) AsObject(ctx context.Context, d *diag.Diagnostics) types.Object {
 	obj, d2 := types.ObjectValueFrom(ctx, map[string]attr.Type{
 		"url": types.StringType,
 		"command": types.ObjectType{
@@ -125,7 +125,7 @@ func (m *ResourceDestinationCommandModel) AsAPIModel() mittwaldv2.DeMittwaldV1Cr
 	}
 }
 
-func (m *ResourceDestinationCommandModel) AsDestinationModel(ctx context.Context, diag diag.Diagnostics) *ResourceDestinationModel {
+func (m *ResourceDestinationCommandModel) AsDestinationModel(ctx context.Context, diag *diag.Diagnostics) *ResourceDestinationModel {
 	value, d := types.ObjectValueFrom(ctx, map[string]attr.Type{
 		"interpreter": types.StringType,
 		"path":        types.StringType,

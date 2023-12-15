@@ -37,8 +37,7 @@ resource "mittwald_app" "wordpress" {
 }
 
 resource "mittwald_app" "custom_php" {
-  project_id  = mittwald_project.foobar.id
-  database_id = mittwald_mysql_database.foobar_database.id
+  project_id = mittwald_project.foobar.id
 
   app     = "php"
   version = "1.0.0"
@@ -46,6 +45,15 @@ resource "mittwald_app" "custom_php" {
   description   = "Martins Test-App"
   document_root = "/public"
   update_policy = "none"
+
+  databases = [
+    {
+      kind    = "mysql"
+      purpose = "primary"
+      id      = mittwald_mysql_database.foobar_database.id
+      user_id = mittwald_mysql_database.foobar_database.user.id
+    }
+  ]
 
   dependencies = {
     (data.mittwald_systemsoftware.php.name) = {
