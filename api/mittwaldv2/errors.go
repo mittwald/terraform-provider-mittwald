@@ -1,6 +1,7 @@
 package mittwaldv2
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -26,4 +27,9 @@ func errUnexpectedStatus(status int, body []byte) error {
 	default:
 		return fmt.Errorf("unexpected status code %d: %s", status, string(body))
 	}
+}
+
+func IsNotFound(err error) bool {
+	notFound := ErrNotFound{}
+	return errors.As(err, &notFound)
 }

@@ -69,6 +69,10 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 func (m *ResourceModel) ToUpdateUpdaters(ctx context.Context, d diag.Diagnostics, current *ResourceModel, appClient mittwaldv2.AppClient) []mittwaldv2.AppInstallationUpdater {
 	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
 
+	if !m.Description.Equal(current.Description) {
+		updaters = append(updaters, mittwaldv2.UpdateAppInstallationDescription(m.Description.ValueString()))
+	}
+
 	if !m.DocumentRoot.Equal(current.DocumentRoot) {
 		updaters = append(updaters, mittwaldv2.UpdateAppInstallationDocumentRoot(m.DocumentRoot.ValueString()))
 	}

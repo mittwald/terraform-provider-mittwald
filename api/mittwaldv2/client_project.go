@@ -138,5 +138,5 @@ func (c *projectClient) GetProjectDefaultIPs(ctx context.Context, projectID stri
 		}
 	}
 
-	return nil, fmt.Errorf("could not determine default ingress for project %s", projectID)
+	return nil, fmt.Errorf("project %s does not appear to have a default ingress", projectID)
 }
