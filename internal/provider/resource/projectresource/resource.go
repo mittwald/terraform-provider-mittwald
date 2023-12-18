@@ -117,7 +117,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	resp.Diagnostics.Append(r.read(readCtx, &data)...)
@@ -134,6 +134,10 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		Try[[]string](&res, "error while reading project ips").
 		IgnoreNotFound().
 		DoVal(r.client.Project().GetProjectDefaultIPs(ctx, data.ID.ValueString()))
+
+	if res.HasError() {
+		return
+	}
 
 	res.Append(data.FromAPIModel(ctx, project, ips)...)
 
