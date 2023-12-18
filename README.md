@@ -5,24 +5,42 @@ This repository contains a [Terraform](https://www.terraform.io) provider for re
 ## Installation
 
 > [!IMPORTANT]
-> This provider is an *experimental proof-of-concept*; we do not recommend using it in production environments, as it is not yet feature-complete and may contain bugs. However, we are happy to receive feedback and contributions!
-> 
-> Also, this provider is not yet available on the Terraform registry. You have to build it yourself; have a look at the [Contributing](#contributing) section for more information.
+> This provider is an alpha state; we do not fully recommend using it in production environments, as it is not yet feature-complete and may contain bugs. However, we are happy to receive feedback and contributions!
+
+You can install this provider from the [Terraform registry](https://registry.terraform.io/providers/mittwald/mittwald/latest). For this, add the following code to your Terraform configuration:
+
+```hcl
+terraform {
+  required_providers {
+    mittwald = {
+      source = "mittwald/mittwald"
+      version = "1.0.0-alpha1"
+    }
+  }
+}
+
+provider "mittwald" {
+}
+```
+
+In order to use this provider, you need to have a [mittwald mStudio account](https://studio.mittwald.de) with an API key. You can then configure the provider with the following environment variables:
+
+- `MITTWALD_API_TOKEN`: Your API token; see our API documentation on [how to obtain an API token](https://developer.mittwald.de/docs/v2/api/intro/).
 
 ## Usage
 
-Have a look at the [general provider usage](./docs/index.md) to see how to get started with this provider.
+Have a look at the [general provider usage](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs) to see how to get started with this provider.
 
 This provider offers the following resources:
 
-- [`mittwald_project`](./docs/resources/project.md)
-- [`mittwald_app`](./docs/resources/app.md)
-- [`mittwald_mysql_database`](./docs/resources/mysql_database.md)
-- [`mittwald_cronjob`](./docs/resources/cronjob.md)
+- [`mittwald_project`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/project)
+- [`mittwald_app`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/app)
+- [`mittwald_mysql_database`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/mysql_database)
+- [`mittwald_cronjob`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/cronjob)
 
 and the following data sources:
 
-- [`mittwald_systemsoftware`](./docs/data-sources/systemsoftware.md)
+- [`mittwald_systemsoftware`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/systemsoftware)
 
 Coming soon:
 
