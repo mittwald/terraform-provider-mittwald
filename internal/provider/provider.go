@@ -10,6 +10,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/cronjobresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -106,6 +107,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 		appresource.New,
 		mysqldatabaseresource.New,
 		cronjobresource.New,
+		virtualhostresource.New,
 	}
 }
 

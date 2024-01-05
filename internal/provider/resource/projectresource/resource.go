@@ -9,10 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 	"time"
 )
 
@@ -34,6 +34,7 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 }
 
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	builder := common.AttributeBuilderFor("project")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a project on the mittwald cloud platform; a project is either provisioned on a server (in which case a `server_id` is required), or as a stand-alone project (currently not supported).",
 
@@ -42,17 +43,8 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				MarkdownDescription: "ID of the server this project belongs to",
 				Optional:            true,
 			},
-			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The generated project ID",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"description": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Description for your project",
-			},
+			"id":          builder.Id(),
+			"description": builder.Description(),
 			"directories": schema.MapAttribute{
 				Computed:            true,
 				MarkdownDescription: "Contains a map of data directories within the project",

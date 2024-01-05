@@ -6,11 +6,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -30,35 +29,15 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 }
 
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	builder := common.AttributeBuilderFor("cronjob")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a cron job.",
 
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The generated cron job ID",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"project_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the project the cron job belongs to",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"app_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the app the cron job belongs to",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"description": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Description for your cron job",
-			},
+			"id":          builder.Id(),
+			"project_id":  builder.ProjectId(),
+			"app_id":      builder.AppId(),
+			"description": builder.Description(),
 			"destination": modelDestinationSchema,
 			"interval": schema.StringAttribute{
 				Required:            true,

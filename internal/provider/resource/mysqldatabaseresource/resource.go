@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 	"time"
 )
 
@@ -34,17 +35,12 @@ func (d *Resource) Metadata(_ context.Context, request resource.MetadataRequest,
 }
 
 func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response *resource.SchemaResponse) {
+	builder := common.AttributeBuilderFor("database")
 	response.Schema = schema.Schema{
 		MarkdownDescription: "Models a MySQL database on the mittwald plattform",
 
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "ID of this database",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
+			"id": builder.Id(),
 			"version": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "Version of the database, e.g. `5.7`",
@@ -59,17 +55,8 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"project_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the project this database belongs to",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
-			"description": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "Description for your database",
-			},
+			"project_id":  builder.ProjectId(),
+			"description": builder.Description(),
 			"hostname": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "Hostname of the database; this is the hostname that you should use within the platform to connect to the database.",
