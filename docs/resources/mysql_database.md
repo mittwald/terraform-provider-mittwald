@@ -42,7 +42,7 @@ resource "mittwald_mysql_database" "foobar_database" {
 ### Required
 
 - `description` (String) Description for your database
-- `project_id` (String) ID of the project this database belongs to
+- `project_id` (String) The ID of the project the database belongs to
 - `user` (Attributes) (see [below for nested schema](#nestedatt--user))
 - `version` (String) Version of the database, e.g. `5.7`
 
@@ -53,7 +53,7 @@ resource "mittwald_mysql_database" "foobar_database" {
 ### Read-Only
 
 - `hostname` (String) Hostname of the database; this is the hostname that you should use within the platform to connect to the database.
-- `id` (String) ID of this database
+- `id` (String) The generated database ID
 - `name` (String) Name of the database, e.g. `db-XXXXX`
 
 <a id="nestedatt--user"></a>

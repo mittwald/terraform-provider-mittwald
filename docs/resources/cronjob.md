@@ -35,11 +35,11 @@ resource "mittwald_cronjob" "demo" {
 
 ### Required
 
-- `app_id` (String) The ID of the app the cron job belongs to
-- `description` (String) Description for your cron job
+- `app_id` (String) The ID of the app the cronjob belongs to
+- `description` (String) Description for your cronjob
 - `destination` (Attributes) Models the action to be executed by the cron job. Exactly one of `url` or `command` must be set. (see [below for nested schema](#nestedatt--destination))
 - `interval` (String) The interval of the cron job; this should be a cron expression
-- `project_id` (String) The ID of the project the cron job belongs to
+- `project_id` (String) The ID of the project the cronjob belongs to
 
 ### Optional
 
@@ -47,7 +47,7 @@ resource "mittwald_cronjob" "demo" {
 
 ### Read-Only
 
-- `id` (String) The generated cron job ID
+- `id` (String) The generated cronjob ID
 
 <a id="nestedatt--destination"></a>
 ### Nested Schema for `destination`
