@@ -15,6 +15,7 @@ import (
 
 func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.DeMittwaldV1CronjobCronjob) (res diag.Diagnostics) {
 	m.AppID = valueutil.StringerOrNull(apiModel.AppId)
+	m.ProjectID = valueutil.StringerOrNull(apiModel.ProjectId)
 	m.Description = types.StringValue(apiModel.Description)
 	m.Email = valueutil.StringPtrOrNull(apiModel.Email)
 	m.Interval = types.StringValue(apiModel.Interval)
