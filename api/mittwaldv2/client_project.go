@@ -100,11 +100,11 @@ func (c *projectClient) DeleteProject(ctx context.Context, projectID string) err
 		return err
 	}
 
-	if response.JSON200 != nil {
-		return nil
+	if response.StatusCode() >= 400 {
+		return errUnexpectedStatus(response.StatusCode(), response.Body)
 	}
 
-	return errUnexpectedStatus(response.StatusCode(), response.Body)
+	return nil
 }
 
 func (c *projectClient) PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error) {
@@ -123,7 +123,8 @@ func (c *projectClient) PollProject(ctx context.Context, projectID string) (*DeM
 }
 
 func (c *projectClient) GetProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error) {
-	response, err := c.client.IngressListForProjectWithResponse(ctx, uuid.MustParse(projectID))
+	projectUUID := uuid.MustParse(projectID)
+	response, err := c.client.IngressListIngressesWithResponse(ctx, &IngressListIngressesParams{ProjectId: &projectUUID})
 	if err != nil {
 		return nil, err
 	}
