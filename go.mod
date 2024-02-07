@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/alessio/shellescape v1.4.2
-	github.com/getkin/kin-openapi v0.122.0
+	github.com/getkin/kin-openapi v0.123.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.18.0
 	github.com/hashicorp/terraform-plugin-framework v1.5.0
@@ -29,8 +29,8 @@ require (
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/go-openapi/jsonpointer v0.19.6 // indirect
-	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-openapi/jsonpointer v0.20.2 // indirect
+	github.com/go-openapi/swag v0.22.8 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/hashicorp/cli v1.1.6 // indirect
