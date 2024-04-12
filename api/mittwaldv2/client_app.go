@@ -39,7 +39,7 @@ func (c *appClient) GetAppVersion(ctx context.Context, appID string, versionID s
 }
 
 func (c *appClient) ListAppVersions(ctx context.Context, appID string) ([]DeMittwaldV1AppAppVersion, error) {
-	response, err := c.client.AppListAppversionsWithResponse(ctx, uuid.MustParse(appID))
+	response, err := c.client.AppListAppversionsWithResponse(ctx, uuid.MustParse(appID), &AppListAppversionsParams{})
 	if err != nil {
 		return nil, err
 	}

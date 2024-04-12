@@ -62,7 +62,7 @@ func (c *cronjobClient) UpdateCronjob(ctx context.Context, cronjobID string, bod
 		return fmt.Errorf("error updating cronjob: %w", err)
 	}
 
-	if resp.JSON200 == nil {
+	if resp.StatusCode() >= 300 {
 		return errUnexpectedStatus(resp.StatusCode(), resp.Body)
 	}
 
