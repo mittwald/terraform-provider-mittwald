@@ -89,7 +89,7 @@ func (m *PathModel) toAPIModel(p path.Path, urlPathPrefix string, d *diag.Diagno
 }
 
 func (m *ResourceModel) pathsAsAPIModel(ctx context.Context, res *diag.Diagnostics) []mittwaldv2.DeMittwaldV1IngressPath {
-	out := make([]mittwaldv2.DeMittwaldV1IngressPath, 0, 0)
+	out := make([]mittwaldv2.DeMittwaldV1IngressPath, 0)
 	intermediate := map[string]PathModel{}
 
 	res.Append(m.Paths.ElementsAs(ctx, &intermediate, false)...)
