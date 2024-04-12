@@ -7,8 +7,8 @@ import (
 
 type DomainClient interface {
 	GetIngress(ctx context.Context, ingressID string) (*DeMittwaldV1IngressIngress, error)
-	CreateIngress(ctx context.Context, projectID string, body IngressCreateJSONRequestBody) (string, error)
-	UpdateIngressPaths(ctx context.Context, ingressID string, body IngressPathsJSONRequestBody) error
+	CreateIngress(ctx context.Context, projectID string, body IngressCreateIngressJSONRequestBody) (string, error)
+	UpdateIngressPaths(ctx context.Context, ingressID string, body IngressUpdateIngressPathsJSONRequestBody) error
 	DeleteIngress(ctx context.Context, ingressID string) error
 }
 
@@ -17,7 +17,7 @@ type domainClient struct {
 }
 
 func (c *domainClient) GetIngress(ctx context.Context, ingressID string) (*DeMittwaldV1IngressIngress, error) {
-	resp, err := c.client.IngressGetSpecificWithResponse(ctx, uuid.MustParse(ingressID))
+	resp, err := c.client.IngressGetIngressWithResponse(ctx, uuid.MustParse(ingressID))
 	if err != nil {
 		return nil, err
 	}
@@ -29,8 +29,8 @@ func (c *domainClient) GetIngress(ctx context.Context, ingressID string) (*DeMit
 	return resp.JSON200, nil
 }
 
-func (c *domainClient) CreateIngress(ctx context.Context, projectID string, body IngressCreateJSONRequestBody) (string, error) {
-	resp, err := c.client.IngressCreateWithResponse(ctx, body)
+func (c *domainClient) CreateIngress(ctx context.Context, projectID string, body IngressCreateIngressJSONRequestBody) (string, error) {
+	resp, err := c.client.IngressCreateIngressWithResponse(ctx, body)
 	if err != nil {
 		return "", err
 	}
@@ -44,8 +44,8 @@ func (c *domainClient) CreateIngress(ctx context.Context, projectID string, body
 	return resp.JSON201.Id.String(), nil
 }
 
-func (c *domainClient) UpdateIngressPaths(ctx context.Context, ingressID string, body IngressPathsJSONRequestBody) error {
-	resp, err := c.client.IngressPathsWithResponse(ctx, uuid.MustParse(ingressID), body)
+func (c *domainClient) UpdateIngressPaths(ctx context.Context, ingressID string, body IngressUpdateIngressPathsJSONRequestBody) error {
+	resp, err := c.client.IngressUpdateIngressPathsWithResponse(ctx, uuid.MustParse(ingressID), body)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (c *domainClient) UpdateIngressPaths(ctx context.Context, ingressID string,
 }
 
 func (c *domainClient) DeleteIngress(ctx context.Context, ingressID string) error {
-	resp, err := c.client.IngressDeleteWithResponse(ctx, uuid.MustParse(ingressID))
+	resp, err := c.client.IngressDeleteIngressWithResponse(ctx, uuid.MustParse(ingressID))
 	if err != nil {
 		return err
 	}

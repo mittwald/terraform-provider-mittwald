@@ -45,14 +45,14 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.D
 	return
 }
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) mittwaldv2.IngressCreateJSONRequestBody {
-	return mittwaldv2.IngressCreateJSONRequestBody{
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) mittwaldv2.IngressCreateIngressJSONRequestBody {
+	return mittwaldv2.IngressCreateIngressJSONRequestBody{
 		Hostname: m.Hostname.ValueString(),
 		Paths:    m.pathsAsAPIModel(ctx, d),
 	}
 }
 
-func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel) mittwaldv2.IngressPathsJSONRequestBody {
+func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel) mittwaldv2.IngressUpdateIngressPathsJSONRequestBody {
 	return m.pathsAsAPIModel(ctx, d)
 }
 
