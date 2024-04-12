@@ -37,6 +37,7 @@ This provider offers the following resources:
 - [`mittwald_app`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/app)
 - [`mittwald_mysql_database`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/mysql_database)
 - [`mittwald_cronjob`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/cronjob)
+- [`mittwald_virtualhost`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/virtualhost)
 
 and the following data sources:
 
