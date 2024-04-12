@@ -57,10 +57,12 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 	}
 
 	for key, value := range m.UserInputs.Elements() {
-		b.UserInputs = append(b.UserInputs, mittwaldv2.DeMittwaldV1AppSavedUserInput{
-			Name:  key,
-			Value: value.String(),
-		})
+		if s, ok := value.(types.String); ok {
+			b.UserInputs = append(b.UserInputs, mittwaldv2.DeMittwaldV1AppSavedUserInput{
+				Name:  key,
+				Value: s.ValueString(),
+			})
+		}
 	}
 
 	return
