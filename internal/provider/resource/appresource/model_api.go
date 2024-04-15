@@ -96,10 +96,17 @@ func (m *ResourceModel) ToUpdateUpdaters(ctx context.Context, d diag.Diagnostics
 	return updaters
 }
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittwaldv2.DeMittwaldV1AppAppInstallation, appClient mittwaldv2.AppClient) (res diag.Diagnostics) {
+func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittwaldv2.DeMittwaldV1AppAppInstallation, clientBuilder mittwaldv2.ClientBuilder) (res diag.Diagnostics) {
+	appClient := clientBuilder.App()
+	projectClient := clientBuilder.Project()
+
 	appDesiredVersion := providerutil.
 		Try[*mittwaldv2.DeMittwaldV1AppAppVersion](&res, "error while fetching app version").
 		DoVal(appClient.GetAppVersion(ctx, appInstallation.AppId.String(), appInstallation.AppVersion.Desired))
+
+	project := providerutil.
+		Try[*mittwaldv2.DeMittwaldV1ProjectProject](&res, "error while fetching project").
+		DoVal(projectClient.GetProject(ctx, appInstallation.ProjectId.String()))
 
 	if res.HasError() {
 		return
@@ -107,6 +114,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittw
 
 	m.ProjectID = types.StringValue(appInstallation.ProjectId.String())
 	m.InstallationPath = types.StringValue(appInstallation.InstallationPath)
+	m.InstallationPathAbsolute = types.StringValue(project.Directories["Web"] + appInstallation.InstallationPath)
 	m.App = func() types.String {
 		for key, appID := range appNames {
 			if appID == appInstallation.AppId.String() {

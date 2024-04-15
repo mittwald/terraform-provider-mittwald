@@ -126,7 +126,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional:            true,
 			},
 			"installation_path": schema.StringAttribute{
-				MarkdownDescription: "The installation path of the app",
+				MarkdownDescription: "The installation path of the app, relative to the web root",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"installation_path_absolute": schema.StringAttribute{
+				MarkdownDescription: "The absolute installation path of the app, including the web root",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -242,7 +249,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		return
 	}
 
-	res.Append(data.FromAPIModel(ctx, appInstallation, appClient)...)
+	res.Append(data.FromAPIModel(ctx, appInstallation, r.client)...)
 
 	return
 }
