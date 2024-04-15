@@ -177,6 +177,13 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"ssh_host": schema.StringAttribute{
+				MarkdownDescription: "The SSH host of the app; this will be populated after the app has been installed. You can use it for declaring a [provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/connection) for your app.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }

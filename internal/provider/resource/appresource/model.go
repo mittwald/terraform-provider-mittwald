@@ -17,4 +17,5 @@ type ResourceModel struct {
 	UpdatePolicy             types.String `tfsdk:"update_policy"`
 	UserInputs               types.Map    `tfsdk:"user_inputs"`
 	Dependencies             types.Map    `tfsdk:"dependencies"`
+	SSHHost                  types.String `tfsdk:"ssh_host"`
 }

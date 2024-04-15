@@ -116,6 +116,13 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittw
 	m.ProjectID = types.StringValue(appInstallation.ProjectId.String())
 	m.InstallationPath = types.StringValue(appInstallation.InstallationPath)
 	m.InstallationPathAbsolute = types.StringValue(project.Directories["Web"] + appInstallation.InstallationPath)
+
+	if project.ClusterID != nil || project.ClusterDomain != nil {
+		m.SSHHost = types.StringValue(fmt.Sprintf("ssh.%s.%s", *project.ClusterID, *project.ClusterDomain))
+	} else {
+		m.SSHHost = types.StringUnknown()
+	}
+
 	m.App = func() types.String {
 		for key, appID := range appNames {
 			if appID == appInstallation.AppId.String() {
