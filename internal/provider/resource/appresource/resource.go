@@ -6,7 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -68,8 +70,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				},
 			},
 			"databases": schema.SetNestedAttribute{
-				MarkdownDescription: "The databases the app uses",
-				Optional:            true,
+				MarkdownDescription: "The databases the app uses.\n\n" +
+					"    You can use this field to link databases to the app. The database resources must be created before the app resource, and the database resources must have the same project ID as the app resource.\n\n" +
+					"    This is only necessary if the specific app is not implicitly linked to a database by the backend. This is the case for apps like WordPress or TYPO3, which are always linked to a database. In these cases, you can (or should, even) omit the `databases` attribute. You can still retrieve the linked databases from the observed state, but you should not manage them manually.",
+				Optional: true,
+				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
@@ -89,6 +94,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Required:            true,
 						},
 					},
+				},
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"app": schema.StringAttribute{
@@ -134,8 +142,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				ElementType:         types.StringType,
 			},
 			"dependencies": schema.MapNestedAttribute{
-				MarkdownDescription: "The dependencies of the app",
-				Optional:            true,
+				MarkdownDescription: "The dependencies of the app.\n\n" +
+					"    You can omit these to use the suggested dependencies for the app (in which case you can later select the dependencies from the resource state).\n\n" +
+					"    If you specify dependencies, you must specify the exact version of the dependency. To select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source.",
+				Optional: true,
+				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"version": schema.StringAttribute{
@@ -147,6 +158,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Required:            true,
 						},
 					},
+				},
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -162,7 +176,11 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	databases := make([]DatabaseModel, 0)
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-	resp.Diagnostics.Append(data.Databases.ElementsAs(ctx, &databases, false)...)
+
+	// Databases may be unknown, in cases where linked database resources are determined by backend logic
+	if !data.Databases.IsUnknown() {
+		resp.Diagnostics.Append(data.Databases.ElementsAs(ctx, &databases, false)...)
+	}
 
 	appClient := r.client.App()
 	appInput, appUpdaters := data.ToCreateRequestWithUpdaters(ctx, resp.Diagnostics, appClient)
