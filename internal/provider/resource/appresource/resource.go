@@ -62,6 +62,13 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"short_id": schema.StringAttribute{
+				MarkdownDescription: "The short ID of the app",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"project_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the project the app belongs to",
 				Required:            true,

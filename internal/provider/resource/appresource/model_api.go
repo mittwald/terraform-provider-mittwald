@@ -112,6 +112,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittw
 		return
 	}
 
+	m.ShortID = types.StringValue(appInstallation.ShortId)
 	m.ProjectID = types.StringValue(appInstallation.ProjectId.String())
 	m.InstallationPath = types.StringValue(appInstallation.InstallationPath)
 	m.InstallationPathAbsolute = types.StringValue(project.Directories["Web"] + appInstallation.InstallationPath)
