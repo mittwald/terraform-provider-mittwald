@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
@@ -62,6 +63,8 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 				Name:  key,
 				Value: s.ValueString(),
 			})
+		} else {
+			d.AddAttributeError(path.Root("user_inputs").AtMapKey(key), "invalid type", fmt.Sprintf("expected string, got %T", value))
 		}
 	}
 
