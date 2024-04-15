@@ -32,7 +32,6 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The user ID",
-				Optional:            true,
 				Computed:            true,
 			},
 			"email": schema.StringAttribute{
