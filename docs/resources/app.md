@@ -116,7 +116,10 @@ resource "mittwald_app" "custom_php" {
 ### Read-Only
 
 - `id` (String) The ID of the app
-- `installation_path` (String) The installation path of the app
+- `installation_path` (String) The installation path of the app, relative to the web root
+- `installation_path_absolute` (String) The absolute installation path of the app, including the web root
+- `short_id` (String) The short ID of the app
+- `ssh_host` (String) The SSH host of the app; this will be populated after the app has been installed. You can use it for declaring a [provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/connection) for your app.
 - `version_current` (String) The current version of the app
 
 <a id="nestedatt--databases"></a>
