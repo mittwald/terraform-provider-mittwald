@@ -70,9 +70,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				},
 			},
 			"databases": schema.SetNestedAttribute{
-				MarkdownDescription: "The databases the app uses",
-				Optional:            true,
-				Computed:            true,
+				MarkdownDescription: "The databases the app uses.\n\n" +
+					"    You can use this field to link databases to the app. The database resources must be created before the app resource, and the database resources must have the same project ID as the app resource.\n\n" +
+					"    This is only necessary if the specific app is not implicitly linked to a database by the backend. This is the case for apps like WordPress or TYPO3, which are always linked to a database. In these cases, you can (or should, even) omit the `databases` attribute. You can still retrieve the linked databases from the observed state, but you should not manage them manually.",
+				Optional: true,
+				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
@@ -140,9 +142,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				ElementType:         types.StringType,
 			},
 			"dependencies": schema.MapNestedAttribute{
-				MarkdownDescription: "The dependencies of the app",
-				Optional:            true,
-				Computed:            true,
+				MarkdownDescription: "The dependencies of the app.\n\n" +
+					"    You can omit these to use the suggested dependencies for the app (in which case you can later select the dependencies from the resource state).\n\n" +
+					"    If you specify dependencies, you must specify the exact version of the dependency. To select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source.",
+				Optional: true,
+				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"version": schema.StringAttribute{
