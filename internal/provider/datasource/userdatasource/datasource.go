@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
@@ -31,7 +32,8 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The user ID",
+				MarkdownDescription: "The user ID; if omitted, the authenticated user is assumed",
+				Optional:            true,
 				Computed:            true,
 			},
 			"email": schema.StringAttribute{
@@ -56,15 +58,20 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
+	userID := "self"
+	if !(data.ID.IsNull() || data.ID.IsUnknown()) {
+		userID = data.ID.ValueString()
+	}
+
 	user := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1SignupAccount](&resp.Diagnostics, "error while fetching user").
-		DoVal(d.client.User().GetCurrentUser(ctx))
+		Try[*mittwaldv2.DeMittwaldV1UserUser](&resp.Diagnostics, "error while fetching user").
+		DoVal(d.client.User().GetUser(ctx, userID))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data.ID = valueutil.StringPtrOrNull(user.UserId)
+	data.ID = types.StringValue(user.UserId.String())
 	data.Email = valueutil.StringPtrOrNull(user.Email)
 
 	// Save data into Terraform state

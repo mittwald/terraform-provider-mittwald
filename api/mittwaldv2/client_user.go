@@ -3,20 +3,50 @@ package mittwaldv2
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 )
 
 type UserClient interface {
-	GetCurrentUser(ctx context.Context) (*DeMittwaldV1SignupAccount, error)
+	GetCurrentUser(ctx context.Context) (*DeMittwaldV1UserUser, error)
+	GetUser(ctx context.Context, userID string) (*DeMittwaldV1UserUser, error)
 }
 
 type userClient struct {
 	client ClientWithResponsesInterface
 }
 
-func (c *userClient) GetCurrentUser(ctx context.Context) (*DeMittwaldV1SignupAccount, error) {
-	resp, err := c.client.UserGetOwnAccountWithResponse(ctx, UserGetOwnAccountJSONRequestBody{})
+func (c *userClient) GetCurrentUser(ctx context.Context) (*DeMittwaldV1UserUser, error) {
+	return c.GetUser(ctx, "self")
+}
+
+func (c *userClient) GetUser(ctx context.Context, userID string) (*DeMittwaldV1UserUser, error) {
+	// NOTE:
+	// It is necessary to work directly with the innards of the client here,
+	// because the generated client is incorrect at this point. This is related
+	// to a number of issues:
+	//
+	// - https://github.com/deepmap/oapi-codegen/issues/1429
+	// - https://github.com/deepmap/oapi-codegen/issues/1433
+	// - https://github.com/deepmap/oapi-codegen/issues/1029
+	client := c.client.(*ClientWithResponses).ClientInterface.(*Client)
+
+	serverURL, _ := url.Parse(client.Server)
+	opURL, _ := serverURL.Parse(fmt.Sprintf("/v2/users/%s", userID))
+
+	req, _ := http.NewRequest("GET", opURL.String(), nil)
+	req = req.WithContext(ctx)
+	if err := client.applyEditors(ctx, req, nil); err != nil {
+		return nil, err
+	}
+	httpResp, err := client.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error getting cronjob: %w", err)
+		return nil, fmt.Errorf("error getting user: %w", err)
+	}
+
+	resp, err := ParseUserGetUserResponse(httpResp)
+	if err != nil {
+		return nil, fmt.Errorf("error getting user: %w", err)
 	}
 
 	if resp.JSON200 == nil {
