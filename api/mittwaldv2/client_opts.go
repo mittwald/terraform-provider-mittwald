@@ -2,7 +2,6 @@ package mittwaldv2
 
 import (
 	"bytes"
-	"context"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"io"
 	"net/http"
@@ -53,7 +52,7 @@ func (c *debuggingClient) Do(req *http.Request) (*http.Response, error) {
 		logFields["err"] = err
 	}
 
-	tflog.Debug(context.Background(), "executed request", logFields)
+	tflog.Debug(req.Context(), "executed request", logFields)
 
 	return res, err
 }
