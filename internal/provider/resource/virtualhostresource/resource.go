@@ -1,4 +1,4 @@
-package cronjobresource
+package virtualhostresource
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
@@ -25,27 +27,39 @@ type Resource struct {
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_cronjob"
+	resp.TypeName = req.ProviderTypeName + "_virtualhost"
 }
 
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	builder := common.AttributeBuilderFor("cronjob")
+	builder := common.AttributeBuilderFor("virtualhost")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "This resource models a cron job.",
+		MarkdownDescription: "This resource models a virtualhost.",
 
 		Attributes: map[string]schema.Attribute{
-			"id":          builder.Id(),
-			"project_id":  builder.ProjectId(),
-			"app_id":      builder.AppId(),
-			"description": builder.Description(),
-			"destination": modelDestinationSchema,
-			"interval": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "The interval of the cron job; this should be a cron expression",
+			"id":         builder.Id(),
+			"project_id": builder.ProjectId(),
+			"hostname": schema.StringAttribute{
+				Description: "The desired hostname for the virtualhost.",
+				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
-			"email": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "The email address to send the cron job's output to",
+			"paths": schema.MapNestedAttribute{
+				Description: "The desired paths for the virtualhost.",
+				Required:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"app": schema.StringAttribute{
+							MarkdownDescription: "The ID of an app installation that this path should point to.",
+							Optional:            true,
+						},
+						"redirect": schema.StringAttribute{
+							MarkdownDescription: "The URL to redirect to.",
+							Optional:            true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -65,8 +79,8 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	id := providerutil.
-		Try[string](&resp.Diagnostics, "API error while updating cron job").
-		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, &resp.Diagnostics)))
+		Try[string](&resp.Diagnostics, "API error while creating virtual host").
+		DoVal(r.client.Domain().CreateIngress(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, &resp.Diagnostics)))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -91,15 +105,15 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
-	cronjob := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1CronjobCronjob](&res, "API error while fetching cron job").
-		DoVal(r.client.Cronjob().GetCronjob(ctx, data.ID.ValueString()))
+	ingress := providerutil.
+		Try[*mittwaldv2.DeMittwaldV1IngressIngress](&res, "API error while fetching ingress").
+		DoVal(r.client.Domain().GetIngress(ctx, data.ID.ValueString()))
 
 	if res.HasError() {
 		return
 	}
 
-	res.Append(data.FromAPIModel(ctx, cronjob)...)
+	res.Append(data.FromAPIModel(ctx, ingress)...)
 
 	return
 }
@@ -116,8 +130,8 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	providerutil.
-		Try[any](&resp.Diagnostics, "API error while updating cron job").
-		Do(r.client.Cronjob().UpdateCronjob(ctx, planData.ID.ValueString(), body))
+		Try[any](&resp.Diagnostics, "API error while updating virtual host").
+		Do(r.client.Domain().UpdateIngressPaths(ctx, planData.ID.ValueString(), body))
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
@@ -128,8 +142,8 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	providerutil.
-		Try[any](&resp.Diagnostics, "API error while deleting cron job").
-		Do(r.client.Cronjob().DeleteCronjob(ctx, data.ID.ValueString()))
+		Try[any](&resp.Diagnostics, "API error while deleting virtual host").
+		Do(r.client.Domain().DeleteIngress(ctx, data.ID.ValueString()))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

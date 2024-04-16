@@ -5,6 +5,7 @@ type ClientBuilder interface {
 	App() AppClient
 	Database() DatabaseClient
 	Cronjob() CronjobClient
+	Domain() DomainClient
 	User() UserClient
 }
 
@@ -32,6 +33,12 @@ func (b *clientBuilder) App() AppClient {
 
 func (b *clientBuilder) Cronjob() CronjobClient {
 	return &cronjobClient{
+		client: b.internalClient,
+	}
+}
+
+func (b *clientBuilder) Domain() DomainClient {
+	return &domainClient{
 		client: b.internalClient,
 	}
 }
