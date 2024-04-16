@@ -8,6 +8,7 @@ import (
 
 type ProjectClient interface {
 	ListProjects(ctx context.Context) ([]DeMittwaldV1ProjectProject, error)
+	GetProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error)
 	CreateProjectOnServer(ctx context.Context, serverID string, body ProjectCreateProjectJSONRequestBody) (string, error)
 	DeleteProject(ctx context.Context, projectID string) error
 	PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error)
@@ -55,6 +56,19 @@ func (c *projectClient) ListProjects(ctx context.Context) ([]DeMittwaldV1Project
 		}
 
 		return out, nil
+	}
+
+	return nil, errUnexpectedStatus(response.StatusCode(), response.Body)
+}
+
+func (c *projectClient) GetProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error) {
+	response, err := c.client.ProjectGetProjectWithResponse(ctx, uuid.MustParse(projectID))
+	if err != nil {
+		return nil, err
+	}
+
+	if response.JSON200 != nil {
+		return response.JSON200, nil
 	}
 
 	return nil, errUnexpectedStatus(response.StatusCode(), response.Body)

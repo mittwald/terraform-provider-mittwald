@@ -6,6 +6,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/appresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/cronjobresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
@@ -115,6 +116,7 @@ func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.Da
 	return []func() datasource.DataSource{
 		projectdatasource.NewByShortIdDataSource,
 		systemsoftwaredatasource.New,
+		userdatasource.New,
 	}
 }
 

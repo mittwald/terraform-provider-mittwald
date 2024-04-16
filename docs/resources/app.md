@@ -99,8 +99,16 @@ resource "mittwald_app" "custom_php" {
 
 ### Optional
 
-- `databases` (Attributes Set) The databases the app uses (see [below for nested schema](#nestedatt--databases))
-- `dependencies` (Attributes Map) The dependencies of the app (see [below for nested schema](#nestedatt--dependencies))
+- `databases` (Attributes Set) The databases the app uses.
+
+    You can use this field to link databases to the app. The database resources must be created before the app resource, and the database resources must have the same project ID as the app resource.
+
+    This is only necessary if the specific app is not implicitly linked to a database by the backend. This is the case for apps like WordPress or TYPO3, which are always linked to a database. In these cases, you can (or should, even) omit the `databases` attribute. You can still retrieve the linked databases from the observed state, but you should not manage them manually. (see [below for nested schema](#nestedatt--databases))
+- `dependencies` (Attributes Map) The dependencies of the app.
+
+    You can omit these to use the suggested dependencies for the app (in which case you can later select the dependencies from the resource state).
+
+    If you specify dependencies, you must specify the exact version of the dependency. To select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source. (see [below for nested schema](#nestedatt--dependencies))
 - `description` (String) The description of the app
 - `document_root` (String) The document root of the app
 - `user_inputs` (Map of String) The user inputs of the app
@@ -108,7 +116,10 @@ resource "mittwald_app" "custom_php" {
 ### Read-Only
 
 - `id` (String) The ID of the app
-- `installation_path` (String) The installation path of the app
+- `installation_path` (String) The installation path of the app, relative to the web root
+- `installation_path_absolute` (String) The absolute installation path of the app, including the web root
+- `short_id` (String) The short ID of the app
+- `ssh_host` (String) The SSH host of the app; this will be populated after the app has been installed. You can use it for declaring a [provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/connection) for your app.
 - `version_current` (String) The current version of the app
 
 <a id="nestedatt--databases"></a>
