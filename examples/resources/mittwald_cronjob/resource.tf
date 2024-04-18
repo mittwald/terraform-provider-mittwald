@@ -8,7 +8,7 @@ resource "mittwald_cronjob" "demo" {
   destination = {
     command = {
       interpreter = "/usr/bin/php"
-      path        = "/html"
+      path        = "/html/cronjob.php"
       parameters  = ["-r", "echo 'Hello World';"]
     }
   }
