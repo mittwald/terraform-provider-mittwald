@@ -22,9 +22,9 @@ resource "mittwald_cronjob" "demo" {
 
   destination = {
     command = {
-      interpreter = "php"
+      interpreter = "/usr/bin/php"
       path        = "/html"
-      arguments   = ["-r", "echo 'Hello World';"]
+      parameters  = ["-r", "echo 'Hello World';"]
     }
   }
 }
