@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.7.0
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/oapi-codegen/runtime v1.1.1
-	github.com/onsi/gomega v1.32.0
+	github.com/onsi/gomega v1.33.0
 )
 
 require (
@@ -89,7 +89,7 @@ require (
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.16.1 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/grpc v1.63.2 // indirect
