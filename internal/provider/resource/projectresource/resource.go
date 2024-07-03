@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
@@ -43,7 +44,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				MarkdownDescription: "ID of the server this project belongs to",
 				Optional:            true,
 			},
-			"id":          builder.Id(),
+			"id": builder.Id(),
+			"short_id": schema.StringAttribute{
+				MarkdownDescription: "The short ID of the project",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"description": builder.Description(),
 			"directories": schema.MapAttribute{
 				Computed:            true,
