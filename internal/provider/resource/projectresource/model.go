@@ -8,6 +8,7 @@ import (
 // ResourceModel describes the resource data model.
 type ResourceModel struct {
 	ID          types.String `tfsdk:"id"`
+	ShortID     types.String `tfsdk:"short_id"`
 	ServerID    types.String `tfsdk:"server_id"`
 	Description types.String `tfsdk:"description"`
 	Directories types.Map    `tfsdk:"directories"`

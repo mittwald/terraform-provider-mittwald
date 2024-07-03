@@ -39,3 +39,4 @@ resource "mittwald_project" "foobar" {
 - `default_ips` (List of String) Contains a list of default IP addresses for the project
 - `directories` (Map of String) Contains a map of data directories within the project
 - `id` (String) The generated project ID
+- `short_id` (String) The short ID of the project

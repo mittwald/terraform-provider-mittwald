@@ -24,6 +24,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, project *mittwaldv2.De
 	}
 
 	m.ID = types.StringValue(project.Id.String())
+	m.ShortID = types.StringValue(project.ShortId)
 	m.Description = types.StringValue(project.Description)
 	m.Directories = providerutil.EmbedDiag(types.MapValueFrom(ctx, types.StringType, project.Directories))(&res)
 	m.ServerID = valueutil.StringerOrNull(project.ServerId)
