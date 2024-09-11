@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/google/uuid"
+	"time"
 )
 
 func (c *appClient) RequestAppInstallation(ctx context.Context, projectID string, body AppRequestAppinstallationJSONRequestBody) (string, error) {
@@ -20,7 +21,7 @@ func (c *appClient) RequestAppInstallation(ctx context.Context, projectID string
 }
 
 func (c *appClient) GetAppInstallation(ctx context.Context, appInstallationID string) (*DeMittwaldV1AppAppInstallation, error) {
-	return poll(ctx, func() (*DeMittwaldV1AppAppInstallation, error) {
+	return poll(ctx, pollOpts{}, func() (*DeMittwaldV1AppAppInstallation, error) {
 		response, err := c.client.AppGetAppinstallationWithResponse(ctx, uuid.MustParse(appInstallationID))
 		if err != nil {
 			return nil, err
@@ -46,48 +47,28 @@ func (c *appClient) WaitUntilAppInstallationIsReady(ctx context.Context, appID s
 		}
 
 		if response.JSON200.AppVersion.Current == nil {
-			return false, nil
+			return false, errPollShouldRetry
 		}
 
 		if *response.JSON200.AppVersion.Current != response.JSON200.AppVersion.Desired {
-			return false, nil
+			return false, errPollShouldRetry
 		}
 
 		return true, nil
 	}
 
-	ready := make(chan bool)
-	errs := make(chan error)
-
-	defer close(ready)
-	defer close(errs)
-
-	go func() {
-		for {
-			r, err := runner()
-			if err != nil {
-				if notFound := (ErrNotFound{}); errors.As(err, &notFound) {
-					continue
-				}
-				errs <- err
-				return
-			}
-
-			if r {
-				ready <- r
-				return
-			}
-		}
-	}()
-
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errs:
-		return err
-	case <-ready:
-		return nil
+	o := pollOpts{
+		InitialDelay: 1 * time.Second,
+		MaxDelay:     60 * time.Second,
 	}
+
+	if ready, err := poll(ctx, o, runner); err != nil {
+		return err
+	} else if !ready {
+		return errors.New("app installation is not ready")
+	}
+
+	return nil
 }
 
 func (c *appClient) UninstallApp(ctx context.Context, appInstallationID string) error {
