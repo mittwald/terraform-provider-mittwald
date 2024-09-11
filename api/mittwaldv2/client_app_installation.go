@@ -56,38 +56,13 @@ func (c *appClient) WaitUntilAppInstallationIsReady(ctx context.Context, appID s
 		return true, nil
 	}
 
-	ready := make(chan bool)
-	errs := make(chan error)
-
-	defer close(ready)
-	defer close(errs)
-
-	go func() {
-		for {
-			r, err := runner()
-			if err != nil {
-				if notFound := (ErrNotFound{}); errors.As(err, &notFound) {
-					continue
-				}
-				errs <- err
-				return
-			}
-
-			if r {
-				ready <- r
-				return
-			}
-		}
-	}()
-
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errs:
+	if ready, err := poll(ctx, runner); err != nil {
 		return err
-	case <-ready:
-		return nil
+	} else if !ready {
+		return errors.New("app installation is not ready")
 	}
+
+	return nil
 }
 
 func (c *appClient) UninstallApp(ctx context.Context, appInstallationID string) error {
