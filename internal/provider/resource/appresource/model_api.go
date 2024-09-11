@@ -7,16 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
-func (m *ResourceModel) ToCreateRequestWithUpdaters(ctx context.Context, d diag.Diagnostics, appClient mittwaldv2.AppClient) (mittwaldv2.AppRequestAppinstallationJSONRequestBody, []mittwaldv2.AppInstallationUpdater) {
+func (m *ResourceModel) ToCreateRequestWithUpdaters(ctx context.Context, d *diag.Diagnostics, appClient mittwaldv2.AppClient) (mittwaldv2.AppRequestAppinstallationJSONRequestBody, []mittwaldv2.AppInstallationUpdater) {
 	return m.ToCreateRequest(ctx, d, appClient), m.ToCreateUpdaters(ctx, d, appClient)
 }
 
-func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d diag.Diagnostics, appClient mittwaldv2.AppClient) []mittwaldv2.AppInstallationUpdater {
+func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d *diag.Diagnostics, appClient mittwaldv2.AppClient) []mittwaldv2.AppInstallationUpdater {
 	updaters := make([]mittwaldv2.AppInstallationUpdater, 0)
 
 	if !m.DocumentRoot.IsNull() {
@@ -29,7 +30,7 @@ func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d diag.Diagnostics
 
 	if !m.Dependencies.IsNull() {
 		depUpdater := providerutil.
-			Try[mittwaldv2.AppInstallationUpdater](&d, "error while building dependency updaters").
+			Try[mittwaldv2.AppInstallationUpdater](d, "error while building dependency updaters").
 			DoVal(m.dependenciesToUpdater(ctx, appClient, nil))
 		updaters = append(updaters, depUpdater)
 	}
@@ -37,10 +38,12 @@ func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d diag.Diagnostics
 	return updaters
 }
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics, appClient mittwaldv2.AppClient) (b mittwaldv2.AppRequestAppinstallationJSONRequestBody) {
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics, appClient mittwaldv2.AppClient) (b mittwaldv2.AppRequestAppinstallationJSONRequestBody) {
+	tflog.Debug(ctx, "building create request for app", map[string]any{"app": m.App.ValueString()})
+
 	appID, ok := appNames[m.App.ValueString()]
 	if !ok {
-		d.AddError("app", "App not found")
+		d.AddAttributeError(path.Root("app"), "invalid value", fmt.Sprintf("app %s not found", m.App.ValueString()))
 		return
 	}
 
@@ -48,7 +51,7 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 	b.UpdatePolicy = mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(m.UpdatePolicy.ValueString())
 
 	appVersions := providerutil.
-		Try[[]mittwaldv2.DeMittwaldV1AppAppVersion](&d, "error while listing app versions").
+		Try[[]mittwaldv2.DeMittwaldV1AppAppVersion](d, "error while listing app versions").
 		DoVal(appClient.ListAppVersions(ctx, appID))
 
 	for _, appVersion := range appVersions {
