@@ -4,7 +4,7 @@ go 1.21
 toolchain go1.22.5
 
 require (
-	github.com/Masterminds/semver/v3 v3.2.1
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/alessio/shellescape v1.4.2
 	github.com/getkin/kin-openapi v0.126.0
 	github.com/google/uuid v1.6.0
