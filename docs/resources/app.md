@@ -93,6 +93,7 @@ resource "mittwald_app" "custom_php" {
 ### Required
 
 - `app` (String) The name of the app
+- `description` (String) The description of the app
 - `project_id` (String) The ID of the project the app belongs to
 - `update_policy` (String) The update policy of the app; one of `none`, `patchLevel` or `all`
 - `version` (String) The desired version of the app
@@ -109,7 +110,6 @@ resource "mittwald_app" "custom_php" {
     You can omit these to use the suggested dependencies for the app (in which case you can later select the dependencies from the resource state).
 
     If you specify dependencies, you must specify the exact version of the dependency. To select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source. (see [below for nested schema](#nestedatt--dependencies))
-- `description` (String) The description of the app
 - `document_root` (String) The document root of the app
 - `user_inputs` (Map of String) The user inputs of the app
 
