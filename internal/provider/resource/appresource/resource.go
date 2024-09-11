@@ -126,7 +126,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "The description of the app",
-				Optional:            true,
+				Required:            true,
 			},
 			"document_root": schema.StringAttribute{
 				MarkdownDescription: "The document root of the app",
