@@ -8,13 +8,37 @@ import (
 	"time"
 )
 
-func poll[T any](ctx context.Context, f func() (T, error)) (T, error) {
+var errPollShouldRetry = errors.New("poll should retry")
+
+type pollOpts struct {
+	InitialDelay  time.Duration
+	MaxDelay      time.Duration
+	BackoffFactor float64
+}
+
+func (o *pollOpts) applyDefaults() {
+	if o.InitialDelay == 0 {
+		o.InitialDelay = 100 * time.Millisecond
+	}
+
+	if o.MaxDelay == 0 {
+		o.MaxDelay = 10 * time.Second
+	}
+
+	if o.BackoffFactor == 0 {
+		o.BackoffFactor = 1.1
+	}
+}
+
+func poll[T any](ctx context.Context, o pollOpts, f func() (T, error)) (T, error) {
 	var null T
 
 	res := make(chan T)
 	err := make(chan error)
 
-	d := 100 * time.Millisecond
+	o.applyDefaults()
+
+	d := o.InitialDelay
 	t := time.NewTicker(d)
 
 	defer func() {
@@ -29,12 +53,14 @@ func poll[T any](ctx context.Context, f func() (T, error)) (T, error) {
 				return
 			}
 
-			d = time.Duration(math.Max(float64(d)*1.1, float64(10*time.Second)))
+			d = time.Duration(math.Max(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
 			t.Reset(d)
 
 			r, e := f()
 			if e != nil {
-				if notFound := (ErrNotFound{}); errors.As(e, &notFound) {
+				if errors.Is(e, errPollShouldRetry) {
+					continue
+				} else if notFound := (ErrNotFound{}); errors.As(e, &notFound) {
 					continue
 				} else if permissionDenied := (ErrPermissionDenied{}); errors.As(e, &permissionDenied) {
 					continue

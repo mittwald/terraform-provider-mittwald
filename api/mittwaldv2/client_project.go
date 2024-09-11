@@ -122,7 +122,7 @@ func (c *projectClient) DeleteProject(ctx context.Context, projectID string) err
 }
 
 func (c *projectClient) PollProject(ctx context.Context, projectID string) (*DeMittwaldV1ProjectProject, error) {
-	return poll(ctx, func() (*DeMittwaldV1ProjectProject, error) {
+	return poll(ctx, pollOpts{}, func() (*DeMittwaldV1ProjectProject, error) {
 		response, err := c.client.ProjectGetProjectWithResponse(ctx, uuid.MustParse(projectID))
 		if err != nil {
 			return nil, err

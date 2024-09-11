@@ -61,7 +61,7 @@ func (c *databaseClient) DeleteMySQLDatabase(ctx context.Context, databaseID str
 }
 
 func (c *databaseClient) PollMySQLDatabase(ctx context.Context, databaseID string) (*DeMittwaldV1DatabaseMySqlDatabase, error) {
-	return poll(ctx, func() (*DeMittwaldV1DatabaseMySqlDatabase, error) {
+	return poll(ctx, pollOpts{}, func() (*DeMittwaldV1DatabaseMySqlDatabase, error) {
 		response, err := c.client.DatabaseGetMysqlDatabaseWithResponse(ctx, uuid.MustParse(databaseID))
 		if err != nil {
 			return nil, err
@@ -91,7 +91,7 @@ func (c *databaseClient) SetMySQLUserPassword(ctx context.Context, userID string
 }
 
 func (c *databaseClient) PollMySQLUsersForDatabase(ctx context.Context, databaseID string) ([]DeMittwaldV1DatabaseMySqlUser, error) {
-	return poll(ctx, func() ([]DeMittwaldV1DatabaseMySqlUser, error) {
+	return poll(ctx, pollOpts{}, func() ([]DeMittwaldV1DatabaseMySqlUser, error) {
 		response, err := c.client.DatabaseListMysqlUsersWithResponse(ctx, uuid.MustParse(databaseID))
 		if err != nil {
 			return nil, err
@@ -106,7 +106,7 @@ func (c *databaseClient) PollMySQLUsersForDatabase(ctx context.Context, database
 }
 
 func (c *databaseClient) PollMySQLUser(ctx context.Context, userID string) (*DeMittwaldV1DatabaseMySqlUser, error) {
-	return poll(ctx, func() (*DeMittwaldV1DatabaseMySqlUser, error) {
+	return poll(ctx, pollOpts{}, func() (*DeMittwaldV1DatabaseMySqlUser, error) {
 		response, err := c.client.DatabaseGetMysqlUserWithResponse(ctx, uuid.MustParse(userID))
 		if err != nil {
 			return nil, err
