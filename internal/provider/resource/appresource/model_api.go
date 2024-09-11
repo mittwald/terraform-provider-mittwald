@@ -50,8 +50,6 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 	b.Description = m.Description.ValueString()
 	b.UpdatePolicy = mittwaldv2.DeMittwaldV1AppAppUpdatePolicy(m.UpdatePolicy.ValueString())
 
-	tflog.Debug(ctx, "create body", map[string]any{"request": b})
-
 	appVersions := providerutil.
 		Try[[]mittwaldv2.DeMittwaldV1AppAppVersion](d, "error while listing app versions").
 		DoVal(appClient.ListAppVersions(ctx, appID))
