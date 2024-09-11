@@ -164,7 +164,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *mittw
 
 		m.Databases = databaseModels
 	} else {
-		m.Databases = types.SetNull(&databaseModelAttrType)
+		m.Databases, _ = types.SetValue(&databaseModelAttrType, nil)
 	}
 
 	if appInstallation.AppVersion.Current != nil {
