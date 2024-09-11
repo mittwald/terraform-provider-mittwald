@@ -204,7 +204,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	appClient := r.client.App()
-	appInput, appUpdaters := data.ToCreateRequestWithUpdaters(ctx, resp.Diagnostics, appClient)
+	appInput, appUpdaters := data.ToCreateRequestWithUpdaters(ctx, &resp.Diagnostics, appClient)
 
 	if resp.Diagnostics.HasError() {
 		return
