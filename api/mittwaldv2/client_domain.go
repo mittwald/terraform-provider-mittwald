@@ -30,12 +30,12 @@ func (c *domainClient) GetIngress(ctx context.Context, ingressID string) (*DeMit
 }
 
 func (c *domainClient) CreateIngress(ctx context.Context, projectID string, body IngressCreateIngressJSONRequestBody) (string, error) {
+	body.ProjectId = uuid.MustParse(projectID)
+
 	resp, err := c.client.IngressCreateIngressWithResponse(ctx, body)
 	if err != nil {
 		return "", err
 	}
-
-	body.ProjectId = uuid.MustParse(projectID)
 
 	if resp.JSON201 == nil {
 		return "", errUnexpectedStatus(resp.StatusCode(), resp.Body)
