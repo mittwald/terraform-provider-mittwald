@@ -3,7 +3,7 @@ variable "server_id" {
 }
 
 resource "mittwald_virtualhost" "foobar" {
-  hostname = "test.example"
+  hostname   = "test.example"
   project_id = mittwald_project.foobar.id
 
   paths = {
