@@ -9,7 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
@@ -23,7 +25,7 @@ func New() resource.Resource {
 }
 
 type Resource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -78,15 +80,15 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	id := providerutil.
-		Try[string](&resp.Diagnostics, "API error while creating virtual host").
-		DoVal(r.client.Domain().CreateIngress(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, &resp.Diagnostics)))
+	ingress := providerutil.
+		Try[*domainclientv2.CreateIngressResponse](&resp.Diagnostics, "API error while creating virtual host").
+		DoValResp(r.client.Domain().CreateIngress(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics)))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data.ID = types.StringValue(id)
+	data.ID = types.StringValue(ingress.Id)
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -106,8 +108,8 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	ingress := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1IngressIngress](&res, "API error while fetching ingress").
-		DoVal(r.client.Domain().GetIngress(ctx, data.ID.ValueString()))
+		Try[*ingressv2.Ingress](&res, "API error while fetching ingress").
+		DoValResp(r.client.Domain().GetIngress(ctx, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return
@@ -131,7 +133,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while updating virtual host").
-		Do(r.client.Domain().UpdateIngressPaths(ctx, planData.ID.ValueString(), body))
+		DoResp(r.client.Domain().UpdateIngressPaths(ctx, body))
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
@@ -143,7 +145,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while deleting virtual host").
-		Do(r.client.Domain().DeleteIngress(ctx, data.ID.ValueString()))
+		DoResp(r.client.Domain().DeleteIngress(ctx, data.ToDeleteRequest()))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

@@ -7,7 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/cronjobclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/cronjobv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
@@ -21,7 +23,7 @@ func New() resource.Resource {
 }
 
 type Resource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -64,15 +66,15 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	id := providerutil.
-		Try[string](&resp.Diagnostics, "API error while updating cron job").
-		DoVal(r.client.Cronjob().CreateCronjob(ctx, data.ProjectID.ValueString(), data.ToCreateRequest(ctx, &resp.Diagnostics)))
+	cronjob := providerutil.
+		Try[*cronjobclientv2.CreateCronjobResponse](&resp.Diagnostics, "API error while updating cron job").
+		DoValResp(r.client.Cronjob().CreateCronjob(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics)))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data.ID = types.StringValue(id)
+	data.ID = types.StringValue(cronjob.Id)
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -92,8 +94,8 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	cronjob := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1CronjobCronjob](&res, "API error while fetching cron job").
-		DoVal(r.client.Cronjob().GetCronjob(ctx, data.ID.ValueString()))
+		Try[*cronjobv2.Cronjob](&res, "API error while fetching cron job").
+		DoValResp(r.client.Cronjob().GetCronjob(ctx, cronjobclientv2.GetCronjobRequest{CronjobID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return
@@ -110,14 +112,13 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 
-	body := planData.ToUpdateRequest(ctx, &resp.Diagnostics, &stateData)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while updating cron job").
-		Do(r.client.Cronjob().UpdateCronjob(ctx, planData.ID.ValueString(), body))
+		DoResp(r.client.Cronjob().UpdateCronjob(ctx, planData.ToUpdateRequest(ctx, &resp.Diagnostics, &stateData)))
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
@@ -129,7 +130,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while deleting cron job").
-		Do(r.client.Cronjob().DeleteCronjob(ctx, data.ID.ValueString()))
+		DoResp(r.client.Cronjob().DeleteCronjob(ctx, data.ToDeleteRequest()))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

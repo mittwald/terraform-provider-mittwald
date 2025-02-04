@@ -12,7 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/appclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -44,7 +47,7 @@ func New() resource.Resource {
 }
 
 type Resource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -203,37 +206,43 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		resp.Diagnostics.Append(data.Databases.ElementsAs(ctx, &databases, false)...)
 	}
 
-	appClient := r.client.App()
+	appClient := apiext.NewAppClient(r.client)
 	appInput, appUpdaters := data.ToCreateRequestWithUpdaters(ctx, &resp.Diagnostics, appClient)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	installationID := providerutil.
-		Try[string](&resp.Diagnostics, "error while requesting app installation").
-		DoVal(appClient.RequestAppInstallation(ctx, data.ProjectID.ValueString(), appInput))
+	installation := providerutil.
+		Try[*appclientv2.RequestAppinstallationResponse](&resp.Diagnostics, "error while requesting app installation").
+		DoValResp(appClient.RequestAppinstallation(ctx, appInput))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data.ID = types.StringValue(installationID)
+	data.ID = types.StringValue(installation.Id)
 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
-	try.Do(appClient.UpdateAppInstallation(ctx, installationID, appUpdaters...))
+	try.Do(appClient.UpdateAppinstallation(ctx, installation.Id, appUpdaters...))
 
 	for _, database := range databases {
-		try.Do(appClient.LinkAppInstallationToDatabase(
+		try.DoResp(appClient.LinkDatabase(
 			ctx,
-			data.ID.ValueString(),
-			database.ID.ValueString(),
-			database.UserID.ValueString(),
-			mittwaldv2.AppLinkDatabaseJSONBodyPurposePrimary,
+			appclientv2.LinkDatabaseRequest{
+				AppInstallationID: data.ID.ValueString(),
+				Body: appclientv2.LinkDatabaseRequestBody{
+					DatabaseId: database.ID.ValueString(),
+					DatabaseUserIds: map[string]string{
+						"admin": database.UserID.ValueString(),
+					},
+					Purpose: appclientv2.LinkDatabaseRequestBodyPurposePrimary,
+				},
+			},
 		))
 	}
 
-	try.Do(appClient.WaitUntilAppInstallationIsReady(ctx, installationID))
+	try.Do(appClient.WaitUntilAppInstallationIsReady(ctx, installation.Id))
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -256,8 +265,8 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 	appClient := r.client.App()
 
 	appInstallation := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1AppAppInstallation](&res, "error while fetching app installation").
-		DoVal(appClient.GetAppInstallation(ctx, data.ID.ValueString()))
+		Try[*appv2.AppInstallation](&res, "error while fetching app installation").
+		DoValResp(appClient.GetAppinstallation(ctx, appclientv2.GetAppinstallationRequest{AppInstallationID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return
@@ -275,11 +284,11 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &currentData)...)
 
-	appClient := r.client.App()
+	appClient := apiext.NewAppClient(r.client)
 	updaters := planData.ToUpdateUpdaters(ctx, resp.Diagnostics, &currentData, appClient)
 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
-	try.Do(appClient.UpdateAppInstallation(ctx, planData.ID.ValueString(), updaters...))
+	try.Do(appClient.UpdateAppinstallation(ctx, planData.ID.ValueString(), updaters...))
 
 	linkedDatabasesInState := make([]DatabaseModel, 0)
 	linkedDatabasesInPlan := make([]DatabaseModel, 0)
@@ -300,22 +309,28 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		existing, exists := linkedDatabasesInStateByID[database.ID.ValueString()]
 		if exists && !existing.Equals(&database) {
 			tflog.Debug(ctx, "database link changed; dropping", map[string]any{"database_id": database.ID.String()})
-			try.Do(appClient.UnlinkAppInstallationFromDatabase(
+			try.DoResp(appClient.UnlinkDatabase(
 				ctx,
-				planData.ID.ValueString(),
-				database.ID.ValueString(),
+				appclientv2.UnlinkDatabaseRequest{
+					AppInstallationID: planData.ID.ValueString(),
+					DatabaseID:        database.ID.ValueString(),
+				},
 			))
 			exists = false
 		}
 
 		if !exists {
 			tflog.Debug(ctx, "creating database link", map[string]any{"database_id": database.ID.String()})
-			try.Do(appClient.LinkAppInstallationToDatabase(
+			try.DoResp(appClient.LinkDatabase(
 				ctx,
-				planData.ID.ValueString(),
-				database.ID.ValueString(),
-				database.UserID.ValueString(),
-				mittwaldv2.AppLinkDatabaseJSONBodyPurpose(database.Purpose.ValueString()),
+				appclientv2.LinkDatabaseRequest{
+					AppInstallationID: planData.ID.ValueString(),
+					Body: appclientv2.LinkDatabaseRequestBody{
+						DatabaseId:      database.ID.ValueString(),
+						DatabaseUserIds: map[string]string{"admin": database.UserID.ValueString()},
+						Purpose:         appclientv2.LinkDatabaseRequestBodyPurpose(database.Purpose.ValueString()),
+					},
+				},
 			))
 		}
 	}
@@ -324,10 +339,12 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		_, planned := linkedDatabasesInPlanByID[database.ID.ValueString()]
 		if !planned {
 			tflog.Debug(ctx, "dropping database link", map[string]any{"database_id": database.ID.String()})
-			try.Do(appClient.UnlinkAppInstallationFromDatabase(
+			try.DoResp(appClient.UnlinkDatabase(
 				ctx,
-				planData.ID.ValueString(),
-				database.ID.ValueString(),
+				appclientv2.UnlinkDatabaseRequest{
+					AppInstallationID: planData.ID.ValueString(),
+					DatabaseID:        database.ID.ValueString(),
+				},
 			))
 		}
 	}
@@ -346,7 +363,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while uninstalling app").
-		Do(r.client.App().UninstallApp(ctx, data.ID.ValueString()))
+		DoResp(r.client.App().UninstallAppinstallation(ctx, data.ToDeleteRequest()))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

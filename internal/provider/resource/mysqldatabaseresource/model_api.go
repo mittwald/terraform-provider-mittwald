@@ -5,29 +5,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/databaseclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/databasev2"
 )
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics) mittwaldv2.DatabaseCreateMysqlDatabaseJSONRequestBody {
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics) databaseclientv2.CreateMysqlDatabaseRequest {
 	dataCharset := MySQLDatabaseCharsetModel{}
 	dataUser := MySQLDatabaseUserModel{}
 
 	d.Append(m.CharacterSettings.As(ctx, &dataCharset, basetypes.ObjectAsOptions{})...)
 	d.Append(m.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
 
-	return mittwaldv2.DatabaseCreateMysqlDatabaseJSONRequestBody{
-		Database: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlDatabase{
-			Description: m.Description.ValueString(),
-			Version:     m.Version.ValueString(),
-			CharacterSettings: &mittwaldv2.DeMittwaldV1DatabaseCharacterSettings{
-				CharacterSet: dataCharset.Charset.ValueString(),
-				Collation:    dataCharset.Collation.ValueString(),
+	return databaseclientv2.CreateMysqlDatabaseRequest{
+		ProjectID: m.ProjectID.ValueString(),
+		Body: databaseclientv2.CreateMysqlDatabaseRequestBody{
+			Database: databasev2.CreateMySqlDatabase{
+				Description: m.Description.ValueString(),
+				Version:     m.Version.ValueString(),
+				CharacterSettings: &databasev2.CharacterSettings{
+					CharacterSet: dataCharset.Charset.ValueString(),
+					Collation:    dataCharset.Collation.ValueString(),
+				},
+			},
+			User: databasev2.CreateMySqlUserWithDatabase{
+				Password:    dataUser.Password.ValueString(),
+				AccessLevel: databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
 			},
 		},
-		User: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlUserWithDatabase{
-			Password:    dataUser.Password.ValueString(),
-			AccessLevel: mittwaldv2.DeMittwaldV1DatabaseCreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
-		},
+	}
+}
+
+func (m *ResourceModel) ToDeleteRequest() databaseclientv2.DeleteMysqlDatabaseRequest {
+	return databaseclientv2.DeleteMysqlDatabaseRequest{
+		MysqlDatabaseID: m.ID.ValueString(),
 	}
 }
 
@@ -41,7 +51,7 @@ func (m *ResourceModel) Reset() {
 	m.User = types.ObjectNull(userAttrs)
 }
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase, apiUser *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) (res diag.Diagnostics) {
+func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *databasev2.MySqlDatabase, apiUser *databasev2.MySqlUser) (res diag.Diagnostics) {
 	if apiDatabase == nil {
 		m.Reset()
 		return
@@ -62,7 +72,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *mittwaldv
 	m.Hostname = types.StringValue(apiDatabase.Hostname)
 	m.Description = types.StringValue(apiDatabase.Description)
 	m.Version = types.StringValue(apiDatabase.Version)
-	m.ProjectID = types.StringValue(apiDatabase.ProjectId.String())
+	m.ProjectID = types.StringValue(apiDatabase.ProjectId)
 
 	characterSet.FromAPIModel(&apiDatabase.CharacterSettings)
 	m.CharacterSettings = characterSet.AsObject(ctx, res)
@@ -77,13 +87,13 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *mittwaldv
 	return
 }
 
-func (m *MySQLDatabaseCharsetModel) FromAPIModel(apiCharset *mittwaldv2.DeMittwaldV1DatabaseCharacterSettings) {
+func (m *MySQLDatabaseCharsetModel) FromAPIModel(apiCharset *databasev2.CharacterSettings) {
 	m.Charset = types.StringValue(apiCharset.CharacterSet)
 	m.Collation = types.StringValue(apiCharset.Collation)
 }
 
-func (m *MySQLDatabaseUserModel) FromAPIModel(apiUser *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) {
-	m.ID = types.StringValue(apiUser.Id.String())
+func (m *MySQLDatabaseUserModel) FromAPIModel(apiUser *databasev2.MySqlUser) {
+	m.ID = types.StringValue(apiUser.Id)
 	m.Name = types.StringValue(apiUser.Name)
 	m.AccessLevel = types.StringValue(string(apiUser.AccessLevel))
 	m.ExternalAccess = types.BoolValue(apiUser.ExternalAccess)

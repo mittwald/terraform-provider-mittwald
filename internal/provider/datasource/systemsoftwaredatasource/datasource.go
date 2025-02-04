@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -19,7 +20,7 @@ func New() datasource.DataSource {
 
 // DataSource defines the data source implementation.
 type DataSource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -72,7 +73,9 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	systemSoftware, ok, err := d.client.App().GetSystemSoftwareByName(ctx, data.Name.ValueString())
+	appClient := apiext.NewAppClient(d.client)
+
+	systemSoftware, ok, err := appClient.GetSystemsoftwareByName(ctx, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to get system software", err.Error())
 		return
@@ -81,7 +84,7 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	versions, err := d.client.App().SelectSystemSoftwareVersion(ctx, systemSoftware.Id, data.SelectorOrDefault())
+	versions, err := appClient.SelectSystemsoftwareVersion(ctx, systemSoftware.Id, data.SelectorOrDefault())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to get recommended system software version", err.Error())
 		return
@@ -95,10 +98,10 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		}
 
 		data.Version = types.StringValue(recommended.InternalVersion)
-		data.VersionID = types.StringValue(recommended.Id.String())
+		data.VersionID = types.StringValue(recommended.Id)
 	} else {
 		data.Version = types.StringValue(versions[len(versions)-1].InternalVersion)
-		data.VersionID = types.StringValue(versions[len(versions)-1].Id.String())
+		data.VersionID = types.StringValue(versions[len(versions)-1].Id)
 	}
 
 	// Save data into Terraform state

@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -26,14 +27,14 @@ var dependencyType = types.ObjectType{
 func InstalledSystemSoftwareToDependencyModelMap(
 	ctx context.Context,
 	res diag.Diagnostics,
-	appClient mittwaldv2.AppClient,
-	systemSoftwares []mittwaldv2.DeMittwaldV1AppInstalledSystemSoftware,
+	appClient apiext.AppClient,
+	systemSoftwares []appv2.InstalledSystemSoftware,
 ) types.Map {
 	dependencyMapValues := make(map[string]attr.Value)
 	for _, dep := range systemSoftwares {
-		systemSoftware, version, err := appClient.GetSystemSoftwareAndVersion(
+		systemSoftware, version, err := appClient.GetSystemsoftwareAndVersion(
 			ctx,
-			dep.SystemSoftwareId.String(),
+			dep.SystemSoftwareId,
 			dep.SystemSoftwareVersion.Desired,
 		)
 

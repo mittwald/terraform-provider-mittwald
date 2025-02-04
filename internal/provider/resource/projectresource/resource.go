@@ -11,7 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 	"time"
@@ -27,7 +31,7 @@ func New() resource.Resource {
 
 // Resource defines the resource implementation.
 type Resource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -89,11 +93,10 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	projectID := providerutil.
-		Try[string](&resp.Diagnostics, "error while creating project").
-		DoVal(client.CreateProjectOnServer(
+	projectResponse := providerutil.
+		Try[*projectclientv2.CreateProjectResponse](&resp.Diagnostics, "error while creating project").
+		DoValResp(client.CreateProject(
 			ctx,
-			data.ServerID.ValueString(),
 			data.ToCreateRequest(),
 		))
 
@@ -101,7 +104,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	data.ID = types.StringValue(projectID)
+	data.ID = types.StringValue(projectResponse.Id)
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -125,21 +128,23 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
-	project := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1ProjectProject](&res, "error while reading project").
+	client := apiext.NewProjectClient(r.client)
+
+	pr := providerutil.
+		Try[*projectv2.Project](&res, "error while reading project").
 		IgnoreNotFound().
-		DoVal(r.client.Project().PollProject(ctx, data.ID.ValueString()))
+		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{}))
 
 	ips := providerutil.
 		Try[[]string](&res, "error while reading project ips").
 		IgnoreNotFound().
-		DoVal(r.client.Project().GetProjectDefaultIPs(ctx, data.ID.ValueString()))
+		DoVal(client.GetProjectDefaultIPs(ctx, data.ID.ValueString()))
 
 	if res.HasError() {
 		return
 	}
 
-	res.Append(data.FromAPIModel(ctx, project, ips)...)
+	res.Append(data.FromAPIModel(ctx, pr, ips)...)
 
 	return
 }
@@ -155,7 +160,13 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	if !dataPlan.Description.Equal(dataState.Description) {
-		if err := r.client.Project().UpdateProjectDescription(ctx, dataState.ID.ValueString(), dataPlan.Description.ValueString()); err != nil {
+		updateReq := projectclientv2.UpdateProjectDescriptionRequest{
+			ProjectID: dataState.ID.ValueString(),
+			Body: projectclientv2.UpdateProjectDescriptionRequestBody{
+				Description: dataPlan.Description.ValueString(),
+			},
+		}
+		if _, err := r.client.Project().UpdateProjectDescription(ctx, updateReq); err != nil {
 			resp.Diagnostics.AddError("Error while updating project description", err.Error())
 		}
 	}
@@ -177,10 +188,12 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
+	deleteReq := projectclientv2.DeleteProjectRequest{ProjectID: data.ID.ValueString()}
+
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while deleting project").
 		IgnoreNotFound().
-		Do(r.client.Project().DeleteProject(ctx, data.ID.ValueString()))
+		DoResp(r.client.Project().DeleteProject(ctx, deleteReq))
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
