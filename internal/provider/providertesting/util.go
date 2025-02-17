@@ -14,5 +14,7 @@ func TestRandomPassword(t *testing.T) string {
 	}
 
 	str := base64.RawStdEncoding.EncodeToString(out)
-	return str[:32]
+
+	// append a special character because there are questionable requirements on password strength.
+	return str[:31] + "_"
 }

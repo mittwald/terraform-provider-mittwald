@@ -5,7 +5,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/userclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/userv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
@@ -19,7 +21,7 @@ func New() datasource.DataSource {
 
 // DataSource defines the data source implementation.
 type DataSource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -64,14 +66,14 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 	}
 
 	user := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1UserUser](&resp.Diagnostics, "error while fetching user").
-		DoVal(d.client.User().GetUser(ctx, userID))
+		Try[*userv2.User](&resp.Diagnostics, "error while fetching user").
+		DoValResp(d.client.User().GetUser(ctx, userclientv2.GetUserRequest{UserID: userID}))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data.ID = types.StringValue(user.UserId.String())
+	data.ID = types.StringValue(user.UserId)
 	data.Email = valueutil.StringPtrOrNull(user.Email)
 
 	// Save data into Terraform state

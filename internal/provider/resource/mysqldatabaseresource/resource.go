@@ -12,7 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/databaseclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/databasev2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 	"time"
@@ -27,7 +30,7 @@ func New() resource.Resource {
 }
 
 type Resource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (d *Resource) Metadata(_ context.Context, request resource.MetadataRequest, response *resource.MetadataResponse) {
@@ -132,15 +135,15 @@ func (d *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	createReq := data.ToCreateRequest(ctx, resp.Diagnostics)
 
-	dbID, userID, err := d.client.Database().CreateMySQLDatabase(ctx, data.ProjectID.ValueString(), createReq)
+	createRes, _, err := d.client.Database().CreateMysqlDatabase(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	dataUser.ID = types.StringValue(userID)
+	dataUser.ID = types.StringValue(createRes.UserId)
 
-	data.ID = types.StringValue(dbID)
+	data.ID = types.StringValue(createRes.Id)
 	data.User = dataUser.AsObject(ctx, resp.Diagnostics)
 
 	resp.Diagnostics.Append(d.read(ctx, &data)...)
@@ -177,11 +180,11 @@ func (d *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 	}
 
 	database := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase](&res, "error while reading database").
+		Try[*databasev2.MySqlDatabase](&res, "error while reading database").
 		IgnoreNotFound().
-		DoVal(client.PollMySQLDatabase(ctx, data.ID.ValueString()))
+		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlDatabase, databaseclientv2.GetMysqlDatabaseRequest{MysqlDatabaseID: data.ID.ValueString()}))
 	databaseUser := providerutil.
-		Try[*mittwaldv2.DeMittwaldV1DatabaseMySqlUser](&res, "error while reading database user").
+		Try[*databasev2.MySqlUser](&res, "error while reading database user").
 		DoVal(d.findDatabaseUser(ctx, data.ID.ValueString(), &dataUser))
 
 	if res.HasError() {
@@ -193,23 +196,23 @@ func (d *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 	return
 }
 
-func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (*mittwaldv2.DeMittwaldV1DatabaseMySqlUser, error) {
+func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data *MySQLDatabaseUserModel) (*databasev2.MySqlUser, error) {
 	client := d.client.Database()
 
 	// This should be the regular case, in which we can simply look up the user by ID.
 	if !data.ID.IsNull() {
-		return client.PollMySQLUser(ctx, data.ID.ValueString())
+		return apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlUser, databaseclientv2.GetMysqlUserRequest{MysqlUserID: data.ID.ValueString()})
 	}
 
 	// If the user ID is not set, we need to look up the user by database ID and check which one is the main user.
-	databaseUserList, err := client.PollMySQLUsersForDatabase(ctx, databaseID)
+	databaseUserList, _, err := client.ListMysqlUsers(ctx, databaseclientv2.ListMysqlUsersRequest{MysqlDatabaseID: databaseID})
 	if err != nil {
 		return nil, err
 	}
 
-	for _, user := range databaseUserList {
+	for _, user := range *databaseUserList {
 		if user.MainUser {
-			data.ID = types.StringValue(user.Id.String())
+			data.ID = types.StringValue(user.Id)
 			return &user, nil
 		}
 	}
@@ -237,12 +240,22 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	if !planData.Description.Equal(stateData.Description) {
 		providerutil.
 			Try[any](&resp.Diagnostics, "error while updating database").
-			Do(client.SetMySQLDatabaseDescription(ctx, planData.ID.ValueString(), planData.Description.ValueString()))
+			DoResp(client.UpdateMysqlDatabaseDescription(ctx, databaseclientv2.UpdateMysqlDatabaseDescriptionRequest{
+				MysqlDatabaseID: planData.ID.ValueString(),
+				Body: databaseclientv2.UpdateMysqlDatabaseDescriptionRequestBody{
+					Description: planData.Description.ValueString(),
+				},
+			}))
 	}
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while setting database user password").
-		Do(client.SetMySQLUserPassword(ctx, dataUser.ID.ValueString(), dataUser.Password.ValueString()))
+		DoResp(client.UpdateMysqlUserPassword(ctx, databaseclientv2.UpdateMysqlUserPasswordRequest{
+			MysqlUserID: dataUser.ID.ValueString(),
+			Body: databaseclientv2.UpdateMysqlUserPasswordRequestBody{
+				Password: dataUser.Password.ValueString(),
+			},
+		}))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 }
@@ -264,7 +277,7 @@ func (d *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while deleting database").
 		IgnoreNotFound().
-		Do(d.client.Database().DeleteMySQLDatabase(ctx, data.ID.ValueString()))
+		DoResp(d.client.Database().DeleteMysqlDatabase(ctx, data.ToDeleteRequest()))
 }
 
 func (d *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

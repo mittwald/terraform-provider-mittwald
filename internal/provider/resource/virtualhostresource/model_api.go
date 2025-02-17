@@ -2,18 +2,16 @@ package virtualhostresource
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
-	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
 )
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.DeMittwaldV1IngressIngress) (res diag.Diagnostics) {
-	m.ID = valueutil.StringerOrNull(apiModel.Id)
-	m.ProjectID = valueutil.StringerOrNull(apiModel.ProjectId)
+func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingress) (res diag.Diagnostics) {
+	m.ID = types.StringValue(apiModel.Id)
+	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.Hostname = types.StringValue(apiModel.Hostname)
 
 	pathObjs := make(map[string]attr.Value)
@@ -23,11 +21,11 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.D
 			"redirect": types.StringNull(),
 		}
 
-		if inst, err := ingressPath.Target.AsDeMittwaldV1IngressTargetInstallation(); err == nil && inst.InstallationId != uuid.Nil {
-			attrs["app"] = types.StringValue(inst.InstallationId.String())
+		if inst := ingressPath.Target.AlternativeTargetInstallation; inst != nil && inst.InstallationId != "" {
+			attrs["app"] = types.StringValue(inst.InstallationId)
 		}
 
-		if url, err := ingressPath.Target.AsDeMittwaldV1IngressTargetUrl(); err == nil && url.Url != "" {
+		if url := ingressPath.Target.AlternativeTargetUrl; url != nil && url.Url != "" {
 			attrs["redirect"] = types.StringValue(url.Url)
 		}
 
@@ -45,59 +43,58 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *mittwaldv2.D
 	return
 }
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) mittwaldv2.IngressCreateIngressJSONRequestBody {
-	return mittwaldv2.IngressCreateIngressJSONRequestBody{
-		Hostname: m.Hostname.ValueString(),
-		Paths:    m.pathsAsAPIModel(ctx, d),
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) domainclientv2.CreateIngressRequest {
+	return domainclientv2.CreateIngressRequest{
+		Body: domainclientv2.CreateIngressRequestBody{
+			Hostname: m.Hostname.ValueString(),
+			Paths:    m.pathsAsAPIModel(ctx, d),
+		},
 	}
 }
 
-func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel) mittwaldv2.IngressUpdateIngressPathsJSONRequestBody {
-	return m.pathsAsAPIModel(ctx, d)
+func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel) domainclientv2.UpdateIngressPathsRequest {
+	return domainclientv2.UpdateIngressPathsRequest{
+		IngressID: m.ID.ValueString(),
+		Body:      m.pathsAsAPIModel(ctx, d),
+	}
 }
 
-func (m *PathModel) toAPIModel(p path.Path, urlPathPrefix string, d *diag.Diagnostics) mittwaldv2.DeMittwaldV1IngressPath {
-	model := mittwaldv2.DeMittwaldV1IngressPath{
+func (m *ResourceModel) ToDeleteRequest() domainclientv2.DeleteIngressRequest {
+	return domainclientv2.DeleteIngressRequest{
+		IngressID: m.ID.ValueString(),
+	}
+}
+
+func (m *PathModel) toAPIModel(urlPathPrefix string) ingressv2.Path {
+	model := ingressv2.Path{
 		Path: urlPathPrefix,
 	}
 
-	_ = model.Target.FromDeMittwaldV1IngressTargetUseDefaultPage(mittwaldv2.DeMittwaldV1IngressTargetUseDefaultPage{
-		UseDefaultPage: true,
-	})
-
 	if !m.App.IsNull() {
-		err := model.Target.FromDeMittwaldV1IngressTargetInstallation(mittwaldv2.DeMittwaldV1IngressTargetInstallation{
-			InstallationId: uuid.MustParse(m.App.ValueString()),
-		})
-
-		if err != nil {
-			d.AddAttributeError(p.AtName("app"), "error while build app installation path target", err.Error())
+		model.Target.AlternativeTargetInstallation = &ingressv2.TargetInstallation{
+			InstallationId: m.App.ValueString(),
 		}
-	}
-
-	if !m.Redirect.IsNull() {
-		err := model.Target.FromDeMittwaldV1IngressTargetUrl(mittwaldv2.DeMittwaldV1IngressTargetUrl{
+	} else if !m.Redirect.IsNull() {
+		model.Target.AlternativeTargetUrl = &ingressv2.TargetUrl{
 			Url: m.Redirect.ValueString(),
-		})
-
-		if err != nil {
-			d.AddAttributeError(p.AtName("redirect"), "error while build redirect path target", err.Error())
+		}
+	} else {
+		model.Target.AlternativeTargetUseDefaultPage = &ingressv2.TargetUseDefaultPage{
+			UseDefaultPage: true,
 		}
 	}
 
 	return model
 }
 
-func (m *ResourceModel) pathsAsAPIModel(ctx context.Context, res *diag.Diagnostics) []mittwaldv2.DeMittwaldV1IngressPath {
-	out := make([]mittwaldv2.DeMittwaldV1IngressPath, 0)
+func (m *ResourceModel) pathsAsAPIModel(ctx context.Context, res *diag.Diagnostics) []ingressv2.Path {
+	out := make([]ingressv2.Path, 0)
 	intermediate := map[string]PathModel{}
 
 	res.Append(m.Paths.ElementsAs(ctx, &intermediate, false)...)
 
-	attrPath := path.Root("paths")
-
 	for p, model := range intermediate {
-		out = append(out, model.toAPIModel(attrPath.AtMapKey(p), p, res))
+		out = append(out, model.toAPIModel(p))
 	}
 
 	return out

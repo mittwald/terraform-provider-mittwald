@@ -1,15 +1,18 @@
 package providertesting
 
 import (
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"context"
+	"github.com/mittwald/api-client-go/mittwaldv2"
+	generatedv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"os"
 )
 
-func TestClient() mittwaldv2.ClientBuilder {
+func TestClient() generatedv2.Client {
 	apiKey := os.Getenv("MITTWALD_API_TOKEN")
 
-	opts := make([]mittwaldv2.ClientBuilderOption, 0)
-	opts = append(opts, mittwaldv2.WithAPIToken(apiKey))
+	opts := make([]mittwaldv2.ClientOption, 0)
+	opts = append(opts, mittwaldv2.WithAccessToken(apiKey))
 
-	return mittwaldv2.New(opts...)
+	client, _ := mittwaldv2.New(context.Background(), opts...)
+	return client
 }

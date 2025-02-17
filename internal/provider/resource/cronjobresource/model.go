@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/cronjobv2"
 	"strings"
 )
 
@@ -82,8 +82,8 @@ func (m *ResourceDestinationModel) AsObject(ctx context.Context, d *diag.Diagnos
 	return obj
 }
 
-func (m ResourceDestinationURLModel) AsAPIModel() mittwaldv2.DeMittwaldV1CronjobCronjobUrl {
-	return mittwaldv2.DeMittwaldV1CronjobCronjobUrl{
+func (m ResourceDestinationURLModel) AsAPIModel() cronjobv2.CronjobUrl {
+	return cronjobv2.CronjobUrl{
 		Url: string(m),
 	}
 }
@@ -117,8 +117,8 @@ func (m *ResourceDestinationCommandModel) ParametersAsStr() *string {
 	return &outAsStr
 }
 
-func (m *ResourceDestinationCommandModel) AsAPIModel() mittwaldv2.DeMittwaldV1CronjobCronjobCommand {
-	return mittwaldv2.DeMittwaldV1CronjobCronjobCommand{
+func (m *ResourceDestinationCommandModel) AsAPIModel() cronjobv2.CronjobCommand {
+	return cronjobv2.CronjobCommand{
 		Interpreter: m.Interpreter.ValueString(),
 		Path:        m.Path.ValueString(),
 		Parameters:  m.ParametersAsStr(),

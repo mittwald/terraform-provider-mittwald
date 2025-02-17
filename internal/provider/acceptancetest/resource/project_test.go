@@ -2,11 +2,15 @@ package resource
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-testing/config"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
+	"github.com/mittwald/api-client-go/pkg/httperr"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providertesting"
 	"os"
 	"testing"
@@ -14,7 +18,7 @@ import (
 )
 
 func TestAccProjectResourceCreated(t *testing.T) {
-	var project mittwaldv2.DeMittwaldV1ProjectProject
+	var project projectv2.Project
 
 	serverID := config.StringVariable(os.Getenv("MITTWALD_ACCTEST_SERVER_ID"))
 
@@ -80,7 +84,7 @@ func testAccProjectResourceDestroyed(s *terraform.State) error {
 	return nil
 }
 
-func testAccAssertProjectIsPresent(resourceName string, out *mittwaldv2.DeMittwaldV1ProjectProject) resource.TestCheckFunc {
+func testAccAssertProjectIsPresent(resourceName string, out *projectv2.Project) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -90,7 +94,9 @@ func testAccAssertProjectIsPresent(resourceName string, out *mittwaldv2.DeMittwa
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
 
-		project, err := providertesting.TestClient().Project().PollProject(ctx, rs.Primary.ID)
+		client := providertesting.TestClient().Project()
+
+		project, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: rs.Primary.ID})
 		if err != nil {
 			return err
 		}
@@ -100,7 +106,7 @@ func testAccAssertProjectIsPresent(resourceName string, out *mittwaldv2.DeMittwa
 	}
 }
 
-func testAccAssertProjectDescriptionMatches(project *mittwaldv2.DeMittwaldV1ProjectProject, desc string) resource.TestCheckFunc {
+func testAccAssertProjectDescriptionMatches(project *projectv2.Project, desc string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if project.Description != desc {
 			return fmt.Errorf("expected project description to be '%s', got %s", desc, project.Description)
@@ -114,8 +120,10 @@ func testAccAssertProjectIsAbsent(projectID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err := providertesting.TestClient().Project().PollProject(ctx, projectID)
-	if mittwaldv2.IsNotFound(err) {
+	client := providertesting.TestClient().Project()
+
+	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: projectID})
+	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
 

@@ -3,7 +3,8 @@ package providerutil
 import (
 	"errors"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/api-client-go/pkg/httperr"
+	"net/http"
 )
 
 func ErrorValueToDiag[T any](res T, err error) func(d *diag.Diagnostics, summary string) T {
@@ -31,10 +32,22 @@ type WrappedError[T any] struct {
 
 func (w *WrappedError[T]) Do(err error) {
 	if err != nil {
-		if notFound := (mittwaldv2.ErrNotFound{}); errors.As(err, &notFound) && w.ignoreNotFound {
+		if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) && w.ignoreNotFound {
 			return
 		}
-		if permissionDenied := (mittwaldv2.ErrPermissionDenied{}); errors.As(err, &permissionDenied) && w.ignoreNotFound {
+		if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(err, &permissionDenied) && w.ignoreNotFound {
+			return
+		}
+		w.diag.AddError(w.summary, err.Error())
+	}
+}
+
+func (w *WrappedError[T]) DoResp(_ *http.Response, err error) {
+	if err != nil {
+		if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) && w.ignoreNotFound {
+			return
+		}
+		if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(err, &permissionDenied) && w.ignoreNotFound {
 			return
 		}
 		w.diag.AddError(w.summary, err.Error())
@@ -47,6 +60,11 @@ func (w *WrappedError[T]) IgnoreNotFound() *WrappedError[T] {
 }
 
 func (w *WrappedError[T]) DoVal(res T, err error) T {
+	w.Do(err)
+	return res
+}
+
+func (w *WrappedError[T]) DoValResp(res T, _ *http.Response, err error) T {
 	w.Do(err)
 	return res
 }

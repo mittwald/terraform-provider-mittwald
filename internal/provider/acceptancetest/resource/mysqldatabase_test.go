@@ -2,20 +2,25 @@ package resource
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/config"
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
-	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providertesting"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/databaseclientv2"
+	"github.com/mittwald/api-client-go/pkg/httperr"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-testing/config"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/databasev2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providertesting"
 )
 
 func TestAccMySQLDatabaseResourceCreated(t *testing.T) {
-	var database mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase
-	var user mittwaldv2.DeMittwaldV1DatabaseMySqlUser
+	var database databasev2.MySqlDatabase
+	var user databasev2.MySqlUser
 
 	serverID := config.StringVariable(os.Getenv("MITTWALD_ACCTEST_SERVER_ID"))
 	databasePassword := config.StringVariable(providertesting.TestRandomPassword(t))
@@ -112,7 +117,7 @@ func testAccDatabaseResourceDestroyed(s *terraform.State) error {
 	return nil
 }
 
-func testAccAssertMySQLDatabaseIsPresent(resourceName string, databaseOut *mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase, userOut *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) resource.TestCheckFunc {
+func testAccAssertMySQLDatabaseIsPresent(resourceName string, databaseOut *databasev2.MySqlDatabase, userOut *databasev2.MySqlUser) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -124,14 +129,14 @@ func testAccAssertMySQLDatabaseIsPresent(resourceName string, databaseOut *mittw
 
 		client := providertesting.TestClient().Database()
 
-		database, err := client.PollMySQLDatabase(ctx, rs.Primary.ID)
+		database, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlDatabase, databaseclientv2.GetMysqlDatabaseRequest{MysqlDatabaseID: rs.Primary.ID})
 		if err != nil {
 			return err
 		}
 
 		userID := rs.Primary.Attributes["user.id"]
 
-		user, err := client.PollMySQLUser(ctx, userID)
+		user, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlUser, databaseclientv2.GetMysqlUserRequest{MysqlUserID: userID})
 		if err != nil {
 			return err
 		}
@@ -143,7 +148,7 @@ func testAccAssertMySQLDatabaseIsPresent(resourceName string, databaseOut *mittw
 	}
 }
 
-func testAccAssertMySQLDatabaseDescriptionMatches(database *mittwaldv2.DeMittwaldV1DatabaseMySqlDatabase, desc string) resource.TestCheckFunc {
+func testAccAssertMySQLDatabaseDescriptionMatches(database *databasev2.MySqlDatabase, desc string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if database.Description != desc {
 			return fmt.Errorf("expected database description to be '%s', got %s", desc, database.Description)
@@ -153,7 +158,7 @@ func testAccAssertMySQLDatabaseDescriptionMatches(database *mittwaldv2.DeMittwal
 	}
 }
 
-func testAccAssertMySQLUsernameMatchesState(resourceName string, user *mittwaldv2.DeMittwaldV1DatabaseMySqlUser) resource.TestCheckFunc {
+func testAccAssertMySQLUsernameMatchesState(resourceName string, user *databasev2.MySqlUser) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		databaseResource, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -173,8 +178,10 @@ func testAccAssertMySQLDatabaseIsAbsent(databaseID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err := providertesting.TestClient().Database().PollMySQLDatabase(ctx, databaseID)
-	if mittwaldv2.IsNotFound(err) {
+	client := providertesting.TestClient().Database()
+
+	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlDatabase, databaseclientv2.GetMysqlDatabaseRequest{MysqlDatabaseID: databaseID})
+	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
 
@@ -185,8 +192,10 @@ func testAccAssertMySQLUserIsAbsent(userID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err := providertesting.TestClient().Database().PollMySQLUser(ctx, userID)
-	if mittwaldv2.IsNotFound(err) {
+	client := providertesting.TestClient().Database()
+
+	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlUser, databaseclientv2.GetMysqlUserRequest{MysqlUserID: userID})
+	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
 

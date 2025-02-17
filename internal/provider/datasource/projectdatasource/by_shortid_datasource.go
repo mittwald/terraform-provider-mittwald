@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -20,7 +21,7 @@ func NewByShortIdDataSource() datasource.DataSource {
 
 // ByShortIdDataSource defines the data source implementation.
 type ByShortIdDataSource struct {
-	client mittwaldv2.ClientBuilder
+	client mittwaldv2.Client
 }
 
 func (d *ByShortIdDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -59,16 +60,16 @@ func (d *ByShortIdDataSource) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	projects, err := d.client.Project().ListProjects(ctx)
+	projects, _, err := d.client.Project().ListProjects(ctx, projectclientv2.ListProjectsRequest{})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read example, got error: %s", err))
 		return
 	}
 
 	if !data.ShortId.IsNull() {
-		for _, project := range projects {
+		for _, project := range *projects {
 			if project.ShortId == data.ShortId.ValueString() {
-				data.Id = types.StringValue(project.Id.String())
+				data.Id = types.StringValue(project.Id)
 				break
 			}
 		}

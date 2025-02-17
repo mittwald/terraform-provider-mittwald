@@ -1,22 +1,25 @@
-package mittwaldv2
+package apiutils
 
 import (
 	"context"
 	"errors"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"math"
+	"net/http"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/mittwald/api-client-go/pkg/httperr"
 )
 
-var errPollShouldRetry = errors.New("poll should retry")
+var ErrPollShouldRetry = errors.New("poll should retry")
 
-type pollOpts struct {
+type PollOpts struct {
 	InitialDelay  time.Duration
 	MaxDelay      time.Duration
 	BackoffFactor float64
 }
 
-func (o *pollOpts) applyDefaults() {
+func (o *PollOpts) applyDefaults() {
 	if o.InitialDelay == 0 {
 		o.InitialDelay = 100 * time.Millisecond
 	}
@@ -30,10 +33,10 @@ func (o *pollOpts) applyDefaults() {
 	}
 }
 
-func poll[T any](ctx context.Context, o pollOpts, f func() (T, error)) (T, error) {
-	var null T
+func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TReq) (TRes, *http.Response, error), req TReq) (TRes, error) {
+	var null TRes
 
-	res := make(chan T)
+	res := make(chan TRes)
 	err := make(chan error)
 
 	o.applyDefaults()
@@ -56,13 +59,13 @@ func poll[T any](ctx context.Context, o pollOpts, f func() (T, error)) (T, error
 			d = time.Duration(math.Max(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
 			t.Reset(d)
 
-			r, e := f()
+			r, _, e := f(ctx, req)
 			if e != nil {
-				if errors.Is(e, errPollShouldRetry) {
+				if errors.Is(e, ErrPollShouldRetry) {
 					continue
-				} else if notFound := (ErrNotFound{}); errors.As(e, &notFound) {
+				} else if notFound := new(httperr.ErrNotFound); errors.As(e, &notFound) {
 					continue
-				} else if permissionDenied := (ErrPermissionDenied{}); errors.As(e, &permissionDenied) {
+				} else if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(e, &permissionDenied) {
 					continue
 				} else if errors.Is(e, context.DeadlineExceeded) {
 					return
@@ -79,7 +82,7 @@ func poll[T any](ctx context.Context, o pollOpts, f func() (T, error)) (T, error
 
 	select {
 	case <-ctx.Done():
-		return null, ErrNotFound{}
+		return null, &httperr.ErrNotFound{}
 	case r := <-res:
 		return r, nil
 	case e := <-err:

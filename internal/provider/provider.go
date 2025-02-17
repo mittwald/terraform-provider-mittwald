@@ -3,7 +3,8 @@ package provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/mittwald/terraform-provider-mittwald/api/mittwaldv2"
+	"github.com/mittwald/api-client-go/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/logadapter"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
@@ -12,6 +13,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
+	"log/slog"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -82,21 +84,26 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 		apiKey = data.APIKey.ValueString()
 	}
 
-	opts := make([]mittwaldv2.ClientBuilderOption, 0)
+	opts := make([]mittwaldv2.ClientOption, 0)
 
 	if apiKey != "" {
-		opts = append(opts, mittwaldv2.WithAPIToken(apiKey))
+		opts = append(opts, mittwaldv2.WithAccessToken(apiKey))
 	} else {
 		resp.Diagnostics.AddAttributeError(path.Root("api_key"), "unknown mittwald API key", "cannot create the mittwald API client because no API key was supplied")
 	}
 
 	if !data.Endpoint.IsNull() {
-		opts = append(opts, mittwaldv2.WithEndpoint(data.Endpoint.ValueString()))
+		opts = append(opts, mittwaldv2.WithBaseURL(data.Endpoint.ValueString()))
 	}
 
-	opts = append(opts, mittwaldv2.WithDebugging(data.DebugRequestBodies.ValueBool()))
+	logger := slog.New(&logadapter.TFLHandler{})
+	opts = append(opts, mittwaldv2.WithRequestLogging(logger, data.DebugRequestBodies.ValueBool(), data.DebugRequestBodies.ValueBool()))
 
-	client := mittwaldv2.New(opts...)
+	client, err := mittwaldv2.New(ctx, opts...)
+	if err != nil {
+		resp.Diagnostics.AddError("error initializing API client", err.Error())
+		return
+	}
 
 	resp.DataSourceData = client
 	resp.ResourceData = client
