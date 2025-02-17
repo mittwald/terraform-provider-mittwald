@@ -133,7 +133,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 	pr := providerutil.
 		Try[*projectv2.Project](&res, "error while reading project").
 		IgnoreNotFound().
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{}))
+		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
 
 	ips := providerutil.
 		Try[[]string](&res, "error while reading project ips").

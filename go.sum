@@ -171,6 +171,12 @@ github.com/mitchellh/reflectwalk v1.0.2 h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zx
 github.com/mitchellh/reflectwalk v1.0.2/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/mittwald/api-client-go v0.2.0 h1:T186qzOGhBwEpFLyH8uxNVNMLqMDIcsdudGYw32P9j8=
 github.com/mittwald/api-client-go v0.2.0/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
+github.com/mittwald/api-client-go v0.2.7 h1:B7hFX4Mr+V6jWPxUaesFSNdvV2PeLsOQlrWfPISKb3Y=
+github.com/mittwald/api-client-go v0.2.7/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
+github.com/mittwald/api-client-go v0.2.8 h1:y5788wIUgbegeg6ahbqQ/hlD2Ti9UCTLvlDcUfIc0Lc=
+github.com/mittwald/api-client-go v0.2.8/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
+github.com/mittwald/api-client-go v0.2.9 h1:QanF9OnDnyesuf8pY/azaJtAWoQs64+RtT+sYD0PpNw=
+github.com/mittwald/api-client-go v0.2.9/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
 github.com/onsi/ginkgo/v2 v2.22.2 h1:/3X8Panh8/WwhU/3Ssa6rCKqPLuAkVY2I0RoyDLySlU=

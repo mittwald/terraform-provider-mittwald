@@ -123,7 +123,7 @@ func testAccAssertProjectIsAbsent(projectID string) error {
 	client := providertesting.TestClient().Project()
 
 	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{projectID})
-	if errors.Is(err, &httperr.ErrNotFound{}) {
+	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
 

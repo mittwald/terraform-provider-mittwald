@@ -181,7 +181,7 @@ func testAccAssertMySQLDatabaseIsAbsent(databaseID string) error {
 	client := providertesting.TestClient().Database()
 
 	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlDatabase, databaseclientv2.GetMysqlDatabaseRequest{databaseID})
-	if errors.Is(err, &httperr.ErrNotFound{}) {
+	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
 
@@ -195,7 +195,7 @@ func testAccAssertMySQLUserIsAbsent(userID string) error {
 	client := providertesting.TestClient().Database()
 
 	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlUser, databaseclientv2.GetMysqlUserRequest{userID})
-	if errors.Is(err, &httperr.ErrNotFound{}) {
+	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
 

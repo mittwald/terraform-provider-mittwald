@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/mittwald/api-client-go/mittwaldv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/logadapter"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
@@ -12,6 +13,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
+	"log/slog"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -94,8 +96,8 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 		opts = append(opts, mittwaldv2.WithBaseURL(data.Endpoint.ValueString()))
 	}
 
-	//TODO
-	//opts = append(opts, mittwaldv2.WithDebugging(data.DebugRequestBodies.ValueBool()))
+	logger := slog.New(&logadapter.TFLHandler{})
+	opts = append(opts, mittwaldv2.WithRequestLogging(logger, data.DebugRequestBodies.ValueBool(), data.DebugRequestBodies.ValueBool()))
 
 	client, err := mittwaldv2.New(ctx, opts...)
 	if err != nil {
