@@ -4,13 +4,12 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
 )
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *ingressv2.Ingress) (res diag.Diagnostics) {
+func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingress) (res diag.Diagnostics) {
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.Hostname = types.StringValue(apiModel.Hostname)
@@ -66,7 +65,7 @@ func (m *ResourceModel) ToDeleteRequest() domainclientv2.DeleteIngressRequest {
 	}
 }
 
-func (m *PathModel) toAPIModel(p path.Path, urlPathPrefix string, d *diag.Diagnostics) ingressv2.Path {
+func (m *PathModel) toAPIModel(urlPathPrefix string) ingressv2.Path {
 	model := ingressv2.Path{
 		Path: urlPathPrefix,
 	}
@@ -94,10 +93,8 @@ func (m *ResourceModel) pathsAsAPIModel(ctx context.Context, res *diag.Diagnosti
 
 	res.Append(m.Paths.ElementsAs(ctx, &intermediate, false)...)
 
-	attrPath := path.Root("paths")
-
 	for p, model := range intermediate {
-		out = append(out, model.toAPIModel(attrPath.AtMapKey(p), p, res))
+		out = append(out, model.toAPIModel(p))
 	}
 
 	return out
