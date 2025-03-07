@@ -19,7 +19,7 @@ resource "mittwald_redis_database" "foobar_database" {
   description = "Foo"
 
   configuration = {
-    max_memory        = "256Mi"
+    max_memory_mb     = 256
     max_memory_policy = "allkeys-lru"
     persistent        = true
   }
@@ -51,6 +51,6 @@ resource "mittwald_redis_database" "foobar_database" {
 Optional:
 
 - `additional_flags` (List of String) Additional command-line flags that should be passed to the Redis container
-- `max_memory` (String) The database's maximum memory. This may be a number, optionally suffixed by one of the IEC binary suffixes Ki, Mi or Gi.
+- `max_memory_mb` (Number) The database's maximum memory in MiB
 - `max_memory_policy` (String) The database's key eviction policy. See the Redis documentation on key evictions for more information.
 - `persistent` (Boolean) Enable persistent storage for this database
