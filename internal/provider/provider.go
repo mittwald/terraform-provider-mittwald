@@ -51,11 +51,11 @@ func (p *MittwaldProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "API endpoint for the Mittwald API. Default to `https://api.mittwald.de/v2` if omitted.",
+				MarkdownDescription: "API endpoint for the mittwald API. Default to `https://api.mittwald.de/v2` if omitted. During regular usage, you probably won't need this. However, it can be useful for testing against a different API endpoint.",
 				Optional:            true,
 			},
 			"api_key": schema.StringAttribute{
-				MarkdownDescription: "API key for the Mittwald API; if omitted, the `MITTWALD_API_TOKEN` environment variable will be used.",
+				MarkdownDescription: "API key for the mittwald API; if omitted, the `MITTWALD_API_TOKEN` environment variable will be used.",
 				Optional:            true,
 				Sensitive:           true,
 			},
