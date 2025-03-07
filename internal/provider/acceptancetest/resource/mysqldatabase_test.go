@@ -59,7 +59,7 @@ func TestAccMySQLDatabaseResourceCreated(t *testing.T) {
 				),
 			},
 		},
-		CheckDestroy: testAccDatabaseResourceDestroyed,
+		CheckDestroy: testAccMySQLDatabaseResourceDestroyed,
 	})
 }
 
@@ -98,7 +98,7 @@ resource "mittwald_mysql_database" "test" {
 `, desc)
 }
 
-func testAccDatabaseResourceDestroyed(s *terraform.State) error {
+func testAccMySQLDatabaseResourceDestroyed(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "mittwald_mysql_database" {
 			continue
