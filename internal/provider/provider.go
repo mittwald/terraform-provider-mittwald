@@ -49,6 +49,7 @@ func (p *MittwaldProvider) Metadata(_ context.Context, _ provider.MetadataReques
 
 func (p *MittwaldProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "The mittwald provider is used to manage mittwald mStudio resources.",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
 				MarkdownDescription: "API endpoint for the mittwald API. Default to `https://api.mittwald.de/v2` if omitted. During regular usage, you probably won't need this. However, it can be useful for testing against a different API endpoint.",
