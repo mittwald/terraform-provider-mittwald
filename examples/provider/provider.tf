@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    mittwald = {
+      source  = "mittwald/mittwald"
+      version = ">= 1.0.0, <2.0.0"
+    }
+  }
+}
+
 variable "mittwald_api_key" {
   type      = string
   sensitive = true

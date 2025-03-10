@@ -1,0 +1,24 @@
+page_title: "{{.ProviderShortName}} Provider"
+subcategory: ""
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.ProviderShortName}} Provider
+
+{{ .Description | trimspace }}
+
+{{ if .HasExample -}}
+## Example Usage & Getting started
+
+Start by configuring the provider in your `required_providers` section:
+
+{{tffile .ExampleFile }}
+
+You will need an API key to authenticate with the mStudio API. Have a look at the [mStudio developer documentation](https://developer.mittwald.de/docs/v2/api/intro/) to learn how to obtain one.
+
+You can provide the API token either as a Terraform variable, or by setting the `MITTWALD_API_TOKEN` environment variable.
+
+{{- end }}
+
+{{ .SchemaMarkdown | trimspace }}
