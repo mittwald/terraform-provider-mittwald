@@ -27,6 +27,7 @@ var appNames = map[string]string{
 	"static":     "d20baefd-81d2-42aa-bfba-9a3220ae839b",
 	"php":        "34220303-cb87-4592-8a95-2eb20a97b2ac",
 	"node":       "3e7f920b-a711-4d2f-9871-661e1b41a2f0",
+	"python":     "be57d166-dae9-4480-bae2-da3f3c6f0a2e",
 	"contao":     "4916ce3e-cba4-4d2e-9798-a8764aa14cf3",
 	"drupal":     "3d8a261a-3d6f-4e09-b68c-bfe90aece514",
 	"grav":       "d3a465da-75a2-44ab-8e81-6960055f6255",
