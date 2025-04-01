@@ -9,6 +9,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/appresource"
+	containerstackresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerstack"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/cronjobresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
@@ -119,6 +120,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 		redisdatabaseresource.New,
 		cronjobresource.New,
 		virtualhostresource.New,
+		containerstackresource.New,
 	}
 }
 
