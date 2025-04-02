@@ -37,6 +37,7 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 		}
 
 		container := ContainerModel{
+			ID:          types.StringValue(service.Id),
 			Image:       types.StringValue(image),
 			Description: types.StringValue(service.Description),
 			Command:     convertStringSliceToList(state.Command),
@@ -104,6 +105,7 @@ func imageFromContainerObject(val attr.Value) (string, bool) {
 // Define ContainerModelType for schema conversion
 var containerModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
+		"id":          types.StringType,
 		"image":       types.StringType,
 		"description": types.StringType,
 		"command":     types.ListType{ElemType: types.StringType},

@@ -13,6 +13,7 @@ type ContainerStackModel struct {
 }
 
 type ContainerModel struct {
+	ID          types.String `tfsdk:"id"`
 	Image       types.String `tfsdk:"image"`
 	Description types.String `tfsdk:"description"`
 	Command     types.List   `tfsdk:"command"`
