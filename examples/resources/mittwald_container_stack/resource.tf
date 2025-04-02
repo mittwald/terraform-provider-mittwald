@@ -3,10 +3,10 @@ resource "mittwald_container_stack" "nginx" {
   default_stack = true
 
   containers = {
-    foo = {
+    nginx = {
       description = "Example web server"
       image       = "nginx:1.27.4"
-      entrypoint  = ["/docker-entrypoing.sh"]
+      entrypoint  = ["/docker-entrypoint.sh"]
 
       // command = ["php -S 0.0.0.0:$PORT"]
 
@@ -34,6 +34,20 @@ resource "mittwald_container_stack" "nginx" {
   volumes = {
     example = {
 
+    }
+  }
+}
+
+resource "mittwald_virtualhost" "nginx" {
+  hostname   = "${mittwald_project.test.short_id}.project.space"
+  project_id = mittwald_project.test.id
+
+  paths = {
+    "/" = {
+      container = {
+        container_id = mittwald_container_stack.nginx.containers.nginx.id
+        port         = "${mittwald_container_stack.nginx.containers.ports[0].public_port}/tcp"
+      }
     }
   }
 }

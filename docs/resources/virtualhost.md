@@ -52,4 +52,13 @@ resource "mittwald_virtualhost" "foobar" {
 Optional:
 
 - `app` (String) The ID of an app installation that this path should point to.
+- `container` (Attributes) (see [below for nested schema](#nestedatt--paths--container))
 - `redirect` (String) The URL to redirect to.
+
+<a id="nestedatt--paths--container"></a>
+### Nested Schema for `paths.container`
+
+Required:
+
+- `container_id` (String) The ID of a container (!= the ID of a container *stack*) that this path should point to.
+- `port` (String) A port number/protocol combination of the referenced container that traffic should be redirected to (example: `8080/tcp`)
