@@ -35,8 +35,8 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingr
 			attrs["container"] = types.ObjectValueMust(
 				containerPathType.AttrTypes,
 				map[string]attr.Value{
-					"container": types.StringValue(container.Container.Id),
-					"port":      types.StringValue(container.Container.PortProtocol),
+					"container_id": types.StringValue(container.Container.Id),
+					"port":         types.StringValue(container.Container.PortProtocol),
 				},
 			)
 		}

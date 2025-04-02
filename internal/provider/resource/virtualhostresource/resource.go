@@ -60,6 +60,19 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							MarkdownDescription: "The URL to redirect to.",
 							Optional:            true,
 						},
+						"container": schema.SingleNestedAttribute{
+							Optional: true,
+							Attributes: map[string]schema.Attribute{
+								"container_id": schema.StringAttribute{
+									MarkdownDescription: "The ID of a container (!= the ID of a container *stack*) that this path should point to.",
+									Required:            true,
+								},
+								"port": schema.StringAttribute{
+									MarkdownDescription: "A port number/protocol combination of the referenced container that traffic should be redirected to (example: `8080/tcp`)",
+									Required:            true,
+								},
+							},
+						},
 					},
 				},
 			},

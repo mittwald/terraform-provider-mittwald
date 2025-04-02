@@ -27,7 +27,7 @@ var pathType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"app":       types.StringType,
 		"redirect":  types.StringType,
-		"container": types.StringType,
+		"container": containerPathType,
 	},
 }
 
