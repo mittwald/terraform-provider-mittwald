@@ -10,6 +10,7 @@ type ResourceModel struct {
 	ProjectID types.String `tfsdk:"project_id"`
 	Hostname  types.String `tfsdk:"hostname"`
 	Paths     types.Map    `tfsdk:"paths"`
+	Default   types.Bool   `tfsdk:"default"`
 }
 
 type PathModel struct {

@@ -14,6 +14,7 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingr
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.Hostname = types.StringValue(apiModel.Hostname)
+	m.Default = types.BoolValue(apiModel.IsDefault)
 
 	pathObjs := make(map[string]attr.Value)
 	for _, ingressPath := range apiModel.Paths {

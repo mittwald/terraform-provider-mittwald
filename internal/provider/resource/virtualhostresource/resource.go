@@ -47,6 +47,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"default": schema.BoolAttribute{
+				MarkdownDescription: "Describes if this vhost is the project's default virtual host. The default virtual host will never be deleted. If you attempt to delete this resource via terraform, it will simply revert to an unmanaged state.",
+				Computed:            true,
+			},
 			"paths": schema.MapNestedAttribute{
 				Description: "The desired paths for the virtualhost.",
 				Required:    true,
