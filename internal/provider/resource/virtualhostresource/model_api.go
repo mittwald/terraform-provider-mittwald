@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
 )
@@ -17,8 +18,9 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingr
 	pathObjs := make(map[string]attr.Value)
 	for _, ingressPath := range apiModel.Paths {
 		attrs := map[string]attr.Value{
-			"app":      types.StringNull(),
-			"redirect": types.StringNull(),
+			"app":       types.StringNull(),
+			"redirect":  types.StringNull(),
+			"container": types.ObjectNull(containerPathType.AttrTypes),
 		}
 
 		if inst := ingressPath.Target.AlternativeTargetInstallation; inst != nil && inst.InstallationId != "" {
@@ -27,6 +29,16 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingr
 
 		if url := ingressPath.Target.AlternativeTargetUrl; url != nil && url.Url != "" {
 			attrs["redirect"] = types.StringValue(url.Url)
+		}
+
+		if container := ingressPath.Target.AlternativeTargetContainer; container != nil && container.Container.Id != "" {
+			attrs["container"] = types.ObjectValueMust(
+				containerPathType.AttrTypes,
+				map[string]attr.Value{
+					"container": types.StringValue(container.Container.Id),
+					"port":      types.StringValue(container.Container.PortProtocol),
+				},
+			)
 		}
 
 		obj, d := types.ObjectValue(pathType.AttrTypes, attrs)
@@ -65,7 +77,7 @@ func (m *ResourceModel) ToDeleteRequest() domainclientv2.DeleteIngressRequest {
 	}
 }
 
-func (m *PathModel) toAPIModel(urlPathPrefix string) ingressv2.Path {
+func (m *PathModel) toAPIModel(ctx context.Context, urlPathPrefix string, res *diag.Diagnostics) ingressv2.Path {
 	model := ingressv2.Path{
 		Path: urlPathPrefix,
 	}
@@ -77,6 +89,18 @@ func (m *PathModel) toAPIModel(urlPathPrefix string) ingressv2.Path {
 	} else if !m.Redirect.IsNull() {
 		model.Target.AlternativeTargetUrl = &ingressv2.TargetUrl{
 			Url: m.Redirect.ValueString(),
+		}
+	} else if !m.Container.IsNull() {
+		containerPathModel := ContainerPathModel{}
+
+		d := m.Container.As(ctx, &containerPathModel, basetypes.ObjectAsOptions{})
+		res.Append(d...)
+
+		model.Target.AlternativeTargetContainer = &ingressv2.TargetContainer{
+			Container: ingressv2.TargetContainerContainer{
+				Id:           containerPathModel.ContainerID.ValueString(),
+				PortProtocol: containerPathModel.Port.ValueString(),
+			},
 		}
 	} else {
 		model.Target.AlternativeTargetUseDefaultPage = &ingressv2.TargetUseDefaultPage{
@@ -94,7 +118,7 @@ func (m *ResourceModel) pathsAsAPIModel(ctx context.Context, res *diag.Diagnosti
 	res.Append(m.Paths.ElementsAs(ctx, &intermediate, false)...)
 
 	for p, model := range intermediate {
-		out = append(out, model.toAPIModel(p))
+		out = append(out, model.toAPIModel(ctx, p, res))
 	}
 
 	return out
