@@ -41,16 +41,18 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 	}
 
 	// Process Volumes
-	var volumeModels map[string]VolumeModel
-	detailDiags = m.Volumes.ElementsAs(ctx, &volumeModels, false)
-	if detailDiags.HasError() {
-		d.Append(detailDiags...)
-		return nil
-	}
+	if !m.Volumes.IsUnknown() && m.Volumes.IsNull() {
+		var volumeModels map[string]VolumeModel
+		detailDiags = m.Volumes.ElementsAs(ctx, &volumeModels, false)
+		if detailDiags.HasError() {
+			d.Append(detailDiags...)
+			return nil
+		}
 
-	for name := range volumeModels {
-		declareRequest.Body.Volumes[name] = containerv2.VolumeDeclareRequest{
-			Name: name,
+		for name := range volumeModels {
+			declareRequest.Body.Volumes[name] = containerv2.VolumeDeclareRequest{
+				Name: name,
+			}
 		}
 	}
 
