@@ -240,6 +240,9 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
+	// The "default" stack has a special role, and we will not delete it even if
+	// the user requests it. Instead, we will simply purge all containers and volumes
+	// from it
 	if stateData.DefaultStack.ValueBool() {
 		stateData.Containers = types.MapNull(containerModelType)
 		stateData.Volumes = types.MapNull(volumeModelType)
