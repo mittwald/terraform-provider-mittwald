@@ -9,9 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
@@ -91,21 +93,45 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data ResourceModel
 
+	client := apiext.NewDomainClient(r.client)
+
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	ingress := providerutil.
-		Try[*domainclientv2.CreateIngressResponse](&resp.Diagnostics, "API error while creating virtual host").
-		DoValResp(r.client.Domain().CreateIngress(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics)))
+	// ignoring error on purpose
+	existing, _ := client.GetIngressByName(ctx, data.ProjectID.ValueString(), data.Hostname.ValueString())
+	if existing != nil && existing.IsDefault {
+		var current ResourceModel
+
+		resp.Diagnostics.Append(current.FromAPIModel(ctx, existing)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		data.ID = types.StringValue(existing.Id)
+
+		body := data.ToUpdateRequest(ctx, &resp.Diagnostics, &current)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		providerutil.
+			Try[any](&resp.Diagnostics, "API error while updating virtual host").
+			DoResp(r.client.Domain().UpdateIngressPaths(ctx, body))
+	} else {
+		ingress := providerutil.
+			Try[*domainclientv2.CreateIngressResponse](&resp.Diagnostics, "API error while creating virtual host").
+			DoValResp(client.CreateIngress(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics)))
+
+		data.ID = types.StringValue(ingress.Id)
+	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	data.ID = types.StringValue(ingress.Id)
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -160,6 +186,12 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	var data ResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+
+	if data.Default.ValueBool() {
+		tflog.Debug(ctx, "virtualhost is default host; not deleting")
+		return
+	}
+
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while deleting virtual host").
 		DoResp(r.client.Domain().DeleteIngress(ctx, data.ToDeleteRequest()))
