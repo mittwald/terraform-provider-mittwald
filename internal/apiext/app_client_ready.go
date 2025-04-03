@@ -12,7 +12,7 @@ import (
 func (c *appClient) WaitUntilAppInstallationIsReady(ctx context.Context, appID string) error {
 	request := appclientv2.GetAppinstallationRequest{AppInstallationID: appID}
 
-	runner := func(ctx context.Context, req appclientv2.GetAppinstallationRequest) (*appv2.AppInstallation, *http.Response, error) {
+	runner := func(ctx context.Context, req appclientv2.GetAppinstallationRequest, editors ...func(req *http.Request) error) (*appv2.AppInstallation, *http.Response, error) {
 		inst, resp, err := c.Client.GetAppinstallation(ctx, req)
 		if err != nil {
 			return nil, nil, err

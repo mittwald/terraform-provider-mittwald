@@ -176,6 +176,8 @@ github.com/mittwald/api-client-go v0.2.18 h1:ToHzReD/8ywb8vljFjcK+wlLVI39xbVlPRf
 github.com/mittwald/api-client-go v0.2.18/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
 github.com/mittwald/api-client-go v0.2.19-0.20250311153603-4945d3a28a66 h1:Cq6rQK8huvQTwK12VMqFXhQoBQ6XV7g1BcY/YP82wLk=
 github.com/mittwald/api-client-go v0.2.19-0.20250311153603-4945d3a28a66/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
+github.com/mittwald/api-client-go v0.2.19-0.20250403113658-4cb16c4ffed8 h1:q/psOam45icbllX4bHFsJy2vFc95lc9GxuWfls26r2Y=
+github.com/mittwald/api-client-go v0.2.19-0.20250403113658-4cb16c4ffed8/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
 github.com/onsi/ginkgo/v2 v2.22.2 h1:/3X8Panh8/WwhU/3Ssa6rCKqPLuAkVY2I0RoyDLySlU=
