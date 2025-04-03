@@ -2,6 +2,7 @@ package containerstackresource_test
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -35,6 +36,32 @@ var apiModel = &containerv2.StackResponse{
 			Name: "data-volume",
 		},
 	},
+}
+
+func TestFromAPIModelWithEmptyStack(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	var apiModel containerv2.StackResponse
+	err := json.Unmarshal([]byte("{\"description\":\"default\",\"disabled\":false,\"id\":\"10184af5-6716-4e82-81d7-4b1cd317d147\",\"prefix\":\"p-su6uw7\",\"projectId\":\"10184af5-6716-4e82-81d7-4b1cd317d147\"}"), &apiModel)
+	g.Expect(err).NotTo(HaveOccurred())
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, &apiModel)
+
+	// Ensure no errors occurred during conversion
+	g.Expect(diags).To(BeNil())
+
+	// Validate top-level fields
+	g.Expect(model.ID).To(Equal(types.StringValue("10184af5-6716-4e82-81d7-4b1cd317d147")))
+	g.Expect(model.ProjectID).To(Equal(types.StringValue("10184af5-6716-4e82-81d7-4b1cd317d147")))
+
+	// Validate Containers
+	containers := model.Containers.Elements()
+	g.Expect(containers).To(HaveLen(0))
+
+	// Validate Volumes
+	g.Expect(model.Volumes.Elements()).To(HaveLen(0))
 }
 
 func TestFromAPIModel(t *testing.T) {
@@ -73,7 +100,7 @@ func TestFromAPIModel(t *testing.T) {
 			HaveStringAttr("protocol", "tcp"),
 		)),
 		ContainElement(And(
-			HaveInt32Attr("public_port", types.Int32Null()),
+			HaveInt32Attr("public_port", int32(3000)),
 			HaveInt32Attr("container_port", int32(3000)),
 			HaveStringAttr("protocol", "tcp"),
 		)),

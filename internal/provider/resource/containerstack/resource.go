@@ -66,16 +66,19 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						},
 						"command": schema.ListAttribute{
 							Optional:            true,
+							Computed:            true,
 							MarkdownDescription: "The command to run inside the container.",
 							ElementType:         types.StringType,
 						},
 						"entrypoint": schema.ListAttribute{
 							Optional:            true,
+							Computed:            true,
 							MarkdownDescription: "The entrypoint to use for the container.",
 							ElementType:         types.StringType,
 						},
 						"environment": schema.MapAttribute{
 							Optional:            true,
+							Computed:            true,
 							MarkdownDescription: "A map of environment variables to set inside the container.",
 							ElementType:         types.StringType,
 						},
@@ -104,6 +107,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						},
 						"volumes": schema.SetNestedAttribute{
 							Optional:            true,
+							Computed:            true,
 							MarkdownDescription: "A list of volumes to mount into the container.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -127,6 +131,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"volumes": schema.MapNestedAttribute{
 				Optional: true,
+				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{},
 				},
@@ -162,6 +167,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	declareRequest := data.ToDeclareRequest(ctx, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	j, _ := json.Marshal(declareRequest)
 	tflog.Debug(ctx, "Creating container", map[string]any{"request": string(j)})
@@ -224,7 +232,24 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var stateData ContainerStackModel
 
+	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if stateData.DefaultStack.ValueBool() {
+		stateData.Containers = types.MapNull(containerModelType)
+		stateData.Volumes = types.MapNull(volumeModelType)
+
+		_ = providerutil.
+			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
+			DoValResp(r.client.Container().DeclareStack(ctx, *stateData.ToDeclareRequest(ctx, &resp.Diagnostics)))
+	} else {
+		resp.Diagnostics.AddError("not implemented", "removing non-default stacks is not supported, yet")
+	}
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
