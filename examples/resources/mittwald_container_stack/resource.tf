@@ -1,3 +1,7 @@
+locals {
+  nginx_port = 80
+}
+
 resource "mittwald_container_stack" "nginx" {
   project_id    = mittwald_project.example.id
   default_stack = true
@@ -17,7 +21,7 @@ resource "mittwald_container_stack" "nginx" {
       ports = [
         {
           container_port = 80
-          public_port    = 80
+          public_port    = local.nginx_port
           protocol       = "tcp"
         }
       ]
@@ -46,7 +50,7 @@ resource "mittwald_virtualhost" "nginx" {
     "/" = {
       container = {
         container_id = mittwald_container_stack.nginx.containers.nginx.id
-        port         = "${mittwald_container_stack.nginx.containers.ports[0].public_port}/tcp"
+        port         = "${local.nginx_port}/tcp"
       }
     }
   }
