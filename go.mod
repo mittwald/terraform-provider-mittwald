@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-testing v1.12.0
 	github.com/mittwald/api-client-go v0.2.24
-	github.com/onsi/gomega v1.36.3
+	github.com/onsi/gomega v1.37.0
 )
 
 require (
