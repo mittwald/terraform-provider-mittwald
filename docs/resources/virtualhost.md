@@ -44,6 +44,7 @@ resource "mittwald_virtualhost" "foobar" {
 
 ### Read-Only
 
+- `default` (Boolean) Describes if this vhost is the project's default virtual host. The default virtual host will never be deleted. If you attempt to delete this resource via terraform, it will simply revert to an unmanaged state.
 - `id` (String) The generated virtualhost ID
 
 <a id="nestedatt--paths"></a>

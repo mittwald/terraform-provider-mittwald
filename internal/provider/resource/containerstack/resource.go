@@ -33,7 +33,7 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 	resp.TypeName = req.ProviderTypeName + "_container_stack"
 }
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	builder := common.AttributeBuilderFor("redis_database")
+	builder := common.AttributeBuilderFor("container_stack")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a container stack.\n\nA container stack may consist of multiple containers and volumes.",
 

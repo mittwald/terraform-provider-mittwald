@@ -16,6 +16,10 @@ A container stack may consist of multiple containers and volumes.
 ## Example Usage
 
 ```terraform
+locals {
+  nginx_port = 80
+}
+
 resource "mittwald_container_stack" "nginx" {
   project_id    = mittwald_project.example.id
   default_stack = true
@@ -35,7 +39,7 @@ resource "mittwald_container_stack" "nginx" {
       ports = [
         {
           container_port = 80
-          public_port    = 80
+          public_port    = local.nginx_port
           protocol       = "tcp"
         }
       ]
@@ -64,7 +68,7 @@ resource "mittwald_virtualhost" "nginx" {
     "/" = {
       container = {
         container_id = mittwald_container_stack.nginx.containers.nginx.id
-        port         = "${mittwald_container_stack.nginx.containers.ports[0].public_port}/tcp"
+        port         = "${local.nginx_port}/tcp"
       }
     }
   }
@@ -77,7 +81,7 @@ resource "mittwald_virtualhost" "nginx" {
 ### Required
 
 - `containers` (Attributes Map) (see [below for nested schema](#nestedatt--containers))
-- `project_id` (String) The ID of the project the redis_database belongs to
+- `project_id` (String) The ID of the project the container_stack belongs to
 
 ### Optional
 
@@ -86,7 +90,7 @@ resource "mittwald_virtualhost" "nginx" {
 
 ### Read-Only
 
-- `id` (String) The generated redis_database ID
+- `id` (String) The generated container_stack ID
 
 <a id="nestedatt--containers"></a>
 ### Nested Schema for `containers`
