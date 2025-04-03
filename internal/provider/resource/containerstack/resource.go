@@ -2,7 +2,6 @@ package containerstackresource
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -171,12 +170,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	j, _ := json.Marshal(declareRequest)
-	tflog.Debug(ctx, "Creating container", map[string]any{"request": string(j)})
-
 	stack := providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-		DoValResp(r.client.Container().DeclareStack(ctx, *data.ToDeclareRequest(ctx, &resp.Diagnostics)))
+		DoValResp(r.client.Container().DeclareStack(ctx, *declareRequest))
 	if resp.Diagnostics.HasError() {
 		return
 	}
