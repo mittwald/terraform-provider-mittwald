@@ -14,6 +14,8 @@ type AppClient interface {
 	SelectSystemsoftwareVersion(ctx context.Context, systemSoftwareID, versionSelector string) (SystemSoftwareVersionSet, error)
 	UpdateAppinstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error
 	WaitUntilAppInstallationIsReady(ctx context.Context, appID string) error
+	GetAppByName(ctx context.Context, name string) (*appv2.App, bool, error)
+	SelectAppVersion(ctx context.Context, appID, versionSelector string) (AppVersionSet, error)
 }
 
 type appClient struct {
