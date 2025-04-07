@@ -67,7 +67,7 @@ func (c *appClient) GetAppByName(ctx context.Context, name string) (*appv2.App, 
 	}
 
 	appReq := appclientv2.GetAppRequest{AppID: appID}
-	app, _, err := c.Client.GetApp(ctx, appReq)
+	app, _, err := c.GetApp(ctx, appReq)
 	if err != nil {
 		return nil, false, err
 	}
@@ -77,7 +77,7 @@ func (c *appClient) GetAppByName(ctx context.Context, name string) (*appv2.App, 
 
 func (c *appClient) SelectAppVersion(ctx context.Context, appID, versionSelector string) (AppVersionSet, error) {
 	versionsRequest := appclientv2.ListAppversionsRequest{AppID: appID}
-	versions, _, err := c.Client.ListAppversions(ctx, versionsRequest)
+	versions, _, err := c.ListAppversions(ctx, versionsRequest)
 	if err != nil {
 		return nil, err
 	}
