@@ -144,6 +144,9 @@ func TestFromAPIModelAndReverse(t *testing.T) {
 	diags := model.FromAPIModel(ctx, apiModel)
 	g.Expect(diags).To(BeNil())
 
+	g.Expect(model.Volumes.IsNull()).To(BeFalse())
+	g.Expect(model.Volumes.Elements()).To(HaveLen(1))
+
 	out := model.ToDeclareRequest(ctx, &diags)
 	g.Expect(diags).To(BeNil())
 

@@ -41,7 +41,7 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 	}
 
 	// Process Volumes
-	if !m.Volumes.IsUnknown() && m.Volumes.IsNull() {
+	if !m.Volumes.IsUnknown() && !m.Volumes.IsNull() {
 		var volumeModels map[string]VolumeModel
 		detailDiags = m.Volumes.ElementsAs(ctx, &volumeModels, false)
 		if detailDiags.HasError() {
