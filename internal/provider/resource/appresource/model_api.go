@@ -46,7 +46,7 @@ func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d *diag.Diagnostic
 func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics, appClient appclientv2.Client) (r appclientv2.RequestAppinstallationRequest) {
 	tflog.Debug(ctx, "building create request for app", map[string]any{"app": m.App.ValueString()})
 
-	appID, ok := appNames[m.App.ValueString()]
+	appID, ok := apiext.AppNames[m.App.ValueString()]
 	if !ok {
 		d.AddAttributeError(path.Root("app"), "invalid value", fmt.Sprintf("app %s not found", m.App.ValueString()))
 		return
@@ -141,7 +141,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *appv2
 	}
 
 	m.App = func() types.String {
-		for key, appID := range appNames {
+		for key, appID := range apiext.AppNames {
 			if appID == appInstallation.AppId {
 				return types.StringValue(key)
 			}
