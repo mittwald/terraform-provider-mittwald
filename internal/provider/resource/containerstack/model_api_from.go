@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -169,22 +170,26 @@ func convertPortStringsToSet(ctx context.Context, ports []string, d *diag.Diagno
 			continue
 		}
 
-		var publicPort, containerPort int
+		var publicPort, containerPort int64
 
 		portMapping := strings.Split(parts[0], ":")
 		if len(portMapping) == 1 {
 			var err error
-			containerPort, err = strconv.Atoi(portMapping[0])
-			if err != nil {
+			containerPort, err = strconv.ParseInt(portMapping[0], 10, 32)
+			if err != nil || containerPort <= 0 || containerPort > math.MaxInt32 {
 				d.AddWarning("Invalid port values", fmt.Sprintf("Skipping port: %s", port))
 				continue
 			}
 		} else if len(portMapping) == 2 {
 			var err1, err2 error
-			publicPort, err1 = strconv.Atoi(portMapping[0])
-			containerPort, err2 = strconv.Atoi(portMapping[1])
-			if err1 != nil || err2 != nil {
-				d.AddWarning("Invalid port values", fmt.Sprintf("Skipping port: %s", port))
+			publicPort, err1 = strconv.ParseInt(portMapping[0], 10, 32)
+			containerPort, err2 = strconv.ParseInt(portMapping[1], 10, 32)
+			if err1 != nil || publicPort <= 0 || publicPort > math.MaxInt32 {
+				d.AddWarning("Invalid public port", fmt.Sprintf("Skipping port: %s", port))
+				continue
+			}
+			if err2 != nil || containerPort <= 0 || containerPort > math.MaxInt32 {
+				d.AddWarning("Invalid container port", fmt.Sprintf("Skipping port: %s", port))
 				continue
 			}
 		} else {
