@@ -103,7 +103,6 @@ func imageFromContainerObject(val attr.Value) (string, bool) {
 	return imgStr.ValueString(), true
 }
 
-// Define ContainerModelType for schema conversion
 var containerModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"id":          types.StringType,
@@ -117,7 +116,6 @@ var containerModelType = types.ObjectType{
 	},
 }
 
-// Define ContainerPortModelType for schema conversion
 var containerPortModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"container_port": types.Int32Type,
@@ -126,7 +124,6 @@ var containerPortModelType = types.ObjectType{
 	},
 }
 
-// Define ContainerVolumeModelType for schema conversion
 var containerVolumeModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"volume":       types.StringType,
@@ -135,12 +132,10 @@ var containerVolumeModelType = types.ObjectType{
 	},
 }
 
-// Define ContainerVolumeModelType for schema conversion
 var volumeModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
 }
 
-// Convert a slice of strings to a Terraform List of Strings
 func convertStringSliceToList(slice []string) types.List {
 	values := make([]attr.Value, len(slice))
 	for i, v := range slice {
@@ -150,7 +145,6 @@ func convertStringSliceToList(slice []string) types.List {
 	return list
 }
 
-// Convert a map of strings to a Terraform Map of Strings
 func convertStringMapToMap(m map[string]string) types.Map {
 	values := make(map[string]attr.Value, len(m))
 	for key, value := range m {
@@ -160,7 +154,8 @@ func convertStringMapToMap(m map[string]string) types.Map {
 	return result
 }
 
-// Convert a slice of port strings ("80:8080/tcp") into a Set of ContainerPortModel
+// convertPortStringsToSet converts a slice of port strings ("80:8080/tcp") into
+// a Set of ContainerPortModel.
 func convertPortStringsToSet(ctx context.Context, ports []string, d *diag.Diagnostics) types.Set {
 	var portModels []attr.Value
 	for _, port := range ports {
@@ -221,7 +216,8 @@ func convertPortStringsToSet(ctx context.Context, ports []string, d *diag.Diagno
 	return set
 }
 
-// Convert a slice of volume strings ("/project/path:/container/path") into a Set of ContainerVolumeModel
+// convertVolumeStringsToSet convert a slice of volume strings
+// ("/project/path:/container/path") into a Set of ContainerVolumeModel.
 func convertVolumeStringsToSet(ctx context.Context, volumes []string, d *diag.Diagnostics) types.Set {
 	var volumeModels []attr.Value
 	for _, volume := range volumes {

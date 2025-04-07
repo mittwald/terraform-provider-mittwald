@@ -59,7 +59,8 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 	return declareRequest
 }
 
-// Helper to extract a Terraform list of strings into a Go slice
+// extractStringList is a helper to extract a Terraform list of strings into a
+// Go slice.
 func extractStringList(list types.List) []string {
 	var result []string
 	if list.IsNull() || list.IsUnknown() {
@@ -74,7 +75,7 @@ func extractStringList(list types.List) []string {
 	return result
 }
 
-// Helper to extract a Terraform map of strings into a Go map
+// extractStringMap is a helper to extract a Terraform map of strings into a Go map.
 func extractStringMap(m types.Map) map[string]string {
 	result := make(map[string]string)
 	if m.IsNull() || m.IsUnknown() {
@@ -89,7 +90,8 @@ func extractStringMap(m types.Map) map[string]string {
 	return result
 }
 
-// Helper to extract a Terraform set of ContainerPortModel into a slice of port strings
+// extractPortMappings is a helper to extract a Terraform set of ContainerPortModel
+// into a slice of port strings.
 func extractPortMappings(ctx context.Context, ports types.Set, d *diag.Diagnostics) []string {
 	var result []string
 	if ports.IsNull() || ports.IsUnknown() {
@@ -117,7 +119,8 @@ func extractPortMappings(ctx context.Context, ports types.Set, d *diag.Diagnosti
 	return result
 }
 
-// Helper to extract a Terraform set of ContainerVolumeModel into a slice of volume strings
+// extractVolumeMappings is a helper to extract a Terraform set of
+// ContainerVolumeModel into a slice of volume strings.
 func extractVolumeMappings(ctx context.Context, volumes types.Set, d *diag.Diagnostics) []string {
 	var result []string
 	if volumes.IsNull() || volumes.IsUnknown() {

@@ -1,6 +1,7 @@
 package testingutils
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/onsi/gomega"
@@ -32,7 +33,7 @@ func HaveInt32Attr(key string, value any) *HaveInt32AttrMatcher {
 
 func (h HaveInt32AttrMatcher) Match(actual interface{}) (success bool, err error) {
 	if msg := h.FailureMessage(actual); msg != "" {
-		return false, fmt.Errorf(msg)
+		return false, errors.New(msg)
 	}
 
 	return true, nil
@@ -41,7 +42,7 @@ func (h HaveInt32AttrMatcher) Match(actual interface{}) (success bool, err error
 func (h HaveInt32AttrMatcher) FailureMessage(actual interface{}) (message string) {
 	obj, ok := actual.(types.Object)
 	if !ok {
-		return fmt.Sprintf("HaveStringAttr matcher expects an Object")
+		return fmt.Sprintf("HaveStringAttr matcher expects an Object, %T given", actual)
 	}
 
 	attr, ok := obj.Attributes()[h.key]

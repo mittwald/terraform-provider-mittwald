@@ -82,11 +82,13 @@ func TestFromAPIModel(t *testing.T) {
 	containers := model.Containers.Elements()
 	g.Expect(containers).To(And(HaveLen(1), HaveKey("nginx")))
 
-	nginxContainer := containers["nginx"].(types.Object)
+	nginxContainer, ok := containers["nginx"].(types.Object)
+	g.Expect(ok).To(BeTrue())
 	g.Expect(nginxContainer).To(HaveStringAttr("image", "nginx:latest"))
 
 	// Validate ports
-	portsSet := nginxContainer.Attributes()["ports"].(types.Set)
+	portsSet, ok := nginxContainer.Attributes()["ports"].(types.Set)
+	g.Expect(ok).To(BeTrue())
 	g.Expect(portsSet.Elements()).To(And(
 		HaveLen(3),
 		ContainElement(And(
@@ -107,10 +109,12 @@ func TestFromAPIModel(t *testing.T) {
 	))
 
 	// Validate environment variables
-	envVars := nginxContainer.Attributes()["environment"].(types.Map)
+	envVars, ok := nginxContainer.Attributes()["environment"].(types.Map)
+	g.Expect(ok).To(BeTrue())
 	g.Expect(envVars.Elements()).To(HaveKeyWithValue("ENV_VAR", types.StringValue("value")))
 
-	containerVolumes := nginxContainer.Attributes()["volumes"].(types.Set)
+	containerVolumes, ok := nginxContainer.Attributes()["volumes"].(types.Set)
+	g.Expect(ok).To(BeTrue())
 	g.Expect(containerVolumes.Elements()).To(And(
 		HaveLen(2),
 		ContainElement(And(
