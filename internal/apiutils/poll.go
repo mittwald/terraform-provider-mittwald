@@ -33,7 +33,7 @@ func (o *PollOpts) applyDefaults() {
 	}
 }
 
-func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TReq) (TRes, *http.Response, error), req TReq) (TRes, error) {
+func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TReq, ...func(req *http.Request) error) (TRes, *http.Response, error), req TReq) (TRes, error) {
 	var null TRes
 
 	res := make(chan TRes)
