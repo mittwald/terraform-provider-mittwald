@@ -236,14 +236,14 @@ func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data
 }
 
 func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	planData, planUser, _ := d.unpack(ctx, req.Plan, &resp.Diagnostics)
-	stateData, stateUser, _ := d.unpack(ctx, req.Plan, &resp.Diagnostics)
+	planData, planUser, planCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
+	stateData, stateUser, stateCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// TODO: Update charsets
+	d.updateCharset(ctx, planData.ID.ValueString(), &planCharset, &stateCharset, resp)
 	d.updateDescription(ctx, &planData, &stateData, resp)
 	d.updatePasswordDeprecated(ctx, &planUser, resp)
 	d.updatePassword(ctx, &planUser, &stateUser, resp)
@@ -257,6 +257,26 @@ func (d *Resource) unpack(ctx context.Context, planOrState interface {
 	diags.Append(data.CharacterSettings.As(ctx, &charset, basetypes.ObjectAsOptions{})...)
 
 	return
+}
+
+func (d *Resource) updateCharset(ctx context.Context, databaseID string, planData, stateData *MySQLDatabaseCharsetModel, resp *resource.UpdateResponse) {
+	if planData.AsObject(ctx, resp.Diagnostics).Equal(stateData.AsObject(ctx, resp.Diagnostics)) {
+		return
+	}
+
+	client := d.client.Database()
+
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while updating database").
+		DoResp(client.UpdateMysqlDatabaseDefaultCharset(ctx, databaseclientv2.UpdateMysqlDatabaseDefaultCharsetRequest{
+			MysqlDatabaseID: databaseID,
+			Body: databaseclientv2.UpdateMysqlDatabaseDefaultCharsetRequestBody{
+				CharacterSettings: databasev2.CharacterSettings{
+					CharacterSet: planData.Charset.ValueString(),
+					Collation:    planData.Collation.ValueString(),
+				},
+			},
+		}))
 }
 
 func (d *Resource) updateDescription(ctx context.Context, planData, stateData *ResourceModel, resp *resource.UpdateResponse) {
