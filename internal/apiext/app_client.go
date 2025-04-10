@@ -106,6 +106,6 @@ func (c *appClient) UpdateAppinstallation(ctx context.Context, appInstallationID
 		u.Apply(&req.Body)
 	}
 
-	_, err := c.Client.PatchAppinstallation(ctx, req)
+	_, err := c.PatchAppinstallation(ctx, req)
 	return err
 }

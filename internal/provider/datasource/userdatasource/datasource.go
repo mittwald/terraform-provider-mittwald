@@ -61,7 +61,7 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 	}
 
 	userID := "self"
-	if !(data.ID.IsNull() || data.ID.IsUnknown()) {
+	if !data.ID.IsNull() && !data.ID.IsUnknown() {
 		userID = data.ID.ValueString()
 	}
 
