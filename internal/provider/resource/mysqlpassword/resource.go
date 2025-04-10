@@ -151,7 +151,7 @@ func generatePassword(length int) (string, error) {
 	return string(finalPassword), nil
 }
 
-// Helper function to shuffle a slice of bytes
+// Helper function to shuffle a slice of bytes.
 func shuffleBytes(input []byte) []byte {
 	n := len(input)
 	output := make([]byte, n)
