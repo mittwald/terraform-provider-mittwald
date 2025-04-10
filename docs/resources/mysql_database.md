@@ -63,7 +63,12 @@ Required:
 
 - `access_level` (String) Access level for the database user, e.g. `full` or `readonly`
 - `external_access` (Boolean) Whether the database user should be accessible from outside the cluster
-- `password` (String, Sensitive) Password for the database user
+
+Optional:
+
+- `password` (String, Sensitive, Deprecated) Password for the database user
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password for the database user; this field is mutually exclusive with `password` and will be used instead of it. The password is not stored in the database, but only used to create the user.
+- `password_wo_version` (Number) Version of the password for the database user; this is required when using `password_wo`.
 
 Read-Only:
 
