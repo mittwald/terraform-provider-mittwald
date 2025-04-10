@@ -40,7 +40,7 @@ func (s SystemSoftwareVersionSet) Recommended() (*appv2.SystemSoftwareVersion, b
 
 func (c *appClient) GetSystemsoftwareByName(ctx context.Context, name string) (*appv2.SystemSoftware, bool, error) {
 	systemSoftwaresReq := appclientv2.ListSystemsoftwaresRequest{Limit: pointer.To[int64](9999)}
-	systemSoftwares, _, err := c.Client.ListSystemsoftwares(ctx, systemSoftwaresReq)
+	systemSoftwares, _, err := c.ListSystemsoftwares(ctx, systemSoftwaresReq)
 	if err != nil {
 		return nil, false, err
 	}
@@ -56,13 +56,13 @@ func (c *appClient) GetSystemsoftwareByName(ctx context.Context, name string) (*
 
 func (c *appClient) GetSystemsoftwareAndVersion(ctx context.Context, systemSoftwareID, systemSoftwareVersionID string) (*appv2.SystemSoftware, *appv2.SystemSoftwareVersion, error) {
 	systemSoftwareRequest := appclientv2.GetSystemsoftwareRequest{SystemSoftwareID: systemSoftwareID}
-	systemSoftware, _, err := c.Client.GetSystemsoftware(ctx, systemSoftwareRequest)
+	systemSoftware, _, err := c.GetSystemsoftware(ctx, systemSoftwareRequest)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get system software '%s': %w", systemSoftwareID, err)
 	}
 
 	versionRequest := appclientv2.GetSystemsoftwareversionRequest{SystemSoftwareID: systemSoftwareID, SystemSoftwareVersionID: systemSoftwareVersionID}
-	version, _, err := c.Client.GetSystemsoftwareversion(ctx, versionRequest)
+	version, _, err := c.GetSystemsoftwareversion(ctx, versionRequest)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get system software version '%s': %w", systemSoftwareVersionID, err)
 	}
@@ -72,7 +72,7 @@ func (c *appClient) GetSystemsoftwareAndVersion(ctx context.Context, systemSoftw
 
 func (c *appClient) SelectSystemsoftwareVersion(ctx context.Context, systemSoftwareID, versionSelector string) (SystemSoftwareVersionSet, error) {
 	versionsRequest := appclientv2.ListSystemsoftwareversionsRequest{SystemSoftwareID: systemSoftwareID, VersionRange: &versionSelector}
-	versions, _, err := c.Client.ListSystemsoftwareversions(ctx, versionsRequest)
+	versions, _, err := c.ListSystemsoftwareversions(ctx, versionsRequest)
 	if err != nil {
 		return nil, err
 	}
