@@ -28,6 +28,14 @@ type MySQLPasswordModel struct {
 	Password types.String `tfsdk:"password"`
 }
 
+func (m *MySQLPasswordModel) LengthOrDefault() int {
+	if m.Length.IsNull() {
+		return 16
+	}
+
+	return int(m.Length.ValueInt32())
+}
+
 func (r *Resource) Metadata(_ context.Context, request ephemeral.MetadataRequest, response *ephemeral.MetadataResponse) {
 	response.TypeName = request.ProviderTypeName + "_mysql_password"
 }
@@ -54,7 +62,7 @@ func (r *Resource) Open(ctx context.Context, request ephemeral.OpenRequest, resp
 
 	response.Diagnostics.Append(request.Config.Get(ctx, &model)...)
 
-	password, err := generatePassword(int(model.Length.ValueInt32()))
+	password, err := generatePassword(model.LengthOrDefault())
 	if err != nil {
 		response.Diagnostics.AddAttributeError(path.Root("password"), "Error generating password", "Unable to generate password: "+err.Error())
 		return
