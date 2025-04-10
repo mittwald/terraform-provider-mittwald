@@ -16,11 +16,13 @@ type ResourceModel struct {
 }
 
 type MySQLDatabaseUserModel struct {
-	ID             types.String `tfsdk:"id"`
-	Name           types.String `tfsdk:"name"`
-	Password       types.String `tfsdk:"password"`
-	AccessLevel    types.String `tfsdk:"access_level"`
-	ExternalAccess types.Bool   `tfsdk:"external_access"`
+	ID                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	Password          types.String `tfsdk:"password"`
+	PasswordWO        types.String `tfsdk:"password_wo"`
+	PasswordWOVersion types.Int64  `tfsdk:"password_wo_version"`
+	AccessLevel       types.String `tfsdk:"access_level"`
+	ExternalAccess    types.Bool   `tfsdk:"external_access"`
 }
 
 type MySQLDatabaseCharsetModel struct {
