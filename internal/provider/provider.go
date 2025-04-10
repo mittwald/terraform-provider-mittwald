@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/mittwald/api-client-go/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/logadapter"
@@ -14,6 +15,7 @@ import (
 	containerstackresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerstack"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/cronjobresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqlpassword"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/redisdatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
@@ -133,6 +135,12 @@ func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.Da
 		systemsoftwaredatasource.New,
 		appdatasource.New,
 		userdatasource.New,
+	}
+}
+
+func (p *MittwaldProvider) EphemeralResources(context.Context) []func() ephemeral.EphemeralResource {
+	return []func() ephemeral.EphemeralResource{
+		mysqlpassword.New,
 	}
 }
 

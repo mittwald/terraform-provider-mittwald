@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -82,6 +83,9 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 			},
 			"user": schema.SingleNestedAttribute{
 				Required: true,
+				Validators: []validator.Object{
+					&mysqlPasswordValidator{},
+				},
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						Computed:            true,
@@ -98,9 +102,20 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 						},
 					},
 					"password": schema.StringAttribute{
-						Required:            true,
+						Optional:            true,
 						Sensitive:           true,
 						MarkdownDescription: "Password for the database user",
+						DeprecationMessage:  "This attribute is deprecated and will be removed in a future version. Use `password_wo` instead.",
+					},
+					"password_wo": schema.StringAttribute{
+						Optional:            true,
+						Sensitive:           true,
+						MarkdownDescription: "Password for the database user; this field is mutually exclusive with `password` and will be used instead of it. The password is not stored in the database, but only used to create the user.",
+						WriteOnly:           true,
+					},
+					"password_wo_version": schema.Int64Attribute{
+						Optional:            true,
+						MarkdownDescription: "Version of the password for the database user; this is required when using `password_wo`.",
 					},
 					"access_level": schema.StringAttribute{
 						Required:            true,
@@ -221,43 +236,96 @@ func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data
 }
 
 func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var planData, stateData ResourceModel
-
-	client := d.client.Database()
-
-	dataUser := MySQLDatabaseUserModel{}
-	dataCharset := MySQLDatabaseCharsetModel{}
-
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
-	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
-	resp.Diagnostics.Append(planData.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
-	resp.Diagnostics.Append(planData.CharacterSettings.As(ctx, &dataCharset, basetypes.ObjectAsOptions{})...)
+	planData, planUser, planCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
+	stateData, stateUser, stateCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if !planData.Description.Equal(stateData.Description) {
-		providerutil.
-			Try[any](&resp.Diagnostics, "error while updating database").
-			DoResp(client.UpdateMysqlDatabaseDescription(ctx, databaseclientv2.UpdateMysqlDatabaseDescriptionRequest{
-				MysqlDatabaseID: planData.ID.ValueString(),
-				Body: databaseclientv2.UpdateMysqlDatabaseDescriptionRequestBody{
-					Description: planData.Description.ValueString(),
-				},
-			}))
+	d.updateCharset(ctx, planData.ID.ValueString(), &planCharset, &stateCharset, resp)
+	d.updateDescription(ctx, &planData, &stateData, resp)
+	d.updatePasswordDeprecated(ctx, &planUser, resp)
+	d.updatePassword(ctx, &planUser, &stateUser, resp)
+}
+
+func (d *Resource) unpack(ctx context.Context, planOrState interface {
+	Get(context.Context, any) diag.Diagnostics
+}, diags *diag.Diagnostics) (data ResourceModel, user MySQLDatabaseUserModel, charset MySQLDatabaseCharsetModel) {
+	diags.Append(planOrState.Get(ctx, &data)...)
+	diags.Append(data.User.As(ctx, &user, basetypes.ObjectAsOptions{})...)
+	diags.Append(data.CharacterSettings.As(ctx, &charset, basetypes.ObjectAsOptions{})...)
+
+	return
+}
+
+func (d *Resource) updateCharset(ctx context.Context, databaseID string, planData, stateData *MySQLDatabaseCharsetModel, resp *resource.UpdateResponse) {
+	if planData.AsObject(ctx, resp.Diagnostics).Equal(stateData.AsObject(ctx, resp.Diagnostics)) {
+		return
 	}
+
+	client := d.client.Database()
+
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while updating database").
+		DoResp(client.UpdateMysqlDatabaseDefaultCharset(ctx, databaseclientv2.UpdateMysqlDatabaseDefaultCharsetRequest{
+			MysqlDatabaseID: databaseID,
+			Body: databaseclientv2.UpdateMysqlDatabaseDefaultCharsetRequestBody{
+				CharacterSettings: databasev2.CharacterSettings{
+					CharacterSet: planData.Charset.ValueString(),
+					Collation:    planData.Collation.ValueString(),
+				},
+			},
+		}))
+}
+
+func (d *Resource) updateDescription(ctx context.Context, planData, stateData *ResourceModel, resp *resource.UpdateResponse) {
+	if planData.Description.Equal(stateData.Description) {
+		return
+	}
+
+	client := d.client.Database()
+
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while updating database").
+		DoResp(client.UpdateMysqlDatabaseDescription(ctx, databaseclientv2.UpdateMysqlDatabaseDescriptionRequest{
+			MysqlDatabaseID: planData.ID.ValueString(),
+			Body: databaseclientv2.UpdateMysqlDatabaseDescriptionRequestBody{
+				Description: planData.Description.ValueString(),
+			},
+		}))
+}
+
+func (d *Resource) updatePassword(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
+	hasWriteOnlyPassword := !planUser.PasswordWO.IsNull()
+	isChanged := !planUser.PasswordWOVersion.Equal(stateUser.PasswordWOVersion)
+
+	if !hasWriteOnlyPassword || !isChanged {
+		return
+	}
+
+	d.updatePasswordInternal(ctx, planUser, planUser.PasswordWO.ValueString(), resp)
+}
+
+func (d *Resource) updatePasswordDeprecated(ctx context.Context, planUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
+	if planUser.Password.IsNull() {
+		return
+	}
+
+	d.updatePasswordInternal(ctx, planUser, planUser.Password.ValueString(), resp)
+}
+
+func (d *Resource) updatePasswordInternal(ctx context.Context, planUser *MySQLDatabaseUserModel, password string, resp *resource.UpdateResponse) {
+	client := d.client.Database()
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while setting database user password").
 		DoResp(client.UpdateMysqlUserPassword(ctx, databaseclientv2.UpdateMysqlUserPasswordRequest{
-			MysqlUserID: dataUser.ID.ValueString(),
+			MysqlUserID: planUser.ID.ValueString(),
 			Body: databaseclientv2.UpdateMysqlUserPasswordRequestBody{
-				Password: dataUser.Password.ValueString(),
+				Password: password,
 			},
 		}))
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 }
 
 func (d *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

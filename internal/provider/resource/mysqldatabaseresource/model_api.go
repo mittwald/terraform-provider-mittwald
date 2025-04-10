@@ -16,6 +16,11 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics)
 	d.Append(m.CharacterSettings.As(ctx, &dataCharset, basetypes.ObjectAsOptions{})...)
 	d.Append(m.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
 
+	password := dataUser.Password.ValueString()
+	if !dataUser.PasswordWO.IsNull() {
+		password = dataUser.PasswordWO.ValueString()
+	}
+
 	return databaseclientv2.CreateMysqlDatabaseRequest{
 		ProjectID: m.ProjectID.ValueString(),
 		Body: databaseclientv2.CreateMysqlDatabaseRequestBody{
@@ -28,7 +33,7 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics)
 				},
 			},
 			User: databasev2.CreateMySqlUserWithDatabase{
-				Password:    dataUser.Password.ValueString(),
+				Password:    password,
 				AccessLevel: databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
 			},
 		},
