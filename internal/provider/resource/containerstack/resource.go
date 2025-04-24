@@ -68,18 +68,27 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Computed:            true,
 							MarkdownDescription: "The command to run inside the container.",
 							ElementType:         types.StringType,
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"entrypoint": schema.ListAttribute{
 							Optional:            true,
 							Computed:            true,
 							MarkdownDescription: "The entrypoint to use for the container.",
 							ElementType:         types.StringType,
+							PlanModifiers: []planmodifier.List{
+								listplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"environment": schema.MapAttribute{
 							Optional:            true,
 							Computed:            true,
 							MarkdownDescription: "A map of environment variables to set inside the container.",
 							ElementType:         types.StringType,
+							PlanModifiers: []planmodifier.Map{
+								mapplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"ports": schema.SetNestedAttribute{
 							Optional:            true,
@@ -133,6 +142,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{},
+				},
+				PlanModifiers: []planmodifier.Map{
+					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
