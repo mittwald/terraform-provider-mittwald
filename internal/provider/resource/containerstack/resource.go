@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -74,22 +73,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							MarkdownDescription: "A description for the container.",
 						},
 						"command": schema.ListAttribute{
-							Optional:            true,
-							Computed:            true,
+							Required:            true,
 							MarkdownDescription: "The command to run inside the container.",
 							ElementType:         types.StringType,
-							PlanModifiers: []planmodifier.List{
-								listplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"entrypoint": schema.ListAttribute{
-							Optional:            true,
-							Computed:            true,
+							Required:            true,
 							MarkdownDescription: "The entrypoint to use for the container.",
 							ElementType:         types.StringType,
-							PlanModifiers: []planmodifier.List{
-								listplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"environment": schema.MapAttribute{
 							Optional:            true,

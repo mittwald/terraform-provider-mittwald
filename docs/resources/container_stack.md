@@ -97,15 +97,15 @@ resource "mittwald_virtualhost" "nginx" {
 
 Required:
 
+- `command` (List of String) The command to run inside the container.
 - `description` (String) A description for the container.
+- `entrypoint` (List of String) The entrypoint to use for the container.
 - `image` (String) The image to use for the container. Follows the usual Docker image format, e.g. `nginx:latest` or `registry.example.com/my-image:latest`.
 
   Note that when using a non-standard registry (or a standard registry with credentials), you will probably also need to add a `mittwald_container_registry` resource somewhere in your plan.
 
 Optional:
 
-- `command` (List of String) The command to run inside the container.
-- `entrypoint` (List of String) The entrypoint to use for the container.
 - `environment` (Map of String) A map of environment variables to set inside the container.
 - `no_recreate_on_change` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.
 - `ports` (Attributes Set) A ports to expose from the container. Follows the format `<public-port>:<container-port>/<protocol>`. (see [below for nested schema](#nestedatt--containers--ports))
