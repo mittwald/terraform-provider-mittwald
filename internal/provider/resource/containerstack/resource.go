@@ -59,8 +59,12 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							},
 						},
 						"image": schema.StringAttribute{
-							Required:            true,
-							MarkdownDescription: "The image to use for the container.",
+							Required: true,
+							MarkdownDescription: "The image to use for the container. Follows the usual Docker image format, " +
+								"e.g. `nginx:latest` or `registry.example.com/my-image:latest`.\n\n  " +
+								"Note that when using a non-standard registry (or a standard registry with credentials), " +
+								"you will probably also need to add a `mittwald_container_registry` resource somewhere " +
+								"in your plan.",
 							PlanModifiers: []planmodifier.String{
 								&StripLibraryPrefixFromImage{},
 							},

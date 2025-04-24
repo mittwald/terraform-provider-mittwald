@@ -98,7 +98,9 @@ resource "mittwald_virtualhost" "nginx" {
 Required:
 
 - `description` (String) A description for the container.
-- `image` (String) The image to use for the container.
+- `image` (String) The image to use for the container. Follows the usual Docker image format, e.g. `nginx:latest` or `registry.example.com/my-image:latest`.
+
+  Note that when using a non-standard registry (or a standard registry with credentials), you will probably also need to add a `mittwald_container_registry` resource somewhere in your plan.
 
 Optional:
 
