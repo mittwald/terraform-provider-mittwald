@@ -219,9 +219,25 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	_ = providerutil.
-		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-		DoValResp(r.client.Container().DeclareStack(ctx, *planData.ToDeclareRequest(ctx, &resp.Diagnostics)))
+	if stateData.DefaultStack.ValueBool() {
+		req := planData.ToUpdateRequest(ctx, &stateData, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		_ = providerutil.
+			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack").
+			DoValResp(r.client.Container().UpdateStack(ctx, *req))
+	} else {
+		req := planData.ToDeclareRequest(ctx, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		_ = providerutil.
+			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
+			DoValResp(r.client.Container().DeclareStack(ctx, *req))
+	}
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
@@ -240,12 +256,9 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	// the user requests it. Instead, we will simply purge all containers and volumes
 	// from it
 	if stateData.DefaultStack.ValueBool() {
-		stateData.Containers = types.MapNull(containerModelType)
-		stateData.Volumes = types.MapNull(volumeModelType)
-
 		_ = providerutil.
-			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-			DoValResp(r.client.Container().DeclareStack(ctx, *stateData.ToDeclareRequest(ctx, &resp.Diagnostics)))
+			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while removing containers from stack").
+			DoValResp(r.client.Container().UpdateStack(ctx, *stateData.ToDeletePatchRequest(ctx, &resp.Diagnostics)))
 	} else {
 		resp.Diagnostics.AddError("not implemented", "removing non-default stacks is not supported, yet")
 	}

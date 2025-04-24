@@ -9,6 +9,94 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 )
 
+func (m *ContainerStackModel) ToDeletePatchRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.UpdateStackRequest {
+	updateRequest := &containerclientv2.UpdateStackRequest{
+		StackID: m.ID.ValueString(),
+		Body: containerclientv2.UpdateStackRequestBody{
+			Services: make(map[string]containerv2.ServiceRequest),
+			Volumes:  make(map[string]containerv2.VolumeRequest),
+		},
+	}
+
+	for name := range m.Containers.Elements() {
+		// empty object means "delete this container"
+		updateRequest.Body.Services[name] = containerv2.ServiceRequest{}
+	}
+
+	for name := range m.Volumes.Elements() {
+		// empty object means "delete this volume"
+		updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{}
+	}
+
+	return updateRequest
+}
+
+func (m *ContainerStackModel) ToUpdateRequest(ctx context.Context, current *ContainerStackModel, d *diag.Diagnostics) *containerclientv2.UpdateStackRequest {
+	updateRequest := &containerclientv2.UpdateStackRequest{
+		StackID: m.ID.ValueString(),
+		Body: containerclientv2.UpdateStackRequestBody{
+			Services: make(map[string]containerv2.ServiceRequest),
+			Volumes:  make(map[string]containerv2.VolumeRequest),
+		},
+	}
+
+	plannedContainers, currentContainers := m.ContainerModels(ctx, d), current.ContainerModels(ctx, d)
+	plannedVolumes, currentVolumes := m.VolumeModels(ctx, d), current.VolumeModels(ctx, d)
+
+	if d.HasError() {
+		return nil
+	}
+
+	// Find containers  and volumes that are present in the current state, but *not* in the
+	// plan. Delete these containers and volumes by setting them to an empty object.
+	for name := range currentContainers {
+		if _, ok := plannedContainers[name]; !ok {
+			// empty object means "delete this container"
+			updateRequest.Body.Services[name] = containerv2.ServiceRequest{}
+		}
+	}
+
+	for name := range currentVolumes {
+		if _, ok := plannedVolumes[name]; !ok {
+			// empty object means "delete this volume"
+			updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{}
+		}
+	}
+
+	for name, plannedContainer := range plannedContainers {
+		currentContainer, hasCurrentContainer := currentContainers[name]
+
+		containerIsUnmodified := hasCurrentContainer && plannedContainer.Equals(&currentContainer)
+		containerIsNew := !hasCurrentContainer
+
+		if containerIsUnmodified {
+			// no action needed, do nothing
+			continue
+		}
+
+		if containerIsNew {
+			updateRequest.Body.Services[name] = plannedContainer.ToUpdateRequestFromEmpty(ctx, d)
+			continue
+		}
+
+		updateRequest.Body.Services[name] = plannedContainer.ToUpdateRequestFromExisting(ctx, &currentContainer, d)
+	}
+
+	for name := range plannedVolumes {
+		_, hasCurrentVolume := currentVolumes[name]
+
+		volumeIsNew := !hasCurrentVolume
+
+		if volumeIsNew {
+			updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{
+				Name: &name,
+			}
+		}
+	}
+
+	return updateRequest
+}
+
 func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.DeclareStackRequest {
 	declareRequest := &containerclientv2.DeclareStackRequest{
 		StackID: m.ID.ValueString(),
@@ -18,34 +106,19 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 		},
 	}
 
-	// Process Containers
-	var containerModels map[string]ContainerModel
-	detailDiags := m.Containers.ElementsAs(ctx, &containerModels, false)
-	if detailDiags.HasError() {
-		d.Append(detailDiags...)
+	containerModels := m.ContainerModels(ctx, d)
+	if d.HasError() {
 		return nil
 	}
 
 	for name, container := range containerModels {
-		service := containerv2.ServiceDeclareRequest{
-			Image:       container.Image.ValueString(),
-			Command:     extractStringList(container.Command),
-			Entrypoint:  extractStringList(container.Entrypoint),
-			Envs:        extractStringMap(container.Environment),
-			Ports:       extractPortMappings(ctx, container.Ports, d),
-			Volumes:     extractVolumeMappings(ctx, container.Volumes, d),
-			Description: container.Description.ValueString(),
-		}
-
-		declareRequest.Body.Services[name] = service
+		declareRequest.Body.Services[name] = container.ToDeclareRequest(ctx, d)
 	}
 
 	// Process Volumes
 	if !m.Volumes.IsUnknown() && !m.Volumes.IsNull() {
-		var volumeModels map[string]VolumeModel
-		detailDiags = m.Volumes.ElementsAs(ctx, &volumeModels, false)
-		if detailDiags.HasError() {
-			d.Append(detailDiags...)
+		volumeModels := m.VolumeModels(ctx, d)
+		if d.HasError() {
 			return nil
 		}
 
