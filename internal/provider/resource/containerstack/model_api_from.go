@@ -24,19 +24,11 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	for _, service := range apiModel.Services {
 		state := service.PendingState
 
-		image := state.Image
+		// Normalize image name by removing the "library/" prefix. For the Plan,
+		// the same thing is achieved by the StripLibraryPrefixFromImage modifier.
+		image := strings.TrimPrefix(state.Image, "library/")
 
-		existing, hasExisting := m.Containers.Elements()[service.ServiceName]
-		if hasExisting {
-			// If the image is the same image as defined in the state, except
-			// for the "library/" prefix, use the existing image
-			existingImage, ok := imageFromContainerObject(existing)
-			if ok {
-				if strings.TrimPrefix(image, "library/") == existingImage {
-					image = existingImage
-				}
-			}
-		}
+		_, hasExisting := m.Containers.Elements()[service.ServiceName]
 
 		// Disregard unmanaged containers in the default stack; these might be
 		// managed by other means (e.g. Docker Compose, or another Terraform resource).
@@ -97,25 +89,6 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	m.Volumes = volumes
 
 	return res
-}
-
-func imageFromContainerObject(val attr.Value) (string, bool) {
-	obj, ok := val.(types.Object)
-	if !ok {
-		return "", false
-	}
-
-	imgVal, ok := obj.Attributes()["image"]
-	if !ok {
-		return "", false
-	}
-
-	imgStr, ok := imgVal.(types.String)
-	if !ok {
-		return "", false
-	}
-
-	return imgStr.ValueString(), true
 }
 
 var containerModelType = types.ObjectType{
