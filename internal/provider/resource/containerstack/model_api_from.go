@@ -6,13 +6,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"math"
 	"strconv"
 	"strings"
 )
 
-func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *containerv2.StackResponse) (res diag.Diagnostics) {
+func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *containerv2.StackResponse, disregardUnknown bool) (res diag.Diagnostics) {
 	// Assign top-level attributes
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
@@ -35,6 +36,13 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 					image = existingImage
 				}
 			}
+		}
+
+		// Disregard unmanaged containers in the default stack; these might be
+		// managed by other means (e.g. Docker Compose, or another Terraform resource).
+		if !hasExisting && m.DefaultStack.ValueBool() && disregardUnknown {
+			tflog.Debug(ctx, "disregarding unmanaged container in default stack", map[string]any{"name": service.ServiceName})
+			continue
 		}
 
 		container := ContainerModel{
@@ -60,6 +68,13 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	// Convert Volumes
 	volumeMap := make(map[string]attr.Value)
 	for _, volume := range apiModel.Volumes {
+		_, hasExisting := m.Volumes.Elements()[volume.Name]
+
+		if !hasExisting && m.DefaultStack.ValueBool() && disregardUnknown {
+			tflog.Debug(ctx, "disregarding unmanaged volume in default stack", map[string]any{"name": volume.Name})
+			continue
+		}
+
 		volumeModel := VolumeModel{}
 
 		volumeVal, diags := types.ObjectValueFrom(ctx, volumeModelType.AttrTypes, volumeModel)

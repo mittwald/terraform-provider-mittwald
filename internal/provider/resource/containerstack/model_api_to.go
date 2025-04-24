@@ -41,7 +41,6 @@ func (m *ContainerStackModel) ToUpdateRequest(ctx context.Context, current *Cont
 	}
 
 	plannedContainers, currentContainers := m.ContainerModels(ctx, d), current.ContainerModels(ctx, d)
-	plannedVolumes, currentVolumes := m.VolumeModels(ctx, d), current.VolumeModels(ctx, d)
 
 	if d.HasError() {
 		return nil
@@ -53,13 +52,6 @@ func (m *ContainerStackModel) ToUpdateRequest(ctx context.Context, current *Cont
 		if _, ok := plannedContainers[name]; !ok {
 			// empty object means "delete this container"
 			updateRequest.Body.Services[name] = containerv2.ServiceRequest{}
-		}
-	}
-
-	for name := range currentVolumes {
-		if _, ok := plannedVolumes[name]; !ok {
-			// empty object means "delete this volume"
-			updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{}
 		}
 	}
 
@@ -82,14 +74,28 @@ func (m *ContainerStackModel) ToUpdateRequest(ctx context.Context, current *Cont
 		updateRequest.Body.Services[name] = plannedContainer.ToUpdateRequestFromExisting(ctx, &currentContainer, d)
 	}
 
-	for name := range plannedVolumes {
-		_, hasCurrentVolume := currentVolumes[name]
+	if !m.Volumes.IsUnknown() {
+		plannedVolumes, currentVolumes := m.VolumeModels(ctx, d), current.VolumeModels(ctx, d)
+		if d.HasError() {
+			return nil
+		}
 
-		volumeIsNew := !hasCurrentVolume
+		for name := range currentVolumes {
+			if _, ok := plannedVolumes[name]; !ok {
+				// empty object means "delete this volume"
+				updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{}
+			}
+		}
 
-		if volumeIsNew {
-			updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{
-				Name: &name,
+		for name := range plannedVolumes {
+			_, hasCurrentVolume := currentVolumes[name]
+
+			volumeIsNew := !hasCurrentVolume
+
+			if volumeIsNew {
+				updateRequest.Body.Volumes[name] = containerv2.VolumeRequest{
+					Name: &name,
+				}
 			}
 		}
 	}

@@ -144,7 +144,7 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 }
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data ContainerStackModel
+	var data, current ContainerStackModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -163,21 +163,35 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		tflog.Debug(ctx, "using project default stack", map[string]any{"stack_id": stack.Id})
 
 		data.ID = types.StringValue(stack.Id)
-	}
 
-	declareRequest := data.ToDeclareRequest(ctx, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+		updateRequest := data.ToUpdateRequest(ctx, &current, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			tflog.Debug(ctx, "error while building update request")
+			return
+		}
 
-	stack := providerutil.
-		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-		DoValResp(r.client.Container().DeclareStack(ctx, *declareRequest))
-	if resp.Diagnostics.HasError() {
-		return
-	}
+		_ = providerutil.
+			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
+			DoValResp(r.client.Container().UpdateStack(ctx, *updateRequest))
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	} else {
+		declareRequest := data.ToDeclareRequest(ctx, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			tflog.Debug(ctx, "error while building declare request")
+			return
+		}
 
-	data.ID = types.StringValue(stack.Id)
+		stack := providerutil.
+			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
+			DoValResp(r.client.Container().DeclareStack(ctx, *declareRequest))
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		data.ID = types.StringValue(stack.Id)
+	}
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -192,7 +206,7 @@ func (r *Resource) read(ctx context.Context, data *ContainerStackModel) (res dia
 		return
 	}
 
-	res.Append(data.FromAPIModel(ctx, stack)...)
+	res.Append(data.FromAPIModel(ctx, stack, true)...)
 
 	return
 }

@@ -6,6 +6,10 @@ import (
 )
 
 func (m *ContainerStackModel) ContainerModels(ctx context.Context, d *diag.Diagnostics) map[string]ContainerModel {
+	if m.Containers.IsNull() {
+		return nil
+	}
+
 	containerModels := make(map[string]ContainerModel)
 	d.Append(m.Containers.ElementsAs(ctx, &containerModels, false)...)
 
