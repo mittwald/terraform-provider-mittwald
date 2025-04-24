@@ -13,14 +13,15 @@ type ContainerStackModel struct {
 }
 
 type ContainerModel struct {
-	ID          types.String `tfsdk:"id"`
-	Image       types.String `tfsdk:"image"`
-	Description types.String `tfsdk:"description"`
-	Command     types.List   `tfsdk:"command"`
-	Entrypoint  types.List   `tfsdk:"entrypoint"`
-	Environment types.Map    `tfsdk:"environment"`
-	Ports       types.Set    `tfsdk:"ports"`
-	Volumes     types.Set    `tfsdk:"volumes"`
+	ID                 types.String `tfsdk:"id"`
+	Image              types.String `tfsdk:"image"`
+	Description        types.String `tfsdk:"description"`
+	Command            types.List   `tfsdk:"command"`
+	Entrypoint         types.List   `tfsdk:"entrypoint"`
+	Environment        types.Map    `tfsdk:"environment"`
+	Ports              types.Set    `tfsdk:"ports"`
+	Volumes            types.Set    `tfsdk:"volumes"`
+	NoRecreateOnChange types.Bool   `tfsdk:"no_recreate_on_change"`
 }
 
 type ContainerPortModel struct {

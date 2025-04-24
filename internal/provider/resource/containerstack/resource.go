@@ -134,6 +134,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 								},
 							},
 						},
+						"no_recreate_on_change": schema.BoolAttribute{
+							Optional:            true,
+							MarkdownDescription: "Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.",
+							WriteOnly:           true,
+						},
 					},
 				},
 			},
@@ -245,13 +250,15 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
+	var stack *containerv2.StackResponse
+
 	if stateData.DefaultStack.ValueBool() {
 		req := planData.ToUpdateRequest(ctx, &stateData, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 
-		_ = providerutil.
+		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack").
 			DoValResp(r.client.Container().UpdateStack(ctx, *req))
 	} else {
@@ -260,9 +267,36 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			return
 		}
 
-		_ = providerutil.
+		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
 			DoValResp(r.client.Container().DeclareStack(ctx, *req))
+	}
+
+	containerModels := planData.ContainerModels(ctx, &resp.Diagnostics)
+	for _, service := range stack.Services {
+		serviceConfig, ok := containerModels[service.ServiceName]
+		if !ok {
+			continue
+		}
+
+		if serviceConfig.NoRecreateOnChange.ValueBool() {
+			continue
+		}
+
+		if reflect.DeepEqual(service.DeployedState, service.PendingState) {
+			continue
+		}
+
+		req := containerclientv2.RecreateServiceRequest{
+			StackID:   stack.Id,
+			ServiceID: service.Id,
+		}
+
+		tflog.Debug(ctx, "recreating service", map[string]any{"stack_id": stack.Id, "service_id": service.Id})
+
+		providerutil.
+			Try[any](&resp.Diagnostics, "API error while recreating container").
+			DoResp(r.client.Container().RecreateService(ctx, req))
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)

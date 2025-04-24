@@ -120,14 +120,15 @@ func imageFromContainerObject(val attr.Value) (string, bool) {
 
 var containerModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"id":          types.StringType,
-		"image":       types.StringType,
-		"description": types.StringType,
-		"command":     types.ListType{ElemType: types.StringType},
-		"entrypoint":  types.ListType{ElemType: types.StringType},
-		"environment": types.MapType{ElemType: types.StringType},
-		"ports":       types.SetType{ElemType: containerPortModelType},
-		"volumes":     types.SetType{ElemType: containerVolumeModelType},
+		"id":                    types.StringType,
+		"image":                 types.StringType,
+		"description":           types.StringType,
+		"command":               types.ListType{ElemType: types.StringType},
+		"entrypoint":            types.ListType{ElemType: types.StringType},
+		"environment":           types.MapType{ElemType: types.StringType},
+		"ports":                 types.SetType{ElemType: containerPortModelType},
+		"volumes":               types.SetType{ElemType: containerVolumeModelType},
+		"no_recreate_on_change": types.BoolType,
 	},
 }
 
