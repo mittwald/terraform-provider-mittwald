@@ -35,6 +35,12 @@ func (w *WrappedError[T]) Do(err error) {
 		if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) && w.ignoreNotFound {
 			return
 		}
+		if validation := new(httperr.ErrValidation); errors.As(err, &validation) {
+			for _, issue := range validation.ValidationError.ValidationErrors {
+				w.diag.AddError(w.summary, "Validation error at "+issue.Path+": "+issue.Message)
+			}
+			return
+		}
 		if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(err, &permissionDenied) && w.ignoreNotFound {
 			return
 		}
