@@ -3,12 +3,13 @@ package containerregistryresource
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
@@ -62,13 +63,15 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						Description: "Username for the registry",
 						Required:    true,
 					},
-					"password": schema.StringAttribute{
+					"password_wo": schema.StringAttribute{
 						Description: "Password or access token for the registry",
 						Required:    true,
 						Sensitive:   true,
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
+						WriteOnly:   true,
+					},
+					"password_wo_version": schema.Int64Attribute{
+						Required:            true,
+						MarkdownDescription: "Version of the password for the registry. You will need to change this value whenever the password is changed.",
 					},
 				},
 			},
@@ -88,6 +91,14 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	var password types.String
+	d := req.Config.GetAttribute(ctx, path.Root("credentials").AtName("password_wo"), &password)
+	resp.Diagnostics.Append(d...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	client := apiext.NewContainerClient(r.client)
 
 	existing, _ := client.GetRegistryByName(ctx, data.ProjectID.ValueString(), data.URI.ValueString())
@@ -95,7 +106,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		data.ID = types.StringValue(existing.Id)
 		data.DefaultRegistry = types.BoolValue(true)
 
-		updateRequest := data.ToUpdateRequest(ctx, &resp.Diagnostics)
+		updateRequest := data.ToUpdateRequest(ctx, &resp.Diagnostics, password)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -106,7 +117,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	} else {
 		data.DefaultRegistry = types.BoolValue(false)
 
-		createRequest := data.ToCreateRequest(ctx, &resp.Diagnostics)
+		createRequest := data.ToCreateRequest(ctx, &resp.Diagnostics, password)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -114,6 +125,11 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		registry := providerutil.
 			Try[*containerv2.Registry](&resp.Diagnostics, "API error while declaring registry").
 			DoValResp(r.client.Container().CreateRegistry(ctx, *createRequest))
+
+		if resp.Diagnostics.HasError() {
+			tflog.Error(ctx, "error while creating registry")
+			return
+		}
 
 		data.ID = types.StringValue(registry.Id)
 	}
@@ -157,11 +173,15 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
 
+	var password types.String
+	d := req.Plan.GetAttribute(ctx, path.Root("credentials").AtName("password_wo"), &password)
+	resp.Diagnostics.Append(d...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	updateRequest := planData.ToUpdateRequest(ctx, &resp.Diagnostics)
+	updateRequest := planData.ToUpdateRequest(ctx, &resp.Diagnostics, password)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -189,7 +209,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	if stateData.DefaultRegistry.ValueBool() {
 		stateData.Credentials = types.ObjectNull(containerRegistryCredentialsAttributeTypes)
 
-		updateRequest := stateData.ToUpdateRequest(ctx, &resp.Diagnostics)
+		updateRequest := stateData.ToUpdateRequest(ctx, &resp.Diagnostics, types.StringNull())
 		if resp.Diagnostics.HasError() {
 			return
 		}

@@ -18,8 +18,8 @@ func (m *ContainerRegistryModel) FromAPIModel(ctx context.Context, registry *con
 	if registry.Credentials != nil {
 		if m.Credentials.IsNull() {
 			creds, d := types.ObjectValue(containerRegistryCredentialsAttributeTypes, map[string]attr.Value{
-				"username": types.StringValue(registry.Credentials.Username),
-				"password": types.StringUnknown(),
+				"username":            types.StringValue(registry.Credentials.Username),
+				"password_wo_version": types.StringUnknown(),
 			})
 
 			diags.Append(d...)
