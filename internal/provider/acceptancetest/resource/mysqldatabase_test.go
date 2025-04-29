@@ -63,6 +63,36 @@ func TestAccMySQLDatabaseResourceCreated(t *testing.T) {
 	})
 }
 
+func TestAccMySQLDatabaseResourceCreatedWithGeneratedPassword(t *testing.T) {
+	var database databasev2.MySqlDatabase
+	var user databasev2.MySqlUser
+
+	serverID := config.StringVariable(os.Getenv("MITTWALD_ACCTEST_SERVER_ID"))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			providertesting.TestAccPreCheck(t)
+		},
+		ProtoV6ProviderFactories: providertesting.TestAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMySQLDatabaseResourceConfigWithGeneratedPassword("Foobar"),
+				ConfigVariables: map[string]config.Variable{
+					"server_id": serverID,
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("mittwald_mysql_database.test", "description", "Foobar"),
+					resource.TestCheckResourceAttrWith("mittwald_mysql_database.test", "id", providertesting.MatchUUID),
+					testAccAssertMySQLDatabaseIsPresent("mittwald_mysql_database.test", &database, &user),
+					testAccAssertMySQLDatabaseDescriptionMatches(&database, "Foobar"),
+					testAccAssertMySQLUsernameMatchesState("mittwald_mysql_database.test", &user),
+				),
+			},
+		},
+		CheckDestroy: testAccMySQLDatabaseResourceDestroyed,
+	})
+}
+
 func testAccMySQLDatabaseResourceConfig(desc string) string {
 	return fmt.Sprintf(`
 variable "server_id" {
@@ -93,6 +123,41 @@ resource "mittwald_mysql_database" "test" {
     access_level    = "full"
     password        = var.database_password
     external_access = false
+  }
+}
+`, desc)
+}
+
+func testAccMySQLDatabaseResourceConfigWithGeneratedPassword(desc string) string {
+	return fmt.Sprintf(`
+variable "server_id" {
+  type = string
+}
+
+ephemeral "mittwald_mysql_password" "password" {
+  length = 24
+}
+
+resource "mittwald_project" "test" {
+	server_id = var.server_id
+	description = "terraform_mysqldatabase_test"
+}
+
+resource "mittwald_mysql_database" "test" {
+  project_id  = mittwald_project.test.id
+  version     = "8.0"
+  description = "%[1]s"
+
+  character_settings = {
+    character_set = "utf8mb4"
+    collation     = "utf8mb4_general_ci"
+  }
+
+  user = {
+    access_level        = "full"
+    password_wo         = ephemeral.mittwald_mysql_password.password.password
+    password_wo_version = 1
+    external_access     = false
   }
 }
 `, desc)
