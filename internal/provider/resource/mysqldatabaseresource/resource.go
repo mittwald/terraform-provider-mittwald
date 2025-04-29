@@ -108,10 +108,13 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 						DeprecationMessage:  "This attribute is deprecated and will be removed in a future version. Use `password_wo` instead.",
 					},
 					"password_wo": schema.StringAttribute{
-						Optional:            true,
-						Sensitive:           true,
-						MarkdownDescription: "Password for the database user; this field is mutually exclusive with `password` and will be used instead of it. The password is not stored in the database, but only used to create the user.",
-						WriteOnly:           true,
+						Optional:  true,
+						Sensitive: true,
+						MarkdownDescription: "Password for the database user; this field is mutually exclusive with " +
+							"`password` and will be used instead of it. The password is not stored in the database, " +
+							"but only used to create the user. You can use the `mittwald_mysql_password` ephemeral " +
+							"resource to dynamically generate a valid password.",
+						WriteOnly: true,
 					},
 					"password_wo_version": schema.Int64Attribute{
 						Optional:            true,
