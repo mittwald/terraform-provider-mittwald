@@ -139,16 +139,18 @@ func (d *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	data := ResourceModel{}
 	dataUser := MySQLDatabaseUserModel{}
 	dataCharset := MySQLDatabaseCharsetModel{}
+	password := types.String{}
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	resp.Diagnostics.Append(data.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.CharacterSettings.As(ctx, &dataCharset, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("user").AtName("password_wo"), &password)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	createReq := data.ToCreateRequest(ctx, resp.Diagnostics)
+	createReq := data.ToCreateRequest(ctx, resp.Diagnostics, password)
 
 	createRes, _, err := d.client.Database().CreateMysqlDatabase(ctx, createReq)
 	if err != nil {
@@ -238,6 +240,9 @@ func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data
 func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	planData, planUser, planCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
 	stateData, stateUser, stateCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
+	password := types.String{}
+
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("user").AtName("password_wo"), &password)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -246,7 +251,7 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	d.updateCharset(ctx, planData.ID.ValueString(), &planCharset, &stateCharset, resp)
 	d.updateDescription(ctx, &planData, &stateData, resp)
 	d.updatePasswordDeprecated(ctx, &planUser, resp)
-	d.updatePassword(ctx, &planUser, &stateUser, resp)
+	d.updatePassword(ctx, &planUser, &stateUser, password, resp)
 }
 
 func (d *Resource) unpack(ctx context.Context, planOrState interface {
@@ -296,15 +301,15 @@ func (d *Resource) updateDescription(ctx context.Context, planData, stateData *R
 		}))
 }
 
-func (d *Resource) updatePassword(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
-	hasWriteOnlyPassword := !planUser.PasswordWO.IsNull()
+func (d *Resource) updatePassword(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, password types.String, resp *resource.UpdateResponse) {
+	hasWriteOnlyPassword := !password.IsNull()
 	isChanged := !planUser.PasswordWOVersion.Equal(stateUser.PasswordWOVersion)
 
 	if !hasWriteOnlyPassword || !isChanged {
 		return
 	}
 
-	d.updatePasswordInternal(ctx, planUser, planUser.PasswordWO.ValueString(), resp)
+	d.updatePasswordInternal(ctx, planUser, password.ValueString(), resp)
 }
 
 func (d *Resource) updatePasswordDeprecated(ctx context.Context, planUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {

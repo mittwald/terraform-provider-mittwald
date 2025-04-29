@@ -9,16 +9,16 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/databasev2"
 )
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics) databaseclientv2.CreateMysqlDatabaseRequest {
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics, password types.String) databaseclientv2.CreateMysqlDatabaseRequest {
 	dataCharset := MySQLDatabaseCharsetModel{}
 	dataUser := MySQLDatabaseUserModel{}
 
 	d.Append(m.CharacterSettings.As(ctx, &dataCharset, basetypes.ObjectAsOptions{})...)
 	d.Append(m.User.As(ctx, &dataUser, basetypes.ObjectAsOptions{})...)
 
-	password := dataUser.Password.ValueString()
-	if !dataUser.PasswordWO.IsNull() {
-		password = dataUser.PasswordWO.ValueString()
+	actualPassword := dataUser.Password.ValueString()
+	if !password.IsNull() {
+		actualPassword = password.ValueString()
 	}
 
 	return databaseclientv2.CreateMysqlDatabaseRequest{
@@ -33,7 +33,7 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics)
 				},
 			},
 			User: databasev2.CreateMySqlUserWithDatabase{
-				Password:    password,
+				Password:    actualPassword,
 				AccessLevel: databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
 			},
 		},
