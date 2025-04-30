@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 	"math"
 	"strconv"
 	"strings"
@@ -41,8 +42,8 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 			ID:          types.StringValue(service.Id),
 			Image:       types.StringValue(image),
 			Description: types.StringValue(service.Description),
-			Command:     convertStringSliceToList(state.Command),
-			Entrypoint:  convertStringSliceToList(state.Entrypoint),
+			Command:     valueutil.ConvertStringSliceToList(state.Command),
+			Entrypoint:  valueutil.ConvertStringSliceToList(state.Entrypoint),
 			Environment: convertStringMapToMap(state.Envs),
 			Ports:       convertPortStringsToSet(ctx, state.Ports, &res),
 			Volumes:     convertVolumeStringsToSet(ctx, state.Volumes, &res),
@@ -123,15 +124,6 @@ var containerVolumeModelType = types.ObjectType{
 
 var volumeModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
-}
-
-func convertStringSliceToList(slice []string) types.List {
-	values := make([]attr.Value, len(slice))
-	for i, v := range slice {
-		values[i] = types.StringValue(v)
-	}
-	list, _ := types.ListValue(types.StringType, values)
-	return list
 }
 
 func convertStringMapToMap(m map[string]string) types.Map {
