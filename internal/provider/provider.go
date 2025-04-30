@@ -7,6 +7,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/logadapter"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/appdatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/containerimagedatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
@@ -135,6 +136,7 @@ func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.Da
 		systemsoftwaredatasource.New,
 		appdatasource.New,
 		userdatasource.New,
+		containerimagedatasource.New,
 	}
 }
 
