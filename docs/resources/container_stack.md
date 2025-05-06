@@ -28,9 +28,12 @@ resource "mittwald_container_stack" "nginx" {
     nginx = {
       description = "Example web server"
       image       = "nginx:1.27.4"
-      entrypoint  = ["/docker-entrypoint.sh"]
 
-      // command = ["php -S 0.0.0.0:$PORT"]
+      // entrypoint and command *must* be specified, even if they are the defaults.
+      // To dynamically determine the default entrypoint and command, use the
+      // `mittwald_container_image` data source.
+      entrypoint = ["/docker-entrypoint.sh"]
+      command    = ["nginx", "-g", "daemon off;"]
 
       // environment = {
       //   FOO = "bar"
