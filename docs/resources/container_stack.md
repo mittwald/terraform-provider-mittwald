@@ -89,7 +89,7 @@ resource "mittwald_virtualhost" "nginx" {
 ### Optional
 
 - `default_stack` (Boolean) Set this flag to use the project's default stack. Otherwise, a new stack will be created.
-- `volumes` (Attributes Map) (see [below for nested schema](#nestedatt--volumes))
+- `volumes` (Attributes Map) A map of volumes that should be provisioned for this stack. (see [below for nested schema](#nestedatt--volumes))
 
 ### Read-Only
 
