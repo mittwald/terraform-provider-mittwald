@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"strings"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -74,6 +76,14 @@ func (d *ContainerImageDataSource) Read(ctx context.Context, req datasource.Read
 
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	imageParts := strings.SplitN(data.Image.ValueString(), ":", 2)
+	if len(imageParts) == 1 {
+		imageParts = append(imageParts, "latest")
+
+		resp.Diagnostics.AddAttributeWarning(path.Root("image"), "Missing image tag", "The image tag was not specified. Defaulting to 'latest'.")
+		data.Image = types.StringValue(imageParts[0] + ":" + imageParts[1])
 	}
 
 	containerClient := d.client.Container()
