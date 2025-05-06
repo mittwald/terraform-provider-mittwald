@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
@@ -127,6 +128,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Computed:            true,
 							MarkdownDescription: "Volumes to mount into the container.",
 							NestedObject: schema.NestedAttributeObject{
+								Validators: []validator.Object{
+									&VolumeMountValidator{},
+								},
 								Attributes: map[string]schema.Attribute{
 									"volume": schema.StringAttribute{
 										Optional: true,
