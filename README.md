@@ -4,9 +4,6 @@ This repository contains a [Terraform](https://www.terraform.io) provider for re
 
 ## Installation
 
-> [!IMPORTANT]
-> This provider is an alpha state; we do not fully recommend using it in production environments, as it is not yet feature-complete and may contain bugs. However, we are happy to receive feedback and contributions!
-
 You can install this provider from the [Terraform registry](https://registry.terraform.io/providers/mittwald/mittwald/latest). For this, add the following code to your Terraform configuration:
 
 ```hcl
