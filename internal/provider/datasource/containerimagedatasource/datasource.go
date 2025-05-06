@@ -29,15 +29,18 @@ func (d *ContainerImageDataSource) Metadata(_ context.Context, req datasource.Me
 
 func (d *ContainerImageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: `A data source that queries metadata for a given container image.
-
-This data source should typically be used in conjunction with the ` + "`mittwald_container_stack`" + `
-resource to select the default values for the ` + "`command`" + ` and ` + "`entrypoint`" + ` attributes.`,
+		MarkdownDescription: "A data source that queries metadata for a given container image.\n\n" +
+			"This data source should typically be used in conjunction with the `mittwald_container_stack` " +
+			"resource to select the default values for the `command` and `entrypoint` attributes.\n\n" +
+			"The respective attributes (like `entrypoint` and `command`) will be populated directly from " +
+			"the latest published image manifest. When the image is hosted in a private registry, you " +
+			"must provide the `registry_id` or `project_id` attribute to access the image.",
 
 		Attributes: map[string]schema.Attribute{
 			"image": schema.StringAttribute{
 				MarkdownDescription: "The image to use for the container. Follows the usual Docker image format, " +
-					"e.g. `nginx:latest` or `registry.example.com/my-image:latest`.",
+					"e.g. `nginx:latest` or `registry.example.com/my-image:latest`. You _can_ omit the tag, in which " +
+					"case `latest` will be used. This will trigger a warning, however.",
 				Required: true,
 			},
 			"registry_id": schema.StringAttribute{
