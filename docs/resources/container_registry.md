@@ -11,7 +11,7 @@ description: |-
 
 This resource models a container registry.
 
-It may be used to configure private registries for use in mittwald_container_stack resources.
+It may be used to configure private registries for use in `mittwald_container_stack` resources.
 
 ## Example Usage
 

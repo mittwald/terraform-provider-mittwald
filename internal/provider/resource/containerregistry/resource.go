@@ -32,10 +32,12 @@ type Resource struct {
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_container_registry"
 }
+
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("container_registry")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "This resource models a container registry.\n\nIt may be used to configure private registries for use in mittwald_container_stack resources.",
+		MarkdownDescription: "This resource models a container registry.\n\n" +
+			"It may be used to configure private registries for use in `mittwald_container_stack` resources.",
 
 		Attributes: map[string]schema.Attribute{
 			"id":         builder.Id(),
