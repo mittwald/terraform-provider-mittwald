@@ -73,14 +73,20 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							MarkdownDescription: "A description for the container.",
 						},
 						"command": schema.ListAttribute{
-							Required:            true,
-							MarkdownDescription: "The command to run inside the container.",
-							ElementType:         types.StringType,
+							Required: true,
+							MarkdownDescription: "The command to run inside the container.\n\n" +
+								"Note that this is a required value, even if the image already has a default command. " +
+								"To use the default command, use the `mittwald_container_image` data source to first " +
+								"determine the default command, and then use that value here.",
+							ElementType: types.StringType,
 						},
 						"entrypoint": schema.ListAttribute{
-							Required:            true,
-							MarkdownDescription: "The entrypoint to use for the container.",
-							ElementType:         types.StringType,
+							Required: true,
+							MarkdownDescription: "The entrypoint to use for the container.\n\n" +
+								"Note that this is a required value, even if the image already has a default entrypoint. " +
+								"To use the default entrypoint, use the `mittwald_container_image` data source to first " +
+								"determine the default entrypoint, and then use that value here.",
+							ElementType: types.StringType,
 						},
 						"environment": schema.MapAttribute{
 							Optional:            true,
@@ -93,7 +99,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						},
 						"ports": schema.SetNestedAttribute{
 							Optional:            true,
-							MarkdownDescription: "A ports to expose from the container. Follows the format `<public-port>:<container-port>/<protocol>`.",
+							MarkdownDescription: "A port to expose from the container.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"container_port": schema.Int32Attribute{
@@ -101,15 +107,17 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 										MarkdownDescription: "The container port to expose.",
 									},
 									"public_port": schema.Int32Attribute{
-										Optional:            true,
-										Computed:            true,
-										MarkdownDescription: "The public port to expose; will default to the same value as `container_port`.",
+										Optional: true,
+										Computed: true,
+										MarkdownDescription: "The public port to expose; when omitted, this will " +
+											"default to the same value as `container_port`.",
 									},
 									"protocol": schema.StringAttribute{
-										Optional:            true,
-										Computed:            true,
-										MarkdownDescription: "The protocol to use for the port. Defaults to `tcp`.",
-										Default:             stringdefault.StaticString("tcp"),
+										Optional: true,
+										Computed: true,
+										MarkdownDescription: "The protocol to use for the port. Currently, the only" +
+											" supported value is `tcp`, which is also the default.",
+										Default: stringdefault.StaticString("tcp"),
 									},
 								},
 							},
@@ -117,16 +125,19 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						"volumes": schema.SetNestedAttribute{
 							Optional:            true,
 							Computed:            true,
-							MarkdownDescription: "A list of volumes to mount into the container.",
+							MarkdownDescription: "Volumes to mount into the container.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"volume": schema.StringAttribute{
-										Optional:            true,
-										MarkdownDescription: "The name of the volume to mount.",
+										Optional: true,
+										MarkdownDescription: "The name of the volume to mount. A volume of this name " +
+											"must be specified in the top-level `volumes` attribute.\n\n" +
+											"Either this attribute, or `project_path` must be set.",
 									},
 									"project_path": schema.StringAttribute{
-										Required:            true,
-										MarkdownDescription: "Path to a directory in the project filesystem.",
+										Optional: true,
+										MarkdownDescription: "Path to a directory in the project filesystem.\n\n" +
+											"Either this attribute, or `volume` must be set.",
 									},
 									"mount_path": schema.StringAttribute{
 										Required:            true,
