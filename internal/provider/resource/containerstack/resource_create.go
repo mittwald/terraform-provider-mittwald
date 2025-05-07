@@ -91,6 +91,4 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data ContainerStack
 	_ = providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
 		DoValResp(client.UpdateStack(ctx, *updateRequest))
-
-	return
 }
