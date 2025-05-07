@@ -33,7 +33,13 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("container_stack")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "This resource models a container stack.\n\nA container stack may consist of multiple containers and volumes.",
+		MarkdownDescription: "This resource models a container stack.\n\n" +
+			"A container stack may consist of multiple containers and volumes.\n\n" +
+			"**IMPORTANT**: Currently, the mStudio API supports one \"default\" stack per project. " +
+			"In the future, support for multiple stacks within the same project will be added.\n\n" +
+			"This resource's API already pre-empts this functionality; however, at the moment, you " +
+			"can only manage containers in a project's default stack. To use the default stack, set " +
+			"the `default_stack` attribute to `true`.",
 
 		Attributes: map[string]schema.Attribute{
 			"id":         builder.Id(),

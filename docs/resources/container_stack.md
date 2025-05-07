@@ -5,6 +5,8 @@ subcategory: ""
 description: |-
   This resource models a container stack.
   A container stack may consist of multiple containers and volumes.
+  IMPORTANT: Currently, the mStudio API supports one "default" stack per project. In the future, support for multiple stacks within the same project will be added.
+  This resource's API already pre-empts this functionality; however, at the moment, you can only manage containers in a project's default stack. To use the default stack, set the default_stack attribute to true.
 ---
 
 # mittwald_container_stack (Resource)
@@ -12,6 +14,10 @@ description: |-
 This resource models a container stack.
 
 A container stack may consist of multiple containers and volumes.
+
+**IMPORTANT**: Currently, the mStudio API supports one "default" stack per project. In the future, support for multiple stacks within the same project will be added.
+
+This resource's API already pre-empts this functionality; however, at the moment, you can only manage containers in a project's default stack. To use the default stack, set the `default_stack` attribute to `true`.
 
 ## Example Usage
 
