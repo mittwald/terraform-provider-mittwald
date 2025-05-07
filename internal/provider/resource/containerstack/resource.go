@@ -178,57 +178,74 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 }
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data, current ContainerStackModel
+	var data ContainerStackModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	client := apiext.NewContainerClient(r.client)
-
 	if data.DefaultStack.ValueBool() {
-		stack, err := client.GetDefaultStack(ctx, data.ProjectID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError("failed to get default stack", err.Error())
-			return
-		}
-
-		tflog.Debug(ctx, "using project default stack", map[string]any{"stack_id": stack.Id})
-
-		data.ID = types.StringValue(stack.Id)
-
-		updateRequest := data.ToUpdateRequest(ctx, &current, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
-			tflog.Debug(ctx, "error while building update request")
-			return
-		}
-
-		_ = providerutil.
-			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-			DoValResp(r.client.Container().UpdateStack(ctx, *updateRequest))
-		if resp.Diagnostics.HasError() {
-			return
-		}
+		r.createInDefaultStack(ctx, data, resp)
 	} else {
-		declareRequest := data.ToDeclareRequest(ctx, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
-			tflog.Debug(ctx, "error while building declare request")
-			return
-		}
+		r.createAsNewStack(ctx, data, resp)
+	}
 
-		stack := providerutil.
-			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-			DoValResp(r.client.Container().DeclareStack(ctx, *declareRequest))
-		if resp.Diagnostics.HasError() {
-			return
-		}
-
-		data.ID = types.StringValue(stack.Id)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *Resource) createAsNewStack(ctx context.Context, data ContainerStackModel, resp *resource.CreateResponse) {
+	client := apiext.NewContainerClient(r.client)
+
+	declareRequest := data.ToDeclareRequest(ctx, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		tflog.Debug(ctx, "error while building declare request")
+		return
+	}
+
+	stack := providerutil.
+		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
+		DoValResp(client.DeclareStack(ctx, *declareRequest))
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	data.ID = types.StringValue(stack.Id)
+}
+
+func (r *Resource) createInDefaultStack(ctx context.Context, data ContainerStackModel, resp *resource.CreateResponse) {
+	var current ContainerStackModel
+
+	client := apiext.NewContainerClient(r.client)
+
+	stack := providerutil.
+		Try[*containerv2.StackResponse](&resp.Diagnostics, "failed to get default stack").
+		DoVal(client.GetDefaultStack(ctx, data.ProjectID.ValueString()))
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	tflog.Debug(ctx, "using project default stack", map[string]any{"stack_id": stack.Id})
+
+	data.ID = types.StringValue(stack.Id)
+
+	updateRequest := data.ToUpdateRequest(ctx, &current, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		tflog.Debug(ctx, "error while building update request")
+		return
+	}
+
+	_ = providerutil.
+		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
+		DoValResp(r.client.Container().UpdateStack(ctx, *updateRequest))
+
+	return
 }
 
 func (r *Resource) read(ctx context.Context, data *ContainerStackModel) (res diag.Diagnostics) {
