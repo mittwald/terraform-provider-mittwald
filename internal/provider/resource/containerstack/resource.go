@@ -284,6 +284,8 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
+	ctx = tflog.SetField(ctx, "stack_id", stateData.ID.ValueString())
+
 	var stack *containerv2.StackResponse
 
 	if stateData.DefaultStack.ValueBool() {
@@ -306,18 +308,37 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			DoValResp(r.client.Container().DeclareStack(ctx, *req))
 	}
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.recreateContainers(ctx, planData, stack, resp)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
+}
+
+func (r *Resource) recreateContainers(ctx context.Context, planData ContainerStackModel, stack *containerv2.StackResponse, resp *resource.UpdateResponse) {
 	containerModels := planData.ContainerModels(ctx, &resp.Diagnostics)
+
 	for _, service := range stack.Services {
+		ctx := tflog.SetField(ctx, "service_id", service.Id)
+
 		serviceConfig, ok := containerModels[service.ServiceName]
 		if !ok {
 			continue
 		}
 
-		if serviceConfig.NoRecreateOnChange.ValueBool() {
+		if reflect.DeepEqual(service.DeployedState, service.PendingState) {
+			tflog.Debug(ctx, "service has no pending state; skipping recreation")
 			continue
 		}
 
-		if reflect.DeepEqual(service.DeployedState, service.PendingState) {
+		if serviceConfig.NoRecreateOnChange.ValueBool() {
+			tflog.Debug(ctx, "recreation would be necessary, but no_recreate_on_change is set; skipping recreation")
 			continue
 		}
 
@@ -326,15 +347,12 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			ServiceID: service.Id,
 		}
 
-		tflog.Debug(ctx, "recreating service", map[string]any{"stack_id": stack.Id, "service_id": service.Id})
+		tflog.Debug(ctx, "recreating service")
 
 		providerutil.
 			Try[any](&resp.Diagnostics, "API error while recreating container").
 			DoResp(r.client.Container().RecreateService(ctx, req))
 	}
-
-	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
-	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
