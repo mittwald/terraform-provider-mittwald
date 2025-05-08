@@ -36,12 +36,15 @@ This provider offers the following resources:
 - [`mittwald_redis_database`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/redis_database)
 - [`mittwald_cronjob`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/cronjob)
 - [`mittwald_virtualhost`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/virtualhost)
+- [`mittwald_container_stack`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/container_stack)
+- [`mittwald_container_registry`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/container_registry)
 
 and the following data sources:
 
 - [`mittwald_systemsoftware`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/systemsoftware)
 - [`mittwald_app`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/app)
 - [`mittwald_user`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/user)
+- [`mittwald_container_image`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/container_image)
 
 Coming soon:
 
@@ -55,7 +58,7 @@ Coming soon:
 
 ### Requirements
 
-- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.0
+- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.10
 - [Go](https://golang.org/doc/install) >= 1.19
 
 ### Building The Provider
