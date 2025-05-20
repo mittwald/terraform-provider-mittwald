@@ -59,8 +59,9 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingr
 func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) domainclientv2.CreateIngressRequest {
 	return domainclientv2.CreateIngressRequest{
 		Body: domainclientv2.CreateIngressRequestBody{
-			Hostname: m.Hostname.ValueString(),
-			Paths:    m.pathsAsAPIModel(ctx, d),
+			ProjectId: m.ProjectID.ValueString(),
+			Hostname:  m.Hostname.ValueString(),
+			Paths:     m.pathsAsAPIModel(ctx, d),
 		},
 	}
 }
