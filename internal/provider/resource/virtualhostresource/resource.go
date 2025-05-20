@@ -125,6 +125,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		ingress := providerutil.
 			Try[*domainclientv2.CreateIngressResponse](&resp.Diagnostics, "API error while creating virtual host").
 			DoValResp(client.CreateIngress(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics)))
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
 		data.ID = types.StringValue(ingress.Id)
 	}
