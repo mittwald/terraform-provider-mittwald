@@ -32,9 +32,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	if data.DefaultStack.ValueBool() {
-		r.createInDefaultStack(ctx, data, resp)
+		r.createInDefaultStack(ctx, &data, resp)
 	} else {
-		r.createAsNewStack(ctx, data, resp)
+		r.createAsNewStack(ctx, &data, resp)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -45,7 +45,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Resource) createAsNewStack(ctx context.Context, data ContainerStackModel, resp *resource.CreateResponse) {
+func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackModel, resp *resource.CreateResponse) {
 	client := apiext.NewContainerClient(r.client)
 
 	declareRequest := data.ToDeclareRequest(ctx, &resp.Diagnostics)
@@ -64,7 +64,7 @@ func (r *Resource) createAsNewStack(ctx context.Context, data ContainerStackMode
 	data.ID = types.StringValue(stack.Id)
 }
 
-func (r *Resource) createInDefaultStack(ctx context.Context, data ContainerStackModel, resp *resource.CreateResponse) {
+func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStackModel, resp *resource.CreateResponse) {
 	var current ContainerStackModel
 
 	client := apiext.NewContainerClient(r.client)
