@@ -7,7 +7,6 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
-	"reflect"
 )
 
 // Update reconciles the current state of the resource with the desired state.
@@ -83,8 +82,8 @@ func (r *Resource) recreateContainers(ctx context.Context, planData ContainerSta
 			continue
 		}
 
-		if reflect.DeepEqual(service.DeployedState, service.PendingState) {
-			tflog.Debug(ctx, "service has no pending state; skipping recreation")
+		if !service.RequiresRecreate {
+			tflog.Debug(ctx, "service does not require recreation; skipping")
 			continue
 		}
 
