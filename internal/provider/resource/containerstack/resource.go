@@ -71,7 +71,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							},
 						},
 						"description": schema.StringAttribute{
-							Required:            true,
+							Optional:            true,
 							MarkdownDescription: "A description for the container.",
 						},
 						"command": schema.ListAttribute{
