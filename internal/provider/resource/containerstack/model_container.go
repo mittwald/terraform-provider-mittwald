@@ -47,10 +47,10 @@ func (m *ContainerModel) ToDeclareRequest(ctx context.Context, d *diag.Diagnosti
 		Image:       m.Image.ValueString(),
 		Command:     extractStringList(m.Command),
 		Entrypoint:  extractStringList(m.Entrypoint),
-		Envs:        extractStringMap(m.Environment),
+		Environment: extractStringMap(m.Environment),
 		Ports:       extractPortMappings(ctx, m.Ports, d),
 		Volumes:     extractVolumeMappings(ctx, m.Volumes, d),
-		Description: m.Description.ValueString(),
+		Description: m.Description.ValueStringPointer(),
 	}
 }
 
