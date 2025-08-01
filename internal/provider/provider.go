@@ -15,6 +15,7 @@ import (
 	containerregistryresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerregistry"
 	containerstackresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerstack"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/cronjobresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/emailoutboxresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqldatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqlpassword"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
@@ -127,6 +128,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 		virtualhostresource.New,
 		containerstackresource.New,
 		containerregistryresource.New,
+		emailoutboxresource.New,
 	}
 }
 
