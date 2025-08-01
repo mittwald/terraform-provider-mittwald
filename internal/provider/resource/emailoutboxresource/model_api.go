@@ -8,7 +8,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/mailv2"
 )
 
-// ToCreateRequest converts the resource model to an API create request
+// ToCreateRequest converts the resource model to an API create request.
 func (m *ResourceModel) ToCreateRequest() mailclientv2.CreateDeliveryboxRequest {
 	return mailclientv2.CreateDeliveryboxRequest{
 		Body: mailclientv2.CreateDeliveryboxRequestBody{
@@ -19,7 +19,7 @@ func (m *ResourceModel) ToCreateRequest() mailclientv2.CreateDeliveryboxRequest 
 	}
 }
 
-// ToUpdateDescriptionRequest converts the resource model to an API update description request
+// ToUpdateDescriptionRequest converts the resource model to an API update description request.
 func (m *ResourceModel) ToUpdateDescriptionRequest() mailclientv2.UpdateDeliveryBoxDescriptionRequest {
 	return mailclientv2.UpdateDeliveryBoxDescriptionRequest{
 		Body: mailclientv2.UpdateDeliveryBoxDescriptionRequestBody{
@@ -29,7 +29,7 @@ func (m *ResourceModel) ToUpdateDescriptionRequest() mailclientv2.UpdateDelivery
 	}
 }
 
-// ToUpdatePasswordRequest converts the resource model to an API update password request
+// ToUpdatePasswordRequest converts the resource model to an API update password request.
 func (m *ResourceModel) ToUpdatePasswordRequest() mailclientv2.UpdateDeliveryBoxPasswordRequest {
 	return mailclientv2.UpdateDeliveryBoxPasswordRequest{
 		Body: mailclientv2.UpdateDeliveryBoxPasswordRequestBody{
@@ -39,21 +39,21 @@ func (m *ResourceModel) ToUpdatePasswordRequest() mailclientv2.UpdateDeliveryBox
 	}
 }
 
-// ToDeleteRequest converts the resource model to an API delete request
+// ToDeleteRequest converts the resource model to an API delete request.
 func (m *ResourceModel) ToDeleteRequest() mailclientv2.DeleteDeliveryBoxRequest {
 	return mailclientv2.DeleteDeliveryBoxRequest{
 		DeliveryBoxID: m.ID.ValueString(),
 	}
 }
 
-// ToGetRequest converts the resource model to an API get request
+// ToGetRequest converts the resource model to an API get request.
 func (m *ResourceModel) ToGetRequest() mailclientv2.GetDeliveryBoxRequest {
 	return mailclientv2.GetDeliveryBoxRequest{
 		DeliveryBoxID: m.ID.ValueString(),
 	}
 }
 
-// FromAPIModel converts an API response to the resource model
+// FromAPIModel converts an API response to the resource model.
 func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *mailv2.Deliverybox) diag.Diagnostics {
 	var diags diag.Diagnostics
 
