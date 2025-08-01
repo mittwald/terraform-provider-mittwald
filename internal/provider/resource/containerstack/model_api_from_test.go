@@ -157,7 +157,7 @@ func TestFromAPIModelAndReverse(t *testing.T) {
 			HaveField("Image", "nginx:latest"),
 			HaveField("Command", []string{"nginx", "-g", "daemon off;"}),
 			HaveField("Entrypoint", []string{"/bin/sh", "-c"}),
-			HaveField("Envs", HaveKeyWithValue("ENV_VAR", "value")),
+			HaveField("Environment", HaveKeyWithValue("ENV_VAR", "value")),
 			HaveField("Ports", ContainElements("80:8080/tcp", "443:8443/tcp")),
 			HaveField("Volumes", ContainElements("/project/web:/usr/share/nginx/html", "data-volume:/data")),
 		)),
