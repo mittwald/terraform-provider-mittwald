@@ -13,3 +13,7 @@ resource "mittwald_email_outbox" "example" {
 output "email_outbox_id" {
   value = mittwald_email_outbox.example.id
 }
+
+output "email_outbox_name" {
+  value = mittwald_email_outbox.example.name
+}

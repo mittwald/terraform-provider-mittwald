@@ -6,6 +6,7 @@ import "github.com/hashicorp/terraform-plugin-framework/types"
 type ResourceModel struct {
 	ID          types.String `tfsdk:"id"`
 	ProjectID   types.String `tfsdk:"project_id"`
+	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 	Password    types.String `tfsdk:"password"`
 }

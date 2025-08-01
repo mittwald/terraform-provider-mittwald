@@ -63,6 +63,7 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *mailv2.Deliver
 
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
+	m.Name = types.StringValue(apiModel.Name)
 	m.Description = types.StringValue(apiModel.Description)
 	// Password is not returned from the API for security reasons
 

@@ -38,6 +38,7 @@ This provider offers the following resources:
 - [`mittwald_virtualhost`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/virtualhost)
 - [`mittwald_container_stack`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/container_stack)
 - [`mittwald_container_registry`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/container_registry)
+- [`mittwald_email_outbox`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/email_outbox)
 
 and the following data sources:
 
@@ -52,7 +53,6 @@ Coming soon:
 - `mittwald_ssh_user`
 - `mittwald_dns_zone`
 - `mittwald_email_address`
-- `mittwald_email_deliverybox`
 
 ## Contributing
 
