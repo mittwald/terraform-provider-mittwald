@@ -1,4 +1,4 @@
-package mailoutboxresource
+package emailoutboxresource
 
 import (
 	"context"
@@ -29,11 +29,11 @@ type Resource struct {
 }
 
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_mail_outbox"
+	resp.TypeName = req.ProviderTypeName + "_email_outbox"
 }
 
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	builder := common.AttributeBuilderFor("mail_outbox")
+	builder := common.AttributeBuilderFor("email outbox")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a mail outbox.",
 
@@ -41,11 +41,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"id":         builder.Id(),
 			"project_id": builder.ProjectId(),
 			"description": schema.StringAttribute{
-				Description: "The description of the mail outbox.",
+				Description: "The description of the email outbox.",
 				Required:    true,
 			},
 			"password": schema.StringAttribute{
-				Description: "The password for the mail outbox. For security, it is recommended to use the 'random_password' Terraform resource to dynamically generate a secure password instead of hardcoding values.",
+				Description: "The password for the email outbox. For security, it is recommended to use the 'random_password' Terraform resource to dynamically generate a secure password instead of hardcoding values.",
 				Required:    true,
 				Sensitive:   true,
 				PlanModifiers: []planmodifier.String{

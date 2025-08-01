@@ -1,4 +1,4 @@
-package mailoutboxresource
+package emailoutboxresource
 
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
