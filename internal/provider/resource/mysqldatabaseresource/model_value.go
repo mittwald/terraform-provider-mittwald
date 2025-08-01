@@ -13,11 +13,13 @@ var charsetAttrs = map[string]attr.Type{
 }
 
 var userAttrs = map[string]attr.Type{
-	"id":              types.StringType,
-	"name":            types.StringType,
-	"password":        types.StringType,
-	"access_level":    types.StringType,
-	"external_access": types.BoolType,
+	"id":                  types.StringType,
+	"name":                types.StringType,
+	"password":            types.StringType,
+	"password_wo":         types.StringType,
+	"password_wo_version": types.Int64Type,
+	"access_level":        types.StringType,
+	"external_access":     types.BoolType,
 }
 
 func (m *MySQLDatabaseCharsetModel) AsObject(ctx context.Context, diag diag.Diagnostics) types.Object {
