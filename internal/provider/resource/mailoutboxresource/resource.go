@@ -45,7 +45,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Required:    true,
 			},
 			"password": schema.StringAttribute{
-				Description: "The password for the mail outbox.",
+				Description: "The password for the mail outbox. For security, it is recommended to use the 'random_password' Terraform resource to dynamically generate a secure password instead of hardcoding values.",
 				Required:    true,
 				Sensitive:   true,
 				PlanModifiers: []planmodifier.String{
