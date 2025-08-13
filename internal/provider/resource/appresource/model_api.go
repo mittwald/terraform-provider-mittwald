@@ -123,14 +123,14 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *appv2
 
 	project := providerutil.
 		Try[*projectv2.Project](&res, "error while fetching project").
-		DoValResp(projectClient.GetProject(ctx, projectclientv2.GetProjectRequest{ProjectID: *appInstallation.ProjectId}))
+		DoValResp(projectClient.GetProject(ctx, projectclientv2.GetProjectRequest{ProjectID: appInstallation.ProjectId}))
 
 	if res.HasError() {
 		return
 	}
 
 	m.ShortID = types.StringValue(appInstallation.ShortId)
-	m.ProjectID = valueutil.StringPtrOrNull(appInstallation.ProjectId)
+	m.ProjectID = types.StringValue(appInstallation.ProjectId)
 	m.InstallationPath = types.StringValue(appInstallation.InstallationPath)
 	m.InstallationPathAbsolute = types.StringValue(project.Directories["Web"] + appInstallation.InstallationPath)
 
@@ -152,7 +152,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *appv2
 	m.DocumentRoot = valueutil.StringPtrOrNull(appInstallation.CustomDocumentRoot)
 	m.Description = valueutil.StringOrNull(appInstallation.Description)
 	m.Version = types.StringValue(appDesiredVersion.InternalVersion)
-	m.UpdatePolicy = valueutil.StringPtrOrNull(appInstallation.UpdatePolicy)
+	m.UpdatePolicy = types.StringValue(string(appInstallation.UpdatePolicy))
 
 	if appInstallation.LinkedDatabases != nil {
 		databases := make([]DatabaseModel, 0)
