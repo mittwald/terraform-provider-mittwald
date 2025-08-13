@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.28.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-testing v1.13.2
-	github.com/mittwald/api-client-go v0.2.78
+	github.com/mittwald/api-client-go v0.2.81
 	github.com/onsi/gomega v1.38.0
 )
 
