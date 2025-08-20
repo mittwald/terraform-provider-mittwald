@@ -246,6 +246,7 @@ func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequ
 func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceModel) (string, string, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	var projectID string
+	var shortID string
 
 	// Get project ID from either container ID or app ID
 	if !data.ContainerID.IsNull() {
@@ -259,6 +260,7 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 			return "", "", diags
 		}
 		projectID = container.ProjectId
+		shortID = container.ShortId
 	} else if !data.AppID.IsNull() {
 		// Get project ID from app ID
 		appClient := r.client.App()
@@ -270,6 +272,7 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 			return "", "", diags
 		}
 		projectID = appInstallation.ProjectId
+		shortID = appInstallation.ShortId
 	} else {
 		diags.AddError(
 			"Missing Resource Reference",
@@ -302,14 +305,6 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 
 	// Determine SSH username
 	var username string
-	var shortID string
-
-	// Get the short ID from either container or app
-	if !data.ContainerID.IsNull() {
-		shortID = data.ContainerID.ValueString()[:8]
-	} else {
-		shortID = data.AppID.ValueString()[:8]
-	}
 
 	// Get the username part
 	if !data.SSHUser.IsNull() {
