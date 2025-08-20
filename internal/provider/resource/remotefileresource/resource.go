@@ -129,15 +129,8 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	// Get SSH connection details
-	sshHost, sshUser, diags := r.getSSHConnectionDetails(ctx, &data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	// Create the file on the remote server
-	err := r.createOrUpdateFile(ctx, data, sshHost, sshUser)
+	err := r.createOrUpdateFile(ctx, data)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Remote File",
@@ -168,15 +161,8 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	// Get SSH connection details
-	sshHost, sshUser, diags := r.getSSHConnectionDetails(ctx, &data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	// Check if the file exists on the remote server
-	exists, contents, err := r.readFile(ctx, data, sshHost, sshUser)
+	exists, contents, err := r.readFile(ctx, data)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading Remote File",
@@ -207,15 +193,8 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	// Get SSH connection details
-	sshHost, sshUser, diags := r.getSSHConnectionDetails(ctx, &data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	// Update the file on the remote server
-	err := r.createOrUpdateFile(ctx, data, sshHost, sshUser)
+	err := r.createOrUpdateFile(ctx, data)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Remote File",
@@ -237,15 +216,8 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
-	// Get SSH connection details
-	sshHost, sshUser, diags := r.getSSHConnectionDetails(ctx, &data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	// Delete the file from the remote server
-	err := r.deleteFile(ctx, data, sshHost, sshUser)
+	err := r.deleteFile(ctx, data)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Remote File",
@@ -360,7 +332,19 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 	return sshHost, sshUser, diags
 }
 
-func (r *Resource) createSSHClient(ctx context.Context, host, user string, privateKey string) (*ssh.Client, error) {
+func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel) (*ssh.Client, error) {
+	// Get SSH connection details
+	host, user, diags := r.getSSHConnectionDetails(ctx, data)
+	if diags.HasError() {
+		return nil, fmt.Errorf("failed to get SSH connection details: %s", diags.Errors()[0].Detail())
+	}
+
+	// Get private key
+	privateKey := ""
+	if !data.SSHPrivateKey.IsNull() {
+		privateKey = data.SSHPrivateKey.ValueString()
+	}
+
 	// If privateKey is empty, use the default ~/.ssh/id_rsa
 	if privateKey == "" {
 		homeDir, err := os.UserHomeDir()
@@ -397,18 +381,15 @@ func (r *Resource) createSSHClient(ctx context.Context, host, user string, priva
 	return client, nil
 }
 
-func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceModel, host, user string) error {
+func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceModel) error {
 	filePath := resource.Path.ValueString()
 	contents := resource.Contents.ValueString()
-	sshPrivateKey := resource.SSHPrivateKey.ValueString()
 
 	tflog.Debug(ctx, "Creating/updating remote file", map[string]interface{}{
-		"host": host,
-		"user": user,
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, host, user, sshPrivateKey)
+	client, err := r.createSSHClient(ctx, &resource)
 	if err != nil {
 		return err
 	}
@@ -446,17 +427,14 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceMode
 	return nil
 }
 
-func (r *Resource) readFile(ctx context.Context, resource ResourceModel, host, user string) (bool, string, error) {
+func (r *Resource) readFile(ctx context.Context, resource ResourceModel) (bool, string, error) {
 	filePath := resource.Path.ValueString()
-	sshPrivateKey := resource.SSHPrivateKey.ValueString()
 
 	tflog.Debug(ctx, "Reading remote file", map[string]interface{}{
-		"host": host,
-		"user": user,
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, host, user, sshPrivateKey)
+	client, err := r.createSSHClient(ctx, &resource)
 	if err != nil {
 		return false, "", err
 	}
@@ -500,17 +478,14 @@ func (r *Resource) readFile(ctx context.Context, resource ResourceModel, host, u
 	return true, string(contents), nil
 }
 
-func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel, host, user string) error {
+func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel) error {
 	filePath := resource.Path.ValueString()
-	sshPrivateKey := resource.SSHPrivateKey.ValueString()
 
 	tflog.Debug(ctx, "Deleting remote file", map[string]interface{}{
-		"host": host,
-		"user": user,
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, host, user, sshPrivateKey)
+	client, err := r.createSSHClient(ctx, &resource)
 	if err != nil {
 		return err
 	}
