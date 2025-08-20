@@ -14,6 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/appclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
@@ -241,12 +244,60 @@ func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequ
 
 func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceModel) (string, string, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	var projectID string
 
-	// For simplicity in this implementation, we'll use hardcoded values
-	// In a real implementation, you would retrieve these from the API
+	// Get project ID from either container ID or app ID
+	if !data.ContainerID.IsNull() {
+		containerClient := r.client.Container()
+		container, _, err := containerClient.GetService(ctx, containerclientv2.GetServiceRequest{
+			ServiceID: data.ContainerID.ValueString(),
+		})
 
-	// Simulate getting SSH host from project
-	sshHost := "ssh.example.com"
+		if err != nil {
+			diags.AddError("Error getting container details", err.Error())
+			return "", "", diags
+		}
+		projectID = container.ProjectId
+	} else if !data.AppID.IsNull() {
+		// Get project ID from app ID
+		appClient := r.client.App()
+		appInstallation, _, err := appClient.GetAppinstallation(ctx, appclientv2.GetAppinstallationRequest{
+			AppInstallationID: data.AppID.ValueString(),
+		})
+		if err != nil {
+			diags.AddError("Error getting app details", err.Error())
+			return "", "", diags
+		}
+		projectID = appInstallation.ProjectId
+	} else {
+		diags.AddError(
+			"Missing Resource Reference",
+			"Either container_id or app_id must be specified.",
+		)
+		return "", "", diags
+	}
+
+	// Get project details to determine SSH host
+	projectClient := r.client.Project()
+	project, _, err := projectClient.GetProject(ctx, projectclientv2.GetProjectRequest{
+		ProjectID: projectID,
+	})
+	if err != nil {
+		diags.AddError("Could not get project details", err.Error())
+		return "", "", diags
+	}
+
+	// Determine SSH host from project details
+	var sshHost string
+	if project.ClusterID != nil && project.ClusterDomain != nil {
+		sshHost = fmt.Sprintf("ssh.%s.%s", *project.ClusterID, *project.ClusterDomain)
+	} else {
+		diags.AddError(
+			"Missing Cluster Information",
+			"Project does not have cluster information required for SSH connection.",
+		)
+		return "", "", diags
+	}
 
 	// Determine SSH username
 	var sshUser string
