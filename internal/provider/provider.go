@@ -20,6 +20,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/mysqlpassword"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/redisdatabaseresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/remotefileresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
 	"log/slog"
 	"os"
@@ -129,6 +130,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 		containerstackresource.New,
 		containerregistryresource.New,
 		emailoutboxresource.New,
+		remotefileresource.New,
 	}
 }
 
