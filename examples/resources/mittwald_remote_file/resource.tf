@@ -5,6 +5,7 @@ resource "mittwald_remote_file" "example" {
 
   # Optional: SSH username (defaults to "<email>@<container-short-id>" if omitted)
   # ssh_user = "ssh-XXXXX"
+  # ssh_private_key = file("~/.ssh/id_rsa")
 
   path     = "/path/to/file.txt"
   contents = "This is the content of the file"

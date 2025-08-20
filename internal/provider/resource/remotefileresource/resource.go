@@ -72,6 +72,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional:            true,
 				MarkdownDescription: "The SSH username to use for the connection. If not specified, it will default to the currently authenticated user.",
 			},
+			"ssh_private_key": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "The SSH private key to use for the connection. If not specified, it will default to the contents ~/.ssh/id_rsa; use the file function to specify a file path instead.",
+			},
 			"path": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "The path of the file on the remote server.",
@@ -133,7 +137,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Create the file on the remote server
-	err := r.createOrUpdateFile(ctx, sshHost, sshUser, data.Path.ValueString(), data.Contents.ValueString())
+	err := r.createOrUpdateFile(ctx, data, sshHost, sshUser)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Remote File",
@@ -172,7 +176,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	// Check if the file exists on the remote server
-	exists, contents, err := r.readFile(ctx, sshHost, sshUser, data.Path.ValueString())
+	exists, contents, err := r.readFile(ctx, data, sshHost, sshUser)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading Remote File",
@@ -211,7 +215,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Update the file on the remote server
-	err := r.createOrUpdateFile(ctx, sshHost, sshUser, data.Path.ValueString(), data.Contents.ValueString())
+	err := r.createOrUpdateFile(ctx, data, sshHost, sshUser)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Remote File",
@@ -241,7 +245,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	}
 
 	// Delete the file from the remote server
-	err := r.deleteFile(ctx, sshHost, sshUser, data.Path.ValueString())
+	err := r.deleteFile(ctx, data, sshHost, sshUser)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Remote File",
@@ -356,20 +360,23 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 	return sshHost, sshUser, diags
 }
 
-func (r *Resource) createSSHClient(ctx context.Context, host, user string) (*ssh.Client, error) {
-	// Get SSH key from ~/.ssh/id_rsa
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, fmt.Errorf("could not get user home directory: %w", err)
+func (r *Resource) createSSHClient(ctx context.Context, host, user string, privateKey string) (*ssh.Client, error) {
+	// If privateKey is empty, use the default ~/.ssh/id_rsa
+	if privateKey == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return nil, fmt.Errorf("could not get user home directory: %w", err)
+		}
+		keyBytes, err := os.ReadFile(fmt.Sprintf("%s/.ssh/id_rsa", homeDir))
+		if err != nil {
+			return nil, fmt.Errorf("unable to read default private key: %w", err)
+		}
+		privateKey = string(keyBytes)
 	}
 
-	keyPath := fmt.Sprintf("%s/.ssh/id_rsa", homeDir)
-	key, err := os.ReadFile(keyPath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to read private key: %w", err)
-	}
+	tflog.Debug(ctx, "Using SSH private key")
 
-	signer, err := ssh.ParsePrivateKey(key)
+	signer, err := ssh.ParsePrivateKey([]byte(privateKey))
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse private key: %w", err)
 	}
@@ -390,14 +397,18 @@ func (r *Resource) createSSHClient(ctx context.Context, host, user string) (*ssh
 	return client, nil
 }
 
-func (r *Resource) createOrUpdateFile(ctx context.Context, host, user, path, contents string) error {
+func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceModel, host, user string) error {
+	filePath := resource.Path.ValueString()
+	contents := resource.Contents.ValueString()
+	sshPrivateKey := resource.SSHPrivateKey.ValueString()
+
 	tflog.Debug(ctx, "Creating/updating remote file", map[string]interface{}{
 		"host": host,
 		"user": user,
-		"path": path,
+		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, host, user)
+	client, err := r.createSSHClient(ctx, host, user, sshPrivateKey)
 	if err != nil {
 		return err
 	}
@@ -411,7 +422,7 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, host, user, path, con
 	defer sftpClient.Close()
 
 	// Ensure the directory exists
-	dir := filepath.Dir(path)
+	dir := filepath.Dir(filePath)
 	if dir != "." {
 		err = sftpClient.MkdirAll(dir)
 		if err != nil {
@@ -420,7 +431,7 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, host, user, path, con
 	}
 
 	// Create or truncate the file
-	file, err := sftpClient.Create(path)
+	file, err := sftpClient.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
@@ -435,14 +446,17 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, host, user, path, con
 	return nil
 }
 
-func (r *Resource) readFile(ctx context.Context, host, user, path string) (bool, string, error) {
+func (r *Resource) readFile(ctx context.Context, resource ResourceModel, host, user string) (bool, string, error) {
+	filePath := resource.Path.ValueString()
+	sshPrivateKey := resource.SSHPrivateKey.ValueString()
+
 	tflog.Debug(ctx, "Reading remote file", map[string]interface{}{
 		"host": host,
 		"user": user,
-		"path": path,
+		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, host, user)
+	client, err := r.createSSHClient(ctx, host, user, sshPrivateKey)
 	if err != nil {
 		return false, "", err
 	}
@@ -456,7 +470,7 @@ func (r *Resource) readFile(ctx context.Context, host, user, path string) (bool,
 	defer sftpClient.Close()
 
 	// Check if the file exists
-	fileInfo, err := sftpClient.Stat(path)
+	fileInfo, err := sftpClient.Stat(filePath)
 	if err != nil {
 		// File doesn't exist or other error
 		if os.IsNotExist(err) {
@@ -467,11 +481,11 @@ func (r *Resource) readFile(ctx context.Context, host, user, path string) (bool,
 
 	// Make sure it's a regular file
 	if !fileInfo.Mode().IsRegular() {
-		return false, "", fmt.Errorf("%s is not a regular file", path)
+		return false, "", fmt.Errorf("%s is not a regular file", filePath)
 	}
 
 	// Open the file for reading
-	file, err := sftpClient.Open(path)
+	file, err := sftpClient.Open(filePath)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to open file: %w", err)
 	}
@@ -486,14 +500,17 @@ func (r *Resource) readFile(ctx context.Context, host, user, path string) (bool,
 	return true, string(contents), nil
 }
 
-func (r *Resource) deleteFile(ctx context.Context, host, user, path string) error {
+func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel, host, user string) error {
+	filePath := resource.Path.ValueString()
+	sshPrivateKey := resource.SSHPrivateKey.ValueString()
+
 	tflog.Debug(ctx, "Deleting remote file", map[string]interface{}{
 		"host": host,
 		"user": user,
-		"path": path,
+		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, host, user)
+	client, err := r.createSSHClient(ctx, host, user, sshPrivateKey)
 	if err != nil {
 		return err
 	}
@@ -507,7 +524,7 @@ func (r *Resource) deleteFile(ctx context.Context, host, user, path string) erro
 	defer sftpClient.Close()
 
 	// Check if the file exists before attempting to remove it
-	_, err = sftpClient.Stat(path)
+	_, err = sftpClient.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// File doesn't exist, nothing to do
@@ -517,7 +534,7 @@ func (r *Resource) deleteFile(ctx context.Context, host, user, path string) erro
 	}
 
 	// Remove the file
-	err = sftpClient.Remove(path)
+	err = sftpClient.Remove(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}
