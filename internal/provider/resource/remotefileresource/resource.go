@@ -17,6 +17,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/appclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/userclientv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
@@ -300,18 +301,42 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 	}
 
 	// Determine SSH username
-	var sshUser string
+	var username string
+	var shortID string
+
+	// Get the short ID from either container or app
+	if !data.ContainerID.IsNull() {
+		shortID = data.ContainerID.ValueString()[:8]
+	} else {
+		shortID = data.AppID.ValueString()[:8]
+	}
+
+	// Get the username part
 	if !data.SSHUser.IsNull() {
 		// Use specified SSH user
-		sshUser = data.SSHUser.ValueString()
+		username = data.SSHUser.ValueString()
 	} else {
-		// Use a default format based on container or app ID
-		if !data.ContainerID.IsNull() {
-			sshUser = fmt.Sprintf("user@%s", data.ContainerID.ValueString()[:8])
+		// Use the currently logged-in user's email address
+		// Get the user from the client
+		userClient := r.client.User()
+		user, _, err := userClient.GetUser(ctx, userclientv2.GetUserRequest{UserID: "self"})
+		if err != nil {
+			diags.AddError("Error getting user details", err.Error())
+			return "", "", diags
+		}
+		if user.Email != nil {
+			username = *user.Email
 		} else {
-			sshUser = fmt.Sprintf("user@%s", data.AppID.ValueString()[:8])
+			diags.AddError(
+				"Missing User Email",
+				"Could not determine SSH username: user email is not available",
+			)
+			return "", "", diags
 		}
 	}
+
+	// Always format as "<username>@<shortid>"
+	sshUser := fmt.Sprintf("%s@%s", username, shortID)
 
 	tflog.Debug(ctx, "Using SSH connection details", map[string]interface{}{
 		"host": sshHost,
