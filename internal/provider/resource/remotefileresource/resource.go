@@ -235,46 +235,14 @@ func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequ
 
 func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceModel) (string, string, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	var projectID string
-	var shortID string
 
-	// Get project ID from either container ID or app ID
-	if !data.ContainerID.IsNull() {
-		containerClient := r.client.Container()
-		container, _, err := containerClient.GetService(ctx, containerclientv2.GetServiceRequest{
-			ServiceID: data.ContainerID.ValueString(),
-			StackID:   data.StackID.ValueString(),
-		})
-
-		if err != nil {
-			diags.AddError("Error getting container details", err.Error())
-			return "", "", diags
-		}
-		projectID = container.ProjectId
-		shortID = container.ShortId
-	} else if !data.AppID.IsNull() {
-		// Get project ID from app ID
-		appClient := r.client.App()
-		appInstallation, _, err := appClient.GetAppinstallation(ctx, appclientv2.GetAppinstallationRequest{
-			AppInstallationID: data.AppID.ValueString(),
-		})
-		if err != nil {
-			diags.AddError("Error getting app details", err.Error())
-			return "", "", diags
-		}
-		projectID = appInstallation.ProjectId
-		shortID = appInstallation.ShortId
-	} else {
-		diags.AddError(
-			"Missing Resource Reference",
-			"Either container_id or app_id must be specified.",
-		)
+	projectID, shortID := r.determineProjectAndTargetID(ctx, data, &diags)
+	if diags.HasError() {
 		return "", "", diags
 	}
 
 	// Get project details to determine SSH host
-	projectClient := r.client.Project()
-	project, _, err := projectClient.GetProject(ctx, projectclientv2.GetProjectRequest{
+	project, _, err := r.client.Project().GetProject(ctx, projectclientv2.GetProjectRequest{
 		ProjectID: projectID,
 	})
 	if err != nil {
@@ -330,6 +298,44 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 	})
 
 	return sshHost, sshUser, diags
+}
+
+func (r *Resource) determineProjectAndTargetID(ctx context.Context, data *ResourceModel, diags *diag.Diagnostics) (string, string) {
+	// Get project ID from either container ID or app ID
+	if !data.ContainerID.IsNull() && !data.StackID.IsNull() {
+		containerClient := r.client.Container()
+		container, _, err := containerClient.GetService(ctx, containerclientv2.GetServiceRequest{
+			ServiceID: data.ContainerID.ValueString(),
+			StackID:   data.StackID.ValueString(),
+		})
+
+		if err != nil {
+			diags.AddError("Error getting container details", err.Error())
+			return "", ""
+		}
+
+		return container.ProjectId, container.ShortId
+	}
+
+	if !data.AppID.IsNull() {
+		// Get project ID from app ID
+		appClient := r.client.App()
+		appInstallation, _, err := appClient.GetAppinstallation(ctx, appclientv2.GetAppinstallationRequest{
+			AppInstallationID: data.AppID.ValueString(),
+		})
+		if err != nil {
+			diags.AddError("Error getting app details", err.Error())
+			return "", ""
+		}
+
+		return appInstallation.ProjectId, appInstallation.ShortId
+	}
+
+	diags.AddError(
+		"Missing Resource Reference",
+		"Either container_id+stack_id or app_id must be specified.",
+	)
+	return "", ""
 }
 
 func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel) (*ssh.Client, error) {
