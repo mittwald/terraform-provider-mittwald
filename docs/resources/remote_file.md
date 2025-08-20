@@ -18,6 +18,7 @@ You can specify either a container_id or an app_id to determine which server to 
 ```terraform
 resource "mittwald_remote_file" "example" {
   container_id = "<container-id>" # either container_id or app_id
+  stack_id     = "<stack-id>"     # required when container_id is specified
   # app_id = "<app-id>"            # either container_id or app_id
 
   # Optional: SSH username (defaults to "<email>@<container-short-id>" if omitted)
@@ -44,6 +45,7 @@ resource "mittwald_remote_file" "example" {
 - `app_id` (String) The ID of the app to connect to. Either container_id or app_id must be specified.
 - `container_id` (String) The ID of the container to connect to. Either container_id or app_id must be specified.
 - `ssh_user` (String) The SSH username to use for the connection. If not specified, it will default to the currently authenticated user.
+- `stack_id` (String) The ID of the stack that the container belongs to. Required when container_id is specified.
 
 ### Read-Only
 

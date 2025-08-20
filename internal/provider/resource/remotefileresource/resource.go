@@ -60,6 +60,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional:            true,
 				MarkdownDescription: "The ID of the container to connect to. Either container_id or app_id must be specified.",
 			},
+			"stack_id": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "The ID of the stack that the container belongs to. Required when container_id is specified.",
+			},
 			"app_id": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "The ID of the app to connect to. Either container_id or app_id must be specified.",
@@ -111,6 +115,16 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	// Validate that stack_id is specified when container_id is specified
+	if !data.ContainerID.IsNull() && data.StackID.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("stack_id"),
+			"Missing Stack ID",
+			"stack_id must be specified when container_id is specified.",
+		)
+		return
+	}
+
 	// Get SSH connection details
 	sshHost, sshUser, diags := r.getSSHConnectionDetails(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -131,7 +145,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	// Generate a unique ID for the resource
 	var resourceID string
 	if !data.ContainerID.IsNull() {
-		resourceID = fmt.Sprintf("container-%s-%s", data.ContainerID.ValueString(), data.Path.ValueString())
+		resourceID = fmt.Sprintf("container-%s-%s-%s", data.StackID.ValueString(), data.ContainerID.ValueString(), data.Path.ValueString())
 	} else {
 		resourceID = fmt.Sprintf("app-%s-%s", data.AppID.ValueString(), data.Path.ValueString())
 	}
@@ -253,6 +267,7 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 		containerClient := r.client.Container()
 		container, _, err := containerClient.GetService(ctx, containerclientv2.GetServiceRequest{
 			ServiceID: data.ContainerID.ValueString(),
+			StackID:   data.StackID.ValueString(),
 		})
 
 		if err != nil {
@@ -511,10 +526,10 @@ func (r *Resource) deleteFile(ctx context.Context, host, user, path string) erro
 }
 
 // generateResourceID creates a unique ID for the resource
-func generateResourceID(containerID, appID, path string) string {
+func generateResourceID(stackID, containerID, appID, path string) string {
 	h := sha256.New()
 	if containerID != "" {
-		h.Write([]byte(fmt.Sprintf("container:%s:%s", containerID, path)))
+		h.Write([]byte(fmt.Sprintf("container:%s:%s:%s", stackID, containerID, path)))
 	} else {
 		h.Write([]byte(fmt.Sprintf("app:%s:%s", appID, path)))
 	}

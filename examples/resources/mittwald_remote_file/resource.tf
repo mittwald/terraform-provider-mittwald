@@ -1,5 +1,6 @@
 resource "mittwald_remote_file" "example" {
   container_id = "<container-id>" # either container_id or app_id
+  stack_id     = "<stack-id>"     # required when container_id is specified
   # app_id = "<app-id>"            # either container_id or app_id
 
   # Optional: SSH username (defaults to "<email>@<container-short-id>" if omitted)
