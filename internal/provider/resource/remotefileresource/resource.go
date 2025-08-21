@@ -2,8 +2,6 @@ package remotefileresource
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -129,8 +127,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Create the file on the remote server
-	err := r.createOrUpdateFile(ctx, data)
-	if err != nil {
+	if err := r.createOrUpdateFile(ctx, data); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Remote File",
 			fmt.Sprintf("Could not create file at %s: %s", data.Path.ValueString(), err),
@@ -154,13 +151,11 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data ResourceModel
 
-	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Check if the file exists on the remote server
 	exists, contents, err := r.readFile(ctx, data)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -171,30 +166,24 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	if !exists {
-		// File doesn't exist, remove from state
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
-	// Update the contents in the state
 	data.Contents = types.StringValue(contents)
 
-	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data ResourceModel
 
-	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Update the file on the remote server
-	err := r.createOrUpdateFile(ctx, data)
-	if err != nil {
+	if err := r.createOrUpdateFile(ctx, data); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Remote File",
 			fmt.Sprintf("Could not update file at %s: %s", data.Path.ValueString(), err),
@@ -202,22 +191,18 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data ResourceModel
 
-	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Delete the file from the remote server
-	err := r.deleteFile(ctx, data)
-	if err != nil {
+	if err := r.deleteFile(ctx, data); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Remote File",
 			fmt.Sprintf("Could not delete file at %s: %s", data.Path.ValueString(), err),
@@ -510,15 +495,4 @@ func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel) error
 	}
 
 	return nil
-}
-
-// generateResourceID creates a unique ID for the resource
-func generateResourceID(stackID, containerID, appID, path string) string {
-	h := sha256.New()
-	if containerID != "" {
-		h.Write([]byte(fmt.Sprintf("container:%s:%s:%s", stackID, containerID, path)))
-	} else {
-		h.Write([]byte(fmt.Sprintf("app:%s:%s", appID, path)))
-	}
-	return hex.EncodeToString(h.Sum(nil))
 }
