@@ -137,7 +137,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Create the file on the remote server
-	if err := r.createOrUpdateFile(ctx, &data, nil, &resp.Diagnostics); err != nil {
+	if err := r.createOrUpdateFile(ctx, &data, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Remote File",
 			fmt.Sprintf("Could not create file at %s: %s", data.Path.ValueString(), err),
@@ -197,7 +197,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	if err := r.createOrUpdateFile(ctx, &data, &state, &resp.Diagnostics); err != nil {
+	if err := r.createOrUpdateFile(ctx, &data, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Remote File",
 			fmt.Sprintf("Could not update file at %s: %s", data.Path.ValueString(), err),
@@ -378,7 +378,7 @@ func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel, d *
 	return client, nil
 }
 
-func (r *Resource) createOrUpdateFile(ctx context.Context, resource, state *ResourceModel, d *diag.Diagnostics) error {
+func (r *Resource) createOrUpdateFile(ctx context.Context, resource *ResourceModel, d *diag.Diagnostics) error {
 	filePath := resource.Path.ValueString()
 	var contents []byte
 
