@@ -32,6 +32,8 @@ func New() resource.Resource {
 	return &Resource{}
 }
 
+const DefaultSSHKeyPath = ".ssh/id_rsa"
+
 type Resource struct {
 	client mittwaldv2.Client
 }
@@ -73,7 +75,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"ssh_private_key": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The SSH private key to use for the connection. If not specified, it will default to the contents ~/.ssh/id_rsa; use the file function to specify a file path instead.",
+				MarkdownDescription: "The SSH private key to use for the connection. If not specified, it will default to the contents ~/" + DefaultSSHKeyPath + "; use the file function to specify a file path instead.",
 			},
 			"path": schema.StringAttribute{
 				Required:            true,
@@ -333,7 +335,10 @@ func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel, d *
 		if err != nil {
 			return nil, fmt.Errorf("could not get user home directory: %w", err)
 		}
-		keyBytes, err := os.ReadFile(fmt.Sprintf("%s/.ssh/id_rsa", homeDir))
+
+		defaultKeyPath := filepath.Join(homeDir, DefaultSSHKeyPath)
+
+		keyBytes, err := os.ReadFile(defaultKeyPath)
 		if err != nil {
 			return nil, fmt.Errorf("unable to read default private key: %w", err)
 		}
