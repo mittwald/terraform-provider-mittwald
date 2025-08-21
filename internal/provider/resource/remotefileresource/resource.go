@@ -180,6 +180,9 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
+	// Only read contents if they are not read from a URL. We don't know what
+	// kind of content the URL will return, so we don't want to end up with
+	// binary data in the contents field.
 	if data.ContentsFromURL.IsNull() {
 		data.Contents = types.StringValue(contents)
 	}
