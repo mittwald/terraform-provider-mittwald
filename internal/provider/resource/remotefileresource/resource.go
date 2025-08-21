@@ -3,6 +3,7 @@ package remotefileresource
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +17,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/userclientv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/sshutil"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"io"
@@ -127,7 +129,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Create the file on the remote server
-	if err := r.createOrUpdateFile(ctx, data); err != nil {
+	if err := r.createOrUpdateFile(ctx, data, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Remote File",
 			fmt.Sprintf("Could not create file at %s: %s", data.Path.ValueString(), err),
@@ -156,7 +158,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	exists, contents, err := r.readFile(ctx, data)
+	exists, contents, err := r.readFile(ctx, data, &resp.Diagnostics)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading Remote File",
@@ -183,7 +185,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	if err := r.createOrUpdateFile(ctx, data); err != nil {
+	if err := r.createOrUpdateFile(ctx, data, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Remote File",
 			fmt.Sprintf("Could not update file at %s: %s", data.Path.ValueString(), err),
@@ -202,7 +204,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
-	if err := r.deleteFile(ctx, data); err != nil {
+	if err := r.deleteFile(ctx, data, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Remote File",
 			fmt.Sprintf("Could not delete file at %s: %s", data.Path.ValueString(), err),
@@ -312,7 +314,7 @@ func (r *Resource) determineProjectAndTargetID(ctx context.Context, data *Resour
 	return "", "", fmt.Errorf("either container_id+stack_id or app_id must be specified")
 }
 
-func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel) (*ssh.Client, error) {
+func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel, d *diag.Diagnostics) (*ssh.Client, error) {
 	// Get SSH connection details
 	host, user, err := r.getSSHConnectionDetails(ctx, data)
 	if err != nil {
@@ -350,7 +352,7 @@ func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel) (*s
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Note: In production, use proper host key verification
+		HostKeyCallback: sshutil.VerifyKnownClusters(d),
 	}
 
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:22", host), config)
@@ -361,7 +363,7 @@ func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel) (*s
 	return client, nil
 }
 
-func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceModel) error {
+func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceModel, d *diag.Diagnostics) error {
 	filePath := resource.Path.ValueString()
 	contents := resource.Contents.ValueString()
 
@@ -369,7 +371,7 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceMode
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, &resource)
+	client, err := r.createSSHClient(ctx, &resource, d)
 	if err != nil {
 		return err
 	}
@@ -407,14 +409,14 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceMode
 	return nil
 }
 
-func (r *Resource) readFile(ctx context.Context, resource ResourceModel) (bool, string, error) {
+func (r *Resource) readFile(ctx context.Context, resource ResourceModel, d *diag.Diagnostics) (bool, string, error) {
 	filePath := resource.Path.ValueString()
 
 	tflog.Debug(ctx, "Reading remote file", map[string]interface{}{
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, &resource)
+	client, err := r.createSSHClient(ctx, &resource, d)
 	if err != nil {
 		return false, "", err
 	}
@@ -458,14 +460,14 @@ func (r *Resource) readFile(ctx context.Context, resource ResourceModel) (bool, 
 	return true, string(contents), nil
 }
 
-func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel) error {
+func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel, d *diag.Diagnostics) error {
 	filePath := resource.Path.ValueString()
 
 	tflog.Debug(ctx, "Deleting remote file", map[string]interface{}{
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, &resource)
+	client, err := r.createSSHClient(ctx, &resource, d)
 	if err != nil {
 		return err
 	}
