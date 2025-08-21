@@ -375,14 +375,22 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceMode
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func(client *ssh.Client) {
+		if err := client.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH client", map[string]interface{}{"error": err})
+		}
+	}(client)
 
 	// Create an SFTP client
 	sftpClient, err := sftp.NewClient(client)
 	if err != nil {
 		return fmt.Errorf("failed to create SFTP client: %w", err)
 	}
-	defer sftpClient.Close()
+	defer func(sftpClient *sftp.Client) {
+		if err := sftpClient.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SFTP client", map[string]interface{}{"error": err})
+		}
+	}(sftpClient)
 
 	// Ensure the directory exists
 	dir := filepath.Dir(filePath)
@@ -398,7 +406,11 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceMode
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *sftp.File) {
+		if err := file.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close file", map[string]interface{}{"error": err})
+		}
+	}(file)
 
 	// Write the contents to the file
 	_, err = file.Write([]byte(contents))
@@ -420,14 +432,22 @@ func (r *Resource) readFile(ctx context.Context, resource ResourceModel, d *diag
 	if err != nil {
 		return false, "", err
 	}
-	defer client.Close()
+	defer func(client *ssh.Client) {
+		if err := client.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH client", map[string]interface{}{"error": err})
+		}
+	}(client)
 
 	// Create an SFTP client
 	sftpClient, err := sftp.NewClient(client)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to create SFTP client: %w", err)
 	}
-	defer sftpClient.Close()
+	defer func(sftpClient *sftp.Client) {
+		if err := sftpClient.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SFTP client", map[string]interface{}{"error": err})
+		}
+	}(sftpClient)
 
 	// Check if the file exists
 	fileInfo, err := sftpClient.Stat(filePath)
@@ -449,7 +469,11 @@ func (r *Resource) readFile(ctx context.Context, resource ResourceModel, d *diag
 	if err != nil {
 		return false, "", fmt.Errorf("failed to open file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *sftp.File) {
+		if err := file.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close file", map[string]interface{}{"error": err})
+		}
+	}(file)
 
 	// Read the file contents
 	contents, err := io.ReadAll(file)
@@ -471,18 +495,25 @@ func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel, d *di
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func(client *ssh.Client) {
+		if err := client.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH client", map[string]interface{}{"error": err})
+		}
+	}(client)
 
 	// Create an SFTP client
 	sftpClient, err := sftp.NewClient(client)
 	if err != nil {
 		return fmt.Errorf("failed to create SFTP client: %w", err)
 	}
-	defer sftpClient.Close()
+	defer func(sftpClient *sftp.Client) {
+		if err := sftpClient.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SFTP client", map[string]interface{}{"error": err})
+		}
+	}(sftpClient)
 
 	// Check if the file exists before attempting to remove it
-	_, err = sftpClient.Stat(filePath)
-	if err != nil {
+	if _, err := sftpClient.Stat(filePath); err != nil {
 		if os.IsNotExist(err) {
 			// File doesn't exist, nothing to do
 			return nil
@@ -491,8 +522,7 @@ func (r *Resource) deleteFile(ctx context.Context, resource ResourceModel, d *di
 	}
 
 	// Remove the file
-	err = sftpClient.Remove(filePath)
-	if err != nil {
+	if err = sftpClient.Remove(filePath); err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}
 
