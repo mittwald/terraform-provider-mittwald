@@ -43,8 +43,8 @@ resource "mittwald_remote_file" "example" {
 
 ### Optional
 
-- `app_id` (String) The ID of the app to connect to. Either container_id or app_id must be specified.
-- `container_id` (String) The ID of the container to connect to. Either container_id or app_id must be specified.
+- `app_id` (String) The ID of the app to connect to. Either container_id+stack_id or app_id must be specified.
+- `container_id` (String) The ID of the container to connect to. Either container_id+stack_id or app_id must be specified.
 - `ssh_private_key` (String) The SSH private key to use for the connection. If not specified, it will default to the contents ~/.ssh/id_rsa; use the file function to specify a file path instead.
 - `ssh_user` (String) The SSH username to use for the connection. If not specified, it will default to the currently authenticated user.
 - `stack_id` (String) The ID of the stack that the container belongs to. Required when container_id is specified.

@@ -55,7 +55,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"container_id": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The ID of the container to connect to. Either container_id or app_id must be specified.",
+				MarkdownDescription: "The ID of the container to connect to. Either container_id+stack_id or app_id must be specified.",
 			},
 			"stack_id": schema.StringAttribute{
 				Optional:            true,
@@ -63,7 +63,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"app_id": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The ID of the app to connect to. Either container_id or app_id must be specified.",
+				MarkdownDescription: "The ID of the app to connect to. Either container_id+stack_id or app_id must be specified.",
 			},
 			"ssh_user": schema.StringAttribute{
 				Optional:            true,
