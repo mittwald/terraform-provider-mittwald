@@ -60,21 +60,21 @@ func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Co
 			t.Reset(d)
 
 			r, _, e := f(ctx, req)
-			if e != nil {
-				if errors.Is(e, ErrPollShouldRetry) {
-					continue
-				} else if notFound := new(httperr.ErrNotFound); errors.As(e, &notFound) {
-					continue
-				} else if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(e, &permissionDenied) {
-					continue
-				} else if errors.Is(e, context.DeadlineExceeded) {
-					return
-				} else {
-					err <- e
-					return
-				}
-			} else {
+			if e == nil {
 				res <- r
+				return
+			}
+
+			if errors.Is(e, ErrPollShouldRetry) {
+				continue
+			} else if notFound := new(httperr.ErrNotFound); errors.As(e, &notFound) {
+				continue
+			} else if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(e, &permissionDenied) {
+				continue
+			} else if errors.Is(e, context.DeadlineExceeded) {
+				return
+			} else {
+				err <- e
 				return
 			}
 		}
@@ -82,7 +82,7 @@ func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Co
 
 	select {
 	case <-ctx.Done():
-		return null, &httperr.ErrNotFound{}
+		return null, ctx.Err()
 	case r := <-res:
 		return r, nil
 	case e := <-err:
