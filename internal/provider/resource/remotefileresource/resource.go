@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -233,60 +232,20 @@ func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequ
 
 // Helper functions for SSH operations
 
-func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceModel) (string, string, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	projectID, shortID := r.determineProjectAndTargetID(ctx, data, &diags)
-	if diags.HasError() {
-		return "", "", diags
-	}
-
-	// Get project details to determine SSH host
-	project, _, err := r.client.Project().GetProject(ctx, projectclientv2.GetProjectRequest{
-		ProjectID: projectID,
-	})
+func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceModel) (string, string, error) {
+	projectID, shortID, err := r.determineProjectAndTargetID(ctx, data)
 	if err != nil {
-		diags.AddError("Could not get project details", err.Error())
-		return "", "", diags
+		return "", "", err
 	}
 
-	// Determine SSH host from project details
-	var sshHost string
-	if project.ClusterID != nil && project.ClusterDomain != nil {
-		sshHost = fmt.Sprintf("ssh.%s.%s", *project.ClusterID, *project.ClusterDomain)
-	} else {
-		diags.AddError(
-			"Missing Cluster Information",
-			"Project does not have cluster information required for SSH connection.",
-		)
-		return "", "", diags
+	sshHost, err := r.determineSSHHostname(ctx, projectID)
+	if err != nil {
+		return "", "", err
 	}
 
-	// Determine SSH username
-	var username string
-
-	// Get the username part
-	if !data.SSHUser.IsNull() {
-		// Use specified SSH user
-		username = data.SSHUser.ValueString()
-	} else {
-		// Use the currently logged-in user's email address
-		// Get the user from the client
-		userClient := r.client.User()
-		user, _, err := userClient.GetUser(ctx, userclientv2.GetUserRequest{UserID: "self"})
-		if err != nil {
-			diags.AddError("Error getting user details", err.Error())
-			return "", "", diags
-		}
-		if user.Email != nil {
-			username = *user.Email
-		} else {
-			diags.AddError(
-				"Missing User Email",
-				"Could not determine SSH username: user email is not available",
-			)
-			return "", "", diags
-		}
+	username, err := r.determineSSHUsername(ctx, data)
+	if err != nil {
+		return "", "", fmt.Errorf("error determining SSH username: %w", err)
 	}
 
 	// Always format as "<username>@<shortid>"
@@ -297,10 +256,46 @@ func (r *Resource) getSSHConnectionDetails(ctx context.Context, data *ResourceMo
 		"user": sshUser,
 	})
 
-	return sshHost, sshUser, diags
+	return sshHost, sshUser, nil
 }
 
-func (r *Resource) determineProjectAndTargetID(ctx context.Context, data *ResourceModel, diags *diag.Diagnostics) (string, string) {
+func (r *Resource) determineSSHHostname(ctx context.Context, projectID string) (string, error) {
+	// Get project details to determine SSH host
+	projectRequest := projectclientv2.GetProjectRequest{ProjectID: projectID}
+	project, _, err := r.client.Project().GetProject(ctx, projectRequest)
+	if err != nil {
+		return "", fmt.Errorf("error getting project details: %w", err)
+	}
+
+	// Determine SSH host from project details
+	if project.ClusterID != nil && project.ClusterDomain != nil {
+		return fmt.Sprintf("ssh.%s.%s", *project.ClusterID, *project.ClusterDomain), nil
+	}
+
+	return "", fmt.Errorf("project %s does not have cluster information", projectID)
+}
+
+func (r *Resource) determineSSHUsername(ctx context.Context, data *ResourceModel) (string, error) {
+	if !data.SSHUser.IsNull() {
+		return data.SSHUser.ValueString(), nil
+	}
+
+	// Use the currently logged-in user's email address
+	// Get the user from the client
+	userClient := r.client.User()
+	user, _, err := userClient.GetUser(ctx, userclientv2.GetUserRequest{UserID: "self"})
+	if err != nil {
+		return "", fmt.Errorf("error getting user details: %w", err)
+	}
+
+	if user.Email != nil {
+		return *user.Email, nil
+	}
+
+	return "", fmt.Errorf("user email is not available, cannot determine SSH username")
+}
+
+func (r *Resource) determineProjectAndTargetID(ctx context.Context, data *ResourceModel) (string, string, error) {
 	// Get project ID from either container ID or app ID
 	if !data.ContainerID.IsNull() && !data.StackID.IsNull() {
 		containerClient := r.client.Container()
@@ -310,11 +305,10 @@ func (r *Resource) determineProjectAndTargetID(ctx context.Context, data *Resour
 		})
 
 		if err != nil {
-			diags.AddError("Error getting container details", err.Error())
-			return "", ""
+			return "", "", fmt.Errorf("error getting container details: %w", err)
 		}
 
-		return container.ProjectId, container.ShortId
+		return container.ProjectId, container.ShortId, nil
 	}
 
 	if !data.AppID.IsNull() {
@@ -324,25 +318,20 @@ func (r *Resource) determineProjectAndTargetID(ctx context.Context, data *Resour
 			AppInstallationID: data.AppID.ValueString(),
 		})
 		if err != nil {
-			diags.AddError("Error getting app details", err.Error())
-			return "", ""
+			return "", "", fmt.Errorf("error getting app installation details: %w", err)
 		}
 
-		return appInstallation.ProjectId, appInstallation.ShortId
+		return appInstallation.ProjectId, appInstallation.ShortId, nil
 	}
 
-	diags.AddError(
-		"Missing Resource Reference",
-		"Either container_id+stack_id or app_id must be specified.",
-	)
-	return "", ""
+	return "", "", fmt.Errorf("either container_id+stack_id or app_id must be specified")
 }
 
 func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel) (*ssh.Client, error) {
 	// Get SSH connection details
-	host, user, diags := r.getSSHConnectionDetails(ctx, data)
-	if diags.HasError() {
-		return nil, fmt.Errorf("failed to get SSH connection details: %s", diags.Errors()[0].Detail())
+	host, user, err := r.getSSHConnectionDetails(ctx, data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSH connection details: %w", err)
 	}
 
 	// Get private key
