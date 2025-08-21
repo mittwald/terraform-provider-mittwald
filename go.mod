@@ -1,6 +1,6 @@
 module github.com/mittwald/terraform-provider-mittwald
 
-go 1.23.3
+go 1.23.7
 
 toolchain go1.24.1
 
@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/alessio/shellescape v1.4.2
 	github.com/google/uuid v1.6.0
-	github.com/hashicorp/terraform-plugin-docs v0.21.0
+	github.com/hashicorp/terraform-plugin-docs v0.22.0
 	github.com/hashicorp/terraform-plugin-framework v1.15.1
 	github.com/hashicorp/terraform-plugin-go v0.28.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
