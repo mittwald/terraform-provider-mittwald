@@ -21,8 +21,10 @@ import (
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var _ resource.Resource = &Resource{}
@@ -82,8 +84,12 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				MarkdownDescription: "The path of the file on the remote server.",
 			},
 			"contents": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "The contents of the file.",
+				Optional:            true,
+				MarkdownDescription: "The contents of the file; use the file function to read from a file on the local filesystem.",
+			},
+			"contents_from_url": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "The URL to fetch the contents of the file from. If specified and contents is not set, the file will be fetched from this URL.",
 			},
 		},
 	}
@@ -131,7 +137,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	// Create the file on the remote server
-	if err := r.createOrUpdateFile(ctx, data, &resp.Diagnostics); err != nil {
+	if err := r.createOrUpdateFile(ctx, &data, nil, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Remote File",
 			fmt.Sprintf("Could not create file at %s: %s", data.Path.ValueString(), err),
@@ -174,20 +180,24 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	data.Contents = types.StringValue(contents)
+	if data.ContentsFromURL.IsNull() {
+		data.Contents = types.StringValue(contents)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data ResourceModel
+	var data, state ResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if err := r.createOrUpdateFile(ctx, data, &resp.Diagnostics); err != nil {
+	if err := r.createOrUpdateFile(ctx, &data, &state, &resp.Diagnostics); err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Remote File",
 			fmt.Sprintf("Could not update file at %s: %s", data.Path.ValueString(), err),
@@ -368,15 +378,20 @@ func (r *Resource) createSSHClient(ctx context.Context, data *ResourceModel, d *
 	return client, nil
 }
 
-func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceModel, d *diag.Diagnostics) error {
+func (r *Resource) createOrUpdateFile(ctx context.Context, resource, state *ResourceModel, d *diag.Diagnostics) error {
 	filePath := resource.Path.ValueString()
-	contents := resource.Contents.ValueString()
+	var contents []byte
+
+	contents, err := r.fetchContents(ctx, resource, d)
+	if err != nil {
+		return err
+	}
 
 	tflog.Debug(ctx, "Creating/updating remote file", map[string]interface{}{
 		"path": filePath,
 	})
 
-	client, err := r.createSSHClient(ctx, &resource, d)
+	client, err := r.createSSHClient(ctx, resource, d)
 	if err != nil {
 		return err
 	}
@@ -418,12 +433,63 @@ func (r *Resource) createOrUpdateFile(ctx context.Context, resource ResourceMode
 	}(file)
 
 	// Write the contents to the file
-	_, err = file.Write([]byte(contents))
+	_, err = file.Write(contents)
 	if err != nil {
 		return fmt.Errorf("failed to write to file: %w", err)
 	}
 
 	return nil
+}
+
+func (r *Resource) fetchContents(ctx context.Context, resource *ResourceModel, d *diag.Diagnostics) ([]byte, error) {
+	if !resource.Contents.IsNull() {
+		return []byte(resource.Contents.ValueString()), nil
+	}
+
+	if !resource.ContentsFromURL.IsNull() {
+		return r.fetchContentFromURL(ctx, resource)
+	}
+
+	d.AddAttributeError(path.Root("contents"), "Missing File Contents", "Either contents or contents_from_url must be specified.")
+	d.AddAttributeError(path.Root("contents_from_url"), "Missing File Contents", "Either contents or contents_from_url must be specified.")
+
+	return nil, fmt.Errorf("either contents or contents_from_url must be specified")
+}
+
+func (r *Resource) fetchContentFromURL(ctx context.Context, resource *ResourceModel) ([]byte, error) {
+	url := resource.ContentsFromURL.ValueString()
+
+	ctx = tflog.SetField(ctx, "url", url)
+
+	tflog.Debug(ctx, "Fetching file content from URL")
+
+	// Create HTTP client with timeout
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	// Make the request
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch content from URL %s: %w", url, err)
+	}
+	defer func(body io.ReadCloser) {
+		if err := body.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close response body", map[string]interface{}{"error": err})
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("received non-OK status code when fetching from URL %s: %d", url, resp.StatusCode)
+	}
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read content from URL %s: %w", url, err)
+	}
+
+	return body, nil
 }
 
 func (r *Resource) readFile(ctx context.Context, resource ResourceModel, d *diag.Diagnostics) (bool, string, error) {

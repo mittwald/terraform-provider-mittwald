@@ -12,4 +12,7 @@ resource "mittwald_remote_file" "example" {
 
   # Alternatively, you can use the file function to read content from a local file
   # contents = file("${path.module}/local_file.txt")
+
+  # Alternatively, use the contents_from_url attribute to fetch content from a URL
+  # contents_from_url = "https://example.com/file.txt"
 }
