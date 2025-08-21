@@ -13,15 +13,3 @@ type ResourceModel struct {
 	Path          types.String `tfsdk:"path"`
 	Contents      types.String `tfsdk:"contents"`
 }
-
-// Reset resets the model to its zero values
-func (m *ResourceModel) Reset() {
-	m.ID = types.StringNull()
-	m.ContainerID = types.StringNull()
-	m.StackID = types.StringNull()
-	m.AppID = types.StringNull()
-	m.SSHUser = types.StringNull()
-	m.SSHPrivateKey = types.StringNull()
-	m.Path = types.StringNull()
-	m.Contents = types.StringNull()
-}
