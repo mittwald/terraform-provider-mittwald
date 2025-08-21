@@ -30,6 +30,9 @@ resource "mittwald_remote_file" "example" {
 
   # Alternatively, you can use the file function to read content from a local file
   # contents = file("${path.module}/local_file.txt")
+
+  # Alternatively, use the contents_from_url attribute to fetch content from a URL
+  # contents_from_url = "https://example.com/file.txt"
 }
 ```
 
@@ -38,13 +41,14 @@ resource "mittwald_remote_file" "example" {
 
 ### Required
 
-- `contents` (String) The contents of the file.
 - `path` (String) The path of the file on the remote server.
 
 ### Optional
 
 - `app_id` (String) The ID of the app to connect to. Either container_id+stack_id or app_id must be specified.
 - `container_id` (String) The ID of the container to connect to. Either container_id+stack_id or app_id must be specified.
+- `contents` (String) The contents of the file; use the file function to read from a file on the local filesystem.
+- `contents_from_url` (String) The URL to fetch the contents of the file from. If specified and contents is not set, the file will be fetched from this URL.
 - `ssh_private_key` (String) The SSH private key to use for the connection. If not specified, it will default to the contents ~/.ssh/id_rsa; use the file function to specify a file path instead.
 - `ssh_user` (String) The SSH username to use for the connection. If not specified, it will default to the currently authenticated user.
 - `stack_id` (String) The ID of the stack that the container belongs to. Required when container_id is specified.
