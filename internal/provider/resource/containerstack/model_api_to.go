@@ -46,7 +46,7 @@ func (m *ContainerStackModel) ToUpdateRequest(ctx context.Context, current *Cont
 		return nil
 	}
 
-	// Find containers  and volumes that are present in the current state, but *not* in the
+	// Find containers and volumes that are present in the current state, but *not* in the
 	// plan. Delete these containers and volumes by setting them to an empty object.
 	for name := range currentContainers {
 		if _, ok := plannedContainers[name]; !ok {
@@ -136,6 +136,20 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 	}
 
 	return declareRequest
+}
+
+func (m *ContainerStackModel) ContainerNames() []string {
+	var names []string
+	if m.Containers.IsNull() || m.Containers.IsUnknown() {
+		return names
+	}
+
+	for _, v := range m.Containers.Elements() {
+		if strVal, ok := v.(types.String); ok {
+			names = append(names, strVal.ValueString())
+		}
+	}
+	return names
 }
 
 // extractStringList is a helper to extract a Terraform list of strings into a

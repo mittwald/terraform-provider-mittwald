@@ -61,6 +61,9 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 		return
 	}
 
+	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
+		Do(client.WaitUntilStackIsReady(ctx, stack.Id, nil))
+
 	data.ID = types.StringValue(stack.Id)
 }
 
@@ -91,4 +94,7 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 	_ = providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
 		DoValResp(client.UpdateStack(ctx, *updateRequest))
+
+	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
+		Do(client.WaitUntilStackIsReady(ctx, stack.Id, data.ContainerNames()))
 }

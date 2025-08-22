@@ -13,6 +13,7 @@ type ContainerClient interface {
 
 	GetDefaultStack(context.Context, string) (*containerv2.StackResponse, error)
 	GetRegistryByName(ctx context.Context, projectID string, registryURI string) (*containerv2.Registry, error)
+	WaitUntilStackIsReady(ctx context.Context, stackID string, containerNames []string) error
 }
 type containerClient struct {
 	containerclientv2.Client
