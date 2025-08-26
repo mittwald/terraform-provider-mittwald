@@ -11,6 +11,13 @@ resource "mittwald_virtualhost" "foobar" {
       app = mittwald_app.foobar.id
     }
 
+    "/api" = {
+      container = {
+        container_id = mittwald_container_stack.foobar.containers.api.id
+        port         = "3000/tcp"
+      }
+    }
+
     "/redirect" = {
       redirect = "https://redirect.example"
     }
