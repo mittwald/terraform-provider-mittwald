@@ -21,5 +21,9 @@ resource "mittwald_virtualhost" "foobar" {
     "/redirect" = {
       redirect = "https://redirect.example"
     }
+
+    "/default" = {
+      // keep empty to redirect to empty default page
+    }
   }
 }
