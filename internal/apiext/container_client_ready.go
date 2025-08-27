@@ -46,6 +46,6 @@ func (c *containerClient) WaitUntilStackIsReady(ctx context.Context, stackID str
 		MaxDelay:     60 * time.Second,
 	}
 
-	_, err := apiutils.Poll(ctx, o, runner, request)
+	_, err := apiutils.PollRequest(ctx, o, runner, request)
 	return err
 }

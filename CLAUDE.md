@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Testing
 - `make testacc` - Run acceptance tests (creates real resources, may cost money)
 - `TF_ACC=1 go test ./... -v $(TESTARGS) -timeout 120m` - Run acceptance tests with custom arguments
+- `golangci-lint run` - Run linter checks
 
 ### Development Setup
 After building with `go install`, create a `~/.terraformrc` file for development overrides:

@@ -33,7 +33,14 @@ func (o *PollOpts) applyDefaults() {
 	}
 }
 
-func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TReq, ...func(req *http.Request) error) (TRes, *http.Response, error), req TReq) (TRes, error) {
+func PollRequest[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TReq, ...func(req *http.Request) error) (TRes, *http.Response, error), req TReq) (TRes, error) {
+	return Poll[TReq, TRes](ctx, o, func(ctx context.Context, req TReq) (TRes, error) {
+		res, _, err := f(ctx, req)
+		return res, err
+	}, req)
+}
+
+func Poll[TParam any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TParam) (TRes, error), param TParam) (TRes, error) {
 	var null TRes
 
 	res := make(chan TRes)
@@ -59,7 +66,7 @@ func Poll[TReq any, TRes any](ctx context.Context, o PollOpts, f func(context.Co
 			d = time.Duration(math.Max(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
 			t.Reset(d)
 
-			r, _, e := f(ctx, req)
+			r, e := f(ctx, param)
 			if e == nil {
 				res <- r
 				return

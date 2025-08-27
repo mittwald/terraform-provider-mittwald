@@ -146,7 +146,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 	database := providerutil.
 		Try[*databasev2.RedisDatabase](&res, "error while reading database").
 		IgnoreNotFound().
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetRedisDatabase, databaseclientv2.GetRedisDatabaseRequest{RedisDatabaseID: data.ID.ValueString()}))
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetRedisDatabase, databaseclientv2.GetRedisDatabaseRequest{RedisDatabaseID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return

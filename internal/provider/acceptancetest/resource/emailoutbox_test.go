@@ -140,7 +140,7 @@ func testAccAssertEmailOutboxIsAbsent(outboxID string) error {
 
 	client := providertesting.TestClient().Mail()
 
-	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetDeliveryBox, mailclientv2.GetDeliveryBoxRequest{
+	_, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetDeliveryBox, mailclientv2.GetDeliveryBoxRequest{
 		DeliveryBoxID: outboxID,
 	})
 	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {

@@ -202,7 +202,7 @@ func (d *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 	database := providerutil.
 		Try[*databasev2.MySqlDatabase](&res, "error while reading database").
 		IgnoreNotFound().
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlDatabase, databaseclientv2.GetMysqlDatabaseRequest{MysqlDatabaseID: data.ID.ValueString()}))
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetMysqlDatabase, databaseclientv2.GetMysqlDatabaseRequest{MysqlDatabaseID: data.ID.ValueString()}))
 	databaseUser := providerutil.
 		Try[*databasev2.MySqlUser](&res, "error while reading database user").
 		DoVal(d.findDatabaseUser(ctx, data.ID.ValueString(), &dataUser))
@@ -221,7 +221,7 @@ func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data
 
 	// This should be the regular case, in which we can simply look up the user by ID.
 	if !data.ID.IsNull() {
-		return apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetMysqlUser, databaseclientv2.GetMysqlUserRequest{MysqlUserID: data.ID.ValueString()})
+		return apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetMysqlUser, databaseclientv2.GetMysqlUserRequest{MysqlUserID: data.ID.ValueString()})
 	}
 
 	// If the user ID is not set, we need to look up the user by database ID and check which one is the main user.

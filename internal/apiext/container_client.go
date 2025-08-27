@@ -2,16 +2,20 @@ package apiext
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
+	"time"
 )
 
 type ContainerClient interface {
 	containerclientv2.Client
 
 	GetDefaultStack(context.Context, string) (*containerv2.StackResponse, error)
+	PollDefaultStack(context.Context, string) (*containerv2.StackResponse, error)
 	GetRegistryByName(ctx context.Context, projectID string, registryURI string) (*containerv2.Registry, error)
 	WaitUntilStackIsReady(ctx context.Context, stackID string, containerNames []string) error
 }
@@ -56,5 +60,25 @@ func (c *containerClient) GetDefaultStack(ctx context.Context, projectID string)
 		}
 	}
 
-	return nil, fmt.Errorf("project %s does not appear to have a default stack", projectID)
+	return nil, &ErrNoDefaultStack{ProjectID: projectID}
+}
+
+// PollDefaultStack polls until the default stack for the given project ID is found, or an error occurs.
+// This is useful in scenarios where the default stack might not be immediately available after project creation.
+func (c *containerClient) PollDefaultStack(ctx context.Context, projectID string) (*containerv2.StackResponse, error) {
+	opts := apiutils.PollOpts{
+		InitialDelay: 0,
+		MaxDelay:     15 * time.Second,
+	}
+
+	runner := func(ctx context.Context, projectID string) (*containerv2.StackResponse, error) {
+		stack, err := c.GetDefaultStack(ctx, projectID)
+		if errors.Is(err, &ErrNoDefaultStack{}) {
+			return nil, apiutils.ErrPollShouldRetry
+		}
+
+		return stack, err
+	}
+
+	return apiutils.Poll(ctx, opts, runner, projectID)
 }

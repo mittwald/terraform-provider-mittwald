@@ -2,7 +2,6 @@ package containerstackresource
 
 import (
 	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -74,7 +73,7 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 
 	stack := providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "failed to get default stack").
-		DoVal(client.GetDefaultStack(ctx, data.ProjectID.ValueString()))
+		DoVal(client.PollDefaultStack(ctx, data.ProjectID.ValueString()))
 
 	if resp.Diagnostics.HasError() {
 		return
