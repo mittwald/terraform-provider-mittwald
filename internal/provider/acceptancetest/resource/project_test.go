@@ -96,7 +96,7 @@ func testAccAssertProjectIsPresent(resourceName string, out *projectv2.Project) 
 
 		client := providertesting.TestClient().Project()
 
-		project, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: rs.Primary.ID})
+		project, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: rs.Primary.ID})
 		if err != nil {
 			return err
 		}
@@ -122,7 +122,7 @@ func testAccAssertProjectIsAbsent(projectID string) error {
 
 	client := providertesting.TestClient().Project()
 
-	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: projectID})
+	_, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: projectID})
 	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}

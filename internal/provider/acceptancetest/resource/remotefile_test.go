@@ -115,7 +115,7 @@ func testAccAssertAppIsPresent(resourceName string, out *appv2.AppInstallation) 
 
 		client := providertesting.TestClient().App()
 
-		app, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetAppinstallation, appclientv2.GetAppinstallationRequest{AppInstallationID: rs.Primary.ID})
+		app, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetAppinstallation, appclientv2.GetAppinstallationRequest{AppInstallationID: rs.Primary.ID})
 		if err != nil {
 			return fmt.Errorf("error while polling for app %s: %w", rs.Primary.ID, err)
 		}

@@ -108,7 +108,7 @@ func testAccAssertRedisDatabaseIsPresent(resourceName string, databaseOut *datab
 
 		client := providertesting.TestClient().Database()
 
-		database, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetRedisDatabase, databaseclientv2.GetRedisDatabaseRequest{RedisDatabaseID: rs.Primary.ID})
+		database, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetRedisDatabase, databaseclientv2.GetRedisDatabaseRequest{RedisDatabaseID: rs.Primary.ID})
 		if err != nil {
 			return err
 		}
@@ -135,7 +135,7 @@ func testAccAssertRedisDatabaseIsAbsent(databaseID string) error {
 
 	client := providertesting.TestClient().Database()
 
-	_, err := apiutils.Poll(ctx, apiutils.PollOpts{}, client.GetRedisDatabase, databaseclientv2.GetRedisDatabaseRequest{RedisDatabaseID: databaseID})
+	_, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetRedisDatabase, databaseclientv2.GetRedisDatabaseRequest{RedisDatabaseID: databaseID})
 	if notFound := new(httperr.ErrNotFound); errors.As(err, &notFound) {
 		return nil
 	}
