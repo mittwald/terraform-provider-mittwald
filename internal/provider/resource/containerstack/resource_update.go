@@ -2,10 +2,12 @@ package containerstackresource
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -28,27 +30,28 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	ctx = tflog.SetField(ctx, "stack_id", stateData.ID.ValueString())
+	client := apiext.NewContainerClient(r.client)
 
 	var stack *containerv2.StackResponse
 
 	if stateData.DefaultStack.ValueBool() {
 		req := planData.ToUpdateRequest(ctx, &stateData, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
+		if resp.Diagnostics.HasError() || req == nil {
 			return
 		}
 
 		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack").
-			DoValResp(r.client.Container().UpdateStack(ctx, *req))
+			DoValResp(client.UpdateStack(ctx, *req))
 	} else {
 		req := planData.ToDeclareRequest(ctx, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
+		if resp.Diagnostics.HasError() || req == nil {
 			return
 		}
 
 		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-			DoValResp(r.client.Container().DeclareStack(ctx, *req))
+			DoValResp(client.DeclareStack(ctx, *req))
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -59,6 +62,9 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
+		Do(client.WaitUntilStackIsReady(ctx, stack.Id, planData.ContainerNames()))
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
