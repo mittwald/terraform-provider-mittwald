@@ -3,18 +3,19 @@ package containerstackresource
 import (
 	"context"
 	"fmt"
+	"math"
+	"strconv"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
-	"math"
-	"strconv"
-	"strings"
 )
 
-func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *containerv2.StackResponse, disregardUnknown bool) (res diag.Diagnostics) {
+func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *containerv2.StackResponse, plan *ContainerStackModel, disregardUnknown bool) (res diag.Diagnostics) {
 	// Assign top-level attributes
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
@@ -29,7 +30,7 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 		// the same thing is achieved by the StripLibraryPrefixFromImage modifier.
 		image := strings.TrimPrefix(state.Image, "library/")
 
-		_, hasExisting := m.Containers.Elements()[service.ServiceName]
+		_, hasExisting := plan.Containers.Elements()[service.ServiceName]
 
 		// Disregard unmanaged containers in the default stack; these might be
 		// managed by other means (e.g. Docker Compose, or another Terraform resource).
