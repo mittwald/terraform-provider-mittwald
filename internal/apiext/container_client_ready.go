@@ -2,11 +2,13 @@ package apiext
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
-	"net/http"
-	"time"
 )
 
 // WaitUntilStackIsReady waits until the specified stack is ready, meaning all
@@ -31,6 +33,10 @@ func (c *containerClient) WaitUntilStackIsReady(ctx context.Context, stackID str
 				if _, ok := containerNameMap[service.ServiceName]; !ok {
 					continue
 				}
+			}
+
+			if service.Status == containerv2.ServiceStatusError {
+				return nil, nil, fmt.Errorf("stack has service '%s' in error state", service.ServiceName)
 			}
 
 			if service.Status != containerv2.ServiceStatusRunning {
