@@ -63,7 +63,7 @@ func Poll[TParam any, TRes any](ctx context.Context, o PollOpts, f func(context.
 				return
 			}
 
-			d = time.Duration(math.Max(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
+			d = time.Duration(math.Min(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
 			t.Reset(d)
 
 			r, e := f(ctx, param)
