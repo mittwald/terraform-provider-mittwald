@@ -74,3 +74,7 @@ The provider supports these resources:
 
 - Run `go generate ./...` to regenerate documentation and format example files
 - Under no circumstances should you edit the generated documentation files in `docs/` directly
+
+### Test cases
+
+- When modifying a test file (ending with `_test.go`), run the test case to make sure you didn't break anything.
