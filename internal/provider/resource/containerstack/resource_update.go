@@ -66,7 +66,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, planData.ContainerNames()))
 
-	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
+	resp.Diagnostics.Append(r.read(ctx, &stateData, &planData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 

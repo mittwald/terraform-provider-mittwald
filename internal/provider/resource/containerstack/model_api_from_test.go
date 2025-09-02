@@ -47,7 +47,7 @@ func TestFromAPIModelWithEmptyStack(t *testing.T) {
 	g.Expect(err).NotTo(HaveOccurred())
 
 	var model containerstackresource.ContainerStackModel
-	diags := model.FromAPIModel(ctx, &apiModel, false)
+	diags := model.FromAPIModel(ctx, &apiModel, &model, false)
 
 	// Ensure no errors occurred during conversion
 	g.Expect(diags).To(BeNil())
@@ -69,7 +69,7 @@ func TestFromAPIModel(t *testing.T) {
 	ctx := context.Background()
 
 	var model containerstackresource.ContainerStackModel
-	diags := model.FromAPIModel(ctx, apiModel, false)
+	diags := model.FromAPIModel(ctx, apiModel, &model, false)
 
 	// Ensure no errors occurred during conversion
 	g.Expect(diags).To(BeNil())
@@ -141,7 +141,7 @@ func TestFromAPIModelAndReverse(t *testing.T) {
 	ctx := context.Background()
 	var model containerstackresource.ContainerStackModel
 
-	diags := model.FromAPIModel(ctx, apiModel, false)
+	diags := model.FromAPIModel(ctx, apiModel, &model, false)
 	g.Expect(diags).To(BeNil())
 
 	g.Expect(model.Volumes.IsNull()).To(BeFalse())
