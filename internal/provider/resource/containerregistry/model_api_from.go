@@ -2,6 +2,7 @@ package containerregistryresource
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -9,6 +10,10 @@ import (
 )
 
 func (m *ContainerRegistryModel) FromAPIModel(ctx context.Context, registry *containerv2.Registry) diag.Diagnostics {
+	return m.FromAPIModelWithCredentials(ctx, registry, types.StringNull(), types.Int64Null())
+}
+
+func (m *ContainerRegistryModel) FromAPIModelWithCredentials(_ context.Context, registry *containerv2.Registry, password types.String, passwordVersion types.Int64) diag.Diagnostics {
 	diags := make(diag.Diagnostics, 0)
 
 	m.ID = types.StringValue(registry.Id)
@@ -19,7 +24,8 @@ func (m *ContainerRegistryModel) FromAPIModel(ctx context.Context, registry *con
 		if m.Credentials.IsNull() {
 			creds, d := types.ObjectValue(containerRegistryCredentialsAttributeTypes, map[string]attr.Value{
 				"username":            types.StringValue(registry.Credentials.Username),
-				"password_wo_version": types.StringUnknown(),
+				"password_wo":         password,
+				"password_wo_version": passwordVersion,
 			})
 
 			diags.Append(d...)
@@ -27,6 +33,13 @@ func (m *ContainerRegistryModel) FromAPIModel(ctx context.Context, registry *con
 		} else {
 			attrs := m.Credentials.Attributes()
 			attrs["username"] = types.StringValue(registry.Credentials.Username)
+
+			if !password.IsNull() {
+				attrs["password_wo"] = password
+			}
+			if !passwordVersion.IsNull() {
+				attrs["password_wo_version"] = passwordVersion
+			}
 
 			creds, d := types.ObjectValue(containerRegistryCredentialsAttributeTypes, attrs)
 
