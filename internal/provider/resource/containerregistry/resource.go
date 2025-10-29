@@ -2,6 +2,7 @@ package containerregistryresource
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
@@ -171,12 +173,14 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var planData, stateData ContainerRegistryModel
+	var planCredentialsData ContainerRegistryCredentialsModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
+	resp.Diagnostics.Append(planData.Credentials.As(ctx, &planCredentialsData, basetypes.ObjectAsOptions{})...)
 
 	var password types.String
-	d := req.Plan.GetAttribute(ctx, path.Root("credentials").AtName("password_wo"), &password)
+	d := req.Config.GetAttribute(ctx, path.Root("credentials").AtName("password_wo"), &password)
 	resp.Diagnostics.Append(d...)
 
 	if resp.Diagnostics.HasError() {
@@ -192,7 +196,15 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		Try[*containerv2.Registry](&resp.Diagnostics, "API error while updating registry").
 		DoResp(r.client.Container().UpdateRegistry(ctx, *updateRequest))
 
-	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
+	registry := providerutil.
+		Try[*containerv2.Registry](&resp.Diagnostics, "API error while fetching registry").
+		DoValResp(r.client.Container().GetRegistry(ctx, containerclientv2.GetRegistryRequest{RegistryID: stateData.ID.ValueString()}))
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(stateData.FromAPIModelWithCredentials(ctx, registry, password, planCredentialsData.PasswordVersion)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
