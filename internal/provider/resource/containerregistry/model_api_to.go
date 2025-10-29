@@ -2,6 +2,7 @@ package containerregistryresource
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -52,10 +53,6 @@ func (m *ContainerRegistryModel) ToDeleteRequest() *containerclientv2.DeleteRegi
 }
 
 func (m *ContainerRegistryModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, password types.String) *containerclientv2.UpdateRegistryRequest {
-	var credential ContainerRegistryCredentialsModel
-
-	d.Append(m.Credentials.As(ctx, &credential, basetypes.ObjectAsOptions{})...)
-
 	req := containerclientv2.UpdateRegistryRequest{
 		RegistryID: m.ID.ValueString(),
 		Body: containerv2.UpdateRegistry{
@@ -69,6 +66,10 @@ func (m *ContainerRegistryModel) ToUpdateRequest(ctx context.Context, d *diag.Di
 			Value: nil,
 		}
 	} else {
+		var credential ContainerRegistryCredentialsModel
+
+		d.Append(m.Credentials.As(ctx, &credential, basetypes.ObjectAsOptions{})...)
+
 		req.Body.Credentials = &containerv2.UpdateRegistryCredentials{
 			Value: &containerv2.SetRegistryCredentials{
 				Username: credential.Username.ValueString(),
