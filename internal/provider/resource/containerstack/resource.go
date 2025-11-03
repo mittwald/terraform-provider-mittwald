@@ -121,6 +121,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 										MarkdownDescription: "The protocol to use for the port. Currently, the only" +
 											" supported value is `tcp`, which is also the default.",
 										Default: stringdefault.StaticString("tcp"),
+										Validators: []validator.String{
+											&PortProtocolValidator{},
+										},
 									},
 								},
 							},

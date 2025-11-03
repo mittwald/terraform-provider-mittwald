@@ -81,10 +81,10 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	}
 
 	// Assign transformed values
-	containers, mapContainersRes := types.MapValue(types.ObjectType{AttrTypes: containerModelType.AttrTypes}, containerMap)
+	containers, mapContainersRes := types.MapValue(containerModelType, containerMap)
 	res.Append(mapContainersRes...)
 
-	volumes, mapVolumesRes := types.MapValue(types.ObjectType{AttrTypes: volumeModelType.AttrTypes}, volumeMap)
+	volumes, mapVolumesRes := types.MapValue(volumeModelType, volumeMap)
 	res.Append(mapVolumesRes...)
 
 	m.Containers = containers
@@ -136,52 +136,59 @@ func convertStringMapToMap(m map[string]string) types.Map {
 	return result
 }
 
+// ParsePortString parses a port string in the format "public_port:container_port/protocol"
+// or "container_port/protocol" into a ContainerPortModel.
+func ParsePortString(portStr string) (ContainerPortModel, error) {
+	parts := strings.Split(portStr, "/")
+	if len(parts) != 2 {
+		return ContainerPortModel{}, fmt.Errorf("invalid port format: expected 'port/protocol', got '%s'", portStr)
+	}
+
+	var publicPort, containerPort int64
+
+	portMapping := strings.Split(parts[0], ":")
+	if len(portMapping) == 1 {
+		var err error
+		containerPort, err = strconv.ParseInt(portMapping[0], 10, 32)
+		if err != nil || containerPort <= 0 || containerPort > math.MaxInt32 {
+			return ContainerPortModel{}, fmt.Errorf("invalid port value: %s", portStr)
+		}
+	} else if len(portMapping) == 2 {
+		var err1, err2 error
+		publicPort, err1 = strconv.ParseInt(portMapping[0], 10, 32)
+		containerPort, err2 = strconv.ParseInt(portMapping[1], 10, 32)
+		if err1 != nil || publicPort <= 0 || publicPort > math.MaxInt32 {
+			return ContainerPortModel{}, fmt.Errorf("invalid public port: %s", portStr)
+		}
+		if err2 != nil || containerPort <= 0 || containerPort > math.MaxInt32 {
+			return ContainerPortModel{}, fmt.Errorf("invalid container port: %s", portStr)
+		}
+	} else {
+		return ContainerPortModel{}, fmt.Errorf("invalid port mapping: expected 'port' or 'public:container', got '%s'", portStr)
+	}
+
+	portModel := ContainerPortModel{
+		PublicPort:    types.Int32Value(int32(containerPort)),
+		ContainerPort: types.Int32Value(int32(containerPort)),
+		Protocol:      types.StringValue(parts[1]),
+	}
+
+	if publicPort != 0 {
+		portModel.PublicPort = types.Int32Value(int32(publicPort))
+	}
+
+	return portModel, nil
+}
+
 // convertPortStringsToSet converts a slice of port strings ("80:8080/tcp") into
 // a Set of ContainerPortModel.
 func convertPortStringsToSet(ctx context.Context, ports []string, d *diag.Diagnostics) types.Set {
 	var portModels []attr.Value
 	for _, port := range ports {
-		parts := strings.Split(port, "/")
-		if len(parts) != 2 {
-			d.AddWarning("Invalid port format", fmt.Sprintf("Skipping port: %s", port))
+		portModel, err := ParsePortString(port)
+		if err != nil {
+			d.AddWarning("Invalid port format", fmt.Sprintf("Skipping port %s: %s", port, err.Error()))
 			continue
-		}
-
-		var publicPort, containerPort int64
-
-		portMapping := strings.Split(parts[0], ":")
-		if len(portMapping) == 1 {
-			var err error
-			containerPort, err = strconv.ParseInt(portMapping[0], 10, 32)
-			if err != nil || containerPort <= 0 || containerPort > math.MaxInt32 {
-				d.AddWarning("Invalid port values", fmt.Sprintf("Skipping port: %s", port))
-				continue
-			}
-		} else if len(portMapping) == 2 {
-			var err1, err2 error
-			publicPort, err1 = strconv.ParseInt(portMapping[0], 10, 32)
-			containerPort, err2 = strconv.ParseInt(portMapping[1], 10, 32)
-			if err1 != nil || publicPort <= 0 || publicPort > math.MaxInt32 {
-				d.AddWarning("Invalid public port", fmt.Sprintf("Skipping port: %s", port))
-				continue
-			}
-			if err2 != nil || containerPort <= 0 || containerPort > math.MaxInt32 {
-				d.AddWarning("Invalid container port", fmt.Sprintf("Skipping port: %s", port))
-				continue
-			}
-		} else {
-			d.AddWarning("Invalid port mapping", fmt.Sprintf("Skipping port: %s", port))
-			continue
-		}
-
-		portModel := ContainerPortModel{
-			PublicPort:    types.Int32Value(int32(containerPort)),
-			ContainerPort: types.Int32Value(int32(containerPort)),
-			Protocol:      types.StringValue(parts[1]),
-		}
-
-		if publicPort != 0 {
-			portModel.PublicPort = types.Int32Value(int32(publicPort))
 		}
 
 		portVal, diags := types.ObjectValueFrom(ctx, containerPortModelType.AttrTypes, portModel)
