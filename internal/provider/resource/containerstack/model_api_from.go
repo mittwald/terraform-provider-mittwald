@@ -15,6 +15,17 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
+var allowedProtocols = []string{"tcp"}
+
+func isValidProtocol(protocol string) bool {
+	for _, allowed := range allowedProtocols {
+		if protocol == allowed {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *containerv2.StackResponse, plan *ContainerStackModel, disregardUnknown bool) (res diag.Diagnostics) {
 	// Assign top-level attributes
 	m.ID = types.StringValue(apiModel.Id)
@@ -142,6 +153,11 @@ func ParsePortString(portStr string) (ContainerPortModel, error) {
 	parts := strings.Split(portStr, "/")
 	if len(parts) != 2 {
 		return ContainerPortModel{}, fmt.Errorf("invalid port format: expected 'port/protocol', got '%s'", portStr)
+	}
+
+	protocol := parts[1]
+	if !isValidProtocol(protocol) {
+		return ContainerPortModel{}, fmt.Errorf("invalid protocol '%s': only %v are supported", protocol, allowedProtocols)
 	}
 
 	var publicPort, containerPort int64
