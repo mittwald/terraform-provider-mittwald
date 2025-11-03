@@ -196,22 +196,14 @@ func TestParsePortString(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:          "invalid protocol - udp not supported",
-			input:         "53:5353/udp",
-			expectError:   true,
-			errorContains: "invalid protocol",
-		},
-		{
-			name:          "invalid protocol - uppercase TCP",
-			input:         "8080/TCP",
-			expectError:   true,
-			errorContains: "invalid protocol",
-		},
-		{
-			name:          "invalid protocol - http",
-			input:         "80/http",
-			expectError:   true,
-			errorContains: "invalid protocol",
+			name:  "valid port with UDP protocol",
+			input: "53:5353/udp",
+			expectedPort: containerstackresource.ContainerPortModel{
+				PublicPort:    types.Int32Value(53),
+				ContainerPort: types.Int32Value(5353),
+				Protocol:      types.StringValue("udp"),
+			},
+			expectError: false,
 		},
 		{
 			name:          "invalid port format - missing protocol",
