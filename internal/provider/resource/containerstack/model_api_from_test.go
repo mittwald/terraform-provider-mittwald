@@ -166,3 +166,105 @@ func TestFromAPIModelAndReverse(t *testing.T) {
 		HaveKey("data-volume"),
 	))
 }
+
+func TestParsePortString(t *testing.T) {
+	tests := []struct {
+		name          string
+		input         string
+		expectedPort  containerstackresource.ContainerPortModel
+		expectError   bool
+		errorContains string
+	}{
+		{
+			name:  "valid port with public and container ports",
+			input: "80:8080/tcp",
+			expectedPort: containerstackresource.ContainerPortModel{
+				PublicPort:    types.Int32Value(80),
+				ContainerPort: types.Int32Value(8080),
+				Protocol:      types.StringValue("tcp"),
+			},
+			expectError: false,
+		},
+		{
+			name:  "valid port with only container port",
+			input: "3000/tcp",
+			expectedPort: containerstackresource.ContainerPortModel{
+				PublicPort:    types.Int32Value(3000),
+				ContainerPort: types.Int32Value(3000),
+				Protocol:      types.StringValue("tcp"),
+			},
+			expectError: false,
+		},
+		{
+			name:  "valid port with UDP protocol",
+			input: "53:5353/udp",
+			expectedPort: containerstackresource.ContainerPortModel{
+				PublicPort:    types.Int32Value(53),
+				ContainerPort: types.Int32Value(5353),
+				Protocol:      types.StringValue("udp"),
+			},
+			expectError: false,
+		},
+		{
+			name:          "invalid port format - missing protocol",
+			input:         "8080",
+			expectError:   true,
+			errorContains: "invalid port format",
+		},
+		{
+			name:          "invalid port format - too many parts",
+			input:         "80:8080:9090/tcp",
+			expectError:   true,
+			errorContains: "invalid port mapping",
+		},
+		{
+			name:          "invalid port format - non-numeric container port",
+			input:         "abc/tcp",
+			expectError:   true,
+			errorContains: "invalid port value",
+		},
+		{
+			name:          "invalid port format - non-numeric public port",
+			input:         "abc:8080/tcp",
+			expectError:   true,
+			errorContains: "invalid public port",
+		},
+		{
+			name:          "invalid port format - zero port",
+			input:         "0/tcp",
+			expectError:   true,
+			errorContains: "invalid port value",
+		},
+		{
+			name:          "invalid port format - negative port",
+			input:         "-1/tcp",
+			expectError:   true,
+			errorContains: "invalid port value",
+		},
+		{
+			name:          "invalid port format - port too large",
+			input:         "99999999999/tcp",
+			expectError:   true,
+			errorContains: "invalid port value",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := NewWithT(t)
+			result, err := containerstackresource.ParsePortString(tt.input)
+
+			if tt.expectError {
+				g.Expect(err).To(HaveOccurred())
+				if tt.errorContains != "" {
+					g.Expect(err.Error()).To(ContainSubstring(tt.errorContains))
+				}
+			} else {
+				g.Expect(err).NotTo(HaveOccurred())
+				g.Expect(result.PublicPort).To(Equal(tt.expectedPort.PublicPort))
+				g.Expect(result.ContainerPort).To(Equal(tt.expectedPort.ContainerPort))
+				g.Expect(result.Protocol).To(Equal(tt.expectedPort.Protocol))
+			}
+		})
+	}
+}
