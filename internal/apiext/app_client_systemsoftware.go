@@ -3,12 +3,13 @@ package apiext
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/appclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
 	"github.com/mittwald/api-client-go/pkg/util/pointer"
-	"sort"
-	"strings"
 )
 
 type SystemSoftwareVersionSet []appv2.SystemSoftwareVersion
@@ -39,7 +40,7 @@ func (s SystemSoftwareVersionSet) Recommended() (*appv2.SystemSoftwareVersion, b
 }
 
 func (c *appClient) GetSystemsoftwareByName(ctx context.Context, name string) (*appv2.SystemSoftware, bool, error) {
-	systemSoftwaresReq := appclientv2.ListSystemsoftwaresRequest{Limit: pointer.To[int64](9999)}
+	systemSoftwaresReq := appclientv2.ListSystemsoftwaresRequest{Limit: pointer.To[int64](999)}
 	systemSoftwares, _, err := c.ListSystemsoftwares(ctx, systemSoftwaresReq)
 	if err != nil {
 		return nil, false, err
