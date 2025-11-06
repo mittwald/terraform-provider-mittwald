@@ -73,7 +73,7 @@ output "article_attributes" {
 
 - `filter_attributes` (Map of String) A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.
 - `filter_orderable` (List of String) A list of orderable statuses to filter articles by.
-- `filter_tags` (List of String) A list of tags to filter articles by. Only articles containing all specified tags will be considered.
+- `filter_tags` (List of String) A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).
 - `filter_template` (List of String) A list of templates to filter articles by.
 
 ### Read-Only

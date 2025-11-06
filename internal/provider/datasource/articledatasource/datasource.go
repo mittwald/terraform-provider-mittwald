@@ -49,7 +49,7 @@ help you refine your filters.`,
 			"filter_tags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				MarkdownDescription: "A list of tags to filter articles by. Only articles containing all specified tags will be considered.",
+				MarkdownDescription: "A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).",
 			},
 			"filter_template": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -176,6 +176,13 @@ func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters 
 		return nil
 	}
 
+	if len(filters.tags) > 0 {
+		articles = d.applyTagFiltering(*articles, filters.tags, diags)
+		if articles == nil {
+			return nil
+		}
+	}
+
 	if len(filters.attributes) > 0 {
 		articles = d.applyAttributeFiltering(*articles, filters.attributes, diags)
 	}
@@ -186,10 +193,6 @@ func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters 
 // buildListArticlesRequest builds the API request from filter values
 func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) articleclientv2.ListArticlesRequest {
 	listReq := articleclientv2.ListArticlesRequest{}
-
-	if len(filters.tags) > 0 {
-		listReq.Tags = filters.tags
-	}
 
 	if len(filters.templates) > 0 {
 		listReq.TemplateNames = filters.templates
@@ -204,6 +207,26 @@ func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) art
 	}
 
 	return listReq
+}
+
+// applyTagFiltering filters articles based on tags using AND logic
+func (d *ArticleDataSource) applyTagFiltering(articles []articlev2.ReadableArticle, filterTags []string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+	filteredArticles := make([]articlev2.ReadableArticle, 0)
+	for _, article := range articles {
+		if matchesTagFilters(article, filterTags) {
+			filteredArticles = append(filteredArticles, article)
+		}
+	}
+
+	if len(filteredArticles) == 0 {
+		diags.AddError(
+			"No matching article found",
+			"No article matched the specified filter criteria. Please check your filter values and try again.",
+		)
+		return nil
+	}
+
+	return &filteredArticles
 }
 
 // applyAttributeFiltering filters articles based on attribute key-value pairs
@@ -241,6 +264,24 @@ func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableAr
 	}
 
 	return (*articles)[0]
+}
+
+// matchesTagFilters checks if an article has all the specified tags (AND logic)
+func matchesTagFilters(article articlev2.ReadableArticle, filterTags []string) bool {
+	articleTagNames := make(map[string]bool)
+	for _, tag := range article.Tags {
+		if tag.Name != nil {
+			articleTagNames[*tag.Name] = true
+		}
+	}
+
+	for _, requiredTag := range filterTags {
+		if !articleTagNames[requiredTag] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // matchesAttributeFilters checks if an article matches the given attribute filters
