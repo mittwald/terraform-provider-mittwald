@@ -2,6 +2,7 @@ package articledatasource
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/articlev2"
 )
@@ -64,7 +65,7 @@ func formatArticleSummary(index int, article articlev2.ReadableArticle) string {
 		index,
 		article.ArticleId,
 		article.Name,
-		article.Template,
+		article.Template.Name,
 		article.Orderable,
 	)
 
@@ -118,7 +119,7 @@ func formatArticleAttributesSummary(attributes []articlev2.ArticleAttributes) st
 		return ""
 	}
 
-	return fmt.Sprintf(", Attributes: {%s}", fmt.Sprintf("%v", attrPairs))
+	return fmt.Sprintf(", Attributes: {%s}", strings.Join(attrPairs, ", "))
 }
 
 // formatFilterSuggestionsSection formats the suggestions section of the error message
