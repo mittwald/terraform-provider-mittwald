@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/articleclientv2"
@@ -102,107 +103,155 @@ func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Get the article client
-	articleClient := d.client.Article()
-
-	// Build the request with filters
-	listReq := articleclientv2.ListArticlesRequest{}
-
-	// Convert filter lists to string slices
-	var filterTags []string
-	if !data.FilterTags.IsNull() {
-		resp.Diagnostics.Append(data.FilterTags.ElementsAs(ctx, &filterTags, false)...)
-		if len(filterTags) > 0 {
-			listReq.Tags = filterTags
-		}
-	}
-
-	var filterTemplate []string
-	if !data.FilterTemplate.IsNull() {
-		resp.Diagnostics.Append(data.FilterTemplate.ElementsAs(ctx, &filterTemplate, false)...)
-		if len(filterTemplate) > 0 {
-			listReq.TemplateNames = filterTemplate
-		}
-	}
-
-	var filterOrderable []string
-	if !data.FilterOrderable.IsNull() {
-		resp.Diagnostics.Append(data.FilterOrderable.ElementsAs(ctx, &filterOrderable, false)...)
-		if len(filterOrderable) > 0 {
-			// Convert strings to the orderable enum type
-			orderableItems := make([]articleclientv2.ListArticlesRequestQueryOrderableItem, 0, len(filterOrderable))
-			for _, orderable := range filterOrderable {
-				orderableItems = append(orderableItems, articleclientv2.ListArticlesRequestQueryOrderableItem(orderable))
-			}
-			listReq.Orderable = orderableItems
-		}
-	}
-
-	var filterAttributes map[string]string
-	if !data.FilterAttributes.IsNull() {
-		resp.Diagnostics.Append(data.FilterAttributes.ElementsAs(ctx, &filterAttributes, false)...)
-	}
-
+	// Extract filter values from the model
+	filters := d.extractFilterValues(ctx, &data, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// List articles with filters
-	articles, _, err := articleClient.ListArticles(ctx, listReq)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to list articles", err.Error())
+	// Fetch and filter articles
+	articles := d.fetchAndFilterArticles(ctx, filters, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if articles == nil || len(*articles) == 0 {
-		resp.Diagnostics.AddError(
-			"No matching article found",
-			"No article matched the specified filter criteria. Please check your filter values and try again.",
-		)
+	// Validate that exactly one article matched
+	matchedArticle := d.validateSingleMatch(articles, filters, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Apply client-side attribute filtering if specified
-	if len(filterAttributes) > 0 {
-		filteredArticles := make([]articlev2.ReadableArticle, 0)
-		for _, article := range *articles {
-			if matchesAttributeFilters(article, filterAttributes) {
-				filteredArticles = append(filteredArticles, article)
-			}
-		}
-		articles = &filteredArticles
-
-		if len(*articles) == 0 {
-			resp.Diagnostics.AddError(
-				"No matching article found",
-				"No article matched the specified filter criteria. Please check your filter values and try again.",
-			)
-			return
-		}
-	}
-
-	// Check if multiple articles matched
-	if len(*articles) > 1 {
-		resp.Diagnostics.AddError(
-			"Multiple articles matched",
-			formatMultipleMatchesError(*articles, filterTags, filterTemplate, filterOrderable, filterAttributes),
-		)
-		return
-	}
-
-	// Use the first (and only) matching article
-	matchedArticle := (*articles)[0]
 
 	// Map the article to the model
 	resp.Diagnostics.Append(data.FromAPIModel(matchedArticle)...)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+// articleFilters holds all filter values extracted from the Terraform configuration
+type articleFilters struct {
+	tags       []string
+	templates  []string
+	orderable  []string
+	attributes map[string]string
+}
+
+// extractFilterValues extracts all filter values from the data model
+func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataSourceModel, diags *diag.Diagnostics) articleFilters {
+	filters := articleFilters{
+		attributes: make(map[string]string),
+	}
+
+	if !data.FilterTags.IsNull() {
+		diags.Append(data.FilterTags.ElementsAs(ctx, &filters.tags, false)...)
+	}
+
+	if !data.FilterTemplate.IsNull() {
+		diags.Append(data.FilterTemplate.ElementsAs(ctx, &filters.templates, false)...)
+	}
+
+	if !data.FilterOrderable.IsNull() {
+		diags.Append(data.FilterOrderable.ElementsAs(ctx, &filters.orderable, false)...)
+	}
+
+	if !data.FilterAttributes.IsNull() {
+		diags.Append(data.FilterAttributes.ElementsAs(ctx, &filters.attributes, false)...)
+	}
+
+	return filters
+}
+
+// fetchAndFilterArticles fetches articles from the API and applies client-side filtering
+func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters articleFilters, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+	// Build the API request
+	listReq := d.buildListArticlesRequest(filters)
+
+	// Fetch articles from API
+	articleClient := d.client.Article()
+	articles, _, err := articleClient.ListArticles(ctx, listReq)
+	if err != nil {
+		diags.AddError("Failed to list articles", err.Error())
+		return nil
+	}
+
+	if articles == nil || len(*articles) == 0 {
+		diags.AddError(
+			"No matching article found",
+			"No article matched the specified filter criteria. Please check your filter values and try again.",
+		)
+		return nil
+	}
+
+	// Apply client-side attribute filtering if specified
+	if len(filters.attributes) > 0 {
+		articles = d.applyAttributeFiltering(*articles, filters.attributes, diags)
+	}
+
+	return articles
+}
+
+// buildListArticlesRequest builds the API request from filter values
+func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) articleclientv2.ListArticlesRequest {
+	listReq := articleclientv2.ListArticlesRequest{}
+
+	if len(filters.tags) > 0 {
+		listReq.Tags = filters.tags
+	}
+
+	if len(filters.templates) > 0 {
+		listReq.TemplateNames = filters.templates
+	}
+
+	if len(filters.orderable) > 0 {
+		orderableItems := make([]articleclientv2.ListArticlesRequestQueryOrderableItem, 0, len(filters.orderable))
+		for _, orderable := range filters.orderable {
+			orderableItems = append(orderableItems, articleclientv2.ListArticlesRequestQueryOrderableItem(orderable))
+		}
+		listReq.Orderable = orderableItems
+	}
+
+	return listReq
+}
+
+// applyAttributeFiltering filters articles based on attribute key-value pairs
+func (d *ArticleDataSource) applyAttributeFiltering(articles []articlev2.ReadableArticle, filterAttributes map[string]string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+	filteredArticles := make([]articlev2.ReadableArticle, 0)
+	for _, article := range articles {
+		if matchesAttributeFilters(article, filterAttributes) {
+			filteredArticles = append(filteredArticles, article)
+		}
+	}
+
+	if len(filteredArticles) == 0 {
+		diags.AddError(
+			"No matching article found",
+			"No article matched the specified filter criteria. Please check your filter values and try again.",
+		)
+		return nil
+	}
+
+	return &filteredArticles
+}
+
+// validateSingleMatch ensures exactly one article matched the filters
+func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableArticle, filters articleFilters, diags *diag.Diagnostics) articlev2.ReadableArticle {
+	if articles == nil {
+		return articlev2.ReadableArticle{}
+	}
+
+	if len(*articles) > 1 {
+		diags.AddError(
+			"Multiple articles matched",
+			formatMultipleMatchesError(*articles, filters.tags, filters.templates, filters.orderable, filters.attributes),
+		)
+		return articlev2.ReadableArticle{}
+	}
+
+	return (*articles)[0]
 }
 
 // matchesAttributeFilters checks if an article matches the given attribute filters

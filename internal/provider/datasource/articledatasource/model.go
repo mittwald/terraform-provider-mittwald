@@ -29,19 +29,36 @@ type TagModel struct {
 func (m *DataSourceModel) FromAPIModel(article articlev2.ReadableArticle) diag.Diagnostics {
 	var diags diag.Diagnostics
 
+	// Map basic fields
+	m.mapBasicFields(article)
+
+	// Map tags
+	diags.Append(m.mapTags(article.Tags)...)
+
+	// Map attributes
+	diags.Append(m.mapAttributes(article.Attributes)...)
+
+	return diags
+}
+
+// mapBasicFields maps the basic article fields (ID, orderable, price)
+func (m *DataSourceModel) mapBasicFields(article articlev2.ReadableArticle) {
 	m.ID = types.StringValue(article.ArticleId)
 	m.Orderable = types.StringValue(string(article.Orderable))
 
-	// Handle price - use 0.0 if not present
 	price := 0.0
 	if article.Price != nil {
 		price = *article.Price
 	}
 	m.Price = types.Float64Value(price)
+}
 
-	// Map tags
-	tagObjects := make([]attr.Value, 0, len(article.Tags))
-	for _, tag := range article.Tags {
+// mapTags maps article tags to the Terraform list format
+func (m *DataSourceModel) mapTags(tags []articlev2.ArticleTag) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	tagObjects := make([]attr.Value, 0, len(tags))
+	for _, tag := range tags {
 		tagName := ""
 		if tag.Name != nil {
 			tagName = *tag.Name
@@ -73,9 +90,15 @@ func (m *DataSourceModel) FromAPIModel(article articlev2.ReadableArticle) diag.D
 	diags.Append(d...)
 	m.Tags = tagList
 
-	// Map attributes to a string map
+	return diags
+}
+
+// mapAttributes maps article attributes to the Terraform map format
+func (m *DataSourceModel) mapAttributes(attributes []articlev2.ArticleAttributes) diag.Diagnostics {
+	var diags diag.Diagnostics
+
 	attributeMap := make(map[string]attr.Value)
-	for _, attribute := range article.Attributes {
+	for _, attribute := range attributes {
 		value := ""
 		if attribute.Value != nil {
 			value = *attribute.Value
