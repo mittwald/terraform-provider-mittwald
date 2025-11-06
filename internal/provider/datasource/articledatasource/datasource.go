@@ -246,11 +246,11 @@ func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableAr
 // matchesAttributeFilters checks if an article matches the given attribute filters
 func matchesAttributeFilters(article articlev2.ReadableArticle, filterAttributes map[string]string) bool {
 	articleAttrs := make(map[string]string)
-	for _, attr := range article.Attributes {
-		if attr.Value != nil {
-			articleAttrs[attr.Key] = *attr.Value
+	for _, a := range article.Attributes {
+		if a.Value != nil {
+			articleAttrs[a.Key] = *a.Value
 		} else {
-			articleAttrs[attr.Key] = ""
+			articleAttrs[a.Key] = ""
 		}
 	}
 
