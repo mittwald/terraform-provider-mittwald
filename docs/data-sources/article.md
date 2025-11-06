@@ -26,11 +26,12 @@ help you refine your filters.
 
 ```terraform
 data "mittwald_article" "vserver" {
-  filter_tags      = ["vserver"]
-  filter_orderable = ["full"]
-  filter_attributes = {
-    ram  = "8"
-    vcpu = "2"
+  filter = {
+    tags      = ["vserver", "ram-optimized"]
+    orderable = ["full"]
+    attributes = {
+      ram = "8"
+    }
   }
 }
 
@@ -42,8 +43,7 @@ data "mittwald_article" "vserver" {
  * to specify which hosting plan should be used.
  *
  * In this example, we're selecting a vServer article that is fully orderable
- * with 8 GB of RAM and 2 vCPUs, and using its ID, price, and attribute
- * information in outputs.
+ * with 8 GB of RAM, and using its ID, price, and attribute information in outputs.
  */
 output "selected_article_id" {
   description = "The ID of the selected vServer article"
@@ -71,10 +71,7 @@ output "article_attributes" {
 
 ### Optional
 
-- `filter_attributes` (Map of String) A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.
-- `filter_orderable` (List of String) A list of orderable statuses to filter articles by.
-- `filter_tags` (List of String) A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).
-- `filter_template` (List of String) A list of templates to filter articles by.
+- `filter` (Attributes) Filter criteria to select the article. All specified criteria must match (AND logic). (see [below for nested schema](#nestedatt--filter))
 
 ### Read-Only
 
@@ -83,6 +80,17 @@ output "article_attributes" {
 - `orderable` (String) The orderable status of the selected article.
 - `price` (Number) The price of the selected article.
 - `tags` (List of Object) The tags associated with the selected article. (see [below for nested schema](#nestedatt--tags))
+
+<a id="nestedatt--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `attributes` (Map of String) A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.
+- `orderable` (List of String) A list of orderable statuses to filter articles by.
+- `tags` (List of String) A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).
+- `template` (List of String) A list of templates to filter articles by.
+
 
 <a id="nestedatt--tags"></a>
 ### Nested Schema for `tags`

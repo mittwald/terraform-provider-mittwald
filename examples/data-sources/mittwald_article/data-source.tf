@@ -1,9 +1,10 @@
 data "mittwald_article" "vserver" {
-  filter_tags      = ["vserver"]
-  filter_orderable = ["full"]
-  filter_attributes = {
-    ram  = "8"
-    vcpu = "2"
+  filter = {
+    tags      = ["vserver", "ram-optimized"]
+    orderable = ["full"]
+    attributes = {
+      ram = "8"
+    }
   }
 }
 
@@ -15,8 +16,7 @@ data "mittwald_article" "vserver" {
  * to specify which hosting plan should be used.
  *
  * In this example, we're selecting a vServer article that is fully orderable
- * with 8 GB of RAM and 2 vCPUs, and using its ID, price, and attribute
- * information in outputs.
+ * with 8 GB of RAM, and using its ID, price, and attribute information in outputs.
  */
 output "selected_article_id" {
   description = "The ID of the selected vServer article"

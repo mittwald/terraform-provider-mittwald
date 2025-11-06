@@ -9,15 +9,19 @@ import (
 
 // DataSourceModel describes the data source data model.
 type DataSourceModel struct {
-	FilterTags       types.List    `tfsdk:"filter_tags"`
-	FilterTemplate   types.List    `tfsdk:"filter_template"`
-	FilterOrderable  types.List    `tfsdk:"filter_orderable"`
-	FilterAttributes types.Map     `tfsdk:"filter_attributes"`
-	ID               types.String  `tfsdk:"id"`
-	Orderable        types.String  `tfsdk:"orderable"`
-	Price            types.Float64 `tfsdk:"price"`
-	Attributes       types.Map     `tfsdk:"attributes"`
-	Tags             types.List    `tfsdk:"tags"`
+	Filter     types.Object  `tfsdk:"filter"`
+	ID         types.String  `tfsdk:"id"`
+	Orderable  types.String  `tfsdk:"orderable"`
+	Price      types.Float64 `tfsdk:"price"`
+	Attributes types.Map     `tfsdk:"attributes"`
+	Tags       types.List    `tfsdk:"tags"`
+}
+
+type DataSourceFilterModel struct {
+	Tags       types.List `tfsdk:"tags"`
+	Template   types.List `tfsdk:"template"`
+	Orderable  types.List `tfsdk:"orderable"`
+	Attributes types.Map  `tfsdk:"attributes"`
 }
 
 type TagModel struct {

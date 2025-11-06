@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/articleclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/articlev2"
@@ -46,25 +47,31 @@ help you refine your filters.`,
 				Computed:            true,
 				MarkdownDescription: "The ID of the selected article.",
 			},
-			"filter_tags": schema.ListAttribute{
-				ElementType:         types.StringType,
+			"filter": schema.SingleNestedAttribute{
 				Optional:            true,
-				MarkdownDescription: "A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).",
-			},
-			"filter_template": schema.ListAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: "A list of templates to filter articles by.",
-			},
-			"filter_orderable": schema.ListAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: "A list of orderable statuses to filter articles by.",
-			},
-			"filter_attributes": schema.MapAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: "A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.",
+				MarkdownDescription: "Filter criteria to select the article. All specified criteria must match (AND logic).",
+				Attributes: map[string]schema.Attribute{
+					"tags": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						MarkdownDescription: "A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).",
+					},
+					"template": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						MarkdownDescription: "A list of templates to filter articles by.",
+					},
+					"orderable": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						MarkdownDescription: "A list of orderable statuses to filter articles by.",
+					},
+					"attributes": schema.MapAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						MarkdownDescription: "A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.",
+					},
+				},
 			},
 			"orderable": schema.StringAttribute{
 				Computed:            true,
@@ -99,13 +106,15 @@ func (d *ArticleDataSource) Configure(_ context.Context, req datasource.Configur
 
 func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data DataSourceModel
+	var filter DataSourceFilterModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	resp.Diagnostics.Append(data.Filter.As(ctx, &filter, basetypes.ObjectAsOptions{})...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	filters := d.extractFilterValues(ctx, &data, &resp.Diagnostics)
+	filters := d.extractFilterValues(ctx, &filter, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -133,25 +142,25 @@ type articleFilters struct {
 }
 
 // extractFilterValues extracts all filter values from the data model
-func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataSourceModel, diags *diag.Diagnostics) articleFilters {
+func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataSourceFilterModel, diags *diag.Diagnostics) articleFilters {
 	filters := articleFilters{
 		attributes: make(map[string]string),
 	}
 
-	if !data.FilterTags.IsNull() {
-		diags.Append(data.FilterTags.ElementsAs(ctx, &filters.tags, false)...)
+	if !data.Tags.IsNull() {
+		diags.Append(data.Tags.ElementsAs(ctx, &filters.tags, false)...)
 	}
 
-	if !data.FilterTemplate.IsNull() {
-		diags.Append(data.FilterTemplate.ElementsAs(ctx, &filters.templates, false)...)
+	if !data.Template.IsNull() {
+		diags.Append(data.Template.ElementsAs(ctx, &filters.templates, false)...)
 	}
 
-	if !data.FilterOrderable.IsNull() {
-		diags.Append(data.FilterOrderable.ElementsAs(ctx, &filters.orderable, false)...)
+	if !data.Orderable.IsNull() {
+		diags.Append(data.Orderable.ElementsAs(ctx, &filters.orderable, false)...)
 	}
 
-	if !data.FilterAttributes.IsNull() {
-		diags.Append(data.FilterAttributes.ElementsAs(ctx, &filters.attributes, false)...)
+	if !data.Attributes.IsNull() {
+		diags.Append(data.Attributes.ElementsAs(ctx, &filters.attributes, false)...)
 	}
 
 	return filters
