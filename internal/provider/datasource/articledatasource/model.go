@@ -29,13 +29,9 @@ type TagModel struct {
 func (m *DataSourceModel) FromAPIModel(article articlev2.ReadableArticle) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	// Map basic fields
 	m.mapBasicFields(article)
 
-	// Map tags
 	diags.Append(m.mapTags(article.Tags)...)
-
-	// Map attributes
 	diags.Append(m.mapAttributes(article.Attributes)...)
 
 	return diags

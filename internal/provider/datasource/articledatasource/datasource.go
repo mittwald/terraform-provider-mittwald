@@ -2,7 +2,6 @@ package articledatasource
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -101,34 +100,27 @@ func (d *ArticleDataSource) Configure(_ context.Context, req datasource.Configur
 func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data DataSourceModel
 
-	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Extract filter values from the model
 	filters := d.extractFilterValues(ctx, &data, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Fetch and filter articles
 	articles := d.fetchAndFilterArticles(ctx, filters, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Validate that exactly one article matched
 	matchedArticle := d.validateSingleMatch(articles, filters, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Map the article to the model
 	resp.Diagnostics.Append(data.FromAPIModel(matchedArticle)...)
-
-	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -167,10 +159,8 @@ func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataS
 
 // fetchAndFilterArticles fetches articles from the API and applies client-side filtering
 func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters articleFilters, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
-	// Build the API request
 	listReq := d.buildListArticlesRequest(filters)
 
-	// Fetch articles from API
 	articleClient := d.client.Article()
 	articles, _, err := articleClient.ListArticles(ctx, listReq)
 	if err != nil {
@@ -186,7 +176,6 @@ func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters 
 		return nil
 	}
 
-	// Apply client-side attribute filtering if specified
 	if len(filters.attributes) > 0 {
 		articles = d.applyAttributeFiltering(*articles, filters.attributes, diags)
 	}
@@ -256,7 +245,6 @@ func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableAr
 
 // matchesAttributeFilters checks if an article matches the given attribute filters
 func matchesAttributeFilters(article articlev2.ReadableArticle, filterAttributes map[string]string) bool {
-	// Build a map of the article's attributes
 	articleAttrs := make(map[string]string)
 	for _, attr := range article.Attributes {
 		if attr.Value != nil {
@@ -266,7 +254,6 @@ func matchesAttributeFilters(article articlev2.ReadableArticle, filterAttributes
 		}
 	}
 
-	// Check if all filter attributes match
 	for key, value := range filterAttributes {
 		articleValue, exists := articleAttrs[key]
 		if !exists || articleValue != value {
@@ -275,86 +262,4 @@ func matchesAttributeFilters(article articlev2.ReadableArticle, filterAttributes
 	}
 
 	return true
-}
-
-// formatMultipleMatchesError creates a comprehensive error message when multiple articles match the filter criteria
-func formatMultipleMatchesError(articles []articlev2.ReadableArticle, filterTags, filterTemplate, filterOrderable []string, filterAttributes map[string]string) string {
-	// Build a detailed error message with filter information
-	errorDetail := fmt.Sprintf("Found %d articles matching the specified filters. Please refine your filters to match exactly one article.\n\n", len(articles))
-
-	// Show which filters were applied
-	errorDetail += "Applied filters:\n"
-	if len(filterTags) > 0 {
-		errorDetail += fmt.Sprintf("  - Tags: %v\n", filterTags)
-	}
-	if len(filterTemplate) > 0 {
-		errorDetail += fmt.Sprintf("  - Templates: %v\n", filterTemplate)
-	}
-	if len(filterOrderable) > 0 {
-		errorDetail += fmt.Sprintf("  - Orderable statuses: %v\n", filterOrderable)
-	}
-	if len(filterAttributes) > 0 {
-		errorDetail += "  - Attributes:\n"
-		for key, value := range filterAttributes {
-			errorDetail += fmt.Sprintf("      %s = %s\n", key, value)
-		}
-	}
-	if len(filterTags) == 0 && len(filterTemplate) == 0 && len(filterOrderable) == 0 && len(filterAttributes) == 0 {
-		errorDetail += "  - No filters applied (matching all articles)\n"
-	}
-
-	// List the matching articles
-	errorDetail += "\nMatching articles:\n"
-	for i, article := range articles {
-		errorDetail += fmt.Sprintf("  %d. ID: %s, Name: %s, Template: %s, Orderable: %s",
-			i+1,
-			article.ArticleId,
-			article.Name,
-			article.Template,
-			article.Orderable,
-		)
-
-		// Add tags if present
-		if len(article.Tags) > 0 {
-			tagNames := make([]string, 0, len(article.Tags))
-			for _, tag := range article.Tags {
-				if tag.Name != nil {
-					tagNames = append(tagNames, *tag.Name)
-				}
-			}
-			if len(tagNames) > 0 {
-				errorDetail += fmt.Sprintf(", Tags: %v", tagNames)
-			}
-		}
-
-		// Add attributes if present
-		if len(article.Attributes) > 0 {
-			attrPairs := make([]string, 0, len(article.Attributes))
-			for _, attr := range article.Attributes {
-				value := ""
-				if attr.Value != nil {
-					value = *attr.Value
-				}
-				attrPairs = append(attrPairs, fmt.Sprintf("%s=%s", attr.Key, value))
-			}
-			if len(attrPairs) > 0 {
-				errorDetail += fmt.Sprintf(", Attributes: {%s}", fmt.Sprintf("%v", attrPairs))
-			}
-		}
-		errorDetail += "\n"
-
-		// Limit to showing first 10 articles to avoid overwhelming the user
-		if i >= 9 {
-			errorDetail += fmt.Sprintf("  ... and %d more\n", len(articles)-10)
-			break
-		}
-	}
-
-	errorDetail += "\nConsider adding more specific filters such as:\n"
-	errorDetail += "  - Additional tags (filter_tags)\n"
-	errorDetail += "  - Specific template names (filter_template)\n"
-	errorDetail += "  - More restrictive orderable status (filter_orderable)\n"
-	errorDetail += "  - Article attributes (filter_attributes)\n"
-
-	return errorDetail
 }
