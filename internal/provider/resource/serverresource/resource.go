@@ -15,8 +15,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/orderv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
@@ -148,18 +150,18 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
-	client := r.client.Contract()
+	client := r.client.Project()
 
-	contract := providerutil.
-		Try[*contractv2.Contract](&res, "error while reading server contract").
+	server := providerutil.
+		Try[*projectv2.Server](&res, "error while reading server").
 		IgnoreNotFound().
-		DoValResp(client.GetDetailOfContractByServer(ctx, contractclientv2.GetDetailOfContractByServerRequest{ServerID: data.ID.ValueString()}))
+		DoValResp(client.GetServer(ctx, projectclientv2.GetServerRequest{ServerID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return
 	}
 
-	res.Append(data.FromAPIModel(ctx, contract)...)
+	res.Append(data.FromAPIModel(ctx, server)...)
 
 	return
 }
@@ -174,9 +176,22 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	dataPlan.ID = dataState.ID
+	if !dataPlan.Description.Equal(dataState.Description) {
+		updateReq := projectclientv2.UpdateServerDescriptionRequest{
+			ServerID: dataState.ID.ValueString(),
+			Body: projectclientv2.UpdateServerDescriptionRequestBody{
+				Description: dataPlan.Description.ValueString(),
+			},
+		}
+		if _, err := r.client.Project().UpdateServerDescription(ctx, updateReq); err != nil {
+			resp.Diagnostics.AddError("Error while updating server description", err.Error())
+		}
+	}
 
-	resp.Diagnostics.Append(r.read(ctx, &dataPlan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &dataPlan)...)
 }
 

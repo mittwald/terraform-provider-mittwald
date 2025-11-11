@@ -2,12 +2,14 @@ package serverresource
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
-	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/orderv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 )
 
 func (m *ResourceModel) Reset() {
@@ -20,36 +22,28 @@ func (m *ResourceModel) Reset() {
 	m.UseFreeTrial = types.BoolNull()
 }
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, contract *contractv2.Contract) (res diag.Diagnostics) {
-	if contract == nil {
+func (m *ResourceModel) FromAPIModel(ctx context.Context, server *projectv2.Server) (res diag.Diagnostics) {
+	if server == nil {
 		m.Reset()
 		return
 	}
 
-	baseItem := contract.BaseItem
+	m.ID = types.StringValue(server.Id)
+	m.ShortID = types.StringValue(server.ShortId)
+	m.CustomerID = types.StringValue(server.CustomerId)
+	m.Description = types.StringValue(server.Description)
 
-	if baseItem.AggregateReference == nil {
-		res.AddError("Invalid server contract", "Contract does not have an aggregate reference")
-		return
+	cpu := parseCPU(server.MachineType.Cpu)
+	memory := parseMemory(server.MachineType.Memory)
+
+	m.MachineType = &MachineTypeModel{
+		Name: types.StringValue(server.MachineType.Name),
+		CPU:  types.Float64Value(cpu),
+		RAM:  types.Float64Value(memory),
 	}
 
-	m.ID = types.StringValue(baseItem.AggregateReference.Id)
-	m.CustomerID = types.StringValue(contract.CustomerId)
-	m.Description = types.StringValue(baseItem.Description)
-
-	machineTypeArticle := findMachineTypeArticle(baseItem.Articles)
-	if machineTypeArticle != nil {
-		m.MachineType = &MachineTypeModel{
-			Name: types.StringValue(machineTypeArticle.Name),
-			CPU:  types.Float64Unknown(),
-			RAM:  types.Float64Unknown(),
-		}
-	}
-
-	diskspaceArticle := findDiskspaceArticle(baseItem.Articles)
-	if diskspaceArticle != nil {
-		m.VolumeSize = types.Int64Value(diskspaceArticle.Amount)
-	}
+	volumeSize := parseStorage(server.Storage)
+	m.VolumeSize = types.Int64Value(volumeSize)
 
 	return
 }
@@ -74,29 +68,38 @@ func (m *ResourceModel) ToCreateOrderRequest() contractclientv2.CreateOrderReque
 	}
 }
 
-func findMachineTypeArticle(articles []contractv2.Article) *contractv2.Article {
-	machineTypeTemplates := []string{"vServer", "dediServer"}
-
-	for i, article := range articles {
-		for _, template := range machineTypeTemplates {
-			if article.ArticleTemplateId == template {
-				return &articles[i]
-			}
-		}
+func parseCPU(cpu string) float64 {
+	cpu = strings.TrimSpace(cpu)
+	value, err := strconv.ParseFloat(cpu, 64)
+	if err != nil {
+		return 0
 	}
-
-	return nil
+	return value
 }
 
-func findDiskspaceArticle(articles []contractv2.Article) *contractv2.Article {
-	diskspaceTemplate := "diskspace"
+func parseMemory(memory string) float64 {
+	memory = strings.TrimSpace(memory)
+	memory = strings.TrimSuffix(memory, "GiB")
+	memory = strings.TrimSuffix(memory, "GB")
+	memory = strings.TrimSpace(memory)
 
-	for i, article := range articles {
-		if article.ArticleTemplateId == diskspaceTemplate {
-			return &articles[i]
-		}
+	value, err := strconv.ParseFloat(memory, 64)
+	if err != nil {
+		return 0
 	}
+	return value
+}
 
-	return nil
+func parseStorage(storage string) int64 {
+	storage = strings.TrimSpace(storage)
+	storage = strings.TrimSuffix(storage, "GiB")
+	storage = strings.TrimSuffix(storage, "GB")
+	storage = strings.TrimSpace(storage)
+
+	value, err := strconv.ParseInt(storage, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return value
 }
 
