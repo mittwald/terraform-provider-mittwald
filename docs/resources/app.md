@@ -30,7 +30,7 @@ data "mittwald_systemsoftware" "composer" {
 }
 
 data "mittwald_systemsoftware" "mysql" {
-  name        = "composer"
+  name        = "mysql"
   recommended = true
 }
 
