@@ -47,6 +47,11 @@ and the following data sources:
 - [`mittwald_user`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/user)
 - [`mittwald_container_image`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/container_image)
 
+and the following actions:
+
+- [`mittwald_container_recreate`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/actions/container_recreate)
+- [`mittwald_container_restart`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/actions/container_restart)
+
 Coming soon:
 
 - `mittwald_mysql_user`
@@ -58,8 +63,8 @@ Coming soon:
 
 ### Requirements
 
-- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.10
-- [Go](https://golang.org/doc/install) >= 1.19
+- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.14
+- [Go](https://golang.org/doc/install) >= 1.24
 
 ### Building The Provider
 
