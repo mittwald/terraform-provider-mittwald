@@ -1,6 +1,8 @@
 # mittwald Terraform provider
 
-This repository contains a [Terraform](https://www.terraform.io) provider for resources on the mittwald cloud platform. 
+![](docs/terraform-demo.png)
+
+This repository contains a [Terraform](https://www.terraform.io) provider for resources on the mittwald cloud platform.
 
 ## Installation
 
