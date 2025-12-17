@@ -113,21 +113,20 @@ resource "bitbucket_pipeline_ssh_key" "deploy" {
   private_key = tls_private_key.deploy.private_key_openssh
 }
 
-# Add mittwald SSH server as known host in Bitbucket
-# Note: You need to obtain the SSH host key via ssh-keyscan (see below)
-variable "mittwald_ssh_host_key" {
-  description = "SSH host public key (obtain via: ssh-keyscan -t ed25519 <ssh_host>)"
-  type        = string
+# Automatically fetch the SSH host key from the mittwald server
+data "mittwald_ssh_host_key" "main" {
+  hostname = mittwald_app.api.ssh_host
 }
 
+# Add mittwald SSH server as known host in Bitbucket
 resource "bitbucket_pipeline_ssh_known_host" "mittwald" {
   workspace  = data.bitbucket_repository.main.workspace
   repository = data.bitbucket_repository.main.repo_slug
   hostname   = "[${mittwald_app.api.ssh_host}]:22"
 
   public_key {
-    key_type = "ssh-ed25519"
-    key      = var.mittwald_ssh_host_key
+    key_type = data.mittwald_ssh_host_key.main.key_type
+    key      = data.mittwald_ssh_host_key.main.key
   }
 }
 
@@ -153,22 +152,6 @@ resource "bitbucket_deployment_variable" "deploy_path" {
   secured    = false
 }
 ```
-
-#### Obtaining the SSH Host Key
-
-To configure `bitbucket_pipeline_ssh_known_host`, you need the SSH host key of the mittwald server. After your app is created, obtain it using `ssh-keyscan`:
-
-```bash
-# Use the ssh_host from your mittwald_app resource
-ssh-keyscan -t ed25519 ssh.xxx.mittwald.net
-```
-
-This will output something like:
-```
-ssh.xxx.mittwald.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...
-```
-
-Extract the key (everything after `ssh-ed25519 `) for use in your `mittwald_ssh_host_key` variable.
 
 #### Example bitbucket-pipelines.yml
 
