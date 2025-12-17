@@ -57,7 +57,7 @@ resource "mittwald_ssh_user" "temporary" {
 
 ### Integration with Bitbucket Pipelines
 
-This example shows how to set up automated deployments from Bitbucket Pipelines to a mittwald project. It uses the `tls_private_key` resource to generate an SSH key pair that is then configured on both sides.
+This example shows how to set up automated deployments from Bitbucket Pipelines to a mittwald project. It uses the `tls_private_key` resource to generate an SSH key pair and configures Bitbucket deployment variables for use in pipelines.
 
 ```terraform
 terraform {
@@ -74,30 +74,17 @@ terraform {
   }
 }
 
-variable "bitbucket_workspace" {
-  description = "Bitbucket workspace name"
-  type        = string
+# Bitbucket repository data
+data "bitbucket_repository" "main" {
+  workspace = "my-workspace"
+  repo_slug = "my-app"
 }
 
-variable "bitbucket_repository" {
-  description = "Bitbucket repository slug"
-  type        = string
-}
-
-variable "mittwald_ssh_hostname" {
-  description = "SSH hostname for the mittwald project (found in mStudio, e.g., ssh.xxx.mittwald.net)"
-  type        = string
-}
-
-variable "mittwald_ssh_host_key_type" {
-  description = "SSH host key type (e.g., ssh-ed25519)"
-  type        = string
-  default     = "ssh-ed25519"
-}
-
-variable "mittwald_ssh_host_key" {
-  description = "SSH host public key (obtain via: ssh-keyscan -t ed25519 <hostname>)"
-  type        = string
+# Create a deployment environment in Bitbucket
+resource "bitbucket_deployment" "production" {
+  repository = data.bitbucket_repository.main.full_name
+  name       = "Production"
+  stage      = "Production"
 }
 
 # Generate an SSH key pair for deployment
@@ -105,9 +92,9 @@ resource "tls_private_key" "deploy" {
   algorithm = "ED25519"
 }
 
-# Create SSH user on mittwald with the public key
-resource "mittwald_ssh_user" "bitbucket_deploy" {
-  project_id  = mittwald_project.example.id
+# Create SSH user on mittwald with the generated public key
+resource "mittwald_ssh_user" "deploy" {
+  project_id  = mittwald_project.main.id
   description = "Bitbucket Pipeline Deployment"
 
   public_keys = [
@@ -118,48 +105,61 @@ resource "mittwald_ssh_user" "bitbucket_deploy" {
   ]
 }
 
-# Configure the SSH key in Bitbucket
+# Configure the SSH key pair in Bitbucket (for pipeline authentication)
 resource "bitbucket_pipeline_ssh_key" "deploy" {
-  workspace   = var.bitbucket_workspace
-  repository  = var.bitbucket_repository
+  workspace   = data.bitbucket_repository.main.workspace
+  repository  = data.bitbucket_repository.main.repo_slug
   public_key  = tls_private_key.deploy.public_key_openssh
   private_key = tls_private_key.deploy.private_key_openssh
 }
 
 # Add mittwald SSH server as known host in Bitbucket
+# Note: You need to obtain the SSH host key via ssh-keyscan (see below)
+variable "mittwald_ssh_host_key" {
+  description = "SSH host public key (obtain via: ssh-keyscan -t ed25519 <ssh_host>)"
+  type        = string
+}
+
 resource "bitbucket_pipeline_ssh_known_host" "mittwald" {
-  workspace  = var.bitbucket_workspace
-  repository = var.bitbucket_repository
-  hostname   = "[${var.mittwald_ssh_hostname}]:22"
+  workspace  = data.bitbucket_repository.main.workspace
+  repository = data.bitbucket_repository.main.repo_slug
+  hostname   = "[${mittwald_app.api.ssh_host}]:22"
 
   public_key {
-    key_type = var.mittwald_ssh_host_key_type
+    key_type = "ssh-ed25519"
     key      = var.mittwald_ssh_host_key
   }
 }
 
-# Output the SSH connection details for use in bitbucket-pipelines.yml
-output "ssh_username" {
-  description = "The SSH username for connecting to the mittwald project"
-  value       = mittwald_ssh_user.bitbucket_deploy.username
+# Pass SSH connection details to Bitbucket as deployment variables
+resource "bitbucket_deployment_variable" "ssh_host" {
+  deployment = bitbucket_deployment.production.id
+  key        = "SSH_HOST"
+  value      = mittwald_app.api.ssh_host
+  secured    = false
 }
 
-output "ssh_host" {
-  description = "The SSH hostname for the mittwald project"
-  value       = var.mittwald_ssh_hostname
+resource "bitbucket_deployment_variable" "ssh_user" {
+  deployment = bitbucket_deployment.production.id
+  key        = "SSH_USER"
+  value      = "${mittwald_ssh_user.deploy.username}@${mittwald_app.api.short_id}"
+  secured    = false
+}
+
+resource "bitbucket_deployment_variable" "deploy_path" {
+  deployment = bitbucket_deployment.production.id
+  key        = "DEPLOY_PATH"
+  value      = mittwald_app.api.installation_path_absolute
+  secured    = false
 }
 ```
 
-#### Finding Your SSH Hostname
-
-Your mittwald SSH hostname can be found in the mStudio under your project's SFTP/SSH settings. It typically follows the format `ssh.<cluster-id>.mittwald.net`.
-
 #### Obtaining the SSH Host Key
 
-To configure `bitbucket_pipeline_ssh_known_host`, you need the SSH host key of the mittwald server. You can obtain it using `ssh-keyscan`:
+To configure `bitbucket_pipeline_ssh_known_host`, you need the SSH host key of the mittwald server. After your app is created, obtain it using `ssh-keyscan`:
 
 ```bash
-# Replace with your actual mittwald SSH hostname
+# Use the ssh_host from your mittwald_app resource
 ssh-keyscan -t ed25519 ssh.xxx.mittwald.net
 ```
 
@@ -168,7 +168,7 @@ This will output something like:
 ssh.xxx.mittwald.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...
 ```
 
-Extract the key type (`ssh-ed25519`) and the key itself for use in your Terraform variables.
+Extract the key (everything after `ssh-ed25519 `) for use in your `mittwald_ssh_host_key` variable.
 
 #### Example bitbucket-pipelines.yml
 
@@ -178,10 +178,12 @@ pipelines:
     main:
       - step:
           name: Deploy to mittwald
+          deployment: Production
           script:
-            # SSH_USERNAME comes from Terraform output
-            - rsync -avz --delete ./dist/ $SSH_USERNAME@$SSH_HOST:/html/
+            - rsync -avz --delete -e "ssh -p 22" ./dist/ ${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/
 ```
+
+The deployment variables `SSH_HOST`, `SSH_USER`, and `DEPLOY_PATH` are automatically available in the pipeline when using the `deployment: Production` reference.
 
 #### Security Considerations
 

@@ -5,7 +5,7 @@ resource "mittwald_ssh_user" "deploy" {
 
   public_keys = [
     {
-      key     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExample... deploy@example.com"
+      key     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExample..."
       comment = "deploy@example.com"
     }
   ]
@@ -26,7 +26,7 @@ resource "mittwald_ssh_user" "temporary" {
 
   public_keys = [
     {
-      key     = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQExample... contractor@company.com"
+      key     = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQExample..."
       comment = "contractor@company.com"
     }
   ]
