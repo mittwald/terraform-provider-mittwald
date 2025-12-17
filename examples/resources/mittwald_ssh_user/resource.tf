@@ -22,8 +22,7 @@ resource "mittwald_ssh_user" "admin" {
 resource "mittwald_ssh_user" "temporary" {
   project_id  = mittwald_project.example.id
   description = "Temporary access for contractor"
-
-  expires_at = "2024-12-31T23:59:59Z"
+  expires_at  = "2024-12-31T23:59:59Z"
 
   public_keys = [
     {
@@ -33,7 +32,7 @@ resource "mittwald_ssh_user" "temporary" {
   ]
 }
 
-# Output the generated username for use with Bitbucket or other services
+# Output the generated username for use in CI/CD pipelines
 output "deploy_ssh_username" {
   value = mittwald_ssh_user.deploy.username
 }
