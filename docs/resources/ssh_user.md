@@ -113,20 +113,16 @@ resource "bitbucket_pipeline_ssh_key" "deploy" {
   private_key = tls_private_key.deploy.private_key_openssh
 }
 
-# Automatically fetch the SSH host key from the mittwald server
-data "mittwald_ssh_host_key" "main" {
-  hostname = mittwald_app.api.ssh_host
-}
-
 # Add mittwald SSH server as known host in Bitbucket
+# Note: ssh_host_key and ssh_host_key_type are automatically fetched
 resource "bitbucket_pipeline_ssh_known_host" "mittwald" {
   workspace  = data.bitbucket_repository.main.workspace
   repository = data.bitbucket_repository.main.repo_slug
   hostname   = "[${mittwald_app.api.ssh_host}]:22"
 
   public_key {
-    key_type = data.mittwald_ssh_host_key.main.key_type
-    key      = data.mittwald_ssh_host_key.main.key
+    key_type = mittwald_app.api.ssh_host_key_type
+    key      = mittwald_app.api.ssh_host_key
   }
 }
 

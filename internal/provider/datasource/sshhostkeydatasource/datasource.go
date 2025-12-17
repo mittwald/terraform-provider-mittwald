@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/mittwald/terraform-provider-mittwald/internal/sshutil"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -41,7 +41,8 @@ func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest,
 // Schema returns the data source schema.
 func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Fetches the SSH host key from a mittwald server. This is useful for configuring known hosts in CI/CD systems like Bitbucket Pipelines without manual `ssh-keyscan` steps.",
+		MarkdownDescription: "Fetches the SSH host key from a mittwald server. This is useful for configuring known hosts in CI/CD systems like Bitbucket Pipelines without manual `ssh-keyscan` steps.\n\n" +
+			"-> **Note:** In most cases, you can use `mittwald_app.<name>.ssh_host_key` and `mittwald_app.<name>.ssh_host_key_type` directly instead of this data source.",
 
 		Attributes: map[string]schema.Attribute{
 			"hostname": schema.StringAttribute{
@@ -85,8 +86,8 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 
 	address := fmt.Sprintf("%s:%d", hostname, port)
 
-	// Fetch the host key by attempting an SSH connection
-	hostKey, err := fetchHostKey(ctx, address)
+	// Fetch the host key using the shared utility
+	hostKeyInfo, err := sshutil.FetchHostKey(ctx, address)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Failed to fetch SSH host key",
@@ -95,71 +96,52 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	// Parse the key type and key data
-	keyType := hostKey.Type()
-	keyData := ssh.MarshalAuthorizedKey(hostKey)
-	keyStr := strings.TrimSpace(string(keyData))
-
-	// Extract just the base64 key part (remove type prefix and any comment)
-	parts := strings.Fields(keyStr)
-	keyBase64 := ""
-	if len(parts) >= 2 {
-		keyBase64 = parts[1]
+	// Calculate fingerprint separately since we need the raw key for that
+	fingerprint, err := calculateFingerprint(ctx, address)
+	if err != nil {
+		// Not a critical error, just set empty fingerprint
+		data.Fingerprint = types.StringNull()
+	} else {
+		data.Fingerprint = types.StringValue(fingerprint)
 	}
 
-	// Calculate fingerprint
-	fingerprint := ssh.FingerprintSHA256(hostKey)
-
-	data.KeyType = types.StringValue(keyType)
-	data.Key = types.StringValue(keyBase64)
-	data.Fingerprint = types.StringValue(fingerprint)
+	data.KeyType = types.StringValue(hostKeyInfo.KeyType)
+	data.Key = types.StringValue(hostKeyInfo.Key)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// fetchHostKey connects to the SSH server and retrieves its host key.
-func fetchHostKey(ctx context.Context, address string) (ssh.PublicKey, error) {
+// calculateFingerprint connects to the SSH server and calculates the fingerprint.
+func calculateFingerprint(ctx context.Context, address string) (string, error) {
 	var hostKey ssh.PublicKey
 
-	// Create a custom host key callback that captures the key
 	hostKeyCallback := func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 		hostKey = key
-		// Return an error to abort the connection after getting the key
-		// We don't actually want to authenticate
 		return fmt.Errorf("host key captured")
 	}
 
 	config := &ssh.ClientConfig{
 		User:            "probe",
 		HostKeyCallback: hostKeyCallback,
-		Auth:            []ssh.AuthMethod{}, // No auth methods - we just want the host key
+		Auth:            []ssh.AuthMethod{},
 		Timeout:         10 * time.Second,
 	}
 
-	// Create a connection with context timeout
 	dialer := net.Dialer{Timeout: 10 * time.Second}
 	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect: %w", err)
+		return "", err
 	}
 	defer conn.Close()
 
-	// Perform SSH handshake - this will fail after getting the host key
-	// but that's expected and we capture the key in the callback
-	sshConn, _, _, err := ssh.NewClientConn(conn, address, config)
+	sshConn, _, _, _ := ssh.NewClientConn(conn, address, config)
 	if sshConn != nil {
 		sshConn.Close()
 	}
 
-	// If we got the host key, the error is expected ("host key captured")
 	if hostKey != nil {
-		return hostKey, nil
+		return ssh.FingerprintSHA256(hostKey), nil
 	}
 
-	// If we didn't get a host key, return the actual error
-	if err != nil {
-		return nil, fmt.Errorf("SSH handshake failed: %w", err)
-	}
-
-	return nil, fmt.Errorf("no host key received")
+	return "", fmt.Errorf("no host key received")
 }

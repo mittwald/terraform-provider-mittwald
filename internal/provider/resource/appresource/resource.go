@@ -168,6 +168,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"ssh_host_key": schema.StringAttribute{
+				MarkdownDescription: "The SSH host public key in base64 format. This is automatically fetched from the SSH server and can be used to configure known hosts in CI/CD systems.",
+				Computed:            true,
+			},
+			"ssh_host_key_type": schema.StringAttribute{
+				MarkdownDescription: "The type of the SSH host key (e.g., `ssh-ed25519`, `ssh-rsa`). Use together with `ssh_host_key` for known hosts configuration.",
+				Computed:            true,
+			},
 		},
 	}
 }
