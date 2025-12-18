@@ -122,6 +122,7 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 
 	resp.DataSourceData = client
 	resp.ResourceData = client
+	resp.ActionData = client
 }
 
 func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resource {
