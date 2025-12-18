@@ -12,7 +12,7 @@ resource "mittwald_remote_file" "nginx_config" {
   container_id = mittwald_container_stack.nginx.containers.nginx.id
   stack_id     = mittwald_container_stack.nginx.id
 
-  path     = "/etc/nginx/nginx.conf"
+  path     = "/etc/nginx/conf.d/default.conf"
   contents = file("${path.module}/nginx.conf")
   depends_on = [
     mittwald_container_stack.nginx
@@ -24,8 +24,4 @@ resource "mittwald_remote_file" "nginx_config" {
       actions = [action.mittwald_container_restart.restart_nginx]
     }
   }
-}
-
-resource "mittwald_container_stack" "nginx" {
-  // [...]
 }
