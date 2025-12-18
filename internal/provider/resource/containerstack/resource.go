@@ -144,12 +144,12 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 										Optional: true,
 										MarkdownDescription: "The name of the volume to mount. A volume of this name " +
 											"must be specified in the top-level `volumes` attribute.\n\n" +
-											"Either this attribute, or `project_path` must be set.",
+											"    Either this attribute, or `project_path` must be set.",
 									},
 									"project_path": schema.StringAttribute{
 										Optional: true,
 										MarkdownDescription: "Path to a directory in the project filesystem.\n\n" +
-											"Either this attribute, or `volume` must be set.",
+											"    Either this attribute, or `volume` must be set.",
 									},
 									"mount_path": schema.StringAttribute{
 										Required:            true,
