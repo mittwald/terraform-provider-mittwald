@@ -53,19 +53,23 @@ resource "mittwald_container_stack" "nginx" {
         }
       ]
 
+      // Example of mounting a project path and a stack volume
+      // EITHER "project_path" OR "volume" must be specified in each volume block
       volumes = [
         {
           project_path = "/html"
           mount_path   = "/usr/share/nginx/html"
+        },
+        {
+          volume     = "example"
+          mount_path = "/mnt/example"
         }
       ]
     }
   }
 
   volumes = {
-    example = {
-
-    }
+    example = {}
   }
 }
 
@@ -152,10 +156,10 @@ Optional:
 
 - `project_path` (String) Path to a directory in the project filesystem.
 
-Either this attribute, or `volume` must be set.
+    Either this attribute, or `volume` must be set.
 - `volume` (String) The name of the volume to mount. A volume of this name must be specified in the top-level `volumes` attribute.
 
-Either this attribute, or `project_path` must be set.
+    Either this attribute, or `project_path` must be set.
 
 
 
