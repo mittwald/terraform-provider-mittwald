@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
 var _ action.Action = &Action{}
@@ -44,6 +45,10 @@ func (a *Action) Schema(_ context.Context, _ action.SchemaRequest, resp *action.
 			},
 		},
 	}
+}
+
+func (a *Action) Configure(_ context.Context, req action.ConfigureRequest, resp *action.ConfigureResponse) {
+	a.client = providerutil.ClientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
 func (a *Action) Metadata(_ context.Context, req action.MetadataRequest, resp *action.MetadataResponse) {
