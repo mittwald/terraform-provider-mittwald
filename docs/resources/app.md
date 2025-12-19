@@ -120,8 +120,6 @@ resource "mittwald_app" "custom_php" {
 - `installation_path_absolute` (String) The absolute installation path of the app, including the web root
 - `short_id` (String) The short ID of the app
 - `ssh_host` (String) The SSH host of the app; this will be populated after the app has been installed. You can use it for declaring a [provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/connection) for your app.
-- `ssh_host_key` (String) The SSH host public key in base64 format. This is automatically fetched from the SSH server and can be used to configure known hosts in CI/CD systems.
-- `ssh_host_key_type` (String) The type of the SSH host key (e.g., `ssh-ed25519`, `ssh-rsa`). Use together with `ssh_host_key` for known hosts configuration.
 - `version_current` (String) The current version of the app
 
 <a id="nestedatt--databases"></a>

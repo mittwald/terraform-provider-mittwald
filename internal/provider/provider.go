@@ -9,7 +9,6 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/appdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/containerimagedatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
-	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/sshhostkeydatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/appresource"
@@ -144,7 +143,6 @@ func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.Da
 		appdatasource.New,
 		userdatasource.New,
 		containerimagedatasource.New,
-		sshhostkeydatasource.New,
 	}
 }
 

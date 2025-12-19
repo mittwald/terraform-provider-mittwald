@@ -15,7 +15,6 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
-	"github.com/mittwald/terraform-provider-mittwald/internal/sshutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
@@ -136,23 +135,9 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *appv2
 	m.InstallationPathAbsolute = types.StringValue(project.Directories["Web"] + appInstallation.InstallationPath)
 
 	if project.ClusterID != nil && project.ClusterDomain != nil {
-		sshHost := fmt.Sprintf("ssh.%s.%s", *project.ClusterID, *project.ClusterDomain)
-		m.SSHHost = types.StringValue(sshHost)
-
-		// Fetch SSH host key
-		hostKeyInfo, err := sshutil.FetchHostKey(ctx, sshHost+":22")
-		if err != nil {
-			tflog.Warn(ctx, "failed to fetch SSH host key", map[string]any{"error": err.Error(), "host": sshHost})
-			m.SSHHostKey = types.StringNull()
-			m.SSHHostKeyType = types.StringNull()
-		} else {
-			m.SSHHostKey = types.StringValue(hostKeyInfo.Key)
-			m.SSHHostKeyType = types.StringValue(hostKeyInfo.KeyType)
-		}
+		m.SSHHost = types.StringValue(fmt.Sprintf("ssh.%s.%s", *project.ClusterID, *project.ClusterDomain))
 	} else {
 		m.SSHHost = types.StringNull()
-		m.SSHHostKey = types.StringNull()
-		m.SSHHostKeyType = types.StringNull()
 	}
 
 	m.App = func() types.String {
