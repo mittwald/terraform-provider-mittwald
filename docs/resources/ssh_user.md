@@ -74,6 +74,19 @@ terraform {
   }
 }
 
+# SSH host key for known_hosts configuration
+# Obtain using: ssh-keyscan -t ed25519 <ssh_host> | awk '{print $2, $3}'
+variable "mittwald_ssh_host_key_type" {
+  description = "SSH host key type (e.g., ssh-ed25519)"
+  type        = string
+  default     = "ssh-ed25519"
+}
+
+variable "mittwald_ssh_host_key" {
+  description = "SSH host public key in base64 format"
+  type        = string
+}
+
 # Bitbucket repository data
 data "bitbucket_repository" "main" {
   workspace = "my-workspace"
@@ -114,15 +127,16 @@ resource "bitbucket_pipeline_ssh_key" "deploy" {
 }
 
 # Add mittwald SSH server as known host in Bitbucket
-# Note: ssh_host_key and ssh_host_key_type are automatically fetched
+# To get the host key, run: ssh-keyscan -t ed25519 <ssh_host>
+# Or use an external data source to fetch it dynamically
 resource "bitbucket_pipeline_ssh_known_host" "mittwald" {
   workspace  = data.bitbucket_repository.main.workspace
   repository = data.bitbucket_repository.main.repo_slug
   hostname   = "[${mittwald_app.api.ssh_host}]:22"
 
   public_key {
-    key_type = mittwald_app.api.ssh_host_key_type
-    key      = mittwald_app.api.ssh_host_key
+    key_type = var.mittwald_ssh_host_key_type  # e.g., "ssh-ed25519"
+    key      = var.mittwald_ssh_host_key       # base64-encoded host key
   }
 }
 

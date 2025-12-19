@@ -18,6 +18,4 @@ type ResourceModel struct {
 	UserInputs               types.Map    `tfsdk:"user_inputs"`
 	Dependencies             types.Map    `tfsdk:"dependencies"`
 	SSHHost                  types.String `tfsdk:"ssh_host"`
-	SSHHostKey               types.String `tfsdk:"ssh_host_key"`
-	SSHHostKeyType           types.String `tfsdk:"ssh_host_key_type"`
 }
