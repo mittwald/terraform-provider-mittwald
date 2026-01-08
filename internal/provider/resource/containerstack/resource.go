@@ -64,7 +64,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Required: true,
 							MarkdownDescription: "The image to use for the container. Follows the usual Docker image format, " +
 								"e.g. `nginx:latest` or `registry.example.com/my-image:latest`.\n\n  " +
-								"Note that when using a non-standard registry (or a standard registry with credentials), " +
+								"    Note that when using a non-standard registry (or a standard registry with credentials), " +
 								"you will probably also need to add a `mittwald_container_registry` resource somewhere " +
 								"in your plan.",
 							PlanModifiers: []planmodifier.String{
@@ -78,7 +78,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						"command": schema.ListAttribute{
 							Required: true,
 							MarkdownDescription: "The command to run inside the container.\n\n" +
-								"Note that this is a required value, even if the image already has a default command. " +
+								"    Note that this is a required value, even if the image already has a default command. " +
 								"To use the default command, use the `mittwald_container_image` data source to first " +
 								"determine the default command, and then use that value here.",
 							ElementType: types.StringType,
@@ -86,7 +86,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						"entrypoint": schema.ListAttribute{
 							Required: true,
 							MarkdownDescription: "The entrypoint to use for the container.\n\n" +
-								"Note that this is a required value, even if the image already has a default entrypoint. " +
+								"    Note that this is a required value, even if the image already has a default entrypoint. " +
 								"To use the default entrypoint, use the `mittwald_container_image` data source to first " +
 								"determine the default entrypoint, and then use that value here.",
 							ElementType: types.StringType,
