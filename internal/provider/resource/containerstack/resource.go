@@ -57,7 +57,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Computed:            true,
 							MarkdownDescription: "The generated container ID",
 							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
+								stringplanmodifier.UseNonNullStateForUnknown(),
 							},
 						},
 						"image": schema.StringAttribute{
@@ -97,7 +97,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							MarkdownDescription: "A map of environment variables to set inside the container.",
 							ElementType:         types.StringType,
 							PlanModifiers: []planmodifier.Map{
-								mapplanmodifier.UseStateForUnknown(),
+								mapplanmodifier.UseNonNullStateForUnknown(),
 							},
 						},
 						"ports": schema.SetNestedAttribute{
@@ -133,7 +133,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Computed:            true,
 							MarkdownDescription: "Volumes to mount into the container.",
 							PlanModifiers: []planmodifier.Set{
-								setplanmodifier.UseStateForUnknown(),
+								setplanmodifier.UseNonNullStateForUnknown(),
 							},
 							NestedObject: schema.NestedAttributeObject{
 								Validators: []validator.Object{
