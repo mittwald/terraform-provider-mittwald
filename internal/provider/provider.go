@@ -13,10 +13,12 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/action/containerrecreateaction"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/action/containerrestartaction"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/appdatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/articledatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/containerimagedatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/airesource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/appresource"
 	containerregistryresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerregistry"
 	containerstackresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerstack"
@@ -27,6 +29,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/redisdatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/remotefileresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/serverresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -127,7 +130,9 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 
 func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		airesource.New,
 		projectresource.New,
+		serverresource.New,
 		appresource.New,
 		mysqldatabaseresource.New,
 		redisdatabaseresource.New,
@@ -145,6 +150,7 @@ func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.Da
 		projectdatasource.NewByShortIdDataSource,
 		systemsoftwaredatasource.New,
 		appdatasource.New,
+		articledatasource.New,
 		userdatasource.New,
 		containerimagedatasource.New,
 	}
