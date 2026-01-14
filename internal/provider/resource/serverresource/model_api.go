@@ -102,4 +102,3 @@ func parseStorage(storage string) int64 {
 	}
 	return value
 }
-
