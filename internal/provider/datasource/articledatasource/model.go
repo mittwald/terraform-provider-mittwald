@@ -18,10 +18,11 @@ type DataSourceModel struct {
 }
 
 type DataSourceFilterModel struct {
-	Tags       types.List `tfsdk:"tags"`
-	Template   types.List `tfsdk:"template"`
-	Orderable  types.List `tfsdk:"orderable"`
-	Attributes types.Map  `tfsdk:"attributes"`
+	Tags       types.List   `tfsdk:"tags"`
+	Template   types.List   `tfsdk:"template"`
+	Orderable  types.List   `tfsdk:"orderable"`
+	Attributes types.Map    `tfsdk:"attributes"`
+	ID         types.String `tfsdk:"id"`
 }
 
 type TagModel struct {
@@ -29,7 +30,7 @@ type TagModel struct {
 	ID   types.String `tfsdk:"id"`
 }
 
-// FromAPIModel maps from the API model to the Terraform model
+// FromAPIModel maps from the API model to the Terraform model.
 func (m *DataSourceModel) FromAPIModel(article articlev2.ReadableArticle) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -41,7 +42,7 @@ func (m *DataSourceModel) FromAPIModel(article articlev2.ReadableArticle) diag.D
 	return diags
 }
 
-// mapBasicFields maps the basic article fields (ID, orderable, price)
+// mapBasicFields maps the basic article fields (ID, orderable, price).
 func (m *DataSourceModel) mapBasicFields(article articlev2.ReadableArticle) {
 	m.ID = types.StringValue(article.ArticleId)
 	m.Orderable = types.StringValue(string(article.Orderable))
@@ -53,7 +54,7 @@ func (m *DataSourceModel) mapBasicFields(article articlev2.ReadableArticle) {
 	m.Price = types.Float64Value(price)
 }
 
-// mapTags maps article tags to the Terraform list format
+// mapTags maps article tags to the Terraform list format.
 func (m *DataSourceModel) mapTags(tags []articlev2.ArticleTag) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -93,7 +94,7 @@ func (m *DataSourceModel) mapTags(tags []articlev2.ArticleTag) diag.Diagnostics 
 	return diags
 }
 
-// mapAttributes maps article attributes to the Terraform map format
+// mapAttributes maps article attributes to the Terraform map format.
 func (m *DataSourceModel) mapAttributes(attributes []articlev2.ArticleAttributes) diag.Diagnostics {
 	var diags diag.Diagnostics
 

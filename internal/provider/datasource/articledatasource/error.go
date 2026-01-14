@@ -7,17 +7,17 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/articlev2"
 )
 
-// formatMultipleMatchesError creates a comprehensive error message when multiple articles match the filter criteria
-func formatMultipleMatchesError(articles []articlev2.ReadableArticle, filterTags, filterTemplate, filterOrderable []string, filterAttributes map[string]string) string {
+// formatMultipleMatchesError creates a comprehensive error message when multiple articles match the filter criteria.
+func formatMultipleMatchesError(articles []articlev2.ReadableArticle, filterTags, filterTemplate, filterOrderable []string, filterAttributes map[string]string, filterIDPattern string) string {
 	errorDetail := fmt.Sprintf("Found %d articles matching the specified filters. Please refine your filters to match exactly one article.\n\n", len(articles))
-	errorDetail += formatAppliedFiltersSection(filterTags, filterTemplate, filterOrderable, filterAttributes)
+	errorDetail += formatAppliedFiltersSection(filterTags, filterTemplate, filterOrderable, filterAttributes, filterIDPattern)
 	errorDetail += formatMatchingArticlesList(articles)
 	errorDetail += formatFilterSuggestionsSection()
 	return errorDetail
 }
 
-// formatAppliedFiltersSection formats the applied filters section of the error message
-func formatAppliedFiltersSection(filterTags, filterTemplate, filterOrderable []string, filterAttributes map[string]string) string {
+// formatAppliedFiltersSection formats the applied filters section of the error message.
+func formatAppliedFiltersSection(filterTags, filterTemplate, filterOrderable []string, filterAttributes map[string]string, filterIDPattern string) string {
 	section := "Applied filters:\n"
 
 	if len(filterTags) > 0 {
@@ -35,14 +35,17 @@ func formatAppliedFiltersSection(filterTags, filterTemplate, filterOrderable []s
 			section += fmt.Sprintf("      %s = %s\n", key, value)
 		}
 	}
-	if len(filterTags) == 0 && len(filterTemplate) == 0 && len(filterOrderable) == 0 && len(filterAttributes) == 0 {
+	if filterIDPattern != "" {
+		section += fmt.Sprintf("  - ID pattern: %s\n", filterIDPattern)
+	}
+	if len(filterTags) == 0 && len(filterTemplate) == 0 && len(filterOrderable) == 0 && len(filterAttributes) == 0 && filterIDPattern == "" {
 		section += "  - No filters applied (matching all articles)\n"
 	}
 
 	return section + "\n"
 }
 
-// formatMatchingArticlesList formats the list of matching articles
+// formatMatchingArticlesList formats the list of matching articles.
 func formatMatchingArticlesList(articles []articlev2.ReadableArticle) string {
 	section := "Matching articles:\n"
 
@@ -59,7 +62,7 @@ func formatMatchingArticlesList(articles []articlev2.ReadableArticle) string {
 	return section
 }
 
-// formatArticleSummary formats a single article summary line
+// formatArticleSummary formats a single article summary line.
 func formatArticleSummary(index int, article articlev2.ReadableArticle) string {
 	line := fmt.Sprintf("  %d. ID: %s, Name: %s, Template: %s, Orderable: %s",
 		index,
@@ -80,7 +83,7 @@ func formatArticleSummary(index int, article articlev2.ReadableArticle) string {
 	return line + "\n"
 }
 
-// formatArticleTagsSummary formats the tags portion of an article summary
+// formatArticleTagsSummary formats the tags portion of an article summary.
 func formatArticleTagsSummary(tags []articlev2.ArticleTag) string {
 	if len(tags) == 0 {
 		return ""
@@ -100,7 +103,7 @@ func formatArticleTagsSummary(tags []articlev2.ArticleTag) string {
 	return fmt.Sprintf(", Tags: %v", tagNames)
 }
 
-// formatArticleAttributesSummary formats the attributes portion of an article summary
+// formatArticleAttributesSummary formats the attributes portion of an article summary.
 func formatArticleAttributesSummary(attributes []articlev2.ArticleAttributes) string {
 	if len(attributes) == 0 {
 		return ""
@@ -122,7 +125,7 @@ func formatArticleAttributesSummary(attributes []articlev2.ArticleAttributes) st
 	return fmt.Sprintf(", Attributes: {%s}", strings.Join(attrPairs, ", "))
 }
 
-// formatFilterSuggestionsSection formats the suggestions section of the error message
+// formatFilterSuggestionsSection formats the suggestions section of the error message.
 func formatFilterSuggestionsSection() string {
 	return "\nConsider adding more specific filters such as:\n" +
 		"  - Additional tags (filter_tags)\n" +

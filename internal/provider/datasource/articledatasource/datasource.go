@@ -2,6 +2,8 @@ package articledatasource
 
 import (
 	"context"
+	"path"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -71,6 +73,10 @@ help you refine your filters.`,
 						Optional:            true,
 						MarkdownDescription: "A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.",
 					},
+					"id": schema.StringAttribute{
+						Optional:            true,
+						MarkdownDescription: "A pattern to match against article IDs. Only articles whose IDs contain this pattern will be considered. Use `*` as a wildcard to match any sequence of characters.",
+					},
 				},
 			},
 			"orderable": schema.StringAttribute{
@@ -133,15 +139,16 @@ func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// articleFilters holds all filter values extracted from the Terraform configuration
+// articleFilters holds all filter values extracted from the Terraform configuration.
 type articleFilters struct {
 	tags       []string
 	templates  []string
 	orderable  []string
 	attributes map[string]string
+	idPattern  string
 }
 
-// extractFilterValues extracts all filter values from the data model
+// extractFilterValues extracts all filter values from the data model.
 func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataSourceFilterModel, diags *diag.Diagnostics) articleFilters {
 	filters := articleFilters{
 		attributes: make(map[string]string),
@@ -163,18 +170,36 @@ func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataS
 		diags.Append(data.Attributes.ElementsAs(ctx, &filters.attributes, false)...)
 	}
 
+	if !data.ID.IsNull() {
+		filters.idPattern = data.ID.ValueString()
+	}
+
 	return filters
 }
 
-// fetchAndFilterArticles fetches articles from the API and applies client-side filtering
+// fetchAndFilterArticles fetches articles from the API and applies client-side filtering.
 func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters articleFilters, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
-	listReq := d.buildListArticlesRequest(filters)
+	var articles *[]articlev2.ReadableArticle
+	var err error
 
 	articleClient := d.client.Article()
-	articles, _, err := articleClient.ListArticles(ctx, listReq)
-	if err != nil {
-		diags.AddError("Failed to list articles", err.Error())
-		return nil
+
+	if filters.idPattern != "" && !strings.Contains(filters.idPattern, "*") {
+		getReq := articleclientv2.GetArticleRequest{ArticleID: filters.idPattern}
+		article, _, err := articleClient.GetArticle(ctx, getReq)
+		if err != nil {
+			diags.AddError("Failed to get article by ID", err.Error())
+			return nil
+		}
+
+		articles = &[]articlev2.ReadableArticle{*article}
+	} else {
+		listReq := d.buildListArticlesRequest(filters)
+		articles, _, err = articleClient.ListArticles(ctx, listReq)
+		if err != nil {
+			diags.AddError("Failed to list articles", err.Error())
+			return nil
+		}
 	}
 
 	if articles == nil || len(*articles) == 0 {
@@ -194,12 +219,19 @@ func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters 
 
 	if len(filters.attributes) > 0 {
 		articles = d.applyAttributeFiltering(*articles, filters.attributes, diags)
+		if articles == nil {
+			return nil
+		}
+	}
+
+	if filters.idPattern != "" {
+		articles = d.applyIDPatternFiltering(*articles, filters.idPattern, diags)
 	}
 
 	return articles
 }
 
-// buildListArticlesRequest builds the API request from filter values
+// buildListArticlesRequest builds the API request from filter values.
 func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) articleclientv2.ListArticlesRequest {
 	listReq := articleclientv2.ListArticlesRequest{}
 
@@ -218,7 +250,7 @@ func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) art
 	return listReq
 }
 
-// applyTagFiltering filters articles based on tags using AND logic
+// applyTagFiltering filters articles based on tags using AND logic.
 func (d *ArticleDataSource) applyTagFiltering(articles []articlev2.ReadableArticle, filterTags []string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
 	filteredArticles := make([]articlev2.ReadableArticle, 0)
 	for _, article := range articles {
@@ -238,7 +270,7 @@ func (d *ArticleDataSource) applyTagFiltering(articles []articlev2.ReadableArtic
 	return &filteredArticles
 }
 
-// applyAttributeFiltering filters articles based on attribute key-value pairs
+// applyAttributeFiltering filters articles based on attribute key-value pairs.
 func (d *ArticleDataSource) applyAttributeFiltering(articles []articlev2.ReadableArticle, filterAttributes map[string]string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
 	filteredArticles := make([]articlev2.ReadableArticle, 0)
 	for _, article := range articles {
@@ -258,7 +290,27 @@ func (d *ArticleDataSource) applyAttributeFiltering(articles []articlev2.Readabl
 	return &filteredArticles
 }
 
-// validateSingleMatch ensures exactly one article matched the filters
+// applyIDPatternFiltering filters articles based on ID pattern matching.
+func (d *ArticleDataSource) applyIDPatternFiltering(articles []articlev2.ReadableArticle, pattern string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+	filteredArticles := make([]articlev2.ReadableArticle, 0)
+	for _, article := range articles {
+		if matchesIDPattern(article, pattern) {
+			filteredArticles = append(filteredArticles, article)
+		}
+	}
+
+	if len(filteredArticles) == 0 {
+		diags.AddError(
+			"No matching article found",
+			"No article matched the specified filter criteria. Please check your filter values and try again.",
+		)
+		return nil
+	}
+
+	return &filteredArticles
+}
+
+// validateSingleMatch ensures exactly one article matched the filters.
 func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableArticle, filters articleFilters, diags *diag.Diagnostics) articlev2.ReadableArticle {
 	if articles == nil {
 		return articlev2.ReadableArticle{}
@@ -267,7 +319,7 @@ func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableAr
 	if len(*articles) > 1 {
 		diags.AddError(
 			"Multiple articles matched",
-			formatMultipleMatchesError(*articles, filters.tags, filters.templates, filters.orderable, filters.attributes),
+			formatMultipleMatchesError(*articles, filters.tags, filters.templates, filters.orderable, filters.attributes, filters.idPattern),
 		)
 		return articlev2.ReadableArticle{}
 	}
@@ -275,7 +327,7 @@ func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableAr
 	return (*articles)[0]
 }
 
-// matchesTagFilters checks if an article has all the specified tags (AND logic)
+// matchesTagFilters checks if an article has all the specified tags (AND logic).
 func matchesTagFilters(article articlev2.ReadableArticle, filterTags []string) bool {
 	articleTagNames := make(map[string]bool)
 	for _, tag := range article.Tags {
@@ -293,7 +345,7 @@ func matchesTagFilters(article articlev2.ReadableArticle, filterTags []string) b
 	return true
 }
 
-// matchesAttributeFilters checks if an article matches the given attribute filters
+// matchesAttributeFilters checks if an article matches the given attribute filters.
 func matchesAttributeFilters(article articlev2.ReadableArticle, filterAttributes map[string]string) bool {
 	articleAttrs := make(map[string]string)
 	for _, a := range article.Attributes {
@@ -312,4 +364,14 @@ func matchesAttributeFilters(article articlev2.ReadableArticle, filterAttributes
 	}
 
 	return true
+}
+
+// matchesIDPattern checks if an article's ID matches the given pattern.
+// The pattern supports glob-style wildcard matching where '*' matches any sequence of characters.
+func matchesIDPattern(article articlev2.ReadableArticle, pattern string) bool {
+	matched, err := path.Match(pattern, article.ArticleId)
+	if err != nil {
+		return false
+	}
+	return matched
 }

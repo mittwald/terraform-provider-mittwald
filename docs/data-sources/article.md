@@ -87,6 +87,7 @@ output "article_attributes" {
 Optional:
 
 - `attributes` (Map of String) A map of attributes to filter articles by. Only articles with matching attribute key-value pairs will be considered. All specified attributes must match.
+- `id` (String) A pattern to match against article IDs. Only articles whose IDs contain this pattern will be considered. Use `*` as a wildcard to match any sequence of characters.
 - `orderable` (List of String) A list of orderable statuses to filter articles by.
 - `tags` (List of String) A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).
 - `template` (List of String) A list of templates to filter articles by.
