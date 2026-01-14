@@ -2,8 +2,6 @@ package airesource
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -12,12 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
-	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/articleclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
-	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/orderv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -49,14 +44,6 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				MarkdownDescription: "ID of the customer for which AI support should be enabled",
 				Optional:            true,
 			},
-			"order_id": schema.StringAttribute{
-				MarkdownDescription: "The order ID associated with the AI support",
-				Computed:            true,
-				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"contract_id": schema.StringAttribute{
 				MarkdownDescription: "The contract ID associated with the AI support",
 				Computed:            true,
@@ -65,14 +52,15 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				},
 			},
 			"article_id": schema.StringAttribute{
-				MarkdownDescription: "The article ID associated with the AI support",
+				MarkdownDescription: "The article ID associated with the AI support. This may be used to change the pricing plan to a higher tier at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"use_free_trial": schema.BoolAttribute{
-				MarkdownDescription: "Use a free trial period for AI support, when available",
+				MarkdownDescription: "Use a free trial period for AI support, when available. Only applicable on creation, not on updates.",
+				WriteOnly:           true, // This is irretrievable on the API side, so we're treating it as write-only
 				Optional:            true,
 			},
 		},
@@ -92,13 +80,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	monthlyTokens, requestsPerMinute, err := r.getArticleFeatures(ctx, data.ArticleId.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Error retrieving article features", fmt.Sprintf("Could not retrieve article features for article ID %s: %s", data.ArticleId.ValueString(), err.Error()))
-		return
-	}
-
-	contractRequest := contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerId.ValueString()}
+	contractRequest := contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerID.ValueString()}
 	contractResponse := providerutil.
 		Try[*contractv2.Contract](&resp.Diagnostics, "error while checking for existing AI hosting contract").
 		IgnoreNotFound().
@@ -122,7 +104,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 			}
 		}
 
-		if contractResponse.BaseItem.Articles[0].Id != data.ArticleId.ValueString() {
+		if contractResponse.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
 			resp.Diagnostics.AddError("Unsupported", "Changing hosting plans for AI hosting is currently not supported")
 			return
 		}
@@ -132,65 +114,20 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	orderType := contractclientv2.CreateOrderRequestBodyOrderTypeAIHosting
-	orderRequest := contractclientv2.CreateOrderRequest{
-		Body: contractclientv2.CreateOrderRequestBody{
-			OrderType: &orderType,
-			OrderData: &contractclientv2.CreateOrderRequestBodyOrderData{
-				AlternativeAIHostingOrder: &orderv2.AIHostingOrder{
-					CustomerId:        data.CustomerId.ValueString(),
-					UseFreeTrial:      data.UseFreeTrial.ValueBoolPointer(),
-					MonthlyTokens:     monthlyTokens,
-					RequestsPerMinute: requestsPerMinute,
-				},
-			},
-		},
-	}
+	orderRequest := providerutil.
+		Try[*contractclientv2.CreateOrderRequest](&resp.Diagnostics, "error while building AI hosting order").
+		DoVal(data.ToAPICreateOrderRequest(ctx, r.client))
 
-	orderResponse := providerutil.
+	providerutil.
 		Try[*contractclientv2.CreateOrderResponse](&resp.Diagnostics, "error while creating AI hosting order").
-		DoValResp(r.client.Contract().CreateOrder(
-			ctx,
-			orderRequest,
-		))
+		DoValResp(r.client.Contract().CreateOrder(ctx, *orderRequest))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	data.OrderID = types.StringValue(orderResponse.OrderId)
-
 	resp.Diagnostics.Append(r.read(ctx, &data, true)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-}
-
-func (r *Resource) getArticleFeatures(ctx context.Context, articleID string) (int64, int64, error) {
-	monthlyTokens := int64(0)
-	requestsPerMinute := int64(0)
-
-	articleRequest := articleclientv2.GetArticleRequest{ArticleID: articleID}
-	article, _, err := r.client.Article().GetArticle(ctx, articleRequest)
-	if err != nil {
-		return 0, 0, fmt.Errorf("error while retrieving article %s: %w", articleID, err)
-	}
-
-	for _, attr := range article.Attributes {
-		if attr.Key == "monthlyTokens" {
-			monthlyTokens, err = strconv.ParseInt(*attr.Value, 10, 64)
-			if err != nil {
-				return 0, 0, fmt.Errorf("error while parsing monthlyTokens: %w", err)
-			}
-		}
-
-		if attr.Key == "requestsPerMinute" {
-			requestsPerMinute, err = strconv.ParseInt(*attr.Value, 10, 64)
-			if err != nil {
-				return 0, 0, fmt.Errorf("error while parsing requestsPerMinute: %w", err)
-			}
-		}
-	}
-
-	return monthlyTokens, requestsPerMinute, nil
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -216,7 +153,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel, considerTermin
 	contract := providerutil.
 		Try[*contractv2.Contract](&res, "error while reading AI hosting usage").
 		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetDetailOfContractByAIHosting, contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerId.ValueString()}))
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetDetailOfContractByAIHosting, contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerID.ValueString()}))
 
 	// Consider contract as deleted if it has a termination date
 	if contract.Termination != nil && considerTerminatedAsDeleted {
@@ -242,35 +179,15 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	if !dataPlan.ArticleId.Equal(dataState.ArticleId) {
-		monthlyTokens, requestsPerMinute, err := r.getArticleFeatures(ctx, dataPlan.ArticleId.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError("Error retrieving article features", fmt.Sprintf("Could not retrieve article features for article ID %s: %s", dataPlan.ArticleId.ValueString(), err.Error()))
-			return
-		}
+	if !dataPlan.ArticleID.Equal(dataState.ArticleID) {
+		changeReq := providerutil.
+			Try[*contractclientv2.CreateTariffChangeRequest](&resp.Diagnostics, "error while creating API request").
+			DoVal(dataPlan.ToAPIChangePlanRequest(ctx, r.client))
 
-		changeType := contractclientv2.CreateTariffChangeRequestBodyTariffChangeTypeAIHosting
-		changeReq := contractclientv2.CreateTariffChangeRequest{
-			Body: contractclientv2.CreateTariffChangeRequestBody{
-				TariffChangeType: &changeType,
-				TariffChangeData: &contractclientv2.CreateTariffChangeRequestBodyTariffChangeData{
-					AlternativeAIHostingTariffChange: &orderv2.AIHostingTariffChange{
-						ContractId:        dataPlan.ContractID.ValueString(),
-						MonthlyTokens:     monthlyTokens,
-						RequestsPerMinute: requestsPerMinute,
-					},
-				},
-			},
-		}
-
-		planChange := providerutil.
+		providerutil.
 			Try[*contractclientv2.CreateTariffChangeResponse](&resp.Diagnostics, "error while requesting AI plan increase").
 			IgnoreNotFound().
-			DoValResp(r.client.Contract().CreateTariffChange(ctx, changeReq))
-
-		dataPlan.OrderID = types.StringValue(planChange.OrderId)
-
-		resp.Diagnostics.AddError("Unsupported", "Changing hosting plans for AI hosting is currently not supported")
+			DoValResp(r.client.Contract().CreateTariffChange(ctx, *changeReq))
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -278,6 +195,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Save updated data into Terraform state
+	resp.Diagnostics.Append(r.read(ctx, &dataPlan, true)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &dataPlan)...)
 }
 
@@ -285,7 +203,6 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	var data ResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}

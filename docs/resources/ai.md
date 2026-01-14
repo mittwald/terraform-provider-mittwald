@@ -33,13 +33,14 @@ resource "mittwald_ai" "example" {
 
 ### Required
 
-- `article_id` (String) The article ID associated with the AI support
+- `article_id` (String) The article ID associated with the AI support. This may be used to change the pricing plan to a higher tier at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `customer_id` (String) ID of the customer for which AI support should be enabled
-- `order_id` (String) The order ID associated with the AI support
-- `use_free_trial` (Boolean) Use a free trial period for AI support, when available
+- `use_free_trial` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Use a free trial period for AI support, when available. Only applicable on creation, not on updates.
 
 ### Read-Only
 
