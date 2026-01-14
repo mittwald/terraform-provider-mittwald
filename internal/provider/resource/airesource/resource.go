@@ -43,6 +43,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"customer_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the customer for which AI support should be enabled",
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"contract_id": schema.StringAttribute{
 				MarkdownDescription: "The contract ID associated with the AI support",
@@ -84,7 +87,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	contractResponse := providerutil.
 		Try[*contractv2.Contract](&resp.Diagnostics, "error while checking for existing AI hosting contract").
 		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, r.client.Contract().GetDetailOfContractByAIHosting, contractRequest))
+		DoValResp(r.client.Contract().GetDetailOfContractByAIHosting(ctx, contractRequest))
 
 	if resp.Diagnostics.HasError() {
 		return
