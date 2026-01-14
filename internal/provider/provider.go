@@ -2,10 +2,16 @@ package provider
 
 import (
 	"context"
+	"log/slog"
+	"os"
+
+	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/mittwald/api-client-go/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/logadapter"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/action/containerrecreateaction"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/action/containerrestartaction"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/appdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/articledatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/containerimagedatasource"
@@ -24,8 +30,6 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/remotefileresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/serverresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
-	"log/slog"
-	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -36,6 +40,7 @@ import (
 
 // Ensure MittwaldProvider satisfies various provider interfaces.
 var _ provider.Provider = &MittwaldProvider{}
+var _ provider.ProviderWithActions = &MittwaldProvider{}
 
 // MittwaldProvider defines the provider implementation.
 type MittwaldProvider struct {
@@ -119,6 +124,7 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 
 	resp.DataSourceData = client
 	resp.ResourceData = client
+	resp.ActionData = client
 }
 
 func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resource {
@@ -151,6 +157,13 @@ func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.Da
 func (p *MittwaldProvider) EphemeralResources(context.Context) []func() ephemeral.EphemeralResource {
 	return []func() ephemeral.EphemeralResource{
 		mysqlpassword.New,
+	}
+}
+
+func (p *MittwaldProvider) Actions(context.Context) []func() action.Action {
+	return []func() action.Action{
+		containerrestartaction.New,
+		containerrecreateaction.New,
 	}
 }
 

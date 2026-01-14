@@ -29,19 +29,23 @@ resource "mittwald_container_stack" "nginx" {
         }
       ]
 
+      // Example of mounting a project path and a stack volume
+      // EITHER "project_path" OR "volume" must be specified in each volume block
       volumes = [
         {
           project_path = "/html"
           mount_path   = "/usr/share/nginx/html"
+        },
+        {
+          volume     = "example"
+          mount_path = "/mnt/example"
         }
       ]
     }
   }
 
   volumes = {
-    example = {
-
-    }
+    example = {}
   }
 }
 

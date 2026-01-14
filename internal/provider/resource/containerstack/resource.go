@@ -57,14 +57,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Computed:            true,
 							MarkdownDescription: "The generated container ID",
 							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
+								stringplanmodifier.UseNonNullStateForUnknown(),
 							},
 						},
 						"image": schema.StringAttribute{
 							Required: true,
 							MarkdownDescription: "The image to use for the container. Follows the usual Docker image format, " +
 								"e.g. `nginx:latest` or `registry.example.com/my-image:latest`.\n\n  " +
-								"Note that when using a non-standard registry (or a standard registry with credentials), " +
+								"    Note that when using a non-standard registry (or a standard registry with credentials), " +
 								"you will probably also need to add a `mittwald_container_registry` resource somewhere " +
 								"in your plan.",
 							PlanModifiers: []planmodifier.String{
@@ -72,13 +72,13 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							},
 						},
 						"description": schema.StringAttribute{
-							Optional:            true,
+							Required:            true,
 							MarkdownDescription: "A description for the container.",
 						},
 						"command": schema.ListAttribute{
 							Required: true,
 							MarkdownDescription: "The command to run inside the container.\n\n" +
-								"Note that this is a required value, even if the image already has a default command. " +
+								"    Note that this is a required value, even if the image already has a default command. " +
 								"To use the default command, use the `mittwald_container_image` data source to first " +
 								"determine the default command, and then use that value here.",
 							ElementType: types.StringType,
@@ -86,7 +86,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						"entrypoint": schema.ListAttribute{
 							Required: true,
 							MarkdownDescription: "The entrypoint to use for the container.\n\n" +
-								"Note that this is a required value, even if the image already has a default entrypoint. " +
+								"    Note that this is a required value, even if the image already has a default entrypoint. " +
 								"To use the default entrypoint, use the `mittwald_container_image` data source to first " +
 								"determine the default entrypoint, and then use that value here.",
 							ElementType: types.StringType,
@@ -97,7 +97,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							MarkdownDescription: "A map of environment variables to set inside the container.",
 							ElementType:         types.StringType,
 							PlanModifiers: []planmodifier.Map{
-								mapplanmodifier.UseStateForUnknown(),
+								mapplanmodifier.UseNonNullStateForUnknown(),
 							},
 						},
 						"ports": schema.SetNestedAttribute{
@@ -133,7 +133,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Computed:            true,
 							MarkdownDescription: "Volumes to mount into the container.",
 							PlanModifiers: []planmodifier.Set{
-								setplanmodifier.UseStateForUnknown(),
+								setplanmodifier.UseNonNullStateForUnknown(),
 							},
 							NestedObject: schema.NestedAttributeObject{
 								Validators: []validator.Object{
@@ -144,12 +144,12 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 										Optional: true,
 										MarkdownDescription: "The name of the volume to mount. A volume of this name " +
 											"must be specified in the top-level `volumes` attribute.\n\n" +
-											"Either this attribute, or `project_path` must be set.",
+											"    Either this attribute, or `project_path` must be set.",
 									},
 									"project_path": schema.StringAttribute{
 										Optional: true,
 										MarkdownDescription: "Path to a directory in the project filesystem.\n\n" +
-											"Either this attribute, or `volume` must be set.",
+											"    Either this attribute, or `volume` must be set.",
 									},
 									"mount_path": schema.StringAttribute{
 										Required:            true,
