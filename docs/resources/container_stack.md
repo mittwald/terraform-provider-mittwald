@@ -112,17 +112,17 @@ Required:
 
 - `command` (List of String) The command to run inside the container.
 
-Note that this is a required value, even if the image already has a default command. To use the default command, use the `mittwald_container_image` data source to first determine the default command, and then use that value here.
+    Note that this is a required value, even if the image already has a default command. To use the default command, use the `mittwald_container_image` data source to first determine the default command, and then use that value here.
+- `description` (String) A description for the container.
 - `entrypoint` (List of String) The entrypoint to use for the container.
 
-Note that this is a required value, even if the image already has a default entrypoint. To use the default entrypoint, use the `mittwald_container_image` data source to first determine the default entrypoint, and then use that value here.
+    Note that this is a required value, even if the image already has a default entrypoint. To use the default entrypoint, use the `mittwald_container_image` data source to first determine the default entrypoint, and then use that value here.
 - `image` (String) The image to use for the container. Follows the usual Docker image format, e.g. `nginx:latest` or `registry.example.com/my-image:latest`.
 
-  Note that when using a non-standard registry (or a standard registry with credentials), you will probably also need to add a `mittwald_container_registry` resource somewhere in your plan.
+      Note that when using a non-standard registry (or a standard registry with credentials), you will probably also need to add a `mittwald_container_registry` resource somewhere in your plan.
 
 Optional:
 
-- `description` (String) A description for the container.
 - `environment` (Map of String) A map of environment variables to set inside the container.
 - `no_recreate_on_change` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.
 - `ports` (Attributes Set) A port to expose from the container. (see [below for nested schema](#nestedatt--containers--ports))
