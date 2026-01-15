@@ -20,6 +20,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &Resource{}
 var _ resource.ResourceWithImportState = &Resource{}
+var _ resource.ResourceWithModifyPlan = &Resource{}
 
 func New() resource.Resource {
 	return &Resource{}
@@ -42,7 +43,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 		Attributes: map[string]schema.Attribute{
 			"customer_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the customer for which AI support should be enabled",
-				Optional:            true,
+				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -72,6 +73,38 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 
 func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	r.client = providerutil.ClientFromProviderData(req.ProviderData, &resp.Diagnostics)
+}
+
+func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var data ResourceModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	contractRequest := contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerID.ValueString()}
+	contractResponse := providerutil.
+		Try[*contractv2.Contract](&resp.Diagnostics, "error while checking for existing AI hosting contract").
+		IgnoreNotFound().
+		DoValResp(r.client.Contract().GetDetailOfContractByAIHosting(ctx, contractRequest))
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if contractResponse != nil && data.ContractID.IsUnknown() {
+		resp.Diagnostics.AddAttributeWarning(path.Root("contract_id"), "Existing AI hosting contract detected", "An existing AI hosting contract was detected for this customer. The existing contract will be adopted into management by this resource. Note that certain changes (e.g., changing to a lower-tier plan) may not be possible until the end of the current contract duration.")
+
+		resp.Diagnostics.Append(data.FromAPIModel(ctx, contractResponse)...)
+		resp.Diagnostics.Append(resp.Plan.Set(ctx, &data)...)
+
+		return
+	}
 }
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
