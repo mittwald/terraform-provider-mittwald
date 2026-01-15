@@ -16,13 +16,18 @@ This resource models mittwald AI support for a specific mittwald customer.
 ## Example Usage
 
 ```terraform
-variable "customer_id" {
-  type = string
+data "mittwald_article" "ai_starter" {
+  filter = {
+    id = "AI25-*"
+    attributes = {
+      category = "Starter"
+    }
+  }
 }
 
 resource "mittwald_ai" "example" {
   customer_id = var.customer_id
-  article_id  = "AI25-0001"
+  article_id  = data.mittwald_article.ai_starter.id
 
   use_free_trial = true
 }
@@ -34,12 +39,12 @@ resource "mittwald_ai" "example" {
 ### Required
 
 - `article_id` (String) The article ID associated with the AI support. This may be used to change the pricing plan to a higher tier at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).
+- `customer_id` (String) ID of the customer for which AI support should be enabled
 
 ### Optional
 
 > **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
 
-- `customer_id` (String) ID of the customer for which AI support should be enabled
 - `use_free_trial` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Use a free trial period for AI support, when available. Only applicable on creation, not on updates.
 
 ### Read-Only
