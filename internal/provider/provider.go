@@ -28,7 +28,6 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/redisdatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/remotefileresource"
-	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/serverresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -130,7 +129,6 @@ func (p *MittwaldProvider) Configure(ctx context.Context, req provider.Configure
 func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		projectresource.New,
-		serverresource.New,
 		appresource.New,
 		mysqldatabaseresource.New,
 		redisdatabaseresource.New,
