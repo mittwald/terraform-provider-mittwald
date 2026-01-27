@@ -171,8 +171,8 @@ github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RR
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/mitchellh/reflectwalk v1.0.2 h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
 github.com/mitchellh/reflectwalk v1.0.2/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
-github.com/mittwald/api-client-go v0.2.148 h1:NbXBzFX3gTZyo8tMJJVlUmSRWwb7j41ahVPRDU5kaBg=
-github.com/mittwald/api-client-go v0.2.148/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
+github.com/mittwald/api-client-go v0.2.149 h1:FFOR34XfcWKtTb1wJj50/pLr3toT9W1B4xHuUJ19XBo=
+github.com/mittwald/api-client-go v0.2.149/go.mod h1:/jyrwP4sRaf36MYgJ1cc07hB2RSf60zdTvb4m4Kn5Kw=
 github.com/oklog/run v1.1.0 h1:GEenZ1cK0+q0+wsJew9qUg/DyD8k3JzYsZAi5gYi2mA=
 github.com/oklog/run v1.1.0/go.mod h1:sVPdnTZT1zYwAJeCMu2Th4T21pA3FPOQRfWjQlk7DVU=
 github.com/onsi/ginkgo/v2 v2.25.3 h1:Ty8+Yi/ayDAGtk4XxmmfUy4GabvM+MegeB4cDLRi6nw=
