@@ -49,6 +49,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional:            true,
 				MarkdownDescription: "The email address to send the cron job's output to",
 			},
+			"timezone": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "The timezone to use for the cron job execution schedule (e.g., `Europe/Berlin`, `America/New_York`)",
+			},
 		},
 	}
 }
