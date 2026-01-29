@@ -4,6 +4,7 @@ resource "mittwald_cronjob" "demo" {
 
   interval    = "*/5 * * * *"
   description = "Demo Cronjob"
+  timezone    = "Europe/Berlin"
 
   destination = {
     command = {
