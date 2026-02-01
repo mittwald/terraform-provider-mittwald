@@ -120,7 +120,7 @@ Optional:
 
 - `description` (String) A description for the container.
 - `environment` (Map of String) A map of environment variables to set inside the container.
-- `no_recreate_on_change` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.
+- `no_recreate_on_change` (Boolean) Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.
 - `ports` (Attributes Set) A port to expose from the container. (see [below for nested schema](#nestedatt--containers--ports))
 - `volumes` (Attributes Set) Volumes to mount into the container. (see [below for nested schema](#nestedatt--containers--volumes))
 
