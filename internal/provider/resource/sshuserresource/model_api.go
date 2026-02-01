@@ -49,7 +49,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *sshuserv2.Ss
 }
 
 // ToCreateRequest creates the API request for creating an SSH user.
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) sshsftpuserclientv2.CreateSSHUserRequest {
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics, passwordWO types.String) sshsftpuserclientv2.CreateSSHUserRequest {
 	body := sshsftpuserclientv2.CreateSSHUserRequestBody{
 		Description: m.Description.ValueString(),
 	}
@@ -57,9 +57,9 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 	// Set authentication - either password or public keys
 	auth := sshuserv2.Authentication{}
 
-	if !m.Password.IsNull() && !m.Password.IsUnknown() && m.Password.ValueString() != "" {
+	if !passwordWO.IsNull() && !passwordWO.IsUnknown() && passwordWO.ValueString() != "" {
 		auth.AlternativeAuthenticationAlternative1 = &sshuserv2.AuthenticationAlternative1{
-			Password: m.Password.ValueString(),
+			Password: passwordWO.ValueString(),
 		}
 	} else {
 		// Use public keys
@@ -87,7 +87,9 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 	// Set expiration if provided
 	if !m.ExpiresAt.IsNull() && !m.ExpiresAt.IsUnknown() {
 		expiresAt, err := time.Parse(time.RFC3339, m.ExpiresAt.ValueString())
-		if err == nil {
+		if err != nil {
+			d.AddError("Invalid expires_at format", "expires_at must be in RFC3339 format: "+err.Error())
+		} else {
 			body.ExpiresAt = &expiresAt
 		}
 	}
@@ -99,7 +101,7 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 }
 
 // ToUpdateRequest creates the API request for updating an SSH user.
-func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel) sshsftpuserclientv2.UpdateSSHUserRequest {
+func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics, current *ResourceModel, passwordWO types.String) sshsftpuserclientv2.UpdateSSHUserRequest {
 	body := sshsftpuserclientv2.UpdateSSHUserRequestBody{}
 
 	// Update description if changed
@@ -116,15 +118,17 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics
 	if !m.ExpiresAt.Equal(current.ExpiresAt) {
 		if !m.ExpiresAt.IsNull() && !m.ExpiresAt.IsUnknown() {
 			expiresAt, err := time.Parse(time.RFC3339, m.ExpiresAt.ValueString())
-			if err == nil {
+			if err != nil {
+				d.AddError("Invalid expires_at format", "expires_at must be in RFC3339 format: "+err.Error())
+			} else {
 				body.ExpiresAt = &expiresAt
 			}
 		}
 	}
 
 	// Update password if set (password is write-only, so always update if provided)
-	if !m.Password.IsNull() && !m.Password.IsUnknown() && m.Password.ValueString() != "" {
-		body.Password = ptrutil.To(m.Password.ValueString())
+	if !passwordWO.IsNull() && !passwordWO.IsUnknown() && passwordWO.ValueString() != "" {
+		body.Password = ptrutil.To(passwordWO.ValueString())
 	}
 
 	// Update public keys if changed
