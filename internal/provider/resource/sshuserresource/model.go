@@ -11,15 +11,16 @@ import (
 
 // ResourceModel describes the resource data model.
 type ResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	ProjectID   types.String `tfsdk:"project_id"`
-	Description types.String `tfsdk:"description"`
-	Username    types.String `tfsdk:"username"`
-	Active      types.Bool   `tfsdk:"active"`
-	ExpiresAt   types.String `tfsdk:"expires_at"`
-	PublicKeys  types.List   `tfsdk:"public_keys"`
-	Password    types.String `tfsdk:"password"`
-	CreatedAt   types.String `tfsdk:"created_at"`
+	ID                types.String `tfsdk:"id"`
+	ProjectID         types.String `tfsdk:"project_id"`
+	Description       types.String `tfsdk:"description"`
+	Username          types.String `tfsdk:"username"`
+	Active            types.Bool   `tfsdk:"active"`
+	ExpiresAt         types.String `tfsdk:"expires_at"`
+	PublicKeys        types.Set    `tfsdk:"public_keys"`
+	PasswordWO        types.String `tfsdk:"password_wo"`
+	PasswordWOVersion types.Int64  `tfsdk:"password_wo_version"`
+	CreatedAt         types.String `tfsdk:"created_at"`
 }
 
 // PublicKeyModel describes a single SSH public key.
@@ -50,13 +51,13 @@ func (m *ResourceModel) GetPublicKeys(ctx context.Context, d *diag.Diagnostics) 
 // SetPublicKeys sets the public keys on the model.
 func (m *ResourceModel) SetPublicKeys(ctx context.Context, d *diag.Diagnostics, keys []PublicKeyModel) {
 	if keys == nil {
-		m.PublicKeys = types.ListNull(types.ObjectType{AttrTypes: PublicKeyAttrTypes()})
+		m.PublicKeys = types.SetNull(types.ObjectType{AttrTypes: PublicKeyAttrTypes()})
 		return
 	}
 
-	listValue, diags := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: PublicKeyAttrTypes()}, keys)
+	setValue, diags := types.SetValueFrom(ctx, types.ObjectType{AttrTypes: PublicKeyAttrTypes()}, keys)
 	d.Append(diags...)
-	m.PublicKeys = listValue
+	m.PublicKeys = setValue
 }
 
 // AsObject converts the PublicKeyModel to a types.Object.

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/sshuserv2"
@@ -71,9 +72,12 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"expires_at": schema.StringAttribute{
 				MarkdownDescription: "The expiration date of the SSH user in RFC3339 format (e.g., `2024-12-31T23:59:59Z`). If not set, the user does not expire.",
 				Optional:            true,
+				Validators: []validator.String{
+					&rfc3339Validator{},
+				},
 			},
-			"public_keys": schema.ListNestedAttribute{
-				MarkdownDescription: "List of SSH public keys for authentication. Either `public_keys` or `password` must be provided.",
+			"public_keys": schema.SetNestedAttribute{
+				MarkdownDescription: "Set of SSH public keys for authentication. Either `public_keys` or `password_wo` must be provided.",
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -88,10 +92,15 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					},
 				},
 			},
-			"password": schema.StringAttribute{
-				MarkdownDescription: "Password for SSH authentication. Either `password` or `public_keys` must be provided. Maximum 72 characters. This is a write-only attribute and will not be read back from the API.",
+			"password_wo": schema.StringAttribute{
+				MarkdownDescription: "Password for SSH authentication. Either `password_wo` or `public_keys` must be provided. Maximum 72 characters.",
 				Optional:            true,
 				Sensitive:           true,
+				WriteOnly:           true,
+			},
+			"password_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Version of the password. You must increment this value whenever the password is changed to trigger an update.",
+				Optional:            true,
 			},
 			"created_at": schema.StringAttribute{
 				MarkdownDescription: "The creation timestamp of the SSH user in RFC3339 format",
@@ -118,9 +127,16 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	// Get password from config (write-only attribute)
+	var passwordWO types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWO)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	sshUser := providerutil.
 		Try[*sshuserv2.SshUser](&resp.Diagnostics, "API error while creating SSH user").
-		DoValResp(r.client.SSHSFTPUser().CreateSSHUser(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics)))
+		DoValResp(r.client.SSHSFTPUser().CreateSSHUser(ctx, data.ToCreateRequest(ctx, &resp.Diagnostics, passwordWO)))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -128,14 +144,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	data.ID = types.StringValue(sshUser.Id)
 
-	// Preserve password in state since it's write-only
-	password := data.Password
-
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
-
-	// Restore password from plan since API doesn't return it
-	data.Password = password
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -148,14 +157,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	// Preserve password from state since it's write-only
-	password := data.Password
-
 	resp.Diagnostics.Append(r.read(ctx, &data)...)
-
-	// Restore password since API doesn't return it
-	data.Password = password
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -185,22 +187,25 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
+	// Get password from config (write-only attribute)
+	var passwordWO types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password_wo"), &passwordWO)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while updating SSH user").
-		DoResp(r.client.SSHSFTPUser().UpdateSSHUser(ctx, planData.ToUpdateRequest(ctx, &resp.Diagnostics, &stateData)))
+		DoResp(r.client.SSHSFTPUser().UpdateSSHUser(ctx, planData.ToUpdateRequest(ctx, &resp.Diagnostics, &stateData, passwordWO)))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Preserve password from plan since it's write-only
-	password := planData.Password
+	// Preserve password_wo_version from plan
+	stateData.PasswordWOVersion = planData.PasswordWOVersion
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
-
-	// Restore password from plan since API doesn't return it
-	stateData.Password = password
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
