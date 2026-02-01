@@ -175,9 +175,11 @@ resource "bitbucket_deployment_variable" "deploy_path" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `active` (Boolean) Whether the SSH user is active. Defaults to `true`.
 - `expires_at` (String) The expiration date of the SSH user in RFC3339 format (e.g., `2024-12-31T23:59:59Z`). If not set, the user does not expire.
-- `password_wo` (String, Sensitive) Password for SSH authentication. Either `password_wo` or `public_keys` must be provided. Maximum 72 characters.
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password for SSH authentication. Either `password_wo` or `public_keys` must be provided. Maximum 72 characters.
 - `password_wo_version` (Number) Version of the password. You must increment this value whenever the password is changed to trigger an update.
 - `public_keys` (Attributes Set) Set of SSH public keys for authentication. Either `public_keys` or `password_wo` must be provided. (see [below for nested schema](#nestedatt--public_keys))
 
