@@ -1,6 +1,7 @@
 package articledatasource
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/articlev2"
@@ -147,8 +148,8 @@ func TestFormatMatchingArticlesList(t *testing.T) {
 	articles := make([]articlev2.ReadableArticle, 15)
 	for i := 0; i < 15; i++ {
 		articles[i] = articlev2.ReadableArticle{
-			ArticleId: "article-" + string(rune('a'+i)),
-			Name:      "Article " + string(rune('A'+i)),
+			ArticleId: fmt.Sprintf("article-%d", i),
+			Name:      fmt.Sprintf("Article %d", i),
 			Template:  articlev2.ArticleTemplate{Name: "template"},
 			Orderable: articlev2.ReadableArticleOrderableFull,
 		}
@@ -157,12 +158,12 @@ func TestFormatMatchingArticlesList(t *testing.T) {
 	result := formatMatchingArticlesList(articles)
 
 	// Should show first 10 articles
-	g.Expect(result).To(ContainSubstring("article-a"))
-	g.Expect(result).To(ContainSubstring("article-j"))
+	g.Expect(result).To(ContainSubstring("article-0"))
+	g.Expect(result).To(ContainSubstring("article-9"))
 
 	// Should NOT show articles beyond 10
-	g.Expect(result).NotTo(ContainSubstring("article-k"))
-	g.Expect(result).NotTo(ContainSubstring("article-o"))
+	g.Expect(result).NotTo(ContainSubstring("article-10"))
+	g.Expect(result).NotTo(ContainSubstring("article-14"))
 
 	// Should indicate there are more
 	g.Expect(result).To(ContainSubstring("... and 5 more"))
