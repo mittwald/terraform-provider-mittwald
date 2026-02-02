@@ -18,6 +18,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cr
 	m.Description = types.StringValue(apiModel.Description)
 	m.Email = valueutil.StringPtrOrNull(apiModel.Email)
 	m.Interval = types.StringValue(apiModel.Interval)
+	m.Timezone = valueutil.StringPtrOrNull(apiModel.TimeZone)
 
 	if u := apiModel.Destination.AlternativeCronjobUrl; u != nil {
 		m.Destination = ResourceDestinationURLModel(u.Url).AsDestinationModel().AsObject(ctx, &res)
@@ -57,6 +58,10 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 		createCronjobBody.Email = m.Email.ValueStringPointer()
 	}
 
+	if !m.Timezone.IsNull() {
+		createCronjobBody.TimeZone = m.Timezone.ValueStringPointer()
+	}
+
 	return cronjobclientv2.CreateCronjobRequest{
 		ProjectID: m.ProjectID.ValueString(),
 		Body:      createCronjobBody,
@@ -76,6 +81,10 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics
 
 	if !m.Email.Equal(current.Email) && !m.Email.IsNull() {
 		body.Email = m.Email.ValueStringPointer()
+	}
+
+	if !m.Timezone.Equal(current.Timezone) && !m.Timezone.IsNull() {
+		body.TimeZone = m.Timezone.ValueStringPointer()
 	}
 
 	if !m.Destination.Equal(current.Destination) {

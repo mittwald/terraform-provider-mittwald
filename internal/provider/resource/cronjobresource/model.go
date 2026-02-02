@@ -19,6 +19,7 @@ type ResourceModel struct {
 	Interval    types.String `tfsdk:"interval"`
 	Destination types.Object `tfsdk:"destination"`
 	Email       types.String `tfsdk:"email"`
+	Timezone    types.String `tfsdk:"timezone"`
 }
 
 type ResourceDestinationModel struct {

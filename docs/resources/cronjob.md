@@ -19,6 +19,7 @@ resource "mittwald_cronjob" "demo" {
 
   interval    = "*/5 * * * *"
   description = "Demo Cronjob"
+  timezone    = "Europe/Berlin"
 
   destination = {
     command = {
@@ -44,6 +45,7 @@ resource "mittwald_cronjob" "demo" {
 ### Optional
 
 - `email` (String) The email address to send the cron job's output to
+- `timezone` (String) The timezone to use for the cron job execution schedule (e.g., `Europe/Berlin`, `America/New_York`)
 
 ### Read-Only
 
