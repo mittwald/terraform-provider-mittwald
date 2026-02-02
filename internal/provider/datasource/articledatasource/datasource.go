@@ -75,7 +75,7 @@ help you refine your filters.`,
 					},
 					"id": schema.StringAttribute{
 						Optional:            true,
-						MarkdownDescription: "A pattern to match against article IDs. Only articles whose IDs contain this pattern will be considered. Use `*` as a wildcard to match any sequence of characters.",
+						MarkdownDescription: "A pattern to match against article IDs using glob-style wildcards. Use `*` to match any sequence of characters, `?` to match a single character, and `[...]` for character classes.",
 					},
 				},
 			},
