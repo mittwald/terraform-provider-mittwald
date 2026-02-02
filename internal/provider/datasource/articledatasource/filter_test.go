@@ -1,6 +1,7 @@
 package articledatasource
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/articlev2"
@@ -17,7 +18,7 @@ func createArticleWithTags(id string, tagNames ...string) articlev2.ReadableArti
 	tags := make([]articlev2.ArticleTag, 0, len(tagNames))
 	for i, name := range tagNames {
 		tags = append(tags, articlev2.ArticleTag{
-			Id:   "tag-" + string(rune('a'+i)),
+			Id:   fmt.Sprintf("tag-%d", i),
 			Name: strPtr(name),
 		})
 	}
