@@ -1,0 +1,27 @@
+name: Tag new release
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 13 * * *"
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MACHINE_USER_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Tag new release
+        run: |
+          npx --package @semantic-release/git semantic-release --debug
+        env:
+          GH_TOKEN: ${{ secrets.MACHINE_USER_TOKEN }}
+          GIT_AUTHOR_NAME: mittwald-machine[bot]
+          GIT_AUTHOR_EMAIL: opensource@mittwald.de
