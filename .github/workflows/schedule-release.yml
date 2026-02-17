@@ -20,7 +20,7 @@ jobs:
 
       - name: Tag new release
         run: |
-          npx --package @semantic-release/git semantic-release --debug
+          npx --package @semantic-release/changelog --package @semantic-release/git semantic-release
         env:
           GH_TOKEN: ${{ secrets.MACHINE_USER_TOKEN }}
           GIT_AUTHOR_NAME: mittwald-machine[bot]
