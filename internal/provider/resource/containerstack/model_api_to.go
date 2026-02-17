@@ -263,7 +263,7 @@ func extractDeploy(ctx context.Context, limits types.Object, d *diag.Diagnostics
 	}
 
 	if !limitsModel.Cpus.IsNull() {
-		cpusStr := fmt.Sprintf("%g", limitsModel.Cpus.ValueFloat64())
+		cpusStr := fmt.Sprintf("%f", limitsModel.Cpus.ValueFloat64())
 		deploy.Resources.Limits.Cpus = &cpusStr
 	}
 
