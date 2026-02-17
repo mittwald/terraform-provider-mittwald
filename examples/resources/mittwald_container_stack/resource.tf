@@ -29,6 +29,12 @@ resource "mittwald_container_stack" "nginx" {
         }
       ]
 
+      // Resource limits for the container
+      limits = {
+        cpus   = 0.5
+        memory = "512M"
+      }
+
       // Example of mounting a project path and a stack volume
       // EITHER "project_path" OR "volume" must be specified in each volume block
       volumes = [

@@ -53,6 +53,12 @@ resource "mittwald_container_stack" "nginx" {
         }
       ]
 
+      // Resource limits for the container
+      limits = {
+        cpus   = 0.5
+        memory = "512M"
+      }
+
       // Example of mounting a project path and a stack volume
       // EITHER "project_path" OR "volume" must be specified in each volume block
       volumes = [
@@ -124,6 +130,7 @@ Required:
 Optional:
 
 - `environment` (Map of String) A map of environment variables to set inside the container.
+- `limits` (Attributes) Resource limitations for the container. (see [below for nested schema](#nestedatt--containers--limits))
 - `no_recreate_on_change` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.
 - `ports` (Attributes Set) A port to expose from the container. (see [below for nested schema](#nestedatt--containers--ports))
 - `volumes` (Attributes Set) Volumes to mount into the container. (see [below for nested schema](#nestedatt--containers--volumes))
@@ -131,6 +138,15 @@ Optional:
 Read-Only:
 
 - `id` (String) The generated container ID
+
+<a id="nestedatt--containers--limits"></a>
+### Nested Schema for `containers.limits`
+
+Optional:
+
+- `cpus` (Number) CPU limit as a decimal number of CPU cores (e.g., 0.5 for half a core, 2 for two cores).
+- `memory` (String) Memory limit as a formatted string (e.g., "50M", "1G", "512M").
+
 
 <a id="nestedatt--containers--ports"></a>
 ### Nested Schema for `containers.ports`

@@ -48,6 +48,7 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 			Environment: convertStringMapToMap(state.Envs),
 			Ports:       convertPortStringsToSet(ctx, state.Ports, &res),
 			Volumes:     convertVolumeStringsToSet(ctx, state.Volumes, &res),
+			Limits:      convertLimitsToObject(ctx, service.Deploy, &res),
 		}
 
 		containerVal, diags := types.ObjectValueFrom(ctx, containerModelType.AttrTypes, container)
@@ -103,6 +104,7 @@ var containerModelType = types.ObjectType{
 		"environment":           types.MapType{ElemType: types.StringType},
 		"ports":                 types.SetType{ElemType: containerPortModelType},
 		"volumes":               types.SetType{ElemType: containerVolumeModelType},
+		"limits":                containerLimitsModelType,
 		"no_recreate_on_change": types.BoolType,
 	},
 }
@@ -120,6 +122,13 @@ var containerVolumeModelType = types.ObjectType{
 		"volume":       types.StringType,
 		"project_path": types.StringType,
 		"mount_path":   types.StringType,
+	},
+}
+
+var containerLimitsModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cpus":   types.Float64Type,
+		"memory": types.StringType,
 	},
 }
 
@@ -240,4 +249,36 @@ func convertVolumeStringsToSet(ctx context.Context, volumes []string, d *diag.Di
 	set, diags := types.SetValue(types.ObjectType{AttrTypes: containerVolumeModelType.AttrTypes}, volumeModels)
 	d.Append(diags...)
 	return set
+}
+
+// convertLimitsToObject converts the Deploy.Resources.Limits from the API into a Terraform object.
+func convertLimitsToObject(ctx context.Context, deploy *containerv2.Deploy, d *diag.Diagnostics) types.Object {
+	if deploy == nil || deploy.Resources == nil || deploy.Resources.Limits == nil {
+		return types.ObjectNull(containerLimitsModelType.AttrTypes)
+	}
+
+	limits := deploy.Resources.Limits
+	limitsModel := ContainerLimitsModel{
+		Cpus:   types.Float64Null(),
+		Memory: types.StringNull(),
+	}
+
+	if limits.Cpus != nil {
+		// Parse the CPU string to a float64
+		var cpus float64
+		_, err := fmt.Sscanf(*limits.Cpus, "%f", &cpus)
+		if err != nil {
+			d.AddWarning("Invalid CPU format", fmt.Sprintf("Failed to parse CPU value '%s': %s", *limits.Cpus, err.Error()))
+		} else {
+			limitsModel.Cpus = types.Float64Value(cpus)
+		}
+	}
+
+	if limits.Memory != nil {
+		limitsModel.Memory = types.StringValue(*limits.Memory)
+	}
+
+	obj, diags := types.ObjectValueFrom(ctx, containerLimitsModelType.AttrTypes, limitsModel)
+	d.Append(diags...)
+	return obj
 }
