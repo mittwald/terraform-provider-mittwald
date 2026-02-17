@@ -173,7 +173,7 @@ func TestFromAPIModelWithLimits(t *testing.T) {
 
 	cpusValue := "0.5"
 	memoryValue := "512M"
-	
+
 	apiModelWithLimits := &containerv2.StackResponse{
 		Id:        "stack-123",
 		ProjectId: "project-xyz",
