@@ -114,61 +114,79 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	var data ResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	existingContract := r.getExistingContract(ctx, &data, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if existingContract != nil {
+		resp.Diagnostics.Append(r.adoptExistingContract(ctx, &data, existingContract)...)
+	} else {
+		resp.Diagnostics.Append(r.createNewContract(ctx, &data)...)
+	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+func (r *Resource) getExistingContract(ctx context.Context, data *ResourceModel, diags *diag.Diagnostics) *contractv2.Contract {
 	contractRequest := contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerID.ValueString()}
-	contractResponse := providerutil.
-		Try[*contractv2.Contract](&resp.Diagnostics, "error while checking for existing AI hosting contract").
+	return providerutil.
+		Try[*contractv2.Contract](diags, "error while checking for existing AI hosting contract").
 		IgnoreNotFound().
 		DoValResp(r.client.Contract().GetDetailOfContractByAIHosting(ctx, contractRequest))
+}
 
-	if resp.Diagnostics.HasError() {
+func (r *Resource) adoptExistingContract(ctx context.Context, data *ResourceModel, contract *contractv2.Contract) (res diag.Diagnostics) {
+	res.Append(data.FromAPIModel(ctx, contract)...)
+	if res.HasError() {
 		return
 	}
 
-	if contractResponse != nil {
-		resp.Diagnostics.Append(data.FromAPIModel(ctx, contractResponse)...)
+	if contract.Termination != nil {
+		cancelTerminationRequest := contractclientv2.CancelContractTerminationRequest{ContractID: contract.ContractId}
+		providerutil.
+			Try[any](&res, "error while cancelling AI hosting contract termination").
+			DoValResp(r.client.Contract().CancelContractTermination(ctx, cancelTerminationRequest))
 
-		if contractResponse.Termination != nil {
-			cancelTerminationRequest := contractclientv2.CancelContractTerminationRequest{ContractID: contractResponse.ContractId}
-			providerutil.
-				Try[any](&resp.Diagnostics, "error while cancelling AI hosting contract termination").
-				DoValResp(r.client.Contract().CancelContractTermination(ctx, cancelTerminationRequest))
-
-			if resp.Diagnostics.HasError() {
-				return
-			}
+		if res.HasError() {
+			return
 		}
-
-		if contractResponse.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
-			resp.Diagnostics.Append(r.changePlan(ctx, &data)...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-		}
-
-		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-
-		return
 	}
 
+	if contract.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
+		res.Append(r.changePlan(ctx, data)...)
+	}
+
+	return
+}
+
+func (r *Resource) createNewContract(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	orderRequest := providerutil.
-		Try[*contractclientv2.CreateOrderRequest](&resp.Diagnostics, "error while building AI hosting order").
+		Try[*contractclientv2.CreateOrderRequest](&res, "error while building AI hosting order").
 		DoVal(data.ToAPICreateOrderRequest(ctx, r.client))
 
-	providerutil.
-		Try[*contractclientv2.CreateOrderResponse](&resp.Diagnostics, "error while creating AI hosting order").
-		DoValResp(r.client.Contract().CreateOrder(ctx, *orderRequest))
-
-	if resp.Diagnostics.HasError() {
+	if res.HasError() {
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data, true)...)
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	providerutil.
+		Try[*contractclientv2.CreateOrderResponse](&res, "error while creating AI hosting order").
+		DoValResp(r.client.Contract().CreateOrder(ctx, *orderRequest))
+
+	if res.HasError() {
+		return
+	}
+
+	res.Append(r.read(ctx, data, true)...)
+	return
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
