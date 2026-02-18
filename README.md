@@ -46,6 +46,7 @@ and the following data sources:
 
 - [`mittwald_systemsoftware`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/systemsoftware)
 - [`mittwald_app`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/app)
+- [`mittwald_article`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/article)
 - [`mittwald_user`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/user)
 - [`mittwald_container_image`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/container_image)
 
