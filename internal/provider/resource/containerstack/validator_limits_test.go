@@ -115,9 +115,24 @@ func TestMemoryValidator(t *testing.T) {
 			expectError: true,
 		},
 		{
-			name:        "invalid memory with lowercase suffix",
+			name:        "valid memory with lowercase m suffix",
 			value:       types.StringValue("512m"),
-			expectError: true,
+			expectError: false,
+		},
+		{
+			name:        "valid memory with lowercase g suffix",
+			value:       types.StringValue("1g"),
+			expectError: false,
+		},
+		{
+			name:        "valid memory with lowercase k suffix",
+			value:       types.StringValue("1024k"),
+			expectError: false,
+		},
+		{
+			name:        "valid memory with lowercase t suffix",
+			value:       types.StringValue("2t"),
+			expectError: false,
 		},
 		{
 			name:        "invalid memory with invalid suffix",

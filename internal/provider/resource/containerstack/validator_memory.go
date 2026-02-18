@@ -10,7 +10,8 @@ import (
 var _ validator.String = &MemoryValidator{}
 
 // memoryPattern matches Docker-style memory formats like "50M", "1G", "512M", "2G", etc.
-var memoryPattern = regexp.MustCompile(`^[1-9][0-9]*[KMGT]?$`)
+// Accepts both uppercase and lowercase suffixes (K/k, M/m, G/g, T/t)
+var memoryPattern = regexp.MustCompile(`^[1-9][0-9]*[KMGTkmgt]?$`)
 
 // MemoryValidator validates that the memory value follows Docker format.
 type MemoryValidator struct{}
@@ -34,7 +35,7 @@ func (m *MemoryValidator) ValidateString(_ context.Context, request validator.St
 		response.Diagnostics.AddAttributeError(
 			request.Path,
 			"Invalid Memory Format",
-			"The memory limit must follow Docker format (e.g., \"50M\", \"1G\", \"512M\"). Valid suffixes are K, M, G, or T.",
+			"The memory limit must follow Docker format (e.g., \"50M\", \"1G\", \"512M\"). Valid suffixes are K, M, G, T (uppercase or lowercase).",
 		)
 	}
 }
