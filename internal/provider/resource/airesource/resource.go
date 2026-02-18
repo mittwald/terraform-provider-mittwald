@@ -58,9 +58,6 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"article_id": schema.StringAttribute{
 				MarkdownDescription: "The article ID associated with the AI support. This may be used to change the pricing plan to a higher tier at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).",
 				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"use_free_trial": schema.BoolAttribute{
 				MarkdownDescription: "Use a free trial period for AI support, when available. Only applicable on creation, not on updates.",
@@ -97,6 +94,12 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		return
 	}
 
+	// TODO: This behavior might need changing in the future; currently, there
+	//  is a fixed limit of one AI hosting contract per customer, but this may
+	//  change in the future.
+	//  If that should ever happen, we should just look up the contract by the
+	//  contract ID in the state, and not attempt to "adopt" any unknown
+	//  contracts.
 	if contractResponse != nil && data.ContractID.IsUnknown() {
 		resp.Diagnostics.AddAttributeWarning(path.Root("contract_id"), "Existing AI hosting contract detected", "An existing AI hosting contract was detected for this customer. The existing contract will be adopted into management by this resource. Note that certain changes (e.g., changing to a lower-tier plan) may not be possible until the end of the current contract duration.")
 
