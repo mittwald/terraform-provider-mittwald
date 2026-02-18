@@ -6,9 +6,10 @@ description: |-
   A data source that selects different articles.
   This data source should typically be used in conjunction with the mittwald_server or mittwald_project
   resources to select the respective hosting plan.
-  Important: The filters must match exactly one article. If no articles match, or if multiple articles match the
-  specified criteria, the data source will return an error with detailed information about the matching articles to
-  help you refine your filters.
+  Important: By default, the filters must match exactly one article. If no articles match, or if multiple articles
+  match the specified criteria, the data source will return an error with detailed information about the matching
+  articles to help you refine your filters. Alternatively, you can use the select block to specify criteria
+  for choosing one article from multiple matches (e.g., selecting the article with the lowest or highest price).
 ---
 
 # mittwald_article (Data Source)
@@ -18,9 +19,10 @@ A data source that selects different articles.
 This data source should typically be used in conjunction with the `mittwald_server` or `mittwald_project`
 resources to select the respective hosting plan.
 
-**Important:** The filters must match exactly one article. If no articles match, or if multiple articles match the
-specified criteria, the data source will return an error with detailed information about the matching articles to
-help you refine your filters.
+**Important:** By default, the filters must match exactly one article. If no articles match, or if multiple articles
+match the specified criteria, the data source will return an error with detailed information about the matching
+articles to help you refine your filters. Alternatively, you can use the `select` block to specify criteria
+for choosing one article from multiple matches (e.g., selecting the article with the lowest or highest price).
 
 ## Example Usage
 
@@ -72,6 +74,7 @@ output "article_attributes" {
 ### Optional
 
 - `filter` (Attributes) Filter criteria to select the article. All specified criteria must match (AND logic). (see [below for nested schema](#nestedatt--filter))
+- `select` (Attributes) Selection criteria to choose one article when multiple articles match the filter. If not specified and multiple articles match, an error is returned. (see [below for nested schema](#nestedatt--select))
 
 ### Read-Only
 
@@ -91,6 +94,14 @@ Optional:
 - `orderable` (List of String) A list of orderable statuses to filter articles by.
 - `tags` (List of String) A list of tags to filter articles by. Articles must have ALL specified tags (AND logic).
 - `template` (List of String) A list of templates to filter articles by.
+
+
+<a id="nestedatt--select"></a>
+### Nested Schema for `select`
+
+Optional:
+
+- `by_price` (String) Select article by price. Valid values are `lowest` or `highest`.
 
 
 <a id="nestedatt--tags"></a>

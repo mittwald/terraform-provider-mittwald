@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	tfpath "github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
@@ -40,9 +41,10 @@ func (d *ArticleDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 This data source should typically be used in conjunction with the ` + "`mittwald_server`" + ` or ` + "`mittwald_project`" + `
 resources to select the respective hosting plan.
 
-**Important:** The filters must match exactly one article. If no articles match, or if multiple articles match the
-specified criteria, the data source will return an error with detailed information about the matching articles to
-help you refine your filters.`,
+**Important:** By default, the filters must match exactly one article. If no articles match, or if multiple articles
+match the specified criteria, the data source will return an error with detailed information about the matching
+articles to help you refine your filters. Alternatively, you can use the ` + "`select`" + ` block to specify criteria
+for choosing one article from multiple matches (e.g., selecting the article with the lowest or highest price).`,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -76,6 +78,16 @@ help you refine your filters.`,
 					"id": schema.StringAttribute{
 						Optional:            true,
 						MarkdownDescription: "A pattern to match against article IDs using glob-style wildcards. Use `*` to match any sequence of characters, `?` to match a single character, and `[...]` for character classes.",
+					},
+				},
+			},
+			"select": schema.SingleNestedAttribute{
+				Optional:            true,
+				MarkdownDescription: "Selection criteria to choose one article when multiple articles match the filter. If not specified and multiple articles match, an error is returned.",
+				Attributes: map[string]schema.Attribute{
+					"by_price": schema.StringAttribute{
+						Optional:            true,
+						MarkdownDescription: "Select article by price. Valid values are `lowest` or `highest`.",
 					},
 				},
 			},
@@ -113,9 +125,11 @@ func (d *ArticleDataSource) Configure(_ context.Context, req datasource.Configur
 func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data DataSourceModel
 	var filter DataSourceFilterModel
+	var selectModel DataSourceSelectModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	resp.Diagnostics.Append(data.Filter.As(ctx, &filter, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Select.As(ctx, &selectModel, basetypes.ObjectAsOptions{})...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -125,12 +139,17 @@ func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
+	selector := d.extractSelectValues(&selectModel, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	articles := d.fetchAndFilterArticles(ctx, filters, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	matchedArticle := d.validateSingleMatch(articles, filters, &resp.Diagnostics)
+	matchedArticle := d.selectOrValidateSingleMatch(articles, filters, selector, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -146,6 +165,11 @@ type articleFilters struct {
 	orderable  []string
 	attributes map[string]string
 	idPattern  string
+}
+
+// articleSelector holds selection criteria for choosing one article from multiple matches.
+type articleSelector struct {
+	byPrice string
 }
 
 // extractFilterValues extracts all filter values from the data model.
@@ -175,6 +199,26 @@ func (d *ArticleDataSource) extractFilterValues(ctx context.Context, data *DataS
 	}
 
 	return filters
+}
+
+// extractSelectValues extracts selection criteria from the data model.
+func (d *ArticleDataSource) extractSelectValues(data *DataSourceSelectModel, diags *diag.Diagnostics) articleSelector {
+	selector := articleSelector{}
+
+	if !data.ByPrice.IsNull() {
+		byPrice := data.ByPrice.ValueString()
+		if byPrice != "lowest" && byPrice != "highest" {
+			diags.AddAttributeError(
+				tfpath.Root("select").AtName("by_price"),
+				"Invalid select.by_price value",
+				"The select.by_price value must be either 'lowest' or 'highest'.",
+			)
+			return selector
+		}
+		selector.byPrice = byPrice
+	}
+
+	return selector
 }
 
 // fetchAndFilterArticles fetches articles from the API and applies client-side filtering.
@@ -310,21 +354,58 @@ func (d *ArticleDataSource) applyIDPatternFiltering(articles []articlev2.Readabl
 	return &filteredArticles
 }
 
-// validateSingleMatch ensures exactly one article matched the filters.
-func (d *ArticleDataSource) validateSingleMatch(articles *[]articlev2.ReadableArticle, filters articleFilters, diags *diag.Diagnostics) articlev2.ReadableArticle {
+// selectOrValidateSingleMatch either applies selection criteria or validates that exactly one article matched.
+func (d *ArticleDataSource) selectOrValidateSingleMatch(articles *[]articlev2.ReadableArticle, filters articleFilters, selector articleSelector, diags *diag.Diagnostics) articlev2.ReadableArticle {
 	if articles == nil {
 		return articlev2.ReadableArticle{}
 	}
 
-	if len(*articles) > 1 {
-		diags.AddError(
-			"Multiple articles matched",
-			formatMultipleMatchesError(*articles, filters.tags, filters.templates, filters.orderable, filters.attributes, filters.idPattern),
-		)
+	if len(*articles) == 1 {
+		return (*articles)[0]
+	}
+
+	// Multiple articles matched - try to apply selection criteria
+	if selector.byPrice != "" {
+		return selectByPrice(*articles, selector.byPrice)
+	}
+
+	// No selection criteria specified - error on multiple matches
+	diags.AddError(
+		"Multiple articles matched",
+		formatMultipleMatchesError(*articles, filters.tags, filters.templates, filters.orderable, filters.attributes, filters.idPattern),
+	)
+	return articlev2.ReadableArticle{}
+}
+
+// selectByPrice selects an article based on price (lowest or highest).
+func selectByPrice(articles []articlev2.ReadableArticle, criterion string) articlev2.ReadableArticle {
+	if len(articles) == 0 {
 		return articlev2.ReadableArticle{}
 	}
 
-	return (*articles)[0]
+	selected := articles[0]
+	selectedPrice := getArticlePrice(selected)
+
+	for _, article := range articles[1:] {
+		price := getArticlePrice(article)
+		if criterion == "lowest" && price < selectedPrice {
+			selected = article
+			selectedPrice = price
+		} else if criterion == "highest" && price > selectedPrice {
+			selected = article
+			selectedPrice = price
+		}
+	}
+
+	return selected
+}
+
+// getArticlePrice returns the price of an article, defaulting to 0 if not set.
+func getArticlePrice(article articlev2.ReadableArticle) float64 {
+	if article.Price != nil {
+		return *article.Price
+	}
+	return 0
 }
 
 // matchesTagFilters checks if an article has all the specified tags (AND logic).

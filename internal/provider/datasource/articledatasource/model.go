@@ -10,6 +10,7 @@ import (
 // DataSourceModel describes the data source data model.
 type DataSourceModel struct {
 	Filter     types.Object  `tfsdk:"filter"`
+	Select     types.Object  `tfsdk:"select"`
 	ID         types.String  `tfsdk:"id"`
 	Orderable  types.String  `tfsdk:"orderable"`
 	Price      types.Float64 `tfsdk:"price"`
@@ -23,6 +24,10 @@ type DataSourceFilterModel struct {
 	Orderable  types.List   `tfsdk:"orderable"`
 	Attributes types.Map    `tfsdk:"attributes"`
 	ID         types.String `tfsdk:"id"`
+}
+
+type DataSourceSelectModel struct {
+	ByPrice types.String `tfsdk:"by_price"`
 }
 
 type TagModel struct {
