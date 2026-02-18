@@ -62,24 +62,17 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 			Password: passwordWO.ValueString(),
 		}
 	} else {
-		// Use public keys
+		// Use public keys (empty list if none provided; API will reject if no auth method is set)
 		publicKeys := m.GetPublicKeys(ctx, d)
-		if len(publicKeys) > 0 {
-			keys := make([]sshuserv2.PublicKey, 0, len(publicKeys))
-			for _, pk := range publicKeys {
-				keys = append(keys, sshuserv2.PublicKey{
-					Key:     pk.Key.ValueString(),
-					Comment: pk.Comment.ValueString(),
-				})
-			}
-			auth.AlternativeAuthenticationAlternative2 = &sshuserv2.AuthenticationAlternative2{
-				PublicKeys: keys,
-			}
-		} else {
-			// Default to empty public keys if neither password nor keys are provided
-			auth.AlternativeAuthenticationAlternative2 = &sshuserv2.AuthenticationAlternative2{
-				PublicKeys: []sshuserv2.PublicKey{},
-			}
+		keys := make([]sshuserv2.PublicKey, 0, len(publicKeys))
+		for _, pk := range publicKeys {
+			keys = append(keys, sshuserv2.PublicKey{
+				Key:     pk.Key.ValueString(),
+				Comment: pk.Comment.ValueString(),
+			})
+		}
+		auth.AlternativeAuthenticationAlternative2 = &sshuserv2.AuthenticationAlternative2{
+			PublicKeys: keys,
 		}
 	}
 	body.Authentication = auth
@@ -126,9 +119,11 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics
 		}
 	}
 
-	// Update password if set (password is write-only, so always update if provided)
+	// Only update password when password_wo_version has changed
 	if !passwordWO.IsNull() && !passwordWO.IsUnknown() && passwordWO.ValueString() != "" {
-		body.Password = ptrutil.To(passwordWO.ValueString())
+		if !m.PasswordWOVersion.Equal(current.PasswordWOVersion) {
+			body.Password = ptrutil.To(passwordWO.ValueString())
+		}
 	}
 
 	// Update public keys if changed
