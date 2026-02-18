@@ -242,7 +242,7 @@ func (d *Resource) findDatabaseUser(ctx context.Context, databaseID string, data
 
 func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	planData, planUser, planCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
-	stateData, stateUser, stateCharset := d.unpack(ctx, req.Plan, &resp.Diagnostics)
+	stateData, stateUser, stateCharset := d.unpack(ctx, req.State, &resp.Diagnostics)
 	password := types.String{}
 
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("user").AtName("password_wo"), &password)...)
@@ -255,6 +255,13 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	d.updateDescription(ctx, &planData, &stateData, resp)
 	d.updatePasswordDeprecated(ctx, &planUser, resp)
 	d.updatePassword(ctx, &planUser, &stateUser, password, resp)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(d.read(ctx, &planData)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 }
 
 func (d *Resource) unpack(ctx context.Context, planOrState interface {
