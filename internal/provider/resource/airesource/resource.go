@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
@@ -208,7 +209,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	// If the contract no longer exists, remove the resource from state.
-	if data.ID.IsNull() || data.ID.ValueString() == "" {
+	if data.ContractID.IsNull() || data.ContractID.ValueString() == "" {
 		resp.State.RemoveResource(ctx)
 		return
 	}
@@ -293,5 +294,28 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	contractID := req.ID
+
+	// Fetch the contract details to get the customer_id
+	contract := providerutil.
+		Try[*contractv2.Contract](&resp.Diagnostics, "error while fetching contract details for import").
+		DoValResp(r.client.Contract().GetDetailOfContract(ctx, contractclientv2.GetDetailOfContractRequest{
+			ContractID: contractID,
+		}))
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Create a model with the contract_id and customer_id
+	var data ResourceModel
+	resp.Diagnostics.Append(data.FromAPIModel(ctx, contract)...)
+	data.CustomerID = types.StringValue(contract.CustomerId)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Set the state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
