@@ -219,6 +219,60 @@ func TestFromAPIModelWithLimits(t *testing.T) {
 	g.Expect(limitsAttrs["memory"]).To(Equal(types.StringValue("512M")))
 }
 
+func TestLimitsRoundTrip(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	cpusValue := "2"
+	memoryValue := "1G"
+
+	apiModelWithLimits := &containerv2.StackResponse{
+		Id:        "stack-456",
+		ProjectId: "project-abc",
+		Services: []containerv2.ServiceResponse{
+			{
+				ServiceName: "app",
+				Id:          "service-xyz",
+				Description: "Test app",
+				PendingState: containerv2.ServiceState{
+					Image:      "app:latest",
+					Command:    []string{"app"},
+					Entrypoint: []string{"/bin/sh"},
+				},
+				Deploy: &containerv2.Deploy{
+					Resources: &containerv2.Resources{
+						Limits: &containerv2.ResourceSpec{
+							Cpus:   &cpusValue,
+							Memory: &memoryValue,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Convert API model to Terraform model
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithLimits, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	// Convert back to API request
+	declareRequest := model.ToDeclareRequest(ctx, &diags)
+	g.Expect(diags).To(BeNil())
+
+	// Validate the limits in the DeclareRequest
+	g.Expect(declareRequest.Body.Services).To(HaveLen(1))
+	appService := declareRequest.Body.Services["app"]
+	
+	g.Expect(appService.Deploy).NotTo(BeNil())
+	g.Expect(appService.Deploy.Resources).NotTo(BeNil())
+	g.Expect(appService.Deploy.Resources.Limits).NotTo(BeNil())
+	g.Expect(appService.Deploy.Resources.Limits.Cpus).NotTo(BeNil())
+	g.Expect(*appService.Deploy.Resources.Limits.Cpus).To(Equal("2"))
+	g.Expect(appService.Deploy.Resources.Limits.Memory).NotTo(BeNil())
+	g.Expect(*appService.Deploy.Resources.Limits.Memory).To(Equal("1G"))
+}
+
 func TestFromAPIModelWithoutLimits(t *testing.T) {
 	g := NewWithT(t)
 	ctx := context.Background()

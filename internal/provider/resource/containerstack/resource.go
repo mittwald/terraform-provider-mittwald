@@ -165,10 +165,16 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 								"cpus": schema.Float64Attribute{
 									Optional:            true,
 									MarkdownDescription: "CPU limit as a decimal number of CPU cores (e.g., 0.5 for half a core, 2 for two cores).",
+									Validators: []validator.Float64{
+										&CpusValidator{},
+									},
 								},
 								"memory": schema.StringAttribute{
 									Optional:            true,
 									MarkdownDescription: "Memory limit as a formatted string (e.g., \"50M\", \"1G\", \"512M\").",
+									Validators: []validator.String{
+										&MemoryValidator{},
+									},
 								},
 							},
 						},

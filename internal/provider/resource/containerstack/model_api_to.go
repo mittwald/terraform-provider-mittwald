@@ -3,6 +3,7 @@ package containerstackresource
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -263,7 +264,7 @@ func extractDeploy(ctx context.Context, limits types.Object, d *diag.Diagnostics
 	}
 
 	if !limitsModel.Cpus.IsNull() {
-		cpusStr := fmt.Sprintf("%f", limitsModel.Cpus.ValueFloat64())
+		cpusStr := strconv.FormatFloat(limitsModel.Cpus.ValueFloat64(), 'f', -1, 64)
 		deploy.Resources.Limits.Cpus = &cpusStr
 	}
 
