@@ -119,8 +119,8 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		return
 	}
 
-	customerIdIsNullOrUnknown := data.CustomerID.IsNull() || data.CustomerID.IsUnknown()
-	if customerIdIsNullOrUnknown && !data.ProjectID.IsNull() {
+	customerIDIsNullOrUnknown := data.CustomerID.IsNull() || data.CustomerID.IsUnknown()
+	if customerIDIsNullOrUnknown && !data.ProjectID.IsNull() {
 		project, err := r.getProject(ctx, data.ProjectID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddAttributeError(path.Root("project_id"), "Error retrieving project", fmt.Sprintf("Error retrieving project with ID %s: %s", data.ProjectID.ValueString(), err.Error()))
