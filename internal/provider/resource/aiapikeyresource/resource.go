@@ -129,7 +129,10 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 
 		data.CustomerID = types.StringValue(project.CustomerId)
 
-		resp.Plan.Set(ctx, data)
+		resp.Diagnostics.Append(resp.Plan.Set(ctx, data)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 }
 
