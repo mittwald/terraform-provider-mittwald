@@ -63,7 +63,7 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	// Convert Volumes
 	volumeMap := make(map[string]attr.Value)
 	for _, volume := range apiModel.Volumes {
-		_, hasExisting := m.Volumes.Elements()[volume.Name]
+		_, hasExisting := plan.Volumes.Elements()[volume.Name]
 
 		if !hasExisting && m.DefaultStack.ValueBool() && disregardUnknown {
 			tflog.Debug(ctx, "disregarding unmanaged volume in default stack", map[string]any{"name": volume.Name})
