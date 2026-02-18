@@ -144,14 +144,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		}
 
 		if contractResponse.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
-			changeReq := providerutil.
-				Try[*contractclientv2.CreateTariffChangeRequest](&resp.Diagnostics, "error while creating API request").
-				DoVal(data.ToAPIChangePlanRequest(ctx, r.client))
-
-			providerutil.
-				Try[*contractclientv2.CreateTariffChangeResponse](&resp.Diagnostics, "error while requesting AI plan change").
-				DoValResp(r.client.Contract().CreateTariffChange(ctx, *changeReq))
-
+			resp.Diagnostics.Append(r.changePlan(ctx, &data)...)
 			if resp.Diagnostics.HasError() {
 				return
 			}
@@ -195,6 +188,22 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
+func (r *Resource) changePlan(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	changeReq := providerutil.
+		Try[*contractclientv2.CreateTariffChangeRequest](&res, "error while creating API request").
+		DoVal(data.ToAPIChangePlanRequest(ctx, r.client))
+
+	if res.HasError() {
+		return
+	}
+
+	providerutil.
+		Try[*contractclientv2.CreateTariffChangeResponse](&res, "error while requesting AI plan change").
+		DoValResp(r.client.Contract().CreateTariffChange(ctx, *changeReq))
+
+	return
+}
+
 func (r *Resource) read(ctx context.Context, data *ResourceModel, considerTerminatedAsDeleted bool) (res diag.Diagnostics) {
 	client := r.client.Contract()
 
@@ -228,14 +237,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	if !dataPlan.ArticleID.Equal(dataState.ArticleID) {
-		changeReq := providerutil.
-			Try[*contractclientv2.CreateTariffChangeRequest](&resp.Diagnostics, "error while creating API request").
-			DoVal(dataPlan.ToAPIChangePlanRequest(ctx, r.client))
-
-		providerutil.
-			Try[*contractclientv2.CreateTariffChangeResponse](&resp.Diagnostics, "error while requesting AI plan increase").
-			IgnoreNotFound().
-			DoValResp(r.client.Contract().CreateTariffChange(ctx, *changeReq))
+		resp.Diagnostics.Append(r.changePlan(ctx, &dataPlan)...)
 	}
 
 	if resp.Diagnostics.HasError() {
