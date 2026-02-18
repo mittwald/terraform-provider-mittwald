@@ -22,6 +22,10 @@ func (r *ResourceModel) QueryArticleFeatures(ctx context.Context, client mittwal
 	}
 
 	for _, attr := range article.Attributes {
+		if attr.Value == nil {
+			continue
+		}
+
 		if attr.Key == "monthlyTokens" {
 			monthlyTokens, err = strconv.ParseInt(*attr.Value, 10, 64)
 			if err != nil {
