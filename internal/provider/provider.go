@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
+	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/mittwald/api-client-go/mittwaldv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/logadapter"
@@ -18,6 +19,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/function/readsshpublickey"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/aiapikeyresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/airesource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/appresource"
@@ -43,6 +45,7 @@ import (
 // Ensure MittwaldProvider satisfies various provider interfaces.
 var _ provider.Provider = &MittwaldProvider{}
 var _ provider.ProviderWithActions = &MittwaldProvider{}
+var _ provider.ProviderWithFunctions = &MittwaldProvider{}
 
 // MittwaldProvider defines the provider implementation.
 type MittwaldProvider struct {
@@ -168,6 +171,12 @@ func (p *MittwaldProvider) Actions(context.Context) []func() action.Action {
 	return []func() action.Action{
 		containerrestartaction.New,
 		containerrecreateaction.New,
+	}
+}
+
+func (p *MittwaldProvider) Functions(context.Context) []func() function.Function {
+	return []func() function.Function{
+		readsshpublickey.New,
 	}
 }
 
