@@ -161,7 +161,7 @@ func (r *Resource) adoptExistingContract(ctx context.Context, data *ResourceMode
 		}
 	}
 
-	if contract.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
+	if len(contract.BaseItem.Articles) > 0 && contract.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
 		res.Append(r.changePlan(ctx, data)...)
 	}
 
@@ -231,7 +231,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel, considerTermin
 		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetDetailOfContractByAIHosting, contractclientv2.GetDetailOfContractByAIHostingRequest{CustomerID: data.CustomerID.ValueString()}))
 
 	// Consider contract as deleted if it has a termination date
-	if contract.Termination != nil && considerTerminatedAsDeleted {
+	if contract != nil && contract.Termination != nil && considerTerminatedAsDeleted {
 		contract = nil
 	}
 
