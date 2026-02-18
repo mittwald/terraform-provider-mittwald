@@ -263,7 +263,7 @@ func TestLimitsRoundTrip(t *testing.T) {
 	// Validate the limits in the DeclareRequest
 	g.Expect(declareRequest.Body.Services).To(HaveLen(1))
 	appService := declareRequest.Body.Services["app"]
-	
+
 	g.Expect(appService.Deploy).NotTo(BeNil())
 	g.Expect(appService.Deploy.Resources).NotTo(BeNil())
 	g.Expect(appService.Deploy.Resources.Limits).NotTo(BeNil())

@@ -3,12 +3,12 @@ package containerstackresource
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"strconv"
 )
 
 func (m *ContainerStackModel) ToDeletePatchRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.UpdateStackRequest {
