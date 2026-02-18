@@ -9,7 +9,7 @@ import (
 
 var _ validator.String = &MemoryValidator{}
 
-// memoryPattern matches Docker-style memory formats like "50M", "1G", "512M", "2G", etc.
+// memoryPattern matches Docker-style memory formats like "50M", "1G", "512M", "2G".
 // Accepts both uppercase and lowercase suffixes (K/k, M/m, G/g, T/t)
 var memoryPattern = regexp.MustCompile(`^[1-9][0-9]*[KMGTkmgt]?$`)
 
