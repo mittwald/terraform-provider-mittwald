@@ -22,11 +22,11 @@ func createArticleWithPrice(id string, price *float64) articlev2.ReadableArticle
 
 func TestSelectByPrice(t *testing.T) {
 	tests := []struct {
-		name             string
-		articles         []articlev2.ReadableArticle
-		criterion        string
-		expectedID       string
-		expectedPrice    float64
+		name          string
+		articles      []articlev2.ReadableArticle
+		criterion     string
+		expectedID    string
+		expectedPrice float64
 	}{
 		{
 			name: "lowest selects article with lowest price",
