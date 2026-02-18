@@ -2,6 +2,7 @@ package sshuserresource
 
 import (
 	"context"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/sshuserv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
@@ -144,7 +146,13 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	data.ID = types.StringValue(sshUser.Id)
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	// Wait briefly to allow the API to reflect the new SSH user before reading it back
+	time.Sleep(100 * time.Millisecond)
+
+	readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -157,15 +165,18 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// read fetches the SSH user from the API.
+// read fetches the SSH user from the API with polling for eventual consistency.
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	sshUser := providerutil.
 		Try[*sshuserv2.SshUser](&res, "API error while fetching SSH user").
-		DoValResp(r.client.SSHSFTPUser().GetSSHUser(ctx, data.ToGetRequest()))
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, r.client.SSHSFTPUser().GetSSHUser, data.ToGetRequest()))
 
 	if res.HasError() {
 		return
@@ -205,7 +216,10 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	// Preserve password_wo_version from plan
 	stateData.PasswordWOVersion = planData.PasswordWOVersion
 
-	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
+	readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
