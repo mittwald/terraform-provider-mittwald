@@ -57,6 +57,10 @@ and the following actions:
 - [`mittwald_container_recreate`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/actions/container_recreate)
 - [`mittwald_container_restart`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/actions/container_restart)
 
+and the following functions:
+
+- `provider::mittwald::read_ssh_publickey` - Reads an SSH public key from a file and strips the trailing comment
+
 Coming soon:
 
 - `mittwald_mysql_user`

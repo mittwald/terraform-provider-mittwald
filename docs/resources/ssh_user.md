@@ -13,6 +13,38 @@ This resource manages an SSH user for a project. SSH users can authenticate via 
 ## Example Usage
 
 ```terraform
+# Create an SSH user with expiration date
+resource "mittwald_ssh_user" "temporary" {
+  project_id  = mittwald_project.example.id
+  description = "Temporary access for contractor"
+  expires_at  = "2026-12-31T23:59:59Z"
+
+  public_keys = [
+    {
+      key     = file("~/.ssh/id_rsa.pub")
+      comment = "contractor@company.com"
+    }
+  ]
+}
+```
+
+```terraform
+# Create an SSH user with password authentication
+
+variable "ssh_admin_password" {
+  sensitive = true
+  type      = string
+}
+
+resource "mittwald_ssh_user" "admin" {
+  project_id          = mittwald_project.example.id
+  description         = "Admin SSH user"
+  password_wo         = var.ssh_admin_password
+  password_wo_version = 1
+}
+```
+
+```terraform
 # Create an SSH user with public key authentication
 resource "mittwald_ssh_user" "deploy" {
   project_id  = mittwald_project.example.id
@@ -20,30 +52,8 @@ resource "mittwald_ssh_user" "deploy" {
 
   public_keys = [
     {
-      key     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExample..."
+      key     = provider::mittwald::read_ssh_publickey("~/.ssh/id_rsa.pub")
       comment = "deploy@example.com"
-    }
-  ]
-}
-
-# Create an SSH user with password authentication
-resource "mittwald_ssh_user" "admin" {
-  project_id          = mittwald_project.example.id
-  description         = "Admin SSH user"
-  password_wo         = var.ssh_admin_password
-  password_wo_version = 1
-}
-
-# Create an SSH user with expiration date
-resource "mittwald_ssh_user" "temporary" {
-  project_id  = mittwald_project.example.id
-  description = "Temporary access for contractor"
-  expires_at  = "2024-12-31T23:59:59Z"
-
-  public_keys = [
-    {
-      key     = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQExample..."
-      comment = "contractor@company.com"
     }
   ]
 }
@@ -51,117 +61,6 @@ resource "mittwald_ssh_user" "temporary" {
 # Output the generated username for use in CI/CD pipelines
 output "deploy_ssh_username" {
   value = mittwald_ssh_user.deploy.username
-}
-```
-
-```terraform
-# Integration with Bitbucket Pipelines
-#
-# This example shows how to set up automated deployments from Bitbucket
-# Pipelines to a mittwald project. It uses the `tls_private_key` resource
-# to generate an SSH key pair and configures Bitbucket deployment variables
-# for use in pipelines.
-
-terraform {
-  required_providers {
-    mittwald = {
-      source = "mittwald/mittwald"
-    }
-    bitbucket = {
-      source = "DrFaust92/bitbucket"
-    }
-    tls = {
-      source = "hashicorp/tls"
-    }
-  }
-}
-
-# SSH host key for known_hosts configuration
-# Obtain using: ssh-keyscan -t ed25519 <ssh_host> | awk '{print $2, $3}'
-variable "mittwald_ssh_host_key_type" {
-  description = "SSH host key type (e.g., ssh-ed25519)"
-  type        = string
-  default     = "ssh-ed25519"
-}
-
-variable "mittwald_ssh_host_key" {
-  description = "SSH host public key in base64 format"
-  type        = string
-}
-
-# Bitbucket repository data
-data "bitbucket_repository" "main" {
-  workspace = "my-workspace"
-  repo_slug = "my-app"
-}
-
-# Create a deployment environment in Bitbucket
-resource "bitbucket_deployment" "production" {
-  repository = data.bitbucket_repository.main.full_name
-  name       = "Production"
-  stage      = "Production"
-}
-
-# Generate an SSH key pair for deployment
-resource "tls_private_key" "deploy" {
-  algorithm = "ED25519"
-}
-
-# Create SSH user on mittwald with the generated public key
-resource "mittwald_ssh_user" "deploy" {
-  project_id  = mittwald_project.main.id
-  description = "Bitbucket Pipeline Deployment"
-
-  public_keys = [
-    {
-      key     = tls_private_key.deploy.public_key_openssh
-      comment = "bitbucket-pipeline"
-    }
-  ]
-}
-
-# Configure the SSH key pair in Bitbucket (for pipeline authentication)
-resource "bitbucket_pipeline_ssh_key" "deploy" {
-  workspace   = data.bitbucket_repository.main.workspace
-  repository  = data.bitbucket_repository.main.repo_slug
-  public_key  = tls_private_key.deploy.public_key_openssh
-  private_key = tls_private_key.deploy.private_key_openssh
-}
-
-# Add mittwald SSH server as known host in Bitbucket
-# To get the host key, run: ssh-keyscan -t ed25519 <ssh_host>
-# Or use an external data source to fetch it dynamically
-resource "bitbucket_pipeline_ssh_known_host" "mittwald" {
-  workspace  = data.bitbucket_repository.main.workspace
-  repository = data.bitbucket_repository.main.repo_slug
-  hostname   = "[${mittwald_app.api.ssh_host}]:22"
-
-  public_key {
-    key_type = var.mittwald_ssh_host_key_type # e.g., "ssh-ed25519"
-    key      = var.mittwald_ssh_host_key      # base64-encoded host key
-  }
-}
-
-# Pass SSH connection details to Bitbucket as deployment variables
-resource "bitbucket_deployment_variable" "ssh_host" {
-  deployment = bitbucket_deployment.production.id
-  key        = "SSH_HOST"
-  value      = mittwald_app.api.ssh_host
-  secured    = false
-}
-
-resource "bitbucket_deployment_variable" "ssh_user" {
-  deployment = bitbucket_deployment.production.id
-  key        = "SSH_USER"
-  value      = "${mittwald_ssh_user.deploy.username}@${mittwald_app.api.short_id}"
-  secured    = false
-}
-
-resource "bitbucket_deployment_variable" "deploy_path" {
-  deployment = bitbucket_deployment.production.id
-  key        = "DEPLOY_PATH"
-  value      = mittwald_app.api.installation_path_absolute
-  secured    = false
 }
 ```
 
