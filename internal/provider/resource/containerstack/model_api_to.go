@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"strconv"
 )
 
 func (m *ContainerStackModel) ToDeletePatchRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.UpdateStackRequest {
@@ -235,4 +237,41 @@ func extractVolumeMappings(ctx context.Context, volumes types.Set, d *diag.Diagn
 		}
 	}
 	return result
+}
+
+// extractDeploy converts the Terraform limits object to the API Deploy structure.
+func extractDeploy(ctx context.Context, limits types.Object, d *diag.Diagnostics) *containerv2.Deploy {
+	if limits.IsNull() || limits.IsUnknown() {
+		return nil
+	}
+
+	var limitsModel ContainerLimitsModel
+	diags := limits.As(ctx, &limitsModel, basetypes.ObjectAsOptions{})
+	if diags.HasError() {
+		d.Append(diags...)
+		return nil
+	}
+
+	// Only create the Deploy object if at least one limit is set
+	if limitsModel.Cpus.IsNull() && limitsModel.Memory.IsNull() {
+		return nil
+	}
+
+	deploy := &containerv2.Deploy{
+		Resources: &containerv2.Resources{
+			Limits: &containerv2.ResourceSpec{},
+		},
+	}
+
+	if !limitsModel.Cpus.IsNull() {
+		cpusStr := strconv.FormatFloat(limitsModel.Cpus.ValueFloat64(), 'f', -1, 64)
+		deploy.Resources.Limits.Cpus = &cpusStr
+	}
+
+	if !limitsModel.Memory.IsNull() {
+		memory := limitsModel.Memory.ValueString()
+		deploy.Resources.Limits.Memory = &memory
+	}
+
+	return deploy
 }

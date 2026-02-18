@@ -21,6 +21,7 @@ type ContainerModel struct {
 	Environment        types.Map    `tfsdk:"environment"`
 	Ports              types.Set    `tfsdk:"ports"`
 	Volumes            types.Set    `tfsdk:"volumes"`
+	Limits             types.Object `tfsdk:"limits"`
 	NoRecreateOnChange types.Bool   `tfsdk:"no_recreate_on_change"`
 }
 
@@ -34,6 +35,11 @@ type ContainerVolumeModel struct {
 	Volume      types.String `tfsdk:"volume"`
 	ProjectPath types.String `tfsdk:"project_path"`
 	MountPath   types.String `tfsdk:"mount_path"`
+}
+
+type ContainerLimitsModel struct {
+	Cpus   types.Float64 `tfsdk:"cpus"`
+	Memory types.String  `tfsdk:"memory"`
 }
 
 type VolumeModel struct{}

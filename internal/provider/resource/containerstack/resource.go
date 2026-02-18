@@ -158,6 +158,26 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 								},
 							},
 						},
+						"limits": schema.SingleNestedAttribute{
+							Optional:            true,
+							MarkdownDescription: "Resource limitations for the container.",
+							Attributes: map[string]schema.Attribute{
+								"cpus": schema.Float64Attribute{
+									Optional:            true,
+									MarkdownDescription: "CPU limit as a decimal number of CPU cores (e.g., 0.5 for half a core, 2 for two cores).",
+									Validators: []validator.Float64{
+										&CpusValidator{},
+									},
+								},
+								"memory": schema.StringAttribute{
+									Optional:            true,
+									MarkdownDescription: "Memory limit as a formatted string (e.g., \"50M\", \"1G\", \"512M\").",
+									Validators: []validator.String{
+										&MemoryValidator{},
+									},
+								},
+							},
+						},
 						"no_recreate_on_change": schema.BoolAttribute{
 							Optional:            true,
 							MarkdownDescription: "Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.",

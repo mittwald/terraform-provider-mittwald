@@ -39,6 +39,10 @@ func (m *ContainerModel) Equals(other *ContainerModel) bool {
 		return false
 	}
 
+	if !m.Limits.Equal(other.Limits) {
+		return false
+	}
+
 	return true
 }
 
@@ -51,6 +55,7 @@ func (m *ContainerModel) ToDeclareRequest(ctx context.Context, d *diag.Diagnosti
 		Ports:       extractPortMappings(ctx, m.Ports, d),
 		Volumes:     extractVolumeMappings(ctx, m.Volumes, d),
 		Description: m.Description.ValueStringPointer(),
+		Deploy:      extractDeploy(ctx, m.Limits, d),
 	}
 }
 
@@ -85,6 +90,10 @@ func (m *ContainerModel) ToUpdateRequestFromExisting(ctx context.Context, other 
 		req.Description = m.Description.ValueStringPointer()
 	}
 
+	if !m.Limits.Equal(other.Limits) {
+		req.Deploy = extractDeploy(ctx, m.Limits, d)
+	}
+
 	return req
 }
 
@@ -97,5 +106,6 @@ func (m *ContainerModel) ToUpdateRequestFromEmpty(ctx context.Context, d *diag.D
 		Ports:       extractPortMappings(ctx, m.Ports, d),
 		Volumes:     extractVolumeMappings(ctx, m.Volumes, d),
 		Description: m.Description.ValueStringPointer(),
+		Deploy:      extractDeploy(ctx, m.Limits, d),
 	}
 }

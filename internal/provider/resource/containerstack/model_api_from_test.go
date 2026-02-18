@@ -167,6 +167,150 @@ func TestFromAPIModelAndReverse(t *testing.T) {
 	))
 }
 
+func TestFromAPIModelWithLimits(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	cpusValue := "0.5"
+	memoryValue := "512M"
+
+	apiModelWithLimits := &containerv2.StackResponse{
+		Id:        "stack-123",
+		ProjectId: "project-xyz",
+		Services: []containerv2.ServiceResponse{
+			{
+				ServiceName: "nginx",
+				Id:          "service-abc",
+				Description: "Test container",
+				PendingState: containerv2.ServiceState{
+					Image:      "nginx:latest",
+					Command:    []string{"nginx", "-g", "daemon off;"},
+					Entrypoint: []string{"/bin/sh", "-c"},
+				},
+				Deploy: &containerv2.Deploy{
+					Resources: &containerv2.Resources{
+						Limits: &containerv2.ResourceSpec{
+							Cpus:   &cpusValue,
+							Memory: &memoryValue,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithLimits, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	containers := model.Containers.Elements()
+	g.Expect(containers).To(HaveLen(1))
+
+	nginxContainer, ok := containers["nginx"].(types.Object)
+	g.Expect(ok).To(BeTrue())
+
+	// Validate limits
+	limitsObj, ok := nginxContainer.Attributes()["limits"].(types.Object)
+	g.Expect(ok).To(BeTrue())
+	g.Expect(limitsObj.IsNull()).To(BeFalse())
+
+	limitsAttrs := limitsObj.Attributes()
+	g.Expect(limitsAttrs["cpus"]).To(Equal(types.Float64Value(0.5)))
+	g.Expect(limitsAttrs["memory"]).To(Equal(types.StringValue("512M")))
+}
+
+func TestLimitsRoundTrip(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	cpusValue := "2"
+	memoryValue := "1G"
+
+	apiModelWithLimits := &containerv2.StackResponse{
+		Id:        "stack-456",
+		ProjectId: "project-abc",
+		Services: []containerv2.ServiceResponse{
+			{
+				ServiceName: "app",
+				Id:          "service-xyz",
+				Description: "Test app",
+				PendingState: containerv2.ServiceState{
+					Image:      "app:latest",
+					Command:    []string{"app"},
+					Entrypoint: []string{"/bin/sh"},
+				},
+				Deploy: &containerv2.Deploy{
+					Resources: &containerv2.Resources{
+						Limits: &containerv2.ResourceSpec{
+							Cpus:   &cpusValue,
+							Memory: &memoryValue,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Convert API model to Terraform model
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithLimits, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	// Convert back to API request
+	declareRequest := model.ToDeclareRequest(ctx, &diags)
+	g.Expect(diags).To(BeNil())
+
+	// Validate the limits in the DeclareRequest
+	g.Expect(declareRequest.Body.Services).To(HaveLen(1))
+	appService := declareRequest.Body.Services["app"]
+
+	g.Expect(appService.Deploy).NotTo(BeNil())
+	g.Expect(appService.Deploy.Resources).NotTo(BeNil())
+	g.Expect(appService.Deploy.Resources.Limits).NotTo(BeNil())
+	g.Expect(appService.Deploy.Resources.Limits.Cpus).NotTo(BeNil())
+	g.Expect(*appService.Deploy.Resources.Limits.Cpus).To(Equal("2"))
+	g.Expect(appService.Deploy.Resources.Limits.Memory).NotTo(BeNil())
+	g.Expect(*appService.Deploy.Resources.Limits.Memory).To(Equal("1G"))
+}
+
+func TestFromAPIModelWithoutLimits(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	apiModelWithoutLimits := &containerv2.StackResponse{
+		Id:        "stack-123",
+		ProjectId: "project-xyz",
+		Services: []containerv2.ServiceResponse{
+			{
+				ServiceName: "nginx",
+				Id:          "service-abc",
+				Description: "Test container",
+				PendingState: containerv2.ServiceState{
+					Image:      "nginx:latest",
+					Command:    []string{"nginx"},
+					Entrypoint: []string{"/bin/sh"},
+				},
+				Deploy: nil,
+			},
+		},
+	}
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithoutLimits, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	containers := model.Containers.Elements()
+	g.Expect(containers).To(HaveLen(1))
+
+	nginxContainer, ok := containers["nginx"].(types.Object)
+	g.Expect(ok).To(BeTrue())
+
+	// Validate that limits is null when not provided
+	limitsObj, ok := nginxContainer.Attributes()["limits"].(types.Object)
+	g.Expect(ok).To(BeTrue())
+	g.Expect(limitsObj.IsNull()).To(BeTrue())
+}
+
 func TestParsePortString(t *testing.T) {
 	tests := []struct {
 		name          string
