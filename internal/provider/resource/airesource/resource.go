@@ -203,6 +203,15 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	defer cancel()
 
 	resp.Diagnostics.Append(r.read(readCtx, &data, true)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// If the contract no longer exists, remove the resource from state.
+	if data.ID.IsNull() || data.ID.ValueString() == "" {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
