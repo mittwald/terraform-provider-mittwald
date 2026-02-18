@@ -144,8 +144,17 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		}
 
 		if contractResponse.BaseItem.Articles[0].Id != data.ArticleID.ValueString() {
-			resp.Diagnostics.AddError("Unsupported", "Changing hosting plans for AI hosting is currently not supported")
-			return
+			changeReq := providerutil.
+				Try[*contractclientv2.CreateTariffChangeRequest](&resp.Diagnostics, "error while creating API request").
+				DoVal(data.ToAPIChangePlanRequest(ctx, r.client))
+
+			providerutil.
+				Try[*contractclientv2.CreateTariffChangeResponse](&resp.Diagnostics, "error while requesting AI plan change").
+				DoValResp(r.client.Contract().CreateTariffChange(ctx, *changeReq))
+
+			if resp.Diagnostics.HasError() {
+				return
+			}
 		}
 
 		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
