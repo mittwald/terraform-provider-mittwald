@@ -21,7 +21,7 @@ resource "mittwald_ssh_user" "temporary" {
 
   public_keys = [
     {
-      key     = file("~/.ssh/id_rsa.pub")
+      key     = provider::mittwald::read_ssh_publickey("~/.ssh/id_rsa.pub")
       comment = "contractor@company.com"
     }
   ]
@@ -94,4 +94,4 @@ output "deploy_ssh_username" {
 Required:
 
 - `comment` (String) A comment/label for the key (e.g., email address or identifier)
-- `key` (String) The SSH public key (e.g., `ssh-rsa AAAA... user@host`)
+- `key` (String) The SSH public key (e.g., `ssh-rsa AAAA... user@host`). When reading this value from a file, use the `provider::mittwald::read_ssh_publickey` function instead of the regular file function. The API expects the key to be in the format `<key-type> <base64-key>`, without any trailing comment or whitespace. The `read_ssh_publickey` function will handle stripping the comment and whitespace for you.

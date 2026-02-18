@@ -84,7 +84,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"key": schema.StringAttribute{
-							MarkdownDescription: "The SSH public key (e.g., `ssh-rsa AAAA... user@host`)",
+							MarkdownDescription: "The SSH public key (e.g., `ssh-rsa AAAA... user@host`). When reading this value from a file, use the `provider::mittwald::read_ssh_publickey` function instead of the regular file function. The API expects the key to be in the format `<key-type> <base64-key>`, without any trailing comment or whitespace. The `read_ssh_publickey` function will handle stripping the comment and whitespace for you.",
 							Required:            true,
 						},
 						"comment": schema.StringAttribute{
