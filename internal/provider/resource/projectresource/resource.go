@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
@@ -45,8 +46,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 
 		Attributes: map[string]schema.Attribute{
 			"server_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the server this project belongs to",
+				MarkdownDescription: "ID of the server this project belongs to. Must be a full UUID (not a short ID like s-XXXXXX).",
 				Optional:            true,
+				Validators: []validator.String{
+					&common.UUIDValidator{},
+				},
 			},
 			"id": builder.Id(),
 			"short_id": schema.StringAttribute{

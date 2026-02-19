@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
@@ -70,8 +71,11 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 							Optional: true,
 							Attributes: map[string]schema.Attribute{
 								"container_id": schema.StringAttribute{
-									MarkdownDescription: "The ID of a container (!= the ID of a container *stack*) that this path should point to.",
+									MarkdownDescription: "The ID of a container (!= the ID of a container *stack*) that this path should point to. Must be a full UUID (not a short ID like c-XXXXXX).",
 									Required:            true,
+									Validators: []validator.String{
+										&common.UUIDValidator{},
+									},
 								},
 								"port": schema.StringAttribute{
 									MarkdownDescription: "A port number/protocol combination of the referenced container that traffic should be redirected to (example: `8080/tcp`)",
