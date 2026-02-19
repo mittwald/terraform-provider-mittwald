@@ -42,7 +42,7 @@ resource "mittwald_mysql_database" "foobar_database" {
 ### Required
 
 - `description` (String) Description for your database
-- `project_id` (String) The ID of the project the database belongs to
+- `project_id` (String) The ID of the project the database belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 - `user` (Attributes) (see [below for nested schema](#nestedatt--user))
 - `version` (String) Version of the database, e.g. `5.7`
 

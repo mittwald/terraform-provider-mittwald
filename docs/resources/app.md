@@ -94,7 +94,7 @@ resource "mittwald_app" "custom_php" {
 
 - `app` (String) The name of the app
 - `description` (String) The description of the app
-- `project_id` (String) The ID of the project the app belongs to
+- `project_id` (String) The ID of the project the app belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 - `update_policy` (String) The update policy of the app; one of `none`, `patchLevel` or `all`
 - `version` (String) The desired version of the app
 
@@ -127,10 +127,10 @@ resource "mittwald_app" "custom_php" {
 
 Required:
 
-- `id` (String) The ID of the database
+- `id` (String) The ID of the database. Must be a full UUID.
 - `kind` (String) The kind of the database; one of `mysql` or `redis`
 - `purpose` (String) The purpose of the database; use 'primary' for the primary data storage, or 'cache' for a cache database
-- `user_id` (String) The ID of the database user that the app should use
+- `user_id` (String) The ID of the database user that the app should use. Must be a full UUID.
 
 
 <a id="nestedatt--dependencies"></a>

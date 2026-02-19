@@ -51,7 +51,7 @@ resource "mittwald_virtualhost" "foobar" {
 
 - `hostname` (String) The desired hostname for the virtualhost.
 - `paths` (Attributes Map) The desired paths for the virtualhost. (see [below for nested schema](#nestedatt--paths))
-- `project_id` (String) The ID of the project the virtualhost belongs to
+- `project_id` (String) The ID of the project the virtualhost belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 
 ### Read-Only
 
@@ -72,5 +72,5 @@ Optional:
 
 Required:
 
-- `container_id` (String) The ID of a container (!= the ID of a container *stack*) that this path should point to.
+- `container_id` (String) The ID of a container (!= the ID of a container *stack*) that this path should point to. Must be a full UUID (not a short ID like c-XXXXXX).
 - `port` (String) A port number/protocol combination of the referenced container that traffic should be redirected to (example: `8080/tcp`)

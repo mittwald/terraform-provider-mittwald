@@ -100,7 +100,7 @@ resource "mittwald_virtualhost" "nginx" {
 ### Required
 
 - `containers` (Attributes Map) (see [below for nested schema](#nestedatt--containers))
-- `project_id` (String) The ID of the project the container_stack belongs to
+- `project_id` (String) The ID of the project the container_stack belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 
 ### Optional
 

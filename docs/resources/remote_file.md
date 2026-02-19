@@ -45,8 +45,8 @@ resource "mittwald_remote_file" "example" {
 
 ### Optional
 
-- `app_id` (String) The ID of the app to connect to. Either container_id+stack_id or app_id must be specified.
-- `container_id` (String) The ID of the container to connect to. Either container_id+stack_id or app_id must be specified.
+- `app_id` (String) The ID of the app to connect to. Must be a full UUID (not a short ID like a-XXXXXX). Either container_id+stack_id or app_id must be specified.
+- `container_id` (String) The ID of the container to connect to. Must be a full UUID (not a short ID like c-XXXXXX). Either container_id+stack_id or app_id must be specified.
 - `contents` (String) The contents of the file; use the file function to read from a file on the local filesystem.
 - `contents_from_url` (String) The URL to fetch the contents of the file from. If specified and contents is not set, the file will be fetched from this URL.
 - `ssh_private_key` (String) The SSH private key to use for the connection. If not specified, it will default to the contents ~/.ssh/id_rsa; use the file function to specify a file path instead.
