@@ -43,7 +43,7 @@ func (m *ResourceModel) GetPublicKeys(ctx context.Context, d *diag.Diagnostics) 
 		return nil
 	}
 
-	var publicKeys []PublicKeyModel
+	publicKeys := []PublicKeyModel{}
 	d.Append(m.PublicKeys.ElementsAs(ctx, &publicKeys, false)...)
 	return publicKeys
 }
