@@ -9,15 +9,15 @@ import (
 
 var _ validator.String = &UUIDValidator{}
 
-// uuidPattern matches valid UUID format.
-var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+// uuidPattern matches valid UUID format (case-insensitive).
+var uuidPattern = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
-// shortIDPatterns match the various short ID formats
+// shortIDPatterns match the various short ID formats (case-insensitive)
 var shortIDPatterns = map[string]*regexp.Regexp{
-	"server":    regexp.MustCompile(`^s-[a-z0-9]{6}$`),
-	"project":   regexp.MustCompile(`^p-[a-z0-9]{6}$`),
-	"app":       regexp.MustCompile(`^a-[a-z0-9]{6}$`),
-	"container": regexp.MustCompile(`^c-[a-z0-9]{6}$`),
+	"server":    regexp.MustCompile(`(?i)^s-[a-z0-9]{6}$`),
+	"project":   regexp.MustCompile(`(?i)^p-[a-z0-9]{6}$`),
+	"app":       regexp.MustCompile(`(?i)^a-[a-z0-9]{6}$`),
+	"container": regexp.MustCompile(`(?i)^c-[a-z0-9]{6}$`),
 }
 
 // UUIDValidator validates that the value is a valid UUID and not a short ID.

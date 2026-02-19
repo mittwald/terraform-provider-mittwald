@@ -34,8 +34,24 @@ func TestUUIDValidator(t *testing.T) {
 			expectError: false,
 		},
 		{
+			name:        "valid UUID - uppercase letters",
+			value:       types.StringValue("10184AF5-6716-4E82-81D7-4B1CD317D147"),
+			expectError: false,
+		},
+		{
+			name:        "valid UUID - mixed case",
+			value:       types.StringValue("A1b2C3d4-E5f6-1234-5678-9AbCdEf01234"),
+			expectError: false,
+		},
+		{
 			name:         "server short ID",
 			value:        types.StringValue("s-abc123"),
+			expectError:  true,
+			errorSummary: "Short ID Not Supported",
+		},
+		{
+			name:         "server short ID - uppercase",
+			value:        types.StringValue("S-ABC123"),
 			expectError:  true,
 			errorSummary: "Short ID Not Supported",
 		},
@@ -66,12 +82,6 @@ func TestUUIDValidator(t *testing.T) {
 		{
 			name:         "invalid UUID - wrong format",
 			value:        types.StringValue("not-a-uuid"),
-			expectError:  true,
-			errorSummary: "Invalid UUID Format",
-		},
-		{
-			name:         "invalid UUID - uppercase letters",
-			value:        types.StringValue("10184AF5-6716-4E82-81D7-4B1CD317D147"),
 			expectError:  true,
 			errorSummary: "Invalid UUID Format",
 		},
