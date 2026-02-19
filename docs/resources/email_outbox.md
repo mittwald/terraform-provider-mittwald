@@ -41,7 +41,7 @@ output "email_outbox_name" {
 
 - `description` (String) The description of the email outbox.
 - `password` (String, Sensitive) The password for the email outbox. For security, it is recommended to use the 'random_password' Terraform resource to dynamically generate a secure password instead of hardcoding values.
-- `project_id` (String) The ID of the project the email outbox belongs to
+- `project_id` (String) The ID of the project the email outbox belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 
 ### Read-Only
 

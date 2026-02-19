@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
@@ -17,6 +18,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/userclientv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 	"github.com/mittwald/terraform-provider-mittwald/internal/sshutil"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
@@ -61,7 +63,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"container_id": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The ID of the container to connect to. Either container_id+stack_id or app_id must be specified.",
+				MarkdownDescription: "The ID of the container to connect to. Must be a full UUID (not a short ID like c-XXXXXX). Either container_id+stack_id or app_id must be specified.",
+				Validators: []validator.String{
+					&common.UUIDValidator{},
+				},
 			},
 			"stack_id": schema.StringAttribute{
 				Optional:            true,
@@ -69,7 +74,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"app_id": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The ID of the app to connect to. Either container_id+stack_id or app_id must be specified.",
+				MarkdownDescription: "The ID of the app to connect to. Must be a full UUID (not a short ID like a-XXXXXX). Either container_id+stack_id or app_id must be specified.",
+				Validators: []validator.String{
+					&common.UUIDValidator{},
+				},
 			},
 			"ssh_user": schema.StringAttribute{
 				Optional:            true,

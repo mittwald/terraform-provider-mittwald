@@ -48,7 +48,7 @@ resource "mittwald_container_registry" "custom_registry" {
 ### Required
 
 - `description` (String) Description for the registry
-- `project_id` (String) The ID of the project the container_registry belongs to
+- `project_id` (String) The ID of the project the container_registry belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 - `uri` (String) Hostname for the registry, for example `gitlab.example.com`
 
 ### Optional

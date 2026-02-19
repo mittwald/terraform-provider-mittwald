@@ -32,7 +32,7 @@ resource "mittwald_redis_database" "foobar_database" {
 ### Required
 
 - `description` (String) Description for your redis_database
-- `project_id` (String) The ID of the project the redis_database belongs to
+- `project_id` (String) The ID of the project the redis_database belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 - `version` (String) Version of the database, e.g. `7.0`
 
 ### Optional

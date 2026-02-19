@@ -32,7 +32,7 @@ resource "mittwald_project" "foobar" {
 
 ### Optional
 
-- `server_id` (String) ID of the server this project belongs to
+- `server_id` (String) ID of the server this project belongs to. Must be a full UUID (not a short ID like s-XXXXXX).
 
 ### Read-Only
 

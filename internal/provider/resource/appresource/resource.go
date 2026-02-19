@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
@@ -17,6 +18,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -36,6 +38,7 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 }
 
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	builder := common.AttributeBuilderFor("app")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Models an app installation on the mittwald platform",
 		Attributes: map[string]schema.Attribute{
@@ -53,13 +56,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"project_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the project the app belongs to",
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
+			"project_id": builder.ProjectId(),
 			"databases": schema.SetNestedAttribute{
 				MarkdownDescription: "The databases the app uses.\n\n" +
 					"    You can use this field to link databases to the app. The database resources must be created before the app resource, and the database resources must have the same project ID as the app resource.\n\n" +
@@ -69,12 +66,18 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "The ID of the database",
+							MarkdownDescription: "The ID of the database. Must be a full UUID.",
 							Required:            true,
+							Validators: []validator.String{
+								&common.UUIDValidator{},
+							},
 						},
 						"user_id": schema.StringAttribute{
-							MarkdownDescription: "The ID of the database user that the app should use",
+							MarkdownDescription: "The ID of the database user that the app should use. Must be a full UUID.",
 							Required:            true,
+							Validators: []validator.String{
+								&common.UUIDValidator{},
+							},
 						},
 						"purpose": schema.StringAttribute{
 							MarkdownDescription: "The purpose of the database; use 'primary' for the primary data storage, or 'cache' for a cache database",
