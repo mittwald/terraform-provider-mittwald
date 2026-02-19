@@ -9,7 +9,7 @@ import (
 
 var _ validator.String = &UUIDValidator{}
 
-// uuidPattern matches valid UUID v4 format
+// uuidPattern matches valid UUID format.
 var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
 // shortIDPatterns match the various short ID formats
