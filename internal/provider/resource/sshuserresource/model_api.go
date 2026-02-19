@@ -129,16 +129,17 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics
 	// Update public keys if changed
 	if !m.PublicKeys.Equal(current.PublicKeys) {
 		publicKeys := m.GetPublicKeys(ctx, d)
-		if publicKeys != nil {
-			keys := make([]sshuserv2.PublicKey, 0, len(publicKeys))
-			for _, pk := range publicKeys {
-				keys = append(keys, sshuserv2.PublicKey{
-					Key:     pk.Key.ValueString(),
-					Comment: pk.Comment.ValueString(),
-				})
-			}
-			body.PublicKeys = keys
+
+		// Always set PublicKeys when the attribute changed, even if the new set is empty.
+		// This allows clearing keys deterministically (e.g., switching from keys to password).
+		keys := make([]sshuserv2.PublicKey, 0, len(publicKeys))
+		for _, pk := range publicKeys {
+			keys = append(keys, sshuserv2.PublicKey{
+				Key:     pk.Key.ValueString(),
+				Comment: pk.Comment.ValueString(),
+			})
 		}
+		body.PublicKeys = keys
 	}
 
 	return sshsftpuserclientv2.UpdateSSHUserRequest{
