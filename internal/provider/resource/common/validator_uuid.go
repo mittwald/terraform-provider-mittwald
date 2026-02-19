@@ -12,7 +12,7 @@ var _ validator.String = &UUIDValidator{}
 // uuidPattern matches valid UUID format (case-insensitive).
 var uuidPattern = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
-// shortIDPatterns match the various short ID formats (case-insensitive)
+// shortIDPatterns match the various short ID formats (case-insensitive).
 var shortIDPatterns = map[string]*regexp.Regexp{
 	"server":    regexp.MustCompile(`(?i)^s-[a-z0-9]{6}$`),
 	"project":   regexp.MustCompile(`(?i)^p-[a-z0-9]{6}$`),
