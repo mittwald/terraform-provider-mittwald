@@ -67,15 +67,15 @@ func (f *Function) Run(ctx context.Context, req function.RunRequest, resp *funct
 	// Parse the SSH public key
 	// Format: <key-type> <base64-key> [comment]
 	key := strings.TrimSpace(string(content))
-	parts := strings.SplitN(key, " ", 3)
+	fields := strings.Fields(key)
 
-	if len(parts) < 2 {
+	if len(fields) < 2 {
 		resp.Error = function.NewFuncError("invalid SSH public key format: expected '<key-type> <base64-key> [comment]'")
 		return
 	}
 
 	// Return only the key type and base64 key
-	result := parts[0] + " " + parts[1]
+	result := fields[0] + " " + fields[1]
 
 	resp.Error = function.ConcatFuncErrors(resp.Result.Set(ctx, result))
 }
