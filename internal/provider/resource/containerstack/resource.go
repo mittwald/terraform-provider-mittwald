@@ -171,7 +171,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 								},
 								"memory": schema.StringAttribute{
 									Optional:            true,
-									MarkdownDescription: "Memory limit as a formatted string (e.g., \"50M\", \"1G\", \"512M\").",
+									MarkdownDescription: "Memory limit as a formatted string following Docker Compose specification (e.g., \"512mb\", \"1gb\", \"50m\"). Valid suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes).",
 									Validators: []validator.String{
 										&MemoryValidator{},
 									},

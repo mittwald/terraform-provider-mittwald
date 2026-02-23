@@ -85,54 +85,74 @@ func TestMemoryValidator(t *testing.T) {
 		expectError bool
 	}{
 		{
-			name:        "valid memory with M suffix",
-			value:       types.StringValue("512M"),
+			name:        "valid memory with mb suffix",
+			value:       types.StringValue("512mb"),
 			expectError: false,
 		},
 		{
-			name:        "valid memory with G suffix",
-			value:       types.StringValue("1G"),
+			name:        "valid memory with gb suffix",
+			value:       types.StringValue("1gb"),
 			expectError: false,
 		},
 		{
-			name:        "valid memory with K suffix",
-			value:       types.StringValue("1024K"),
+			name:        "valid memory with kb suffix",
+			value:       types.StringValue("1024kb"),
 			expectError: false,
 		},
 		{
-			name:        "valid memory with T suffix",
-			value:       types.StringValue("2T"),
-			expectError: false,
-		},
-		{
-			name:        "valid memory without suffix",
-			value:       types.StringValue("1048576"),
-			expectError: false,
-		},
-		{
-			name:        "invalid memory starting with 0",
-			value:       types.StringValue("0M"),
-			expectError: true,
-		},
-		{
-			name:        "valid memory with lowercase m suffix",
+			name:        "valid memory with m suffix",
 			value:       types.StringValue("512m"),
 			expectError: false,
 		},
 		{
-			name:        "valid memory with lowercase g suffix",
+			name:        "valid memory with g suffix",
 			value:       types.StringValue("1g"),
 			expectError: false,
 		},
 		{
-			name:        "valid memory with lowercase k suffix",
+			name:        "valid memory with k suffix",
 			value:       types.StringValue("1024k"),
 			expectError: false,
 		},
 		{
-			name:        "valid memory with lowercase t suffix",
-			value:       types.StringValue("2t"),
+			name:        "valid memory with b suffix",
+			value:       types.StringValue("1048576b"),
 			expectError: false,
+		},
+		{
+			name:        "valid memory without suffix (bytes)",
+			value:       types.StringValue("1048576"),
+			expectError: true,
+		},
+		{
+			name:        "invalid memory starting with 0",
+			value:       types.StringValue("0m"),
+			expectError: false,
+		},
+		{
+			name:        "invalid memory with uppercase M suffix",
+			value:       types.StringValue("512M"),
+			expectError: true,
+		},
+		{
+			name:        "invalid memory with uppercase G suffix",
+			value:       types.StringValue("1G"),
+			expectError: true,
+		},
+		{
+			name:        "invalid memory with uppercase K suffix",
+			value:       types.StringValue("1024K"),
+			expectError: true,
+		},
+		{
+			name:        "invalid memory with uppercase T suffix",
+			value:       types.StringValue("2T"),
+			expectError: true,
+		},
+		{
+			name:        "invalid memory with lowercase t suffix",
+			value:       types.StringValue("2t"),
+			expectError: true,
 		},
 		{
 			name:        "invalid memory with invalid suffix",
@@ -141,7 +161,7 @@ func TestMemoryValidator(t *testing.T) {
 		},
 		{
 			name:        "invalid memory with decimal",
-			value:       types.StringValue("1.5G"),
+			value:       types.StringValue("1.5g"),
 			expectError: true,
 		},
 		{
