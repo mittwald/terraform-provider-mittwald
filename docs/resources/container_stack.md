@@ -145,7 +145,7 @@ Read-Only:
 Optional:
 
 - `cpus` (Number) CPU limit as a decimal number of CPU cores (e.g., 0.5 for half a core, 2 for two cores).
-- `memory` (String) Memory limit as a formatted string following Docker Compose specification (e.g., "512mb", "1gb", "50m"). Valid suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes).
+- `memory` (String) Memory limit as a formatted string following Docker Compose specification (e.g., "512mb", "1gb", "50m"). Suffixes must be lowercase. Valid lowercase suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes).
 
 
 <a id="nestedatt--containers--ports"></a>

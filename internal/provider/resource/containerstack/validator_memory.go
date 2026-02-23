@@ -38,7 +38,7 @@ func (m *MemoryValidator) ValidateString(_ context.Context, request validator.St
 		response.Diagnostics.AddAttributeError(
 			request.Path,
 			"Invalid Memory Format",
-			"The memory limit must follow Docker Compose format (e.g., \"512mb\", \"1gb\", \"50m\"). Valid suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes).",
+			"The memory limit must follow Docker Compose format (e.g., \"512mb\", \"1gb\", \"50m\"). Valid suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes). Units must be lowercase.",
 		)
 	}
 }
