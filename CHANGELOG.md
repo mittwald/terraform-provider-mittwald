@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.7.0...v1.7.1) (2026-02-23)
+
+
+### Bug Fixes
+
+* **container_stack:** fix memory limit validator to match Docker Compose specification ([#331](https://github.com/mittwald/terraform-provider-mittwald/issues/331)) ([e6bea08](https://github.com/mittwald/terraform-provider-mittwald/commit/e6bea081cf0eb0da6fbbf8468652be6fe9a91386)), closes [mittwald/terraform-provider-mittwald#319](https://github.com/mittwald/terraform-provider-mittwald/issues/319) [mittwald/terraform-provider-mittwald#329](https://github.com/mittwald/terraform-provider-mittwald/issues/329)
+
 # [1.7.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.6.0...v1.7.0) (2026-02-19)
 
 
