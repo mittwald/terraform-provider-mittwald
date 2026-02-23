@@ -120,12 +120,12 @@ func TestMemoryValidator(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:        "valid memory without suffix (bytes)",
+			name:        "invalid memory without suffix (bytes)",
 			value:       types.StringValue("1048576"),
 			expectError: true,
 		},
 		{
-			name:        "invalid memory starting with 0",
+			name:        "valid memory starting with 0",
 			value:       types.StringValue("0m"),
 			expectError: false,
 		},

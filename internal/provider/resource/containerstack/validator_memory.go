@@ -12,6 +12,7 @@ var _ validator.String = &MemoryValidator{}
 // memoryPattern matches Docker Compose memory formats according to the specification.
 // Valid formats: {amount}{byte unit} where units are: b (bytes), k or kb (kilo bytes),
 // m or mb (mega bytes), and g or gb (giga bytes). All suffixes must be lowercase.
+// A suffix is required - plain numbers without a suffix are not valid.
 // Reference: https://docs.docker.com/reference/compose-file/extension/#specifying-byte-values
 var memoryPattern = regexp.MustCompile(`^[0-9]+(b|kb?|mb?|gb?)$`)
 
