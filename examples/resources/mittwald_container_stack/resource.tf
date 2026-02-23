@@ -32,7 +32,7 @@ resource "mittwald_container_stack" "nginx" {
       // Resource limits for the container
       limits = {
         cpus   = 0.5
-        memory = "512M"
+        memory = "512mb"
       }
 
       // Example of mounting a project path and a stack volume

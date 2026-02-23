@@ -9,15 +9,18 @@ import (
 
 var _ validator.String = &MemoryValidator{}
 
-// memoryPattern matches Docker-style memory formats like "50M", "1G", "512M", "2G", etc.
-// Accepts both uppercase and lowercase suffixes (K/k, M/m, G/g, T/t).
-var memoryPattern = regexp.MustCompile(`^[1-9][0-9]*[KMGTkmgt]?$`)
+// memoryPattern matches Docker Compose memory formats according to the specification.
+// Valid formats: {amount}{byte unit} where units are: b (bytes), k or kb (kilo bytes),
+// m or mb (mega bytes), and g or gb (giga bytes). All suffixes must be lowercase.
+// A suffix is required - plain numbers without a suffix are not valid.
+// Reference: https://docs.docker.com/reference/compose-file/extension/#specifying-byte-values
+var memoryPattern = regexp.MustCompile(`^[0-9]+(b|kb?|mb?|gb?)$`)
 
-// MemoryValidator validates that the memory value follows Docker format.
+// MemoryValidator validates that the memory value follows Docker Compose format.
 type MemoryValidator struct{}
 
 func (m *MemoryValidator) Description(_ context.Context) string {
-	return "Asserts that the memory limit follows Docker format (e.g., \"50M\", \"1G\", \"512M\")."
+	return "Asserts that the memory limit follows Docker Compose format (e.g., \"512mb\", \"1gb\", \"50m\")."
 }
 
 func (m *MemoryValidator) MarkdownDescription(ctx context.Context) string {
@@ -35,7 +38,7 @@ func (m *MemoryValidator) ValidateString(_ context.Context, request validator.St
 		response.Diagnostics.AddAttributeError(
 			request.Path,
 			"Invalid Memory Format",
-			"The memory limit must follow Docker format (e.g., \"50M\", \"1G\", \"512M\"). Valid suffixes are K, M, G, T (uppercase or lowercase).",
+			"The memory limit must follow Docker Compose format (e.g., \"512mb\", \"1gb\", \"50m\"). Valid suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes). Units must be lowercase.",
 		)
 	}
 }

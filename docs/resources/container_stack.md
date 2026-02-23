@@ -56,7 +56,7 @@ resource "mittwald_container_stack" "nginx" {
       // Resource limits for the container
       limits = {
         cpus   = 0.5
-        memory = "512M"
+        memory = "512mb"
       }
 
       // Example of mounting a project path and a stack volume
@@ -145,7 +145,7 @@ Read-Only:
 Optional:
 
 - `cpus` (Number) CPU limit as a decimal number of CPU cores (e.g., 0.5 for half a core, 2 for two cores).
-- `memory` (String) Memory limit as a formatted string (e.g., "50M", "1G", "512M").
+- `memory` (String) Memory limit as a formatted string following Docker Compose specification (e.g., "512mb", "1gb", "50m"). Suffixes must be lowercase. Valid lowercase suffixes are b (bytes), k or kb (kilo bytes), m or mb (mega bytes), and g or gb (giga bytes).
 
 
 <a id="nestedatt--containers--ports"></a>
