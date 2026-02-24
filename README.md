@@ -43,6 +43,7 @@ This provider offers the following resources:
 - [`mittwald_email_outbox`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/email_outbox)
 - [`mittwald_ai`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/ai)
 - [`mittwald_ai_api_key`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/ai_api_key)
+- [`mittwald_ssh_user`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/ssh_user)
 
 and the following data sources:
 
@@ -59,12 +60,11 @@ and the following actions:
 
 and the following functions:
 
-- `provider::mittwald::read_ssh_publickey` - Reads an SSH public key from a file and strips the trailing comment
+- [`provider::mittwald::read_ssh_publickey`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/functions/read_ssh_publickey)
 
 Coming soon:
 
 - `mittwald_mysql_user`
-- `mittwald_ssh_user`
 - `mittwald_dns_zone`
 - `mittwald_email_address`
 
