@@ -138,6 +138,18 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		}
 
 		data.ID = types.StringValue(ingress.Id)
+
+		// The CreateIngress API does not process paths; it always creates the
+		// ingress with useDefaultPage. We need to explicitly set the paths via
+		// a separate UpdateIngressPaths call.
+		body := data.ToUpdateRequest(ctx, &resp.Diagnostics, &ResourceModel{})
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		providerutil.
+			Try[any](&resp.Diagnostics, "API error while setting virtual host paths").
+			DoResp(r.client.Domain().UpdateIngressPaths(ctx, body))
 	}
 
 	if resp.Diagnostics.HasError() {
