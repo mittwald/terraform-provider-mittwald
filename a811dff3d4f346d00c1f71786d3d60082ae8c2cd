@@ -1,0 +1,38 @@
+internal/provider/resource/projectresource/resource.go
+  858bc863fa13b086 5,114,157-181
+internal/apiext/project_client.go
+  858bc863fa13b086 5,12-14,51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.8",
+  "base_commit_sha": "a811dff3d4f346d00c1f71786d3d60082ae8c2cd",
+  "prompts": {
+    "858bc863fa13b086": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b96703f4-defe-4447-b44b-0451cf9639b0",
+        "model": "claude-opus-4-5-20251101"
+      },
+      "human_author": "Martin Helmich <m.helmich@mittwald.de>",
+      "messages": [],
+      "total_additions": 47,
+      "total_deletions": 7,
+      "accepted_lines": 44,
+      "overriden_lines": 0
+    },
+    "eb0b97f4e021a205": {
+      "agent_id": {
+        "tool": "github-copilot-jetbrains",
+        "id": "1772641113528",
+        "model": "unknown"
+      },
+      "human_author": "Martin Helmich <m.helmich@mittwald.de>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
