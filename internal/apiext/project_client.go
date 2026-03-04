@@ -9,8 +9,8 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 )
 
-// ErrNoDefaultIngress is returned when a project does not have a default ingress yet.
-// This can happen immediately after project creation before the ingress is provisioned.
+// ErrNoDefaultIngress is returned when a project does not have a default ingress yet,
+// or when the default ingress exists but its IP addresses have not been populated yet.
 var ErrNoDefaultIngress = errors.New("project does not have a default ingress")
 
 type ProjectClient interface {
