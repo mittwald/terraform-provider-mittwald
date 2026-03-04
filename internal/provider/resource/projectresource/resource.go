@@ -2,6 +2,9 @@ package projectresource
 
 import (
 	"context"
+	"errors"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -19,7 +22,6 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
-	"time"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -110,7 +112,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	data.ID = types.StringValue(projectResponse.Id)
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	resp.Diagnostics.Append(r.readAfterCreate(ctx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -143,6 +145,44 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		Try[[]string](&res, "error while reading project ips").
 		IgnoreNotFound().
 		DoVal(client.GetProjectDefaultIPs(ctx, data.ID.ValueString()))
+
+	if res.HasError() {
+		return
+	}
+
+	res.Append(data.FromAPIModel(ctx, pr, ips)...)
+
+	return
+}
+
+// readAfterCreate is like read but polls for the default IPs to become available.
+// This is necessary because immediately after project creation, the default ingress
+// may not exist yet.
+func (r *Resource) readAfterCreate(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	client := apiext.NewProjectClient(r.client)
+
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	pr := providerutil.
+		Try[*projectv2.Project](&res, "error while reading project").
+		IgnoreNotFound().
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
+
+	// Wrap GetProjectDefaultIPs to convert ErrNoDefaultIngress to ErrPollShouldRetry
+	// so that the Poll function will retry until the default ingress appears.
+	getIPsWithRetry := func(ctx context.Context, projectID string) ([]string, error) {
+		ips, err := client.GetProjectDefaultIPs(ctx, projectID)
+		if errors.Is(err, apiext.ErrNoDefaultIngress) {
+			return nil, apiutils.ErrPollShouldRetry
+		}
+		return ips, err
+	}
+
+	ips := providerutil.
+		Try[[]string](&res, "error while reading project ips").
+		IgnoreNotFound().
+		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, getIPsWithRetry, data.ID.ValueString()))
 
 	if res.HasError() {
 		return
