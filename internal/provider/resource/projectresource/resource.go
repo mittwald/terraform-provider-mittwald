@@ -3,6 +3,8 @@ package projectresource
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -20,7 +22,6 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
-	"time"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -159,6 +160,9 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 // may not exist yet.
 func (r *Resource) readAfterCreate(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	client := apiext.NewProjectClient(r.client)
+
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
 
 	pr := providerutil.
 		Try[*projectv2.Project](&res, "error while reading project").
