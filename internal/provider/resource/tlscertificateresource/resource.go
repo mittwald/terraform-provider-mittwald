@@ -344,29 +344,16 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		return
 	}
 
-	// Delete the certificate if we have its ID.
-	if !data.ID.IsNull() && !data.ID.IsUnknown() {
-		providerutil.
-			Try[any](&resp.Diagnostics, "Error deleting certificate").
-			IgnoreNotFound().
-			DoResp(r.client.Domain().DeleteCertificate(ctx, domainclientv2.DeleteCertificateRequest{
-				CertificateID: data.ID.ValueString(),
-			}))
-	}
-
-	if resp.Diagnostics.HasError() {
+	if data.ID.IsNull() || data.ID.IsUnknown() {
 		return
 	}
 
-	// Delete the certificate request.
-	if !data.CertificateRequestID.IsNull() && !data.CertificateRequestID.IsUnknown() {
-		providerutil.
-			Try[any](&resp.Diagnostics, "Error deleting certificate request").
-			IgnoreNotFound().
-			DoResp(r.client.Domain().DeleteCertificateRequest(ctx, domainclientv2.DeleteCertificateRequestRequest{
-				CertificateRequestID: data.CertificateRequestID.ValueString(),
-			}))
-	}
+	providerutil.
+		Try[any](&resp.Diagnostics, "Error deleting certificate").
+		IgnoreNotFound().
+		DoResp(r.client.Domain().DeleteCertificate(ctx, domainclientv2.DeleteCertificateRequest{
+			CertificateID: data.ID.ValueString(),
+		}))
 }
 
 func (r *Resource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
