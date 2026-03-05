@@ -312,4 +312,3 @@ func (r *Resource) ConfigValidators(_ context.Context) []resource.ConfigValidato
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
-
