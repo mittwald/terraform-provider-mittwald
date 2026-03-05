@@ -7,7 +7,22 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/ptrutil"
 )
 
-func (m *ResourceModel) ToCreateRequest() domainclientv2.CreateCertificateRequestRequest {
+// ToCreateRequest returns the appropriate CreateCertificateRequestRequest based on
+// whether a pre-existing certificate is being imported or a new DNS-validated
+// certificate is being requested.
+func (m *ResourceModel) ToCreateRequest(privateKey string) domainclientv2.CreateCertificateRequestRequest {
+	if !m.Certificate.IsNull() && !m.Certificate.IsUnknown() {
+		return domainclientv2.CreateCertificateRequestRequest{
+			Body: domainclientv2.CreateCertificateRequestRequestBody{
+				AlternativeCertificateRequestCreateRequest: &sslv2.CertificateRequestCreateRequest{
+					Certificate: m.Certificate.ValueString(),
+					PrivateKey:  privateKey,
+					ProjectId:   m.ProjectID.ValueString(),
+				},
+			},
+		}
+	}
+
 	return domainclientv2.CreateCertificateRequestRequest{
 		Body: domainclientv2.CreateCertificateRequestRequestBody{
 			AlternativeCertificateRequestCreateWithDNSRequest: &sslv2.CertificateRequestCreateWithDNSRequest{
@@ -16,6 +31,19 @@ func (m *ResourceModel) ToCreateRequest() domainclientv2.CreateCertificateReques
 			},
 		},
 	}
+}
+
+func (m *ResourceModel) ToReplaceCertificateRequest(privateKey string) domainclientv2.ReplaceCertificateRequest {
+	req := domainclientv2.ReplaceCertificateRequest{
+		CertificateID: m.ID.ValueString(),
+		Body: domainclientv2.ReplaceCertificateRequestBody{
+			Certificate: m.Certificate.ValueString(),
+		},
+	}
+	if privateKey != "" {
+		req.Body.PrivateKey = ptrutil.To(privateKey)
+	}
+	return req
 }
 
 func (m *ResourceModel) ToListCertificatesRequest() domainclientv2.ListCertificatesRequest {

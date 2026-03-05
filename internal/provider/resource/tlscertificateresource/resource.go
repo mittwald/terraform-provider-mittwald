@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -39,11 +40,17 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("certificate")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Models a TLS certificate on the mittwald platform. " +
-			"This resource is suitable for wildcard certificates (e.g. `*.foobar.example`) " +
-			"that require DNS validation and cannot be created implicitly together with a virtual host.\n\n" +
-			"After the certificate is created, it can be used with a `mittwald_virtualhost` resource " +
-			"by adding a `depends_on` reference.",
+		MarkdownDescription: "Models a TLS certificate on the mittwald platform.\n\n" +
+			"Certificates can be created in two ways:\n\n" +
+			"1. **DNS validation** (for wildcard certificates like `*.foobar.example`): " +
+			"provide only `common_name` and `project_id`. The certificate is requested " +
+			"using DNS validation and provisioned automatically.\n\n" +
+			"2. **Certificate import**: provide `certificate`, `private_key_wo`, " +
+			"`private_key_wo_version`, and `common_name`. An existing PEM-encoded " +
+			"certificate and private key are imported.\n\n" +
+			"After the certificate is provisioned, it is used automatically by any " +
+			"`mittwald_virtualhost` resource in the same project. Use `depends_on` to ensure " +
+			"the certificate is ready before creating the virtual host.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": builder.Id(),
@@ -56,11 +63,50 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 			"project_id": builder.ProjectId(),
 			"common_name": schema.StringAttribute{
-				Required: true,
-				MarkdownDescription: "The common name for the certificate, e.g. `*.foobar.example`. " +
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "The common name (domain) for the certificate, e.g. `*.foobar.example`. " +
+					"Required when using DNS validation. For certificate import, this is " +
+					"derived from the certificate's CN and populated automatically. " +
 					"Changing this value forces a new certificate to be created.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"certificate": schema.StringAttribute{
+				Optional: true,
+				MarkdownDescription: "PEM-encoded certificate to import. When set (together with " +
+					"`private_key_wo` and `private_key_wo_version`), the certificate is imported " +
+					"instead of being provisioned via DNS validation. " +
+					"This value can be updated in place to renew the certificate. " +
+					"Note: switching between DNS validation and certificate import modes forces " +
+					"a new resource to be created.",
+				PlanModifiers: []planmodifier.String{
+					// Force replacement when switching between DNS validation (null) and import (non-null).
+					stringplanmodifier.RequiresReplaceIf(
+						func(ctx context.Context, req planmodifier.StringRequest, resp *stringplanmodifier.RequiresReplaceIfFuncResponse) {
+							resp.RequiresReplace = req.StateValue.IsNull() != req.PlanValue.IsNull()
+						},
+						"Switching between DNS validation and certificate import modes requires replacement.",
+						"Switching between DNS validation and certificate import modes requires replacement.",
+					),
+				},
+			},
+			"private_key_wo": schema.StringAttribute{
+				Optional:  true,
+				Sensitive: true,
+				WriteOnly: true,
+				MarkdownDescription: "PEM-encoded private key for the certificate. " +
+					"This is a write-only attribute. To trigger a private key update, " +
+					"change the value of `private_key_wo_version`.",
+			},
+			"private_key_wo_version": schema.Int64Attribute{
+				Optional: true,
+				MarkdownDescription: "Version counter for the private key. Increment this value " +
+					"to trigger an in-place update of the certificate's private key.",
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -73,13 +119,15 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data ResourceModel
+	var privateKey types.String
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("private_key_wo"), &privateKey)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	createRes, _, err := r.client.Domain().CreateCertificateRequest(ctx, data.ToCreateRequest())
+	createRes, _, err := r.client.Domain().CreateCertificateRequest(ctx, data.ToCreateRequest(privateKey.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating certificate request", err.Error())
 		return
@@ -188,8 +236,37 @@ func (r *Resource) readCertificateByRequestID(ctx context.Context, data *Resourc
 	return
 }
 
-func (r *Resource) Update(_ context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	// No-op since all attributes have RequiresReplace plan modifiers.
+func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var planData, stateData ResourceModel
+	var privateKey types.String
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &planData)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("private_key_wo"), &privateKey)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	certChanged := !planData.Certificate.Equal(stateData.Certificate)
+	versionChanged := !planData.PrivateKeyWOVersion.Equal(stateData.PrivateKeyWOVersion)
+
+	if certChanged || versionChanged {
+		pk := ""
+		if !privateKey.IsNull() {
+			pk = privateKey.ValueString()
+		}
+
+		providerutil.
+			Try[any](&resp.Diagnostics, "Error replacing certificate").
+			DoResp(r.client.Domain().ReplaceCertificate(ctx, planData.ToReplaceCertificateRequest(pk)))
+
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	resp.Diagnostics.Append(r.read(ctx, &planData)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -228,3 +305,4 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
+
