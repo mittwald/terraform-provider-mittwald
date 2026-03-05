@@ -33,6 +33,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/redisdatabaseresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/remotefileresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/sshuserresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/tlscertificateresource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/virtualhostresource"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -147,6 +148,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 		emailoutboxresource.New,
 		remotefileresource.New,
 		sshuserresource.New,
+		tlscertificateresource.New,
 	}
 }
 
