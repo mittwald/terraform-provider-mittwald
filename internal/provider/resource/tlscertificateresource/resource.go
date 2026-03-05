@@ -41,7 +41,8 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("certificate")
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Models a TLS certificate on the mittwald platform.\n\n" +
+		Description: "Obtains or imports a TLS certificate for use with the mittwald cloud platform.",
+		MarkdownDescription: "This resource obtains or imports a TLS certificate for use on the mittwald cloud platform.\n\n" +
 			"Certificates can be created in two ways:\n\n" +
 			"1. **DNS validation** (for wildcard certificates like `*.foobar.example`): " +
 			"provide only `common_name` and `project_id`. The certificate is requested " +

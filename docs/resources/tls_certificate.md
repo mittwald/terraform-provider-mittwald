@@ -3,7 +3,7 @@
 page_title: "mittwald_tls_certificate Resource - terraform-provider-mittwald"
 subcategory: ""
 description: |-
-  Models a TLS certificate on the mittwald platform.
+  This resource obtains or imports a TLS certificate for use on the mittwald cloud platform.
   Certificates can be created in two ways:
   
   DNS validation (for wildcard certificates like *.foobar.example): provide only common_name and project_id. The certificate is requested using DNS validation and provisioned automatically.
@@ -13,7 +13,7 @@ description: |-
 
 # mittwald_tls_certificate (Resource)
 
-Models a TLS certificate on the mittwald platform.
+This resource obtains or imports a TLS certificate for use on the mittwald cloud platform.
 
 Certificates can be created in two ways:
 
