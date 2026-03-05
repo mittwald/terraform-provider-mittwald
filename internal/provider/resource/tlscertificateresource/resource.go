@@ -173,7 +173,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	if data.ID.IsNull() {
 		resp.Diagnostics.AddError(
 			"Certificate not found after request completion",
-			fmt.Sprintf("No certificate could be found for certificate request %s after it completed.", createRes.Id),
+			fmt.Sprintf("No certificate could be found for certificate request %s after it completed.", data.CertificateRequestID.ValueString()),
 		)
 		return
 	}
@@ -229,9 +229,7 @@ func (r *Resource) waitForCertificateReady(ctx context.Context, data *ResourceMo
 		return
 	}
 
-	if cert != nil {
-		data.FromCertificate(cert)
-	}
+	data.FromCertificate(cert)
 	return
 }
 
