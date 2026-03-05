@@ -24,6 +24,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &Resource{}
 var _ resource.ResourceWithImportState = &Resource{}
+var _ resource.ResourceWithConfigValidators = &Resource{}
 
 func New() resource.Resource {
 	return &Resource{}
@@ -299,6 +300,12 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 			DoResp(r.client.Domain().DeleteCertificateRequest(ctx, domainclientv2.DeleteCertificateRequestRequest{
 				CertificateRequestID: data.CertificateRequestID.ValueString(),
 			}))
+	}
+}
+
+func (r *Resource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		certImportFieldsValidator{},
 	}
 }
 
