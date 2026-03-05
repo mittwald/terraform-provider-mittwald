@@ -46,9 +46,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"1. **DNS validation** (for wildcard certificates like `*.foobar.example`): " +
 			"provide only `common_name` and `project_id`. The certificate is requested " +
 			"using DNS validation and provisioned automatically.\n\n" +
-			"2. **Certificate import**: provide `certificate`, `private_key_wo`, " +
-			"`private_key_wo_version`, and `common_name`. An existing PEM-encoded " +
-			"certificate and private key are imported.\n\n" +
+			"2. **Certificate import**: provide `certificate`, `private_key_wo`, and " +
+			"`private_key_wo_version`. An existing PEM-encoded certificate and private " +
+			"key are imported, and `common_name` is derived automatically from the " +
+			"imported certificate.\n\n" +
 			"After the certificate is provisioned, it is used automatically by any " +
 			"`mittwald_virtualhost` resource in the same project. Use `depends_on` to ensure " +
 			"the certificate is ready before creating the virtual host.",
