@@ -166,7 +166,73 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	resp.Diagnostics.Append(r.readCertificateByRequestID(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if data.ID.IsNull() {
+		resp.Diagnostics.AddError(
+			"Certificate not found after request completion",
+			fmt.Sprintf("No certificate could be found for certificate request %s after it completed.", createRes.Id),
+		)
+		return
+	}
+
+	// For DNS-validated certificates, also poll until the certificate itself is in the "ready" state.
+	resp.Diagnostics.Append(r.waitForCertificateReady(pollCtx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+// waitForCertificateReady polls the certificate until its DNS status is "ready".
+// For imported certificates (which have no DnsCertSpec), this is a no-op.
+func (r *Resource) waitForCertificateReady(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	cert, err := apiutils.Poll(ctx, apiutils.PollOpts{
+		InitialDelay:  5 * time.Second,
+		MaxDelay:      30 * time.Second,
+		BackoffFactor: 1.5,
+	}, func(ctx context.Context, certID string) (*sslv2.Certificate, error) {
+		c, _, err := r.client.Domain().GetCertificate(ctx, domainclientv2.GetCertificateRequest{
+			CertificateID: certID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		if c.DnsCertSpec == nil || c.DnsCertSpec.Status == nil {
+			// No DNS cert spec (e.g. imported certificate) — nothing to wait for.
+			return c, nil
+		}
+
+		switch c.DnsCertSpec.Status.Status {
+		case sslv2.ProjectCertificateStatusReady:
+			return c, nil
+		case sslv2.ProjectCertificateStatusError, sslv2.ProjectCertificateStatusCnameError:
+			msg := string(c.DnsCertSpec.Status.Status)
+			if c.DnsCertSpec.Status.Message != nil {
+				msg = *c.DnsCertSpec.Status.Message
+			}
+			return nil, fmt.Errorf("certificate entered error state %q: %s", c.DnsCertSpec.Status.Status, msg)
+		default:
+			return nil, apiutils.ErrPollShouldRetry
+		}
+	}, data.ID.ValueString())
+
+	if err != nil {
+		res.AddError(
+			"Error waiting for certificate to become ready",
+			fmt.Sprintf("Certificate %s did not reach ready state in time: %s", data.ID.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	if cert != nil {
+		data.FromCertificate(cert)
+	}
+	return
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
