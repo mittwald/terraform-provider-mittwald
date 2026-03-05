@@ -1,8 +1,3 @@
-variable "project_id" {
-  type        = string
-  description = "The ID of the mittwald project"
-}
-
 # Create a wildcard TLS certificate using DNS validation.
 # This is required for wildcard domains (e.g. *.foobar.example) since
 # wildcard certificates cannot be created implicitly with a virtual host.

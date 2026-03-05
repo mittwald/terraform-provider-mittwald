@@ -1,8 +1,3 @@
-variable "project_id" {
-  type        = string
-  description = "The ID of the mittwald project"
-}
-
 # Import a pre-existing PEM-encoded TLS certificate and private key.
 # This is useful when you already have a certificate (e.g. from your own CA or
 # a third-party certificate authority) and want to use it on mittwald.
