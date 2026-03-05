@@ -7,7 +7,7 @@ description: |-
   Certificates can be created in two ways:
   
   DNS validation (for wildcard certificates like *.foobar.example): provide only common_name and project_id. The certificate is requested using DNS validation and provisioned automatically.
-  Certificate import: provide certificate, private_key_wo, private_key_wo_version, and common_name. An existing PEM-encoded certificate and private key are imported.
+  Certificate import: provide certificate, private_key_wo, and private_key_wo_version. An existing PEM-encoded certificate and private key are imported, and common_name is derived automatically from the imported certificate.
   After the certificate is provisioned, it is used automatically by any mittwald_virtualhost resource in the same project. Use depends_on to ensure the certificate is ready before creating the virtual host.
 ---
 
@@ -19,24 +19,19 @@ Certificates can be created in two ways:
 
 1. **DNS validation** (for wildcard certificates like `*.foobar.example`): provide only `common_name` and `project_id`. The certificate is requested using DNS validation and provisioned automatically.
 
-2. **Certificate import**: provide `certificate`, `private_key_wo`, `private_key_wo_version`, and `common_name`. An existing PEM-encoded certificate and private key are imported.
+2. **Certificate import**: provide `certificate`, `private_key_wo`, and `private_key_wo_version`. An existing PEM-encoded certificate and private key are imported, and `common_name` is derived automatically from the imported certificate.
 
 After the certificate is provisioned, it is used automatically by any `mittwald_virtualhost` resource in the same project. Use `depends_on` to ensure the certificate is ready before creating the virtual host.
 
 ## Example Usage
 
 ```terraform
-variable "project_id" {
-  type        = string
-  description = "The ID of the mittwald project"
-}
-
 # Create a wildcard TLS certificate using DNS validation.
 # This is required for wildcard domains (e.g. *.foobar.example) since
 # wildcard certificates cannot be created implicitly with a virtual host.
 resource "mittwald_tls_certificate" "wildcard_example" {
   project_id  = var.project_id
-  common_name = "*.foobar.example"
+  common_name = "*.test1.mittwald.fun"
 }
 
 # The virtual host will automatically use the wildcard certificate once
@@ -44,52 +39,13 @@ resource "mittwald_tls_certificate" "wildcard_example" {
 # certificate is ready before the virtual host is created.
 resource "mittwald_virtualhost" "example" {
   project_id = var.project_id
-  hostname   = "app.foobar.example"
+  hostname   = "foo.test1.mittwald.fun"
 
   paths = {
     "/" = {}
   }
 
   depends_on = [mittwald_tls_certificate.wildcard_example]
-}
-```
-
-```terraform
-variable "project_id" {
-  type        = string
-  description = "The ID of the mittwald project"
-}
-
-# Import a pre-existing PEM-encoded TLS certificate and private key.
-# This is useful when you already have a certificate (e.g. from your own CA or
-# a third-party certificate authority) and want to use it on mittwald.
-#
-# Note: common_name is optional for certificate import; when omitted it is
-# derived automatically from the certificate's CN.
-resource "mittwald_tls_certificate" "imported" {
-  project_id = var.project_id
-
-  # PEM-encoded certificate (can be read from a file)
-  certificate = file("${path.module}/cert.pem")
-
-  # The private key is a write-only attribute. To trigger an in-place renewal,
-  # update the certificate and increment private_key_wo_version.
-  private_key_wo         = file("${path.module}/key.pem")
-  private_key_wo_version = 1
-}
-
-# The virtual host will automatically use the imported certificate.
-# Use depends_on to ensure the certificate is ready before the virtual host
-# is created.
-resource "mittwald_virtualhost" "example" {
-  project_id = var.project_id
-  hostname   = "foo.example"
-
-  paths = {
-    "/" = {}
-  }
-
-  depends_on = [mittwald_tls_certificate.imported]
 }
 ```
 
