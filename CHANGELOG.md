@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.7.1...v1.7.2) (2026-03-05)
+
+
+### Bug Fixes
+
+* **project:** poll for default IPs after project creation ([#341](https://github.com/mittwald/terraform-provider-mittwald/issues/341)) ([f4024a0](https://github.com/mittwald/terraform-provider-mittwald/commit/f4024a08106728fa846417c8f1b109bb8fc8f2a3)), closes [#339](https://github.com/mittwald/terraform-provider-mittwald/issues/339)
+
 ## [1.7.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.7.0...v1.7.1) (2026-02-23)
 
 
