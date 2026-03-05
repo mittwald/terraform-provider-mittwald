@@ -67,5 +67,7 @@ func (m *ResourceModel) FromCertificate(cert *sslv2.Certificate) {
 
 	if cert.CommonName != nil {
 		m.CommonName = types.StringValue(*cert.CommonName)
+	} else {
+		m.CommonName = types.StringNull()
 	}
 }
