@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.7.2...v1.8.0) (2026-03-06)
+
+
+### Features
+
+* **tls_certificate:** add `mittwald_tls_certificate` resource ([#343](https://github.com/mittwald/terraform-provider-mittwald/issues/343)) ([e9f1b81](https://github.com/mittwald/terraform-provider-mittwald/commit/e9f1b81e88271255d83e8a874447e827c35c57ca)), closes [#340_](https://github.com/mittwald/terraform-provider-mittwald/issues/340_) [mittwald/terraform-provider-mittwald#342](https://github.com/mittwald/terraform-provider-mittwald/issues/342)
+
 ## [1.7.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.7.1...v1.7.2) (2026-03-05)
 
 
