@@ -94,8 +94,8 @@ func (r *Resource) ValidateConfig(ctx context.Context, req resource.ValidateConf
 		return
 	}
 
-	customerIDSet := !data.CustomerID.IsNull() && !data.CustomerID.IsUnknown()
-	projectIDSet := !data.ProjectID.IsNull() && !data.ProjectID.IsUnknown()
+	customerIDSet := !data.CustomerID.IsNull()
+	projectIDSet := !data.ProjectID.IsNull()
 
 	if !customerIDSet && !projectIDSet {
 		resp.Diagnostics.AddAttributeError(
@@ -120,7 +120,8 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 	}
 
 	customerIDIsNullOrUnknown := data.CustomerID.IsNull() || data.CustomerID.IsUnknown()
-	if customerIDIsNullOrUnknown && !data.ProjectID.IsNull() {
+	projectIDIsNullOrUnknown := data.ProjectID.IsNull() || data.ProjectID.IsUnknown()
+	if customerIDIsNullOrUnknown && !projectIDIsNullOrUnknown {
 		project, err := r.getProject(ctx, data.ProjectID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddAttributeError(path.Root("project_id"), "Error retrieving project", fmt.Sprintf("Error retrieving project with ID %s: %s", data.ProjectID.ValueString(), err.Error()))
