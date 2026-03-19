@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.0...v1.8.1) (2026-03-19)
+
+
+### Bug Fixes
+
+* **ai_api_key:** allow unknown customer_id and/or project_id ([#356](https://github.com/mittwald/terraform-provider-mittwald/issues/356)) ([bdcb0e7](https://github.com/mittwald/terraform-provider-mittwald/commit/bdcb0e75e35ede570e6e382bb233863a2ad8cc5e))
+
 # [1.8.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.7.2...v1.8.0) (2026-03-06)
 
 
