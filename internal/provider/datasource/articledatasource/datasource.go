@@ -128,8 +128,15 @@ func (d *ArticleDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	var selectModel DataSourceSelectModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-	resp.Diagnostics.Append(data.Filter.As(ctx, &filter, basetypes.ObjectAsOptions{})...)
-	resp.Diagnostics.Append(data.Select.As(ctx, &selectModel, basetypes.ObjectAsOptions{})...)
+
+	if !data.Filter.IsNull() {
+		resp.Diagnostics.Append(data.Filter.As(ctx, &filter, basetypes.ObjectAsOptions{})...)
+	}
+
+	if !data.Select.IsNull() {
+		resp.Diagnostics.Append(data.Select.As(ctx, &selectModel, basetypes.ObjectAsOptions{})...)
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
