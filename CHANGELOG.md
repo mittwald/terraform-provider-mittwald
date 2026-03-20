@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.1...v1.8.2) (2026-03-20)
+
+
+### Bug Fixes
+
+* **article:** handle null filter and select objects ([#357](https://github.com/mittwald/terraform-provider-mittwald/issues/357)) ([477b84f](https://github.com/mittwald/terraform-provider-mittwald/commit/477b84fb77e4b7ab559f3faeb59a578643a71184))
+
 ## [1.8.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.0...v1.8.1) (2026-03-19)
 
 
