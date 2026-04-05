@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -53,6 +54,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"default": schema.BoolAttribute{
 				MarkdownDescription: "Describes if this vhost is the project's default virtual host. The default virtual host will never be deleted. If you attempt to delete this resource via terraform, it will simply revert to an unmanaged state.",
 				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"paths": schema.MapNestedAttribute{
 				Description: "The desired paths for the virtualhost.",
@@ -134,13 +138,43 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		}
 
 		data.ID = types.StringValue(ingress.Id)
+
+		// The CreateIngress API does not process paths; it always creates the
+		// ingress with useDefaultPage. We need to explicitly set the paths via
+		// a separate UpdateIngressPaths call.
+		body := data.ToUpdateRequest(ctx, &resp.Diagnostics, &ResourceModel{})
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		providerutil.
+			Try[any](&resp.Diagnostics, "API error while setting virtual host paths").
+			DoResp(r.client.Domain().UpdateIngressPaths(ctx, body))
 	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	readDiags := r.read(ctx, &data)
+	if readDiags.HasError() {
+		// The ingress was created successfully, but reading it back failed
+		// (e.g. due to eventual consistency or permission propagation delays).
+		// Log a warning instead of failing, so that the state is still saved
+		// with the known values. A subsequent plan/apply or refresh will
+		// reconcile the state.
+		for _, d := range readDiags {
+			if d.Severity() == diag.SeverityError {
+				resp.Diagnostics.AddWarning(d.Summary(), d.Detail())
+			} else {
+				resp.Diagnostics.Append(d)
+			}
+		}
+		// Set default to false as a safe fallback when we cannot read it back.
+		if data.Default.IsUnknown() {
+			data.Default = types.BoolValue(false)
+		}
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
