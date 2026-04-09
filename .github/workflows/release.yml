@@ -25,6 +25,10 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      - name: Install syft
+        run: |
+          wget https://github.com/anchore/syft/releases/download/v1.42.4/syft_1.42.4_linux_amd64.deb
+          sudo dpkg -i syft_1.42.4_linux_amd64.deb
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@82a020f1f7f605c65dd2449b392a52c3fcfef7ef # v6.0.0
         id: import_gpg

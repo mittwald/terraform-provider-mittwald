@@ -22,6 +22,10 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      - name: Install syft
+        run: |
+          wget https://github.com/anchore/syft/releases/download/v1.42.4/syft_1.42.4_linux_amd64.deb
+          sudo dpkg -i syft_1.42.4_linux_amd64.deb
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8 # v5.0.0
         with:
