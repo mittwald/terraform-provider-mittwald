@@ -26,6 +26,7 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - name: Install syft
+        working-directory: /tmp
         run: |
           wget https://github.com/anchore/syft/releases/download/v1.42.4/syft_1.42.4_linux_amd64.deb
           sudo dpkg -i syft_1.42.4_linux_amd64.deb
