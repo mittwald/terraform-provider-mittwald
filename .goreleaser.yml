@@ -58,3 +58,8 @@ release:
   # draft: true
 changelog:
   skip: true
+sboms:
+  - id: default
+    disable: false
+    documents:
+      - "${artifact}.spdx.json"
