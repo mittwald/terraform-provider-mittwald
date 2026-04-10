@@ -68,11 +68,8 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	scheduleRequest := planData.ToUpdateScheduleRequest(ctx, &resp.Diagnostics)
 	if !resp.Diagnostics.HasError() && scheduleRequest != nil {
-		// Only call the API if the schedule was set or changed (including removal)
-		if !planData.UpdateSchedule.IsNull() || !stateData.UpdateSchedule.IsNull() {
-			providerutil.Try[any](&resp.Diagnostics, "API error while setting update schedule").
-				DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
-		}
+		providerutil.Try[any](&resp.Diagnostics, "API error while setting update schedule").
+			DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData, &planData)...)
