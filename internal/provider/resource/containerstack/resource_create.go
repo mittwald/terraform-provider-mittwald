@@ -65,6 +65,8 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, nil))
 
 	data.ID = types.StringValue(stack.Id)
+
+	r.applyUpdateSchedule(ctx, data, resp)
 }
 
 func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStackModel, resp *resource.CreateResponse) {
@@ -97,4 +99,23 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 
 	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, data.ContainerNames()))
+
+	r.applyUpdateSchedule(ctx, data, resp)
+}
+
+// applyUpdateSchedule calls SetStackUpdateSchedule to set or unset the update
+// schedule for the stack. If the update_schedule attribute is null, the
+// schedule is unset (by passing updateSchedule: null).
+func (r *Resource) applyUpdateSchedule(ctx context.Context, data *ContainerStackModel, resp *resource.CreateResponse) {
+	if data.UpdateSchedule.IsNull() || data.UpdateSchedule.IsUnknown() {
+		return
+	}
+
+	scheduleRequest := data.ToUpdateScheduleRequest(ctx, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() || scheduleRequest == nil {
+		return
+	}
+
+	providerutil.Try[any](&resp.Diagnostics, "API error while setting update schedule").
+		DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
 }

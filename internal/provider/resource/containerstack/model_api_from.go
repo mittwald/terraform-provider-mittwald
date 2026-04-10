@@ -91,6 +91,22 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	m.Containers = containers
 	m.Volumes = volumes
 
+	if apiModel.UpdateSchedule != nil {
+		scheduleModel := UpdateScheduleModel{
+			Cron:     types.StringValue(apiModel.UpdateSchedule.Cron),
+			Timezone: types.StringNull(),
+		}
+		if apiModel.UpdateSchedule.Timezone != nil {
+			scheduleModel.Timezone = types.StringValue(*apiModel.UpdateSchedule.Timezone)
+		}
+
+		scheduleObj, diags := types.ObjectValueFrom(ctx, updateScheduleModelType.AttrTypes, scheduleModel)
+		res.Append(diags...)
+		m.UpdateSchedule = scheduleObj
+	} else {
+		m.UpdateSchedule = types.ObjectNull(updateScheduleModelType.AttrTypes)
+	}
+
 	return res
 }
 
@@ -134,6 +150,13 @@ var containerLimitsModelType = types.ObjectType{
 
 var volumeModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{},
+}
+
+var updateScheduleModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"cron":     types.StringType,
+		"timezone": types.StringType,
+	},
 }
 
 func convertStringMapToMap(m map[string]string) types.Map {
