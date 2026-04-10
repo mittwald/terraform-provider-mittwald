@@ -39,8 +39,8 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 		Description: m.Description.ValueString(),
 		Active:      true,
 		Interval:    m.Interval.ValueString(),
-		AppId:       m.AppID.ValueString(),
-		Destination: cronjobv2.CronjobRequestDestination{},
+		AppId:       m.AppID.ValueStringPointer(),
+		Destination: &cronjobv2.CronjobRequestDestination{},
 	}
 
 	dest := m.GetDestination(ctx, d)
