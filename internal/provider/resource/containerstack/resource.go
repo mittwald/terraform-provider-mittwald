@@ -207,7 +207,7 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					},
 					"timezone": schema.StringAttribute{
 						Optional:            true,
-						MarkdownDescription: "The timezone to use for the cron expression. Valid timezones can be retrieved via the mittwald API. Defaults to UTC if not set.",
+						MarkdownDescription: "The timezone to use for the cron expression. Valid timezones can be retrieved via the [mittwald API](https://developer.mittwald.de/docs/v2/reference/misc/miscellaneous-list-time-zones/). Defaults to UTC if not set.",
 					},
 				},
 			},

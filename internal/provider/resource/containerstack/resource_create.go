@@ -67,7 +67,9 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 
 	data.ID = types.StringValue(stack.Id)
 
-	r.applyUpdateSchedule(ctx, data, &resp.Diagnostics)
+	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
+		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
+	}
 }
 
 func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStackModel, resp *resource.CreateResponse) {
@@ -101,17 +103,15 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, data.ContainerNames()))
 
-	r.applyUpdateSchedule(ctx, data, &resp.Diagnostics)
+	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
+		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
+	}
 }
 
-// applyUpdateSchedule calls SetStackUpdateSchedule to set or unset the update
-// schedule for the stack. If the update_schedule attribute is null, the
-// schedule is unset (by passing updateSchedule: null).
-func (r *Resource) applyUpdateSchedule(ctx context.Context, data *ContainerStackModel, d *diag.Diagnostics) {
-	if data.UpdateSchedule.IsNull() || data.UpdateSchedule.IsUnknown() {
-		return
-	}
-
+// reconcileUpdateSchedule calls SetStackUpdateSchedule to set or unset the
+// update schedule for the stack. When update_schedule is null, an empty body
+// is sent to unset any previously configured schedule.
+func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerStackModel, d *diag.Diagnostics) {
 	scheduleRequest := data.ToUpdateScheduleRequest(ctx, d)
 	if d.HasError() || scheduleRequest == nil {
 		return

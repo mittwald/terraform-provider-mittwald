@@ -66,10 +66,8 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, planData.ContainerNames()))
 
-	scheduleRequest := planData.ToUpdateScheduleRequest(ctx, &resp.Diagnostics)
-	if !resp.Diagnostics.HasError() && scheduleRequest != nil {
-		providerutil.Try[any](&resp.Diagnostics, "API error while setting update schedule").
-			DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
+	if !planData.UpdateSchedule.Equal(stateData.UpdateSchedule) {
+		r.reconcileUpdateSchedule(ctx, &planData, &resp.Diagnostics)
 	}
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData, &planData)...)

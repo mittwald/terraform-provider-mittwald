@@ -189,7 +189,7 @@ Required:
 
 Optional:
 
-- `timezone` (String) The timezone to use for the cron expression. Valid timezones can be retrieved via the mittwald API. Defaults to UTC if not set.
+- `timezone` (String) The timezone to use for the cron expression. Valid timezones can be retrieved via the [mittwald API](https://developer.mittwald.de/docs/v2/reference/misc/miscellaneous-list-time-zones/). Defaults to UTC if not set.
 
 
 <a id="nestedatt--volumes"></a>
