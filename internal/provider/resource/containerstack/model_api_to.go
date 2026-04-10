@@ -168,7 +168,8 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 	return req
 }
 
-func (m *ContainerStackModel) ContainerNames() []string {	var names []string
+func (m *ContainerStackModel) ContainerNames() []string {
+	var names []string
 	if m.Containers.IsNull() || m.Containers.IsUnknown() {
 		return names
 	}
