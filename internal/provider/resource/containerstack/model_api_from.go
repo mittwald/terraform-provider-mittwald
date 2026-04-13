@@ -21,24 +21,46 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.DefaultStack = types.BoolValue(apiModel.Description == "default")
 
-	// Convert Services to Containers using pendingState
-	containerMap := make(map[string]attr.Value)
-	for _, service := range apiModel.Services {
-		state := service.PendingState
+	containerMap, diags := fromAPIContainers(ctx, apiModel, plan, m.DefaultStack.ValueBool(), disregardUnknown)
+	res.Append(diags...)
 
+	volumeMap, diags := fromAPIVolumes(ctx, apiModel, plan, m.DefaultStack.ValueBool(), disregardUnknown)
+	res.Append(diags...)
+
+	containers, mapContainersRes := types.MapValue(containerModelType, containerMap)
+	res.Append(mapContainersRes...)
+
+	volumes, mapVolumesRes := types.MapValue(volumeModelType, volumeMap)
+	res.Append(mapVolumesRes...)
+
+	m.Containers = containers
+	m.Volumes = volumes
+	m.UpdateSchedule, diags = fromAPIUpdateSchedule(ctx, apiModel)
+	res.Append(diags...)
+
+	return res
+}
+
+// fromAPIContainers converts the API services list into a map of Terraform container values.
+func fromAPIContainers(ctx context.Context, apiModel *containerv2.StackResponse, plan *ContainerStackModel, isDefault, disregardUnknown bool) (map[string]attr.Value, diag.Diagnostics) {
+	var res diag.Diagnostics
+	containerMap := make(map[string]attr.Value)
+
+	for _, service := range apiModel.Services {
 		// Normalize image name by removing the "library/" prefix. For the Plan,
 		// the same thing is achieved by the StripLibraryPrefixFromImage modifier.
-		image := strings.TrimPrefix(state.Image, "library/")
+		image := strings.TrimPrefix(service.PendingState.Image, "library/")
 
 		_, hasExisting := plan.Containers.Elements()[service.ServiceName]
 
 		// Disregard unmanaged containers in the default stack; these might be
 		// managed by other means (e.g. Docker Compose, or another Terraform resource).
-		if !hasExisting && m.DefaultStack.ValueBool() && disregardUnknown {
+		if !hasExisting && isDefault && disregardUnknown {
 			tflog.Debug(ctx, "disregarding unmanaged container in default stack", map[string]any{"name": service.ServiceName})
 			continue
 		}
 
+		state := service.PendingState
 		container := ContainerModel{
 			ID:          types.StringValue(service.Id),
 			Image:       types.StringValue(image),
@@ -60,19 +82,23 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 		containerMap[service.ServiceName] = containerVal
 	}
 
-	// Convert Volumes
+	return containerMap, res
+}
+
+// fromAPIVolumes converts the API volumes list into a map of Terraform volume values.
+func fromAPIVolumes(ctx context.Context, apiModel *containerv2.StackResponse, plan *ContainerStackModel, isDefault, disregardUnknown bool) (map[string]attr.Value, diag.Diagnostics) {
+	var res diag.Diagnostics
 	volumeMap := make(map[string]attr.Value)
+
 	for _, volume := range apiModel.Volumes {
 		_, hasExisting := plan.Volumes.Elements()[volume.Name]
 
-		if !hasExisting && m.DefaultStack.ValueBool() && disregardUnknown {
+		if !hasExisting && isDefault && disregardUnknown {
 			tflog.Debug(ctx, "disregarding unmanaged volume in default stack", map[string]any{"name": volume.Name})
 			continue
 		}
 
-		volumeModel := VolumeModel{}
-
-		volumeVal, diags := types.ObjectValueFrom(ctx, volumeModelType.AttrTypes, volumeModel)
+		volumeVal, diags := types.ObjectValueFrom(ctx, volumeModelType.AttrTypes, VolumeModel{})
 		res.Append(diags...)
 		if diags.HasError() {
 			continue
@@ -81,33 +107,24 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 		volumeMap[volume.Name] = volumeVal
 	}
 
-	// Assign transformed values
-	containers, mapContainersRes := types.MapValue(containerModelType, containerMap)
-	res.Append(mapContainersRes...)
+	return volumeMap, res
+}
 
-	volumes, mapVolumesRes := types.MapValue(volumeModelType, volumeMap)
-	res.Append(mapVolumesRes...)
-
-	m.Containers = containers
-	m.Volumes = volumes
-
-	if apiModel.UpdateSchedule != nil {
-		scheduleModel := UpdateScheduleModel{
-			Cron:     types.StringValue(apiModel.UpdateSchedule.Cron),
-			Timezone: types.StringNull(),
-		}
-		if apiModel.UpdateSchedule.Timezone != nil {
-			scheduleModel.Timezone = types.StringValue(*apiModel.UpdateSchedule.Timezone)
-		}
-
-		scheduleObj, diags := types.ObjectValueFrom(ctx, updateScheduleModelType.AttrTypes, scheduleModel)
-		res.Append(diags...)
-		m.UpdateSchedule = scheduleObj
-	} else {
-		m.UpdateSchedule = types.ObjectNull(updateScheduleModelType.AttrTypes)
+// fromAPIUpdateSchedule converts the API update schedule into a Terraform object value.
+func fromAPIUpdateSchedule(ctx context.Context, apiModel *containerv2.StackResponse) (types.Object, diag.Diagnostics) {
+	if apiModel.UpdateSchedule == nil {
+		return types.ObjectNull(updateScheduleModelType.AttrTypes), nil
 	}
 
-	return res
+	scheduleModel := UpdateScheduleModel{
+		Cron:     types.StringValue(apiModel.UpdateSchedule.Cron),
+		Timezone: types.StringNull(),
+	}
+	if apiModel.UpdateSchedule.Timezone != nil {
+		scheduleModel.Timezone = types.StringValue(*apiModel.UpdateSchedule.Timezone)
+	}
+
+	return types.ObjectValueFrom(ctx, updateScheduleModelType.AttrTypes, scheduleModel)
 }
 
 var containerModelType = types.ObjectType{

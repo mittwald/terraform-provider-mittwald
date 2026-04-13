@@ -145,26 +145,27 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 		StackID: m.ID.ValueString(),
 	}
 
-	if !m.UpdateSchedule.IsNull() && !m.UpdateSchedule.IsUnknown() {
-		var scheduleModel UpdateScheduleModel
-		diags := m.UpdateSchedule.As(ctx, &scheduleModel, basetypes.ObjectAsOptions{})
-		if diags.HasError() {
-			d.Append(diags...)
-			return nil
-		}
-
-		schedule := &containerclientv2.SetStackUpdateScheduleRequestBodyUpdateSchedule{
-			Cron: scheduleModel.Cron.ValueString(),
-		}
-
-		if !scheduleModel.Timezone.IsNull() && !scheduleModel.Timezone.IsUnknown() {
-			tz := scheduleModel.Timezone.ValueString()
-			schedule.Timezone = &tz
-		}
-
-		req.Body.UpdateSchedule = schedule
+	if m.UpdateSchedule.IsNull() || m.UpdateSchedule.IsUnknown() {
+		return req
 	}
 
+	var scheduleModel UpdateScheduleModel
+	diags := m.UpdateSchedule.As(ctx, &scheduleModel, basetypes.ObjectAsOptions{})
+	if diags.HasError() {
+		d.Append(diags...)
+		return nil
+	}
+
+	schedule := &containerclientv2.SetStackUpdateScheduleRequestBodyUpdateSchedule{
+		Cron: scheduleModel.Cron.ValueString(),
+	}
+
+	if !scheduleModel.Timezone.IsNull() && !scheduleModel.Timezone.IsUnknown() {
+		tz := scheduleModel.Timezone.ValueString()
+		schedule.Timezone = &tz
+	}
+
+	req.Body.UpdateSchedule = schedule
 	return req
 }
 
