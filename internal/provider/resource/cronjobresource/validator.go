@@ -46,7 +46,12 @@ func (c *cronjobDestinationValidator) ValidateObject(ctx context.Context, reques
 	}
 
 	if count != 1 {
-		response.Diagnostics.AddAttributeError(request.Path, "Invalid cronjob destination", "Exactly one of `url`, `command`, or `container_command` must be set.")
+		if count == 0 {
+			response.Diagnostics.AddAttributeError(request.Path, "Missing cronjob destination", "One of `destination.url`, `destination.command`, or `destination.container_command` must be set.")
+			return
+		}
+
+		response.Diagnostics.AddAttributeError(request.Path, "Multiple cronjob destinations configured", "Only one of `destination.url`, `destination.command`, or `destination.container_command` can be set.")
 	}
 }
 

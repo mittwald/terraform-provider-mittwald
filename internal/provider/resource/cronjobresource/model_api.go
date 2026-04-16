@@ -208,6 +208,11 @@ func renderContainerCommand(ctx context.Context, d *diag.Diagnostics, commandLis
 func destinationFromContainerCommand(ctx context.Context, d *diag.Diagnostics, command string) types.Object {
 	commandParts, err := splitShellCommand(command)
 	if err != nil {
+		d.AddWarning(
+			"Could not parse container command from API response",
+			fmt.Sprintf("The command %q could not be split into individual arguments (%s). The full command is kept as a single list element.", command, err),
+		)
+		// Keep provider state stable even for unexpected command strings returned by the API.
 		commandParts = []string{command}
 	}
 
@@ -294,8 +299,14 @@ func splitShellCommand(input string) ([]string, error) {
 		}
 	}
 
-	if escapeActive || inSingle || inDouble {
-		return nil, fmt.Errorf("invalid shell command")
+	if escapeActive {
+		return nil, fmt.Errorf("invalid shell command: trailing escape")
+	}
+	if inSingle {
+		return nil, fmt.Errorf("invalid shell command: unclosed single quote")
+	}
+	if inDouble {
+		return nil, fmt.Errorf("invalid shell command: unclosed double quote")
 	}
 
 	flush()
