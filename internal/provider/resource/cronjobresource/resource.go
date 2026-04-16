@@ -6,6 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/cronjobclientv2"
@@ -17,6 +20,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &Resource{}
 var _ resource.ResourceWithImportState = &Resource{}
+var _ resource.ResourceWithConfigValidators = &Resource{}
 
 func New() resource.Resource {
 	return &Resource{}
@@ -38,7 +42,8 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 		Attributes: map[string]schema.Attribute{
 			"id":          builder.Id(),
 			"project_id":  builder.ProjectId(),
-			"app_id":      builder.AppId(),
+			"app_id":      modelAppIDSchema,
+			"container":   modelContainerSchema,
 			"description": builder.Description(),
 			"destination": modelDestinationSchema,
 			"interval": schema.StringAttribute{
@@ -55,6 +60,17 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			},
 		},
 	}
+}
+
+var modelAppIDSchema = schema.StringAttribute{
+	MarkdownDescription: "The ID of the app the cronjob belongs to. Must be a full UUID (not a short ID like a-XXXXXX). This must be used together with `destination.url` or `destination.command`.",
+	Optional:            true,
+	Validators: []validator.String{
+		&common.UUIDValidator{},
+	},
+	PlanModifiers: []planmodifier.String{
+		stringplanmodifier.RequiresReplace(),
+	},
 }
 
 func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -139,4 +155,10 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func (r *Resource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		cronjobTargetDestinationValidator{},
+	}
 }
