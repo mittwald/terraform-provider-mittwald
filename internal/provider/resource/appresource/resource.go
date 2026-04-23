@@ -208,7 +208,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	data.ID = types.StringValue(installation.Id)
 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
-	try.Do(appClient.UpdateAppinstallation(ctx, installation.Id, appUpdaters...))
+	try.Do(appClient.UpdateAppinstallationWithRetry(ctx, installation.Id, appUpdaters...))
 
 	for _, database := range databases {
 		try.DoResp(appClient.LinkDatabase(
