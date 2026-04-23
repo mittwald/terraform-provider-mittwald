@@ -15,18 +15,18 @@ This resource models a cron job.
 ```terraform
 resource "mittwald_cronjob" "demo" {
   project_id = mittwald_project.foobar.id
-  app_id     = mittwald_app.wordpress.id
+
+  container = {
+    stack_id   = mittwald_container_stack.example.id
+    service_id = "nginx"
+  }
 
   interval    = "*/5 * * * *"
   description = "Demo Cronjob"
   timezone    = "Europe/Berlin"
 
   destination = {
-    command = {
-      interpreter = "/usr/bin/php"
-      path        = "/html/cronjob.php"
-      parameters  = ["-r", "echo 'Hello World';"]
-    }
+    container_command = ["echo", "Hello World"]
   }
 }
 ```
@@ -36,14 +36,15 @@ resource "mittwald_cronjob" "demo" {
 
 ### Required
 
-- `app_id` (String) The ID of the app the cronjob belongs to. Must be a full UUID (not a short ID like a-XXXXXX).
 - `description` (String) Description for your cronjob
-- `destination` (Attributes) Models the action to be executed by the cron job. Exactly one of `url` or `command` must be set. (see [below for nested schema](#nestedatt--destination))
+- `destination` (Attributes) Models the action to be executed by the cron job. Exactly one of `url`, `command`, or `container_command` must be set. (see [below for nested schema](#nestedatt--destination))
 - `interval` (String) The interval of the cron job; this should be a cron expression
 - `project_id` (String) The ID of the project the cronjob belongs to. Must be a full UUID (not a short ID like p-XXXXXX).
 
 ### Optional
 
+- `app_id` (String) The ID of the app the cronjob belongs to. Must be a full UUID (not a short ID like a-XXXXXX). This must be used together with `destination.url` or `destination.command`.
+- `container` (Attributes) Container target for this cronjob. This must be used together with `destination.container_command`. (see [below for nested schema](#nestedatt--container))
 - `email` (String) The email address to send the cron job's output to
 - `timezone` (String) The timezone to use for the cron job execution schedule (e.g., `Europe/Berlin`, `America/New_York`)
 
@@ -57,6 +58,7 @@ resource "mittwald_cronjob" "demo" {
 Optional:
 
 - `command` (Attributes) (see [below for nested schema](#nestedatt--destination--command))
+- `container_command` (List of String) Command and arguments to execute in a container service. This must be used together with `container`.
 - `url` (String) The URL that should be requested by the cron job
 
 <a id="nestedatt--destination--command"></a>
@@ -70,3 +72,13 @@ Required:
 Optional:
 
 - `parameters` (List of String) A list of parameters to pass to the command. Each parameter must be a valid string.
+
+
+
+<a id="nestedatt--container"></a>
+### Nested Schema for `container`
+
+Required:
+
+- `service_id` (String) The identifier of the service in the stack.
+- `stack_id` (String) The ID of the container stack.

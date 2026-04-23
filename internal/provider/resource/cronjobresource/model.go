@@ -11,10 +11,28 @@ import (
 	"strings"
 )
 
+var resourceDestinationCommandAttrTypes = map[string]attr.Type{
+	"interpreter": types.StringType,
+	"path":        types.StringType,
+	"parameters":  types.ListType{ElemType: types.StringType},
+}
+
+var resourceDestinationAttrTypes = map[string]attr.Type{
+	"url":               types.StringType,
+	"command":           types.ObjectType{AttrTypes: resourceDestinationCommandAttrTypes},
+	"container_command": types.ListType{ElemType: types.StringType},
+}
+
+var resourceContainerAttrTypes = map[string]attr.Type{
+	"stack_id":   types.StringType,
+	"service_id": types.StringType,
+}
+
 type ResourceModel struct {
 	ID          types.String `tfsdk:"id"`
 	ProjectID   types.String `tfsdk:"project_id"`
 	AppID       types.String `tfsdk:"app_id"`
+	Container   types.Object `tfsdk:"container"`
 	Description types.String `tfsdk:"description"`
 	Interval    types.String `tfsdk:"interval"`
 	Destination types.Object `tfsdk:"destination"`
@@ -23,8 +41,14 @@ type ResourceModel struct {
 }
 
 type ResourceDestinationModel struct {
-	URL     types.String `tfsdk:"url"`
-	Command types.Object `tfsdk:"command"`
+	URL              types.String `tfsdk:"url"`
+	Command          types.Object `tfsdk:"command"`
+	ContainerCommand types.List   `tfsdk:"container_command"`
+}
+
+type ResourceContainerModel struct {
+	StackID   types.String `tfsdk:"stack_id"`
+	ServiceID types.String `tfsdk:"service_id"`
 }
 
 type ResourceDestinationURLModel string
@@ -41,12 +65,22 @@ func (m *ResourceModel) GetDestination(ctx context.Context, d *diag.Diagnostics)
 	return &out
 }
 
+func (m *ResourceModel) GetContainer(ctx context.Context, d *diag.Diagnostics) (*ResourceContainerModel, bool) {
+	if m.Container.IsNull() || m.Container.IsUnknown() {
+		return nil, false
+	}
+
+	out := ResourceContainerModel{}
+	d.Append(m.Container.As(ctx, &out, basetypes.ObjectAsOptions{})...)
+	return &out, true
+}
+
 func (m *ResourceDestinationModel) GetURL(ctx context.Context, d *diag.Diagnostics) (ResourceDestinationURLModel, bool) {
 	if m == nil {
 		return "", false
 	}
 
-	if !m.URL.IsNull() {
+	if !m.URL.IsNull() && !m.URL.IsUnknown() {
 		return ResourceDestinationURLModel(m.URL.ValueString()), true
 	}
 
@@ -58,7 +92,7 @@ func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d *diag.Diagn
 		return nil, false
 	}
 
-	if !m.Command.IsNull() {
+	if !m.Command.IsNull() && !m.Command.IsUnknown() {
 		out := ResourceDestinationCommandModel{}
 		d.Append(m.Command.As(ctx, &out, basetypes.ObjectAsOptions{})...)
 		return &out, true
@@ -67,16 +101,23 @@ func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d *diag.Diagn
 	return nil, false
 }
 
+func (m *ResourceDestinationModel) GetContainerCommand(ctx context.Context, d *diag.Diagnostics) (types.List, bool) {
+	if m == nil {
+		return types.ListNull(types.StringType), false
+	}
+
+	if !m.ContainerCommand.IsNull() && !m.ContainerCommand.IsUnknown() {
+		return m.ContainerCommand, true
+	}
+
+	return types.ListNull(types.StringType), false
+}
+
 func (m *ResourceDestinationModel) AsObject(ctx context.Context, d *diag.Diagnostics) types.Object {
 	obj, d2 := types.ObjectValueFrom(ctx, map[string]attr.Type{
-		"url": types.StringType,
-		"command": types.ObjectType{
-			AttrTypes: map[string]attr.Type{
-				"interpreter": types.StringType,
-				"path":        types.StringType,
-				"parameters":  types.ListType{ElemType: types.StringType},
-			},
-		},
+		"url":               resourceDestinationAttrTypes["url"],
+		"command":           resourceDestinationAttrTypes["command"],
+		"container_command": resourceDestinationAttrTypes["container_command"],
 	}, m)
 
 	d.Append(d2...)
@@ -91,7 +132,9 @@ func (m ResourceDestinationURLModel) AsAPIModel() cronjobv2.CronjobUrl {
 
 func (m ResourceDestinationURLModel) AsDestinationModel() *ResourceDestinationModel {
 	return &ResourceDestinationModel{
-		URL: types.StringValue(string(m)),
+		URL:              types.StringValue(string(m)),
+		Command:          types.ObjectNull(resourceDestinationCommandAttrTypes),
+		ContainerCommand: types.ListNull(types.StringType),
 	}
 }
 
@@ -128,14 +171,16 @@ func (m *ResourceDestinationCommandModel) AsAPIModel() cronjobv2.CronjobCommand 
 
 func (m *ResourceDestinationCommandModel) AsDestinationModel(ctx context.Context, diag *diag.Diagnostics) *ResourceDestinationModel {
 	value, d := types.ObjectValueFrom(ctx, map[string]attr.Type{
-		"interpreter": types.StringType,
-		"path":        types.StringType,
-		"parameters":  types.ListType{ElemType: types.StringType},
+		"interpreter": resourceDestinationCommandAttrTypes["interpreter"],
+		"path":        resourceDestinationCommandAttrTypes["path"],
+		"parameters":  resourceDestinationCommandAttrTypes["parameters"],
 	}, m)
 
 	diag.Append(d...)
 
 	return &ResourceDestinationModel{
-		Command: value,
+		URL:              types.StringNull(),
+		Command:          value,
+		ContainerCommand: types.ListNull(types.StringType),
 	}
 }
