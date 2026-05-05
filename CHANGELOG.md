@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.3...v1.8.4) (2026-05-05)
+
+
+### Bug Fixes
+
+* **container_registry:** handle null credentials in container registry create request ([#381](https://github.com/mittwald/terraform-provider-mittwald/issues/381)) ([832935c](https://github.com/mittwald/terraform-provider-mittwald/commit/832935c8dfd26c88bd7b8a7dacbf9995d88e6eed))
+
 ## [1.8.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.1...v1.8.2) (2026-03-20)
 
 
