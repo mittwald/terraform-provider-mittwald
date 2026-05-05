@@ -17,6 +17,34 @@ var credentialsAttrTypes = map[string]attr.Type{
 	"password_wo_version": types.Int64Type,
 }
 
+func TestToCreateRequestWithoutCredentials(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	model := containerregistryresource.ContainerRegistryModel{
+		ProjectID:   types.StringValue("project-456"),
+		Description: types.StringValue("Test Registry"),
+		URI:         types.StringValue("registry.example.com"),
+		Credentials: types.ObjectNull(credentialsAttrTypes),
+	}
+
+	var diags diag.Diagnostics
+	password := types.StringNull()
+
+	req := model.ToCreateRequest(ctx, &diags, password)
+
+	// Ensure no errors occurred during conversion
+	g.Expect(diags.HasError()).To(BeFalse(), "expected no diagnostics errors")
+
+	// Validate request fields
+	g.Expect(req.ProjectID).To(Equal("project-456"))
+	g.Expect(req.Body.Description).To(Equal("Test Registry"))
+	g.Expect(req.Body.Uri).To(Equal("registry.example.com"))
+
+	// Validate that credentials are nil (public/unauthenticated registry)
+	g.Expect(req.Body.Credentials).To(BeNil(), "credentials should be nil for unauthenticated registry")
+}
+
 func TestToUpdateRequestWithoutCredentials(t *testing.T) {
 	g := NewWithT(t)
 	ctx := context.Background()

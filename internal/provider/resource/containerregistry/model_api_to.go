@@ -13,10 +13,6 @@ import (
 )
 
 func (m *ContainerRegistryModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics, password types.String) *containerclientv2.CreateRegistryRequest {
-	var credential ContainerRegistryCredentialsModel
-
-	d.Append(m.Credentials.As(ctx, &credential, basetypes.ObjectAsOptions{})...)
-
 	req := containerclientv2.CreateRegistryRequest{
 		ProjectID: m.ProjectID.ValueString(),
 		Body: containerv2.CreateRegistry{
@@ -26,9 +22,13 @@ func (m *ContainerRegistryModel) ToCreateRequest(ctx context.Context, d *diag.Di
 		},
 	}
 
-	tflog.Debug(ctx, "Creating registry credentials", map[string]interface{}{"credentials": credential})
-
 	if !m.Credentials.IsNull() {
+		var credential ContainerRegistryCredentialsModel
+
+		d.Append(m.Credentials.As(ctx, &credential, basetypes.ObjectAsOptions{})...)
+
+		tflog.Debug(ctx, "Creating registry credentials", map[string]interface{}{"credentials": credential})
+
 		if password.IsNull() || password.IsUnknown() {
 			d.AddAttributeError(
 				path.Root("credentials"),
