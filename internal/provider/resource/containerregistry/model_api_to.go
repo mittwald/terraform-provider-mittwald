@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 )
@@ -26,8 +25,6 @@ func (m *ContainerRegistryModel) ToCreateRequest(ctx context.Context, d *diag.Di
 		var credential ContainerRegistryCredentialsModel
 
 		d.Append(m.Credentials.As(ctx, &credential, basetypes.ObjectAsOptions{})...)
-
-		tflog.Debug(ctx, "Creating registry credentials", map[string]interface{}{"credentials": credential})
 
 		if password.IsNull() || password.IsUnknown() {
 			d.AddAttributeError(
