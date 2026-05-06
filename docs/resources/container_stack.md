@@ -77,11 +77,16 @@ resource "mittwald_container_stack" "nginx" {
   volumes = {
     example = {}
   }
+
+  update_schedule = {
+    cron     = "0 3 * * *"
+    timezone = "Europe/Berlin"
+  }
 }
 
 resource "mittwald_virtualhost" "nginx" {
-  hostname   = "${mittwald_project.test.short_id}.project.space"
-  project_id = mittwald_project.test.id
+  hostname   = "${mittwald_project.example.short_id}.project.space"
+  project_id = mittwald_project.example.id
 
   paths = {
     "/" = {
@@ -105,6 +110,7 @@ resource "mittwald_virtualhost" "nginx" {
 ### Optional
 
 - `default_stack` (Boolean) Set this flag to use the project's default stack. Otherwise, a new stack will be created.
+- `update_schedule` (Attributes) An optional schedule for automatically updating the container images in this stack. (see [below for nested schema](#nestedatt--update_schedule))
 - `volumes` (Attributes Map) A map of volumes that should be provisioned for this stack. (see [below for nested schema](#nestedatt--volumes))
 
 ### Read-Only
@@ -177,6 +183,18 @@ Optional:
 
     Either this attribute, or `project_path` must be set.
 
+
+
+<a id="nestedatt--update_schedule"></a>
+### Nested Schema for `update_schedule`
+
+Required:
+
+- `cron` (String) A cron expression that defines when the update should be performed (e.g. `0 0 * * *` for daily at midnight).
+
+Optional:
+
+- `timezone` (String) The timezone to use for the cron expression. Valid timezones can be retrieved via the [mittwald API](https://developer.mittwald.de/docs/v2/reference/misc/miscellaneous-list-time-zones/). Defaults to UTC if not set.
 
 
 <a id="nestedatt--volumes"></a>

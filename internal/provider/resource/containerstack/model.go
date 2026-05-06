@@ -5,11 +5,17 @@ import (
 )
 
 type ContainerStackModel struct {
-	ID           types.String `tfsdk:"id"`
-	ProjectID    types.String `tfsdk:"project_id"`
-	DefaultStack types.Bool   `tfsdk:"default_stack"`
-	Containers   types.Map    `tfsdk:"containers"`
-	Volumes      types.Map    `tfsdk:"volumes"`
+	ID             types.String `tfsdk:"id"`
+	ProjectID      types.String `tfsdk:"project_id"`
+	DefaultStack   types.Bool   `tfsdk:"default_stack"`
+	Containers     types.Map    `tfsdk:"containers"`
+	Volumes        types.Map    `tfsdk:"volumes"`
+	UpdateSchedule types.Object `tfsdk:"update_schedule"`
+}
+
+type UpdateScheduleModel struct {
+	Cron     types.String `tfsdk:"cron"`
+	Timezone types.String `tfsdk:"timezone"`
 }
 
 type ContainerModel struct {

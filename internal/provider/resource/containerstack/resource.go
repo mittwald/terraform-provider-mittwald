@@ -197,6 +197,20 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					mapplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"update_schedule": schema.SingleNestedAttribute{
+				Optional:            true,
+				MarkdownDescription: "An optional schedule for automatically updating the container images in this stack.",
+				Attributes: map[string]schema.Attribute{
+					"cron": schema.StringAttribute{
+						Required:            true,
+						MarkdownDescription: "A cron expression that defines when the update should be performed (e.g. `0 0 * * *` for daily at midnight).",
+					},
+					"timezone": schema.StringAttribute{
+						Optional:            true,
+						MarkdownDescription: "The timezone to use for the cron expression. Valid timezones can be retrieved via the [mittwald API](https://developer.mittwald.de/docs/v2/reference/misc/miscellaneous-list-time-zones/). Defaults to UTC if not set.",
+					},
+				},
+			},
 		},
 	}
 }
