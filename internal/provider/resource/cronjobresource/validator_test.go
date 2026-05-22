@@ -37,6 +37,15 @@ func TestCronjobDestinationValidator(t *testing.T) {
 	resp = &validator.ObjectResponse{}
 	v.ValidateObject(ctx, req, resp)
 	g.Expect(resp.Diagnostics.HasError()).To(BeFalse())
+
+	req.ConfigValue = mustDestinationObject(t, map[string]attr.Value{
+		"url":               types.StringUnknown(),
+		"command":           types.ObjectNull(map[string]attr.Type{"interpreter": types.StringType, "path": types.StringType, "parameters": types.ListType{ElemType: types.StringType}}),
+		"container_command": types.ListNull(types.StringType),
+	})
+	resp = &validator.ObjectResponse{}
+	v.ValidateObject(ctx, req, resp)
+	g.Expect(resp.Diagnostics.HasError()).To(BeFalse())
 }
 
 func mustDestinationObject(t *testing.T, values map[string]attr.Value) types.Object {

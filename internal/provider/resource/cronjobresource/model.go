@@ -66,7 +66,7 @@ func (m *ResourceModel) GetDestination(ctx context.Context, d *diag.Diagnostics)
 }
 
 func (m *ResourceModel) GetContainer(ctx context.Context, d *diag.Diagnostics) (*ResourceContainerModel, bool) {
-	if m.Container.IsNull() || m.Container.IsUnknown() {
+	if m.Container.IsNull() {
 		return nil, false
 	}
 
@@ -80,7 +80,7 @@ func (m *ResourceDestinationModel) GetURL(ctx context.Context, d *diag.Diagnosti
 		return "", false
 	}
 
-	if !m.URL.IsNull() && !m.URL.IsUnknown() {
+	if !m.URL.IsNull() {
 		return ResourceDestinationURLModel(m.URL.ValueString()), true
 	}
 
@@ -92,7 +92,7 @@ func (m *ResourceDestinationModel) GetCommand(ctx context.Context, d *diag.Diagn
 		return nil, false
 	}
 
-	if !m.Command.IsNull() && !m.Command.IsUnknown() {
+	if !m.Command.IsNull() {
 		out := ResourceDestinationCommandModel{}
 		d.Append(m.Command.As(ctx, &out, basetypes.ObjectAsOptions{})...)
 		return &out, true
@@ -106,7 +106,7 @@ func (m *ResourceDestinationModel) GetContainerCommand(ctx context.Context, d *d
 		return types.ListNull(types.StringType), false
 	}
 
-	if !m.ContainerCommand.IsNull() && !m.ContainerCommand.IsUnknown() {
+	if !m.ContainerCommand.IsNull() {
 		return m.ContainerCommand, true
 	}
 
