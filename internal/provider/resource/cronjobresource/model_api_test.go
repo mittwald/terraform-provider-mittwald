@@ -104,6 +104,98 @@ func TestFromAPIModelReadsContainerTarget(t *testing.T) {
 	g.Expect(commandParts).To(Equal([]string{"echo", "Hello World"}))
 }
 
+func TestFromAPIModelReadsAppTarget(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	apiModel := &cronjobv2.Cronjob{
+		Id:          "8d446005-e368-43e2-9681-a8f5b922fca2",
+		Active:      true,
+		AppId:       "legacy-app-id",
+		Description: "Demo Cronjob",
+		Interval:    "*/5 * * * *",
+		Target: &cronjobv2.CronjobTarget{
+			AlternativeAppInstallationTarget: &cronjobv2.AppInstallationTarget{
+				AppInstallationId: "79a97ff5-c13e-4d76-a80f-d8f38a499f22",
+				Destination: cronjobv2.AppInstallationTargetDestination{
+					AlternativeCronjobUrl: &cronjobv2.CronjobUrl{Url: "https://example.org/hook"},
+				},
+			},
+		},
+	}
+
+	var model ResourceModel
+	diags := model.FromAPIModel(ctx, apiModel)
+	g.Expect(diags.HasError()).To(BeFalse())
+	g.Expect(model.AppID).To(Equal(types.StringValue("79a97ff5-c13e-4d76-a80f-d8f38a499f22")))
+	g.Expect(model.Container.IsNull()).To(BeTrue())
+
+	dest := model.GetDestination(ctx, &diags)
+	g.Expect(diags.HasError()).To(BeFalse())
+	url, ok := dest.GetURL(ctx, &diags)
+	g.Expect(diags.HasError()).To(BeFalse())
+	g.Expect(ok).To(BeTrue())
+	g.Expect(string(url)).To(Equal("https://example.org/hook"))
+}
+
+func TestFromAPIModelDeprecatedFallback(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	apiModel := &cronjobv2.Cronjob{
+		Id:          "8d446005-e368-43e2-9681-a8f5b922fca2",
+		Active:      true,
+		AppId:       "79a97ff5-c13e-4d76-a80f-d8f38a499f22",
+		Description: "Demo Cronjob",
+		Interval:    "*/5 * * * *",
+		Destination: &cronjobv2.CronjobDestination{
+			AlternativeCronjobUrl: &cronjobv2.CronjobUrl{Url: "https://example.org/legacy"},
+		},
+	}
+
+	var model ResourceModel
+	diags := model.FromAPIModel(ctx, apiModel)
+	g.Expect(diags.HasError()).To(BeFalse())
+	g.Expect(model.AppID).To(Equal(types.StringValue("79a97ff5-c13e-4d76-a80f-d8f38a499f22")))
+	g.Expect(model.Container.IsNull()).To(BeTrue())
+
+	dest := model.GetDestination(ctx, &diags)
+	g.Expect(diags.HasError()).To(BeFalse())
+	url, ok := dest.GetURL(ctx, &diags)
+	g.Expect(diags.HasError()).To(BeFalse())
+	g.Expect(ok).To(BeTrue())
+	g.Expect(string(url)).To(Equal("https://example.org/legacy"))
+}
+
+func TestFromAPIModelPrefersTargetOverDeprecatedFallback(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	apiModel := &cronjobv2.Cronjob{
+		Id:          "8d446005-e368-43e2-9681-a8f5b922fca2",
+		Active:      true,
+		AppId:       "legacy-app-id",
+		Description: "Demo Cronjob",
+		Interval:    "*/5 * * * *",
+		Target: &cronjobv2.CronjobTarget{
+			AlternativeServiceTargetResponse: &cronjobv2.ServiceTargetResponse{
+				StackId:        "10184af5-6716-4e82-81d7-4b1cd317d147",
+				ServiceShortId: "nginx",
+				Command:        "echo 'from target'",
+			},
+		},
+		Destination: &cronjobv2.CronjobDestination{
+			AlternativeCronjobUrl: &cronjobv2.CronjobUrl{Url: "https://example.org/legacy"},
+		},
+	}
+
+	var model ResourceModel
+	diags := model.FromAPIModel(ctx, apiModel)
+	g.Expect(diags.HasError()).To(BeFalse())
+	g.Expect(model.AppID.IsNull()).To(BeTrue())
+	g.Expect(model.Container.IsNull()).To(BeFalse())
+}
+
 func TestSplitShellCommand(t *testing.T) {
 	g := NewWithT(t)
 	parts, err := splitShellCommand("echo 'Hello World' \"foo bar\" plain\\ value")

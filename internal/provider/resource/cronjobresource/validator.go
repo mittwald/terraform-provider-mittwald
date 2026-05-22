@@ -30,9 +30,9 @@ func (c *cronjobDestinationValidator) ValidateObject(ctx context.Context, reques
 	commandAttr, hasCommandAttr := attrs["command"]
 	containerCommandAttr, hasContainerCommandAttr := attrs["container_command"]
 
-	hasURL := hasURLAttr && !urlAttr.IsUnknown() && !urlAttr.IsNull()
-	hasCommand := hasCommandAttr && !commandAttr.IsUnknown() && !commandAttr.IsNull()
-	hasContainerCommand := hasContainerCommandAttr && !containerCommandAttr.IsUnknown() && !containerCommandAttr.IsNull()
+	hasURL := hasURLAttr && !urlAttr.IsNull()
+	hasCommand := hasCommandAttr && !commandAttr.IsNull()
+	hasContainerCommand := hasContainerCommandAttr && !containerCommandAttr.IsNull()
 
 	count := 0
 	if hasURL {
@@ -78,19 +78,23 @@ func (v cronjobTargetDestinationValidator) ValidateResource(ctx context.Context,
 		return
 	}
 
-	appSet := !appID.IsNull() && !appID.IsUnknown()
-	containerSet := !container.IsNull() && !container.IsUnknown()
+	appSet := !appID.IsNull()
+	containerSet := !container.IsNull()
 
-	if !destination.IsNull() && !destination.IsUnknown() {
+	if destination.IsUnknown() {
+		return
+	}
+
+	if !destination.IsNull() {
 		resp.Diagnostics.Append(destination.As(ctx, &destinationModel, basetypes.ObjectAsOptions{})...)
 	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	hasURL := !destinationModel.URL.IsNull() && !destinationModel.URL.IsUnknown()
-	hasCommand := !destinationModel.Command.IsNull() && !destinationModel.Command.IsUnknown()
-	hasContainerCommand := !destinationModel.ContainerCommand.IsNull() && !destinationModel.ContainerCommand.IsUnknown()
+	hasURL := !destinationModel.URL.IsNull()
+	hasCommand := !destinationModel.Command.IsNull()
+	hasContainerCommand := !destinationModel.ContainerCommand.IsNull()
 
 	if appSet && containerSet {
 		resp.Diagnostics.AddAttributeError(path.Root("app_id"), "Invalid target configuration", "Only one of `app_id` or `container` may be configured.")
