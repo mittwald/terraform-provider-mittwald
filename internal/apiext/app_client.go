@@ -5,6 +5,8 @@ import (
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/appclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
+	"time"
 )
 
 type AppClient interface {
@@ -13,6 +15,7 @@ type AppClient interface {
 	GetSystemsoftwareAndVersion(ctx context.Context, systemSoftwareID, systemSoftwareVersionID string) (*appv2.SystemSoftware, *appv2.SystemSoftwareVersion, error)
 	SelectSystemsoftwareVersion(ctx context.Context, systemSoftwareID, versionSelector string) (SystemSoftwareVersionSet, error)
 	UpdateAppinstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error
+	UpdateAppinstallationWithRetry(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error
 	WaitUntilAppInstallationIsReady(ctx context.Context, appID string) error
 	GetAppByName(ctx context.Context, name string) (*appv2.App, bool, error)
 	SelectAppVersion(ctx context.Context, appID, versionSelector string) (AppVersionSet, error)
@@ -93,11 +96,7 @@ func RemoveAppInstallationSystemSoftware(systemSoftwareID string) AppInstallatio
 	})
 }
 
-func (c *appClient) UpdateAppinstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
-	if len(updater) == 0 {
-		return nil
-	}
-
+func (c *appClient) buildPatchRequest(appInstallationID string, updater ...AppInstallationUpdater) appclientv2.PatchAppinstallationRequest {
 	req := appclientv2.PatchAppinstallationRequest{
 		AppInstallationID: appInstallationID,
 	}
@@ -106,6 +105,35 @@ func (c *appClient) UpdateAppinstallation(ctx context.Context, appInstallationID
 		u.Apply(&req.Body)
 	}
 
-	_, err := c.PatchAppinstallation(ctx, req)
+	return req
+}
+
+func (c *appClient) UpdateAppinstallation(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
+	if len(updater) == 0 {
+		return nil
+	}
+
+	_, err := c.PatchAppinstallation(ctx, c.buildPatchRequest(appInstallationID, updater...))
+	return err
+}
+
+// UpdateAppinstallationWithRetry wraps PatchAppinstallation with polling
+// to handle transient permission errors that occur when the API has not yet
+// propagated permissions for a newly created app installation.
+func (c *appClient) UpdateAppinstallationWithRetry(ctx context.Context, appInstallationID string, updater ...AppInstallationUpdater) error {
+	if len(updater) == 0 {
+		return nil
+	}
+
+	req := c.buildPatchRequest(appInstallationID, updater...)
+
+	_, err := apiutils.Poll(ctx, apiutils.PollOpts{
+		InitialDelay: 500 * time.Millisecond,
+		MaxDelay:     5 * time.Second,
+	}, func(ctx context.Context, r appclientv2.PatchAppinstallationRequest) (struct{}, error) {
+		_, err := c.PatchAppinstallation(ctx, r)
+		return struct{}{}, err
+	}, req)
+
 	return err
 }
