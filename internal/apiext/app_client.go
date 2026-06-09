@@ -2,9 +2,15 @@ package apiext
 
 import (
 	"context"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/appclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 )
 
 type AppClient interface {
@@ -106,6 +112,63 @@ func (c *appClient) UpdateAppinstallation(ctx context.Context, appInstallationID
 		u.Apply(&req.Body)
 	}
 
-	_, err := c.PatchAppinstallation(ctx, req)
+	_, err := c.retryWhilePhaseNotReady(ctx, func(ctx context.Context) (*http.Response, error) {
+		return c.PatchAppinstallation(ctx, req)
+	})
 	return err
+}
+
+// LinkDatabase wraps the generated client call with a retry on the transient
+// "not in ready phase" error; see retryWhilePhaseNotReady.
+func (c *appClient) LinkDatabase(ctx context.Context, req appclientv2.LinkDatabaseRequest, reqEditors ...func(req *http.Request) error) (*http.Response, error) {
+	return c.retryWhilePhaseNotReady(ctx, func(ctx context.Context) (*http.Response, error) {
+		return c.Client.LinkDatabase(ctx, req, reqEditors...)
+	})
+}
+
+// UnlinkDatabase wraps the generated client call with a retry on the transient
+// "not in ready phase" error; see retryWhilePhaseNotReady.
+func (c *appClient) UnlinkDatabase(ctx context.Context, req appclientv2.UnlinkDatabaseRequest, reqEditors ...func(req *http.Request) error) (*http.Response, error) {
+	return c.retryWhilePhaseNotReady(ctx, func(ctx context.Context) (*http.Response, error) {
+		return c.Client.UnlinkDatabase(ctx, req, reqEditors...)
+	})
+}
+
+// isPhaseNotReadyError reports whether err indicates that the app installation
+// is currently in a phase that does not accept mutating requests. After an
+// installation first becomes ready, the backend briefly transitions through
+// additional phases (e.g. while deploying the project environment) and rejects
+// mutations during that window with an error such as:
+//
+//	VError: expected phase APP_PHASE_READY, current phase is APP_PHASE_DEPLOYING_PROJECT_ENVIRONMENT
+//
+// Those phases are not exposed through the REST "phase" enum and are transient,
+// so the request should simply be retried until the installation settles.
+func isPhaseNotReadyError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "expected phase APP_PHASE_READY")
+}
+
+// retryWhilePhaseNotReady runs f, retrying for as long as the installation
+// rejects the request because it is not in the "ready" phase. The first attempt
+// runs immediately so the common (already-ready) case is not delayed.
+func (c *appClient) retryWhilePhaseNotReady(ctx context.Context, f func(context.Context) (*http.Response, error)) (*http.Response, error) {
+	resp, err := f(ctx)
+	if !isPhaseNotReadyError(err) {
+		return resp, err
+	}
+
+	tflog.Debug(ctx, "app installation is not in a mutable phase yet; retrying", map[string]any{"error": err.Error()})
+
+	o := apiutils.PollOpts{
+		InitialDelay: 2 * time.Second,
+		MaxDelay:     30 * time.Second,
+	}
+
+	return apiutils.Poll(ctx, o, func(ctx context.Context, _ struct{}) (*http.Response, error) {
+		resp, err := f(ctx)
+		if isPhaseNotReadyError(err) {
+			return nil, apiutils.ErrPollShouldRetry
+		}
+		return resp, err
+	}, struct{}{})
 }

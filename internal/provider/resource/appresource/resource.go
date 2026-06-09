@@ -208,6 +208,17 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	data.ID = types.StringValue(installation.Id)
 
 	try := providerutil.Try[any](&resp.Diagnostics, "error while updating app installation")
+
+	// A freshly requested app installation still needs to finish provisioning
+	// before the API accepts any mutating requests; patching it too early fails
+	// with "expected phase APP_PHASE_READY, current phase is APP_PHASE_UNSPECIFIED".
+	// Wait for the installation to become ready before applying the updaters and
+	// linking databases.
+	try.Do(appClient.WaitUntilAppInstallationIsReady(ctx, installation.Id))
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	try.Do(appClient.UpdateAppinstallation(ctx, installation.Id, appUpdaters...))
 
 	for _, database := range databases {
@@ -332,6 +343,12 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			))
 		}
 	}
+
+	// Applying an update (e.g. a PHP version bump) takes the app offline for a
+	// while. Wait until the installation is ready again before considering the
+	// resource updated, so that dependent resources (such as mittwald_remote_file)
+	// don't try to reach the app while it is still being reconfigured.
+	try.Do(appClient.WaitUntilAppInstallationIsReady(ctx, planData.ID.ValueString()))
 
 	resp.Diagnostics.Append(r.read(ctx, &planData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
