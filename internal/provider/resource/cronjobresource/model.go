@@ -95,15 +95,6 @@ func (m ResourceDestinationURLModel) AsDestinationModel() *ResourceDestinationMo
 	}
 }
 
-func (m *ResourceDestinationCommandModel) ParametersAsStrSlice() []string {
-	elements := m.Parameters.Elements()
-	out := make([]string, 0, len(elements))
-	for _, v := range elements {
-		out = append(out, v.String())
-	}
-	return out
-}
-
 func (m *ResourceDestinationCommandModel) ParametersAsStr() *string {
 	if m.Parameters.IsNull() {
 		return nil
@@ -112,7 +103,15 @@ func (m *ResourceDestinationCommandModel) ParametersAsStr() *string {
 	elements := m.Parameters.Elements()
 	out := make([]string, 0, len(elements))
 	for _, v := range elements {
-		out = append(out, shellescape.Quote(v.String()))
+		// Each element is a types.String. We must use ValueString() to obtain
+		// the raw value; attr.Value.String() returns a quoted debug
+		// representation (e.g. `"foo"` instead of `foo`), which would otherwise
+		// be shell-escaped into `'"foo"'` and corrupt the stored parameters.
+		s, ok := v.(types.String)
+		if !ok {
+			continue
+		}
+		out = append(out, shellescape.Quote(s.ValueString()))
 	}
 	outAsStr := strings.Join(out, " ")
 	return &outAsStr

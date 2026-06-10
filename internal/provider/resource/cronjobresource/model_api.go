@@ -2,14 +2,13 @@ package cronjobresource
 
 import (
 	"context"
+	"github.com/google/shlex"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/cronjobclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/cronjobv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/ptrutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
-	"strings"
-	"text/scanner"
 )
 
 func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cronjob) (res diag.Diagnostics) {
@@ -119,12 +118,13 @@ func (m *ResourceDestinationCommandModel) FromAPIModel(ctx context.Context, apiM
 	m.Path = types.StringValue(apiModel.Path)
 
 	if apiModel.Parameters != nil {
-		paramScanner := scanner.Scanner{}
-		paramScanner.Init(strings.NewReader(*apiModel.Parameters))
-
-		var paramValues []string
-		for tok := paramScanner.Scan(); tok != scanner.EOF; tok = paramScanner.Scan() {
-			paramValues = append(paramValues, paramScanner.TokenText())
+		// The API stores all parameters as a single shell-style string. Split it
+		// back into individual arguments using shell quoting rules, which is the
+		// inverse of the shellescape.Quote applied when writing them.
+		paramValues, err := shlex.Split(*apiModel.Parameters)
+		if err != nil {
+			res.AddError("Could not parse cron job command parameters", err.Error())
+			return
 		}
 
 		params, d := types.ListValueFrom(ctx, types.StringType, paramValues)
