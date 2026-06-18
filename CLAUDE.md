@@ -13,6 +13,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `TF_ACC=1 go test ./... -v $(TESTARGS) -timeout 120m` - Run acceptance tests with custom arguments
 - `golangci-lint run` - Run linter checks
 
+### Inspecting the API client
+- To look up types and method signatures from the `api-client-go` dependency, use `go doc` (e.g. `go doc <module-dir>/mittwaldv2/generated/schemas/projectv2 Project`), getting the module path via `go list -m -f '{{.Dir}}' github.com/mittwald/api-client-go`. Do not grep or `sed` through the module cache.
+
 ### Development Setup
 After building with `go install`, create a `~/.terraformrc` file for development overrides:
 ```
@@ -69,6 +72,17 @@ The provider supports these resources:
 - For sensitive attributes like passwords and API keys, use write-only attributes with a versioning field whenever possible. By convention, these attribute should be named `<attribute>_wo` and `<attribute>_wo_version`.
 - Many resources require extensive mapping code between Terraform schema and API models. Follow existing patterns in the codebase for consistency, and use a `model_api_to.go` for code mapping Terraform schema _to_ API models, and `model_api_from.go` for mapping API models _from_ API responses to Terraform schema.
 - Follow the documented best-practices for naming conventions as documented in https://developer.hashicorp.com/terraform/plugin/best-practices/naming
+- A resource and a data source with the same name (e.g. `mittwald_project`) should mirror each other: the data source should expose the same attributes as the resource and reuse the same model-mapping helpers. When you add or change attributes on a resource, check whether a same-named data source exists and keep it in sync (and vice versa).
+- Prefer looking up a single object by a server-resolvable identifier over listing and filtering client-side. Several mittwald endpoints (e.g. `GetProject`) accept both the full ID and the short ID and resolve either for you.
+
+### Adding a resource or data source
+
+When adding a new resource or data source, complete all of these:
+- Register the constructor in `internal/provider/provider.go`.
+- Add an example under `examples/{resources,data-sources}/<name>/`.
+- Add it to the list in `README.md`.
+- Run `go generate ./...` to regenerate the `docs/` pages.
+- Prefer deprecating a superseded resource/data source (via `DeprecationMessage`) over removing it outright, since removal is a breaking change.
 
 ## Additional instructions
 

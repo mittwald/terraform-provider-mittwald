@@ -154,6 +154,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		projectdatasource.New,
 		projectdatasource.NewByShortIdDataSource,
 		systemsoftwaredatasource.New,
 		appdatasource.New,

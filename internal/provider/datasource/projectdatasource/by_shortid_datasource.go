@@ -31,7 +31,10 @@ func (d *ByShortIdDataSource) Metadata(_ context.Context, req datasource.Metadat
 func (d *ByShortIdDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "A data source that selects a project based on its short ID.",
+		MarkdownDescription: "A data source that selects a project based on its short ID.\n\n" +
+			"**Deprecated:** Use the `mittwald_project` data source instead, which can look up a project " +
+			"by either its `id` or `short_id` and exposes the full set of project attributes.",
+		DeprecationMessage: "Use the mittwald_project data source instead.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
