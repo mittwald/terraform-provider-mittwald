@@ -225,7 +225,11 @@ func destinationFromContainerCommand(ctx context.Context, d *diag.Diagnostics, c
 		URL:     types.StringNull(),
 		Command: types.ObjectNull(resourceDestinationCommandAttrTypes),
 	}
-	out.ContainerCommand, _ = types.ListValueFrom(ctx, types.StringType, commandParts)
+
+	containerCommand, listDiags := types.ListValueFrom(ctx, types.StringType, commandParts)
+	d.Append(listDiags...)
+	out.ContainerCommand = containerCommand
+
 	return out.AsObject(ctx, d)
 }
 
@@ -251,4 +255,3 @@ func containerObjectFromAPI(ctx context.Context, d *diag.Diagnostics, stackID, s
 	d.Append(d2...)
 	return obj
 }
-
