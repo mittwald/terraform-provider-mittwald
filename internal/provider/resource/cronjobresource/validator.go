@@ -24,34 +24,44 @@ func (c *cronjobDestinationValidator) MarkdownDescription(_ context.Context) str
 }
 
 func (c *cronjobDestinationValidator) ValidateObject(ctx context.Context, request validator.ObjectRequest, response *validator.ObjectResponse) {
+	// Nothing to validate while the whole object is not yet known.
+	if request.ConfigValue.IsNull() || request.ConfigValue.IsUnknown() {
+		return
+	}
+
 	attrs := request.ConfigValue.Attributes()
 
-	urlAttr, hasURLAttr := attrs["url"]
-	commandAttr, hasCommandAttr := attrs["command"]
-	containerCommandAttr, hasContainerCommandAttr := attrs["container_command"]
-
-	hasURL := hasURLAttr && !urlAttr.IsNull()
-	hasCommand := hasCommandAttr && !commandAttr.IsNull()
-	hasContainerCommand := hasContainerCommandAttr && !containerCommandAttr.IsNull()
-
-	count := 0
-	if hasURL {
-		count++
-	}
-	if hasCommand {
-		count++
-	}
-	if hasContainerCommand {
-		count++
-	}
-
-	if count != 1 {
-		if count == 0 {
-			response.Diagnostics.AddAttributeError(request.Path, "Missing cronjob destination", "One of `destination.url`, `destination.command`, or `destination.container_command` must be set.")
-			return
+	knownSet := 0
+	hasUnknown := false
+	for _, name := range []string{"url", "command", "container_command"} {
+		attribute, ok := attrs[name]
+		if !ok {
+			continue
 		}
 
+		switch {
+		case attribute.IsUnknown():
+			// An unknown value may still resolve to either set or null, so we
+			// cannot count it towards the exactly-one requirement yet.
+			hasUnknown = true
+		case !attribute.IsNull():
+			knownSet++
+		}
+	}
+
+	if knownSet > 1 {
 		response.Diagnostics.AddAttributeError(request.Path, "Multiple cronjob destinations configured", "Only one of `destination.url`, `destination.command`, or `destination.container_command` can be set.")
+		return
+	}
+
+	// With an unknown value present we cannot yet tell whether exactly one
+	// destination will be set; defer the check until the values are known.
+	if hasUnknown {
+		return
+	}
+
+	if knownSet == 0 {
+		response.Diagnostics.AddAttributeError(request.Path, "Missing cronjob destination", "One of `destination.url`, `destination.command`, or `destination.container_command` must be set.")
 	}
 }
 
@@ -78,9 +88,26 @@ func (v cronjobTargetDestinationValidator) ValidateResource(ctx context.Context,
 		return
 	}
 
+	// Presence checks: an unknown value still means the attribute is
+	// configured (its value is merely not known yet), so only a null value
+	// counts as "not set".
 	appSet := !appID.IsNull()
 	containerSet := !container.IsNull()
 
+	// The target-only checks do not depend on the destination values and can
+	// always be evaluated, even while the destination is still unknown.
+	if appSet && containerSet {
+		resp.Diagnostics.AddAttributeError(path.Root("app_id"), "Invalid target configuration", "Only one of `app_id` or `container` may be configured.")
+		resp.Diagnostics.AddAttributeError(path.Root("container"), "Invalid target configuration", "Only one of `app_id` or `container` may be configured.")
+	}
+
+	if !appSet && !containerSet {
+		resp.Diagnostics.AddAttributeError(path.Root("app_id"), "Missing target configuration", "Either `app_id` or `container` must be configured.")
+		resp.Diagnostics.AddAttributeError(path.Root("container"), "Missing target configuration", "Either `app_id` or `container` must be configured.")
+	}
+
+	// The remaining checks depend on the destination values; skip them while
+	// the destination is not yet known.
 	if destination.IsUnknown() {
 		return
 	}
@@ -95,16 +122,6 @@ func (v cronjobTargetDestinationValidator) ValidateResource(ctx context.Context,
 	hasURL := !destinationModel.URL.IsNull()
 	hasCommand := !destinationModel.Command.IsNull()
 	hasContainerCommand := !destinationModel.ContainerCommand.IsNull()
-
-	if appSet && containerSet {
-		resp.Diagnostics.AddAttributeError(path.Root("app_id"), "Invalid target configuration", "Only one of `app_id` or `container` may be configured.")
-		resp.Diagnostics.AddAttributeError(path.Root("container"), "Invalid target configuration", "Only one of `app_id` or `container` may be configured.")
-	}
-
-	if !appSet && !containerSet {
-		resp.Diagnostics.AddAttributeError(path.Root("app_id"), "Missing target configuration", "Either `app_id` or `container` must be configured.")
-		resp.Diagnostics.AddAttributeError(path.Root("container"), "Missing target configuration", "Either `app_id` or `container` must be configured.")
-	}
 
 	if containerSet && !hasContainerCommand {
 		resp.Diagnostics.AddAttributeError(path.Root("destination").AtName("container_command"), "Missing container command destination", "`destination.container_command` must be configured when `container` is set.")
