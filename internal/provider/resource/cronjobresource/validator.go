@@ -114,7 +114,7 @@ func (v cronjobTargetDestinationValidator) ValidateResource(ctx context.Context,
 		resp.Diagnostics.AddAttributeError(path.Root("container"), "Missing container target", "`container` must be configured when `destination.container_command` is set.")
 	}
 
-	if appSet && !(hasURL || hasCommand) {
+	if appSet && !hasURL && !hasCommand {
 		resp.Diagnostics.AddAttributeError(path.Root("destination"), "Missing app destination", "When `app_id` is set, `destination.url` or `destination.command` must be configured.")
 	}
 
