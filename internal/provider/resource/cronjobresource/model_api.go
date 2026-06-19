@@ -208,7 +208,10 @@ func renderContainerCommand(ctx context.Context, d *diag.Diagnostics, commandLis
 }
 
 func destinationFromContainerCommand(ctx context.Context, d *diag.Diagnostics, command string) types.Object {
-	commandParts, err := splitShellCommand(command)
+	// The API stores the container command as a single shell-style string. Split
+	// it back into individual arguments using shell quoting rules, which is the
+	// inverse of the shellescape.Quote applied when writing them.
+	commandParts, err := shlex.Split(command)
 	if err != nil {
 		d.AddWarning(
 			"Could not parse container command from API response",
@@ -249,68 +252,3 @@ func containerObjectFromAPI(ctx context.Context, d *diag.Diagnostics, stackID, s
 	return obj
 }
 
-func splitShellCommand(input string) ([]string, error) {
-	var (
-		out          []string
-		current      strings.Builder
-		inSingle     bool
-		inDouble     bool
-		escapeActive bool
-	)
-
-	flush := func() {
-		if current.Len() > 0 {
-			out = append(out, current.String())
-			current.Reset()
-		}
-	}
-
-	for _, r := range input {
-		switch {
-		case escapeActive:
-			current.WriteRune(r)
-			escapeActive = false
-		case inSingle:
-			if r == '\'' {
-				inSingle = false
-				continue
-			}
-			current.WriteRune(r)
-		case inDouble:
-			switch r {
-			case '"':
-				inDouble = false
-			case '\\':
-				escapeActive = true
-			default:
-				current.WriteRune(r)
-			}
-		default:
-			switch r {
-			case '\'':
-				inSingle = true
-			case '"':
-				inDouble = true
-			case '\\':
-				escapeActive = true
-			case ' ', '\n', '\t':
-				flush()
-			default:
-				current.WriteRune(r)
-			}
-		}
-	}
-
-	if escapeActive {
-		return nil, fmt.Errorf("invalid shell command: trailing escape")
-	}
-	if inSingle {
-		return nil, fmt.Errorf("invalid shell command: unclosed single quote")
-	}
-	if inDouble {
-		return nil, fmt.Errorf("invalid shell command: unclosed double quote")
-	}
-
-	flush()
-	return out, nil
-}

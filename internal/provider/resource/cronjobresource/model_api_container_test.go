@@ -196,13 +196,6 @@ func TestFromAPIModelPrefersTargetOverDeprecatedFallback(t *testing.T) {
 	g.Expect(model.Container.IsNull()).To(BeFalse())
 }
 
-func TestSplitShellCommand(t *testing.T) {
-	g := NewWithT(t)
-	parts, err := splitShellCommand("echo 'Hello World' \"foo bar\" plain\\ value")
-	g.Expect(err).NotTo(HaveOccurred())
-	g.Expect(parts).To(Equal([]string{"echo", "Hello World", "foo bar", "plain value"}))
-}
-
 func mustListValue(t *testing.T, values []string) types.List {
 	t.Helper()
 	v, diags := types.ListValueFrom(context.Background(), types.StringType, values)
