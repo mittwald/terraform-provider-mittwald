@@ -17,6 +17,7 @@ import (
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/articledatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/containerimagedatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/projectdatasource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/serverdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/systemsoftwaredatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/datasource/userdatasource"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/function/readsshpublickey"
@@ -157,6 +158,7 @@ func (p *MittwaldProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *MittwaldProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		projectdatasource.NewByShortIdDataSource,
+		serverdatasource.New,
 		systemsoftwaredatasource.New,
 		appdatasource.New,
 		articledatasource.New,

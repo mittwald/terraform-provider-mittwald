@@ -54,6 +54,7 @@ and the following data sources:
 - [`mittwald_article`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/article)
 - [`mittwald_user`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/user)
 - [`mittwald_container_image`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/container_image)
+- [`mittwald_server`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/server)
 
 and the following actions:
 

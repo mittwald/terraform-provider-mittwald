@@ -33,7 +33,7 @@ func (r *ResourceModel) FromAPIModel(_ context.Context, apiModel *projectv2.Serv
 	r.ClusterName = types.StringValue(apiModel.ClusterName)
 	r.CreatedAt = types.StringValue(apiModel.CreatedAt.Format(time.RFC3339))
 
-	gib, err := parseStorageGiB(apiModel.Storage)
+	gib, err := ParseStorageGiB(apiModel.Storage)
 	if err != nil {
 		diags.AddError("error while parsing server storage", err.Error())
 		return
@@ -43,11 +43,11 @@ func (r *ResourceModel) FromAPIModel(_ context.Context, apiModel *projectv2.Serv
 	return
 }
 
-// parseStorageGiB parses a storage string such as "50Gi" into its integer GiB
+// ParseStorageGiB parses a storage string such as "50Gi" into its integer GiB
 // value. It only accepts whole-gibibyte ("Gi") values; any other unit or format
 // is rejected with an error, since silently misinterpreting it could lead to an
 // incorrect disk size being recorded.
-func parseStorageGiB(storage string) (int64, error) {
+func ParseStorageGiB(storage string) (int64, error) {
 	trimmed, ok := strings.CutSuffix(strings.TrimSpace(storage), "Gi")
 	if !ok {
 		return 0, fmt.Errorf("expected a gibibyte value with a \"Gi\" suffix, but got %q", storage)
