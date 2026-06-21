@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -126,6 +127,13 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	var data ResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// use_free_trial is write-only, so its value is only available from the
+	// config (it is always null in the plan and state).
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("use_free_trial"), &data.UseFreeTrial)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -332,7 +340,19 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
+	// A disk resize is applied asynchronously via the tariff change, so the
+	// server may still report the previous storage here. Keep the requested
+	// value to avoid an "inconsistent result after apply" error; the actual
+	// value is reconciled on the next read.
+	plannedDiskspace := dataPlan.DiskspaceGB
+
 	resp.Diagnostics.Append(dataPlan.FromAPIModel(ctx, server)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	dataPlan.DiskspaceGB = plannedDiskspace
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &dataPlan)...)
 }
 
