@@ -42,6 +42,7 @@ This provider offers the following resources:
 - [`mittwald_container_registry`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/container_registry)
 - [`mittwald_email_outbox`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/email_outbox)
 - [`mittwald_tls_certificate`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/tls_certificate)
+- [`mittwald_server`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/server)
 - [`mittwald_ai`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/ai)
 - [`mittwald_ai_api_key`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/ai_api_key)
 - [`mittwald_ssh_user`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/resources/ssh_user)
