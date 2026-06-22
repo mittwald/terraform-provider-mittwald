@@ -119,6 +119,13 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	// use_free_trial is write-only, so its value is only available from the
+	// config (it is always null in the plan and state).
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("use_free_trial"), &data.UseFreeTrial)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	existingContract := r.getExistingContract(ctx, &data, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -133,6 +140,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// use_free_trial is write-only and must not be persisted to state.
+	data.UseFreeTrial = types.BoolNull()
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
