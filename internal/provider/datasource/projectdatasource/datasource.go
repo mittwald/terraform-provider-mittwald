@@ -11,6 +11,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -52,7 +53,7 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 				Computed:            true,
 			},
 			"server_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the server this project belongs to. Empty for stand-alone projects.",
+				MarkdownDescription: "ID of the server this project belongs to. Null for stand-alone projects.",
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
@@ -78,7 +79,9 @@ func (d *DataSource) Configure(_ context.Context, req datasource.ConfigureReques
 }
 
 func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data DataSourceModel
+	// Reuse the resource model and its API mapping so the data source and the
+	// mittwald_project resource cannot drift when project attributes change.
+	var data projectresource.ResourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {

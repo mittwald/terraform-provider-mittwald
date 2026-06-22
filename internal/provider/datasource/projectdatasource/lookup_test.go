@@ -40,16 +40,28 @@ func TestProjectLookupID(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name:      "empty strings are treated as unset",
-			id:        types.StringValue(""),
-			shortID:   types.StringValue(""),
+			name:    "unknown id is treated as set",
+			id:      types.StringUnknown(),
+			shortID: types.StringNull(),
+			expect:  "",
+		},
+		{
+			name:    "unknown short id is treated as set",
+			id:      types.StringNull(),
+			shortID: types.StringUnknown(),
+			expect:  "",
+		},
+		{
+			name:      "both unknown is an error",
+			id:        types.StringUnknown(),
+			shortID:   types.StringUnknown(),
 			expectErr: true,
 		},
 		{
-			name:    "empty id falls back to short id",
-			id:      types.StringValue(""),
-			shortID: types.StringValue("p-abcdef"),
-			expect:  "p-abcdef",
+			name:      "unknown id and known short id is an error",
+			id:        types.StringUnknown(),
+			shortID:   types.StringValue("p-abcdef"),
+			expectErr: true,
 		},
 	}
 

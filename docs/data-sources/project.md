@@ -57,4 +57,4 @@ resource "mittwald_virtualhost" "example" {
 - `default_ips` (List of String) Contains a list of default IP addresses for the project.
 - `description` (String) The project description.
 - `directories` (Map of String) Contains a map of data directories within the project.
-- `server_id` (String) ID of the server this project belongs to. Empty for stand-alone projects.
+- `server_id` (String) ID of the server this project belongs to. Null for stand-alone projects.
