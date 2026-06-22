@@ -141,11 +141,21 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 }
 
 func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.SetStackUpdateScheduleRequest {
+	// An unknown value can't be reconciled into a request: we neither know the
+	// concrete schedule to set, nor whether the user intends to unset it.
+	// Returning nil signals the caller to skip the API call entirely, so we
+	// don't accidentally clear an existing schedule. Unknown values are expected
+	// to be resolved by the time Create/Update runs during apply.
+	if m.UpdateSchedule.IsUnknown() {
+		return nil
+	}
+
 	req := &containerclientv2.SetStackUpdateScheduleRequest{
 		StackID: m.ID.ValueString(),
 	}
 
-	if m.UpdateSchedule.IsNull() || m.UpdateSchedule.IsUnknown() {
+	// An explicit null means "unset the schedule"; send an empty body.
+	if m.UpdateSchedule.IsNull() {
 		return req
 	}
 
@@ -153,6 +163,12 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 	diags := m.UpdateSchedule.As(ctx, &scheduleModel, basetypes.ObjectAsOptions{})
 	if diags.HasError() {
 		d.Append(diags...)
+		return nil
+	}
+
+	// The cron expression is required to build a valid request; if it's still
+	// unknown, skip the call rather than sending an invalid empty schedule.
+	if scheduleModel.Cron.IsUnknown() {
 		return nil
 	}
 

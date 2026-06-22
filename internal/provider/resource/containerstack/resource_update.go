@@ -66,7 +66,10 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, planData.ContainerNames()))
 
-	if !planData.UpdateSchedule.Equal(stateData.UpdateSchedule) {
+	// Only reconcile when the schedule actually changed. An unknown planned
+	// value is not a meaningful change (it gets resolved during apply), and must
+	// not be treated as a removal, which would unset an existing schedule.
+	if !planData.UpdateSchedule.IsUnknown() && !planData.UpdateSchedule.Equal(stateData.UpdateSchedule) {
 		r.reconcileUpdateSchedule(ctx, &planData, &resp.Diagnostics)
 	}
 
