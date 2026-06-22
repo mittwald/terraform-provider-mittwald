@@ -192,18 +192,6 @@ func (r *Resource) resolveServerFromOrder(ctx context.Context, orderID, customer
 			return resolved{}, apiutils.ErrPollShouldRetry
 		}
 
-		var contractItemID string
-		for _, item := range order.Items {
-			if item.Reference != nil && item.Reference.ContractItemId != nil {
-				contractItemID = *item.Reference.ContractItemId
-				break
-			}
-		}
-
-		if contractItemID == "" {
-			return resolved{}, apiutils.ErrPollShouldRetry
-		}
-
 		contracts, _, err := r.client.Contract().ListContracts(ctx, contractclientv2.ListContractsRequest{CustomerID: customerID})
 		if err != nil {
 			return resolved{}, err
@@ -214,7 +202,7 @@ func (r *Resource) resolveServerFromOrder(ctx context.Context, orderID, customer
 
 		for _, contract := range *contracts {
 			item := contract.BaseItem
-			matches := item.ItemId == contractItemID || (item.OrderId != nil && *item.OrderId == orderID)
+			matches := item.OrderId != nil && *item.OrderId == orderID
 			if !matches {
 				continue
 			}

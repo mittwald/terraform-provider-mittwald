@@ -35,12 +35,13 @@ func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest,
 
 func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "A data source that selects a server by its ID.",
+		MarkdownDescription: "A data source that selects a server by its ID or short ID. Exactly one of `id` or `short_id` must be set.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the server",
-				Required:            true,
+				MarkdownDescription: "The ID of the server. Exactly one of `id` or `short_id` must be set.",
+				Optional:            true,
+				Computed:            true,
 			},
 			"contract_id": schema.StringAttribute{
 				MarkdownDescription: "The contract ID associated with the server",
@@ -63,7 +64,8 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 				Computed:            true,
 			},
 			"short_id": schema.StringAttribute{
-				MarkdownDescription: "The short ID of the server (for example `s-4e7tz3`)",
+				MarkdownDescription: "The short ID of the server (for example `s-4e7tz3`). Exactly one of `id` or `short_id` must be set.",
+				Optional:            true,
 				Computed:            true,
 			},
 			"machine_type": schema.StringAttribute{
@@ -98,15 +100,32 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	serverID := data.ID.ValueString()
+	hasID := !data.ID.IsNull()
+	hasShortID := !data.ShortID.IsNull()
+	if hasID == hasShortID {
+		resp.Diagnostics.AddError(
+			"Invalid server selector",
+			"Exactly one of \"id\" or \"short_id\" must be set.",
+		)
+		return
+	}
+
+	// The API resolves both the full ID and the short ID via the same path
+	// parameter, so either selector can be passed directly.
+	selector := data.ID.ValueString()
+	if hasShortID {
+		selector = data.ShortID.ValueString()
+	}
 
 	server := providerutil.
 		Try[*projectv2.Server](&resp.Diagnostics, "error while reading server").
-		DoValResp(d.client.Project().GetServer(ctx, projectclientv2.GetServerRequest{ServerID: serverID}))
+		DoValResp(d.client.Project().GetServer(ctx, projectclientv2.GetServerRequest{ServerID: selector}))
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	serverID := server.Id
 
 	contract := providerutil.
 		Try[*contractv2.Contract](&resp.Diagnostics, "error while reading server contract").
