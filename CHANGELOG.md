@@ -1,3 +1,12 @@
+# [1.9.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.5...v1.9.0) (2026-06-22)
+
+
+### Features
+
+* **cronjob:** add container targets and migrate to target-based API mapping ([#375](https://github.com/mittwald/terraform-provider-mittwald/issues/375)) ([fac6555](https://github.com/mittwald/terraform-provider-mittwald/commit/fac6555290bc57f0a1efa98e4a0a95bc7b5f3591))
+* **project:** add mittwald_project data source ([#413](https://github.com/mittwald/terraform-provider-mittwald/issues/413)) ([4369498](https://github.com/mittwald/terraform-provider-mittwald/commit/436949883c6e9f16b2878604b6e8f6bce5c072fd)), closes [#398](https://github.com/mittwald/terraform-provider-mittwald/issues/398)
+* **server:** add mittwald_server resource and data source ([#415](https://github.com/mittwald/terraform-provider-mittwald/issues/415)) ([d37e926](https://github.com/mittwald/terraform-provider-mittwald/commit/d37e92600f8bf85f6e9c530137da7bf4492b3c57))
+
 ## [1.8.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.4...v1.8.5) (2026-06-19)
 
 
