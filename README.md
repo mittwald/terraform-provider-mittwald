@@ -48,6 +48,7 @@ This provider offers the following resources:
 
 and the following data sources:
 
+- [`mittwald_project`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/project)
 - [`mittwald_systemsoftware`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/systemsoftware)
 - [`mittwald_app`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/app)
 - [`mittwald_article`](https://registry.terraform.io/providers/mittwald/mittwald/latest/docs/data-sources/article)

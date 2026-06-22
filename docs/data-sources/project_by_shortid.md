@@ -4,11 +4,14 @@ page_title: "mittwald_project_by_shortid Data Source - terraform-provider-mittwa
 subcategory: ""
 description: |-
   A data source that selects a project based on its short ID.
+  Deprecated: Use the mittwald_project data source instead, which can look up a project by either its id or short_id and exposes the full set of project attributes.
 ---
 
 # mittwald_project_by_shortid (Data Source)
 
 A data source that selects a project based on its short ID.
+
+**Deprecated:** Use the `mittwald_project` data source instead, which can look up a project by either its `id` or `short_id` and exposes the full set of project attributes.
 
 
 
