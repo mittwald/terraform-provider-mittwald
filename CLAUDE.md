@@ -74,6 +74,7 @@ The provider supports these resources:
 - Follow the documented best-practices for naming conventions as documented in https://developer.hashicorp.com/terraform/plugin/best-practices/naming
 - A resource and a data source with the same name (e.g. `mittwald_project`) should mirror each other: the data source should expose the same attributes as the resource and reuse the same model-mapping helpers. When you add or change attributes on a resource, check whether a same-named data source exists and keep it in sync (and vice versa).
 - Prefer looking up a single object by a server-resolvable identifier over listing and filtering client-side. Several mittwald endpoints (e.g. `GetProject`) accept both the full ID and the short ID and resolve either for you.
+- In Terraform models and validators, do not conflate unknown values with null values. Unknown values can be valid at plan time and must not be rejected as if they were unset.
 
 ### Adding a resource or data source
 

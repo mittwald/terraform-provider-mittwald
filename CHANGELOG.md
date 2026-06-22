@@ -1,3 +1,11 @@
+## [1.8.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.4...v1.8.5) (2026-06-19)
+
+
+### Bug Fixes
+
+* **cronjob:** stop adding spurious quotes to command parameters (Fixes [#354](https://github.com/mittwald/terraform-provider-mittwald/issues/354)) ([#403](https://github.com/mittwald/terraform-provider-mittwald/issues/403)) ([13fcf65](https://github.com/mittwald/terraform-provider-mittwald/commit/13fcf6588bed5b408acf40ab3820e030b41f9d65))
+* **release:** release dependency updates as patch releases ([bb1e119](https://github.com/mittwald/terraform-provider-mittwald/commit/bb1e1197bf23458f367e6528680b994a3dc07d03))
+
 ## [1.8.4](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.8.3...v1.8.4) (2026-05-05)
 
 

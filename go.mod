@@ -5,13 +5,14 @@ go 1.25.8
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/alessio/shellescape v1.4.2
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.25.0
 	github.com/hashicorp/terraform-plugin-framework v1.19.0
 	github.com/hashicorp/terraform-plugin-go v0.31.0
 	github.com/hashicorp/terraform-plugin-log v0.10.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
-	github.com/mittwald/api-client-go v0.2.204
+	github.com/mittwald/api-client-go v0.2.205
 	github.com/onsi/gomega v1.42.0
 	github.com/pkg/sftp v1.13.10
 	golang.org/x/crypto v0.53.0
