@@ -69,6 +69,7 @@ The provider supports these resources:
 - For sensitive attributes like passwords and API keys, use write-only attributes with a versioning field whenever possible. By convention, these attribute should be named `<attribute>_wo` and `<attribute>_wo_version`.
 - Many resources require extensive mapping code between Terraform schema and API models. Follow existing patterns in the codebase for consistency, and use a `model_api_to.go` for code mapping Terraform schema _to_ API models, and `model_api_from.go` for mapping API models _from_ API responses to Terraform schema.
 - Follow the documented best-practices for naming conventions as documented in https://developer.hashicorp.com/terraform/plugin/best-practices/naming
+- In Terraform models and validators, do not conflate unknown values with null values. Unknown values can be valid at plan time and must not be rejected as if they were unset.
 
 ## Additional instructions
 
