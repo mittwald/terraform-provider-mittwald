@@ -170,6 +170,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	// use_free_trial is write-only and must not be persisted to state.
+	data.UseFreeTrial = types.BoolNull()
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
