@@ -60,8 +60,3 @@ release:
   # draft: true
 changelog:
   disable: true
-sboms:
-  - id: default
-    disable: false
-    documents:
-      - "${artifact}.spdx.json"
