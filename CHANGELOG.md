@@ -1,3 +1,10 @@
+## [1.9.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.9.5...v1.9.6) (2026-06-30)
+
+
+### Bug Fixes
+
+* **release:** disable SBOM publishing temporarily to work around issues in terraform registry sync ([#424](https://github.com/mittwald/terraform-provider-mittwald/issues/424)) ([c9c4aff](https://github.com/mittwald/terraform-provider-mittwald/commit/c9c4aff9f87d402163f810a38ca1f57b4c1e2ac2)), closes [#422](https://github.com/mittwald/terraform-provider-mittwald/issues/422)
+
 ## [1.9.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.9.4...v1.9.5) (2026-06-29)
 
 ## [1.9.4](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.9.3...v1.9.4) (2026-06-26)
