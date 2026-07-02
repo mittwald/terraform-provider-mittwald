@@ -68,11 +68,11 @@ func UpdateAppInstallationDescription(description string) AppInstallationUpdater
 func UpdateAppInstallationSystemSoftware(systemSoftwareID, systemSoftwareVersionID string, updatePolicy appv2.SystemSoftwareUpdatePolicy) AppInstallationUpdater {
 	return AppInstallationUpdaterFunc(func(b *appclientv2.PatchAppinstallationRequestBody) {
 		if b.SystemSoftware == nil {
-			systemSoftware := make(map[string]appclientv2.PatchAppinstallationRequestBodySystemSoftwareItem)
+			systemSoftware := make(map[string]appv2.DesiredSystemSoftware)
 			b.SystemSoftware = systemSoftware
 		}
 
-		b.SystemSoftware[systemSoftwareID] = appclientv2.PatchAppinstallationRequestBodySystemSoftwareItem{
+		b.SystemSoftware[systemSoftwareID] = appv2.DesiredSystemSoftware{
 			SystemSoftwareVersion: &systemSoftwareVersionID,
 			UpdatePolicy:          &updatePolicy,
 		}
@@ -82,11 +82,11 @@ func UpdateAppInstallationSystemSoftware(systemSoftwareID, systemSoftwareVersion
 func RemoveAppInstallationSystemSoftware(systemSoftwareID string) AppInstallationUpdater {
 	return AppInstallationUpdaterFunc(func(b *appclientv2.PatchAppinstallationRequestBody) {
 		if b.SystemSoftware == nil {
-			systemSoftware := make(map[string]appclientv2.PatchAppinstallationRequestBodySystemSoftwareItem)
+			systemSoftware := make(map[string]appv2.DesiredSystemSoftware)
 			b.SystemSoftware = systemSoftware
 		}
 
-		b.SystemSoftware[systemSoftwareID] = appclientv2.PatchAppinstallationRequestBodySystemSoftwareItem{
+		b.SystemSoftware[systemSoftwareID] = appv2.DesiredSystemSoftware{
 			SystemSoftwareVersion: nil,
 			UpdatePolicy:          nil,
 		}
