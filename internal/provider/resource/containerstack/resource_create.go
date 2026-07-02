@@ -3,6 +3,7 @@ package containerstackresource
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -65,6 +66,10 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, nil))
 
 	data.ID = types.StringValue(stack.Id)
+
+	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
+		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
+	}
 }
 
 func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStackModel, resp *resource.CreateResponse) {
@@ -97,4 +102,21 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 
 	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
 		Do(client.WaitUntilStackIsReady(ctx, stack.Id, data.ContainerNames()))
+
+	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
+		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
+	}
+}
+
+// reconcileUpdateSchedule calls SetStackUpdateSchedule to set or unset the
+// update schedule for the stack. When update_schedule is null, an empty body
+// is sent to unset any previously configured schedule.
+func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerStackModel, d *diag.Diagnostics) {
+	scheduleRequest := data.ToUpdateScheduleRequest(ctx, d)
+	if d.HasError() || scheduleRequest == nil {
+		return
+	}
+
+	providerutil.Try[any](d, "API error while setting update schedule").
+		DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
 }

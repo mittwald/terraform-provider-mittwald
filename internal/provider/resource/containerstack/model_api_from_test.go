@@ -5,12 +5,19 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	containerstackresource "github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/containerstack"
 	. "github.com/mittwald/terraform-provider-mittwald/internal/testingutils"
 	. "github.com/onsi/gomega"
 )
+
+var updateScheduleAttrTypes = map[string]attr.Type{
+	"cron":     types.StringType,
+	"timezone": types.StringType,
+}
 
 var apiModel = &containerv2.StackResponse{
 	Id:        "stack-123",
@@ -309,6 +316,131 @@ func TestFromAPIModelWithoutLimits(t *testing.T) {
 	limitsObj, ok := nginxContainer.Attributes()["limits"].(types.Object)
 	g.Expect(ok).To(BeTrue())
 	g.Expect(limitsObj.IsNull()).To(BeTrue())
+}
+
+func TestFromAPIModelWithUpdateSchedule(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	timezone := "Europe/Berlin"
+	apiModelWithSchedule := &containerv2.StackResponse{
+		Id:        "stack-123",
+		ProjectId: "project-xyz",
+		UpdateSchedule: &containerv2.StackResponseUpdateSchedule{
+			Cron:     "0 3 * * *",
+			Timezone: &timezone,
+		},
+	}
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithSchedule, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	g.Expect(model.UpdateSchedule.IsNull()).To(BeFalse())
+	g.Expect(model.UpdateSchedule).To(And(
+		HaveStringAttr("cron", "0 3 * * *"),
+		HaveStringAttr("timezone", "Europe/Berlin"),
+	))
+}
+
+func TestFromAPIModelWithUpdateScheduleWithoutTimezone(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	apiModelWithSchedule := &containerv2.StackResponse{
+		Id:        "stack-123",
+		ProjectId: "project-xyz",
+		UpdateSchedule: &containerv2.StackResponseUpdateSchedule{
+			Cron: "0 3 * * *",
+		},
+	}
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithSchedule, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	g.Expect(model.UpdateSchedule.IsNull()).To(BeFalse())
+	g.Expect(model.UpdateSchedule).To(And(
+		HaveStringAttr("cron", "0 3 * * *"),
+		HaveStringAttr("timezone", types.StringNull()),
+	))
+}
+
+func TestFromAPIModelWithoutUpdateSchedule(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModel, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	g.Expect(model.UpdateSchedule.IsNull()).To(BeTrue())
+}
+
+func TestUpdateScheduleRoundTrip(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+
+	timezone := "Europe/Berlin"
+	apiModelWithSchedule := &containerv2.StackResponse{
+		Id:        "stack-123",
+		ProjectId: "project-xyz",
+		UpdateSchedule: &containerv2.StackResponseUpdateSchedule{
+			Cron:     "0 3 * * *",
+			Timezone: &timezone,
+		},
+	}
+
+	var model containerstackresource.ContainerStackModel
+	diags := model.FromAPIModel(ctx, apiModelWithSchedule, &model, false)
+	g.Expect(diags).To(BeNil())
+
+	req := model.ToUpdateScheduleRequest(ctx, &diags)
+	g.Expect(diags).To(BeNil())
+	g.Expect(req).NotTo(BeNil())
+	g.Expect(req.StackID).To(Equal("stack-123"))
+	g.Expect(req.Body.UpdateSchedule).NotTo(BeNil())
+	g.Expect(req.Body.UpdateSchedule.Cron).To(Equal("0 3 * * *"))
+	g.Expect(req.Body.UpdateSchedule.Timezone).NotTo(BeNil())
+	g.Expect(*req.Body.UpdateSchedule.Timezone).To(Equal("Europe/Berlin"))
+}
+
+func TestUpdateScheduleRequestUnsetsWhenNull(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+	var diags diag.Diagnostics
+
+	model := containerstackresource.ContainerStackModel{
+		ID:             types.StringValue("stack-123"),
+		UpdateSchedule: types.ObjectNull(updateScheduleAttrTypes),
+	}
+
+	req := model.ToUpdateScheduleRequest(ctx, &diags)
+	g.Expect(diags).To(BeNil())
+
+	// A null schedule must produce a request with an empty body so the API
+	// unsets any previously configured schedule.
+	g.Expect(req).NotTo(BeNil())
+	g.Expect(req.StackID).To(Equal("stack-123"))
+	g.Expect(req.Body.UpdateSchedule).To(BeNil())
+}
+
+func TestUpdateScheduleRequestSkipsWhenUnknown(t *testing.T) {
+	g := NewWithT(t)
+	ctx := context.Background()
+	var diags diag.Diagnostics
+
+	model := containerstackresource.ContainerStackModel{
+		ID:             types.StringValue("stack-123"),
+		UpdateSchedule: types.ObjectUnknown(updateScheduleAttrTypes),
+	}
+
+	req := model.ToUpdateScheduleRequest(ctx, &diags)
+	g.Expect(diags).To(BeNil())
+
+	// An unknown schedule must be skipped entirely (nil request) so we never
+	// unset an existing schedule while values are still unresolved.
+	g.Expect(req).To(BeNil())
 }
 
 func TestParsePortString(t *testing.T) {

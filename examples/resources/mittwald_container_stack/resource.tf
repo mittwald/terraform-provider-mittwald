@@ -53,11 +53,16 @@ resource "mittwald_container_stack" "nginx" {
   volumes = {
     example = {}
   }
+
+  update_schedule = {
+    cron     = "0 3 * * *"
+    timezone = "Europe/Berlin"
+  }
 }
 
 resource "mittwald_virtualhost" "nginx" {
-  hostname   = "${mittwald_project.test.short_id}.project.space"
-  project_id = mittwald_project.test.id
+  hostname   = "${mittwald_project.example.short_id}.project.space"
+  project_id = mittwald_project.example.id
 
   paths = {
     "/" = {
