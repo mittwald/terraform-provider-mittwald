@@ -19,10 +19,10 @@ import (
 )
 
 func (m *ResourceModel) ToCreateRequestWithUpdaters(ctx context.Context, d *diag.Diagnostics, appClient apiext.AppClient) (appclientv2.RequestAppinstallationRequest, []apiext.AppInstallationUpdater) {
-	return m.ToCreateRequest(ctx, d, appClient), m.ToCreateUpdaters(ctx, d, appClient)
+	return m.ToCreateRequest(ctx, d, appClient), m.ToCreateUpdaters()
 }
 
-func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d *diag.Diagnostics, appClient apiext.AppClient) []apiext.AppInstallationUpdater {
+func (m *ResourceModel) ToCreateUpdaters() []apiext.AppInstallationUpdater {
 	updaters := make([]apiext.AppInstallationUpdater, 0)
 
 	if !m.DocumentRoot.IsNull() {
@@ -33,17 +33,10 @@ func (m *ResourceModel) ToCreateUpdaters(ctx context.Context, d *diag.Diagnostic
 		updaters = append(updaters, apiext.UpdateAppInstallationUpdatePolicy(appv2.AppUpdatePolicy(m.UpdatePolicy.ValueString())))
 	}
 
-	if !m.Dependencies.IsNull() {
-		depUpdater := providerutil.
-			Try[apiext.AppInstallationUpdater](d, "error while building dependency updaters").
-			DoVal(m.dependenciesToUpdater(ctx, appClient, nil))
-		updaters = append(updaters, depUpdater)
-	}
-
 	return updaters
 }
 
-func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics, appClient appclientv2.Client) (r appclientv2.RequestAppinstallationRequest) {
+func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics, appClient apiext.AppClient) (r appclientv2.RequestAppinstallationRequest) {
 	tflog.Debug(ctx, "building create request for app", map[string]any{"app": m.App.ValueString()})
 
 	appID, ok := apiext.AppNames[m.App.ValueString()]
@@ -78,6 +71,10 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 			d.AddAttributeError(path.Root("user_inputs").AtMapKey(key), "invalid type", fmt.Sprintf("expected string, got %T", value))
 		}
 	}
+
+	b.SystemSoftware = providerutil.
+		Try[map[string]appv2.DesiredSystemSoftware](d, "error while building system software").
+		DoVal(m.dependenciesToDesiredSystemSoftware(ctx, appClient))
 
 	return
 }
@@ -197,13 +194,17 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *appv2
 	return
 }
 
-func (m *ResourceModel) dependenciesToUpdater(ctx context.Context, appClient apiext.AppClient, currentDependencies *types.Map) (apiext.AppInstallationUpdater, error) {
-	updater := make(apiext.AppInstallationUpdaterChain, 0)
-	seen := make(map[string]struct{})
+// dependenciesToDesiredSystemSoftware resolves the configured dependencies into
+// the map of desired system software that both the app installation request and
+// the patch request expect (keyed by system software ID).
+func (m *ResourceModel) dependenciesToDesiredSystemSoftware(ctx context.Context, appClient apiext.AppClient) (map[string]appv2.DesiredSystemSoftware, error) {
+	if m.Dependencies.IsNull() || m.Dependencies.IsUnknown() {
+		return nil, nil
+	}
+
+	desired := make(map[string]appv2.DesiredSystemSoftware)
 
 	for name, options := range m.Dependencies.Elements() {
-		seen[name] = struct{}{}
-
 		dependency, ok, err := appClient.GetSystemsoftwareByName(ctx, name)
 		if err != nil {
 			return nil, err
@@ -229,17 +230,45 @@ func (m *ResourceModel) dependenciesToUpdater(ctx context.Context, appClient api
 			return nil, fmt.Errorf("no recommended version found for %s", name)
 		}
 
+		updatePolicy := appv2.SystemSoftwareUpdatePolicy(optionsModel.UpdatePolicy.ValueString())
+		desired[dependency.Id] = appv2.DesiredSystemSoftware{
+			SystemSoftwareVersion: &recommended.Id,
+			UpdatePolicy:          &updatePolicy,
+		}
+	}
+
+	if len(desired) == 0 {
+		return nil, nil
+	}
+
+	return desired, nil
+}
+
+func (m *ResourceModel) dependenciesToUpdater(ctx context.Context, appClient apiext.AppClient, currentDependencies *types.Map) (apiext.AppInstallationUpdater, error) {
+	updater := make(apiext.AppInstallationUpdaterChain, 0)
+
+	desired, err := m.dependenciesToDesiredSystemSoftware(ctx, appClient)
+	if err != nil {
+		return nil, err
+	}
+
+	for systemSoftwareID, software := range desired {
 		updater = append(
 			updater,
 			apiext.UpdateAppInstallationSystemSoftware(
-				dependency.Id,
-				recommended.Id,
-				appv2.SystemSoftwareUpdatePolicy(optionsModel.UpdatePolicy.ValueString()),
+				systemSoftwareID,
+				*software.SystemSoftwareVersion,
+				*software.UpdatePolicy,
 			),
 		)
 	}
 
 	if currentDependencies != nil {
+		seen := make(map[string]struct{})
+		for name := range m.Dependencies.Elements() {
+			seen[name] = struct{}{}
+		}
+
 		for name := range currentDependencies.Elements() {
 			if _, ok := seen[name]; !ok {
 				dependency, ok, err := appClient.GetSystemsoftwareByName(ctx, name)
