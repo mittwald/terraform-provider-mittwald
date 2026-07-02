@@ -1,3 +1,15 @@
+# [1.10.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.9.6...v1.10.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* **app:** set system software in app installation request ([#428](https://github.com/mittwald/terraform-provider-mittwald/issues/428)) ([b125067](https://github.com/mittwald/terraform-provider-mittwald/commit/b1250672b3928ab67b3871d9f8b903ac86c19597))
+
+
+### Features
+
+* **container_stack:** support update schedules ([#368](https://github.com/mittwald/terraform-provider-mittwald/issues/368)) ([2b49582](https://github.com/mittwald/terraform-provider-mittwald/commit/2b49582c65940ee04348d71a0c9f7e536355b381))
+
 ## [1.9.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.9.5...v1.9.6) (2026-06-30)
 
 
