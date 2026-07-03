@@ -121,7 +121,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		return
 	}
 
-	res.Append(data.FromAPIModel(ctx, cronjob)...)
+	res.Append(data.FromAPIModel(ctx, cronjob, r.client)...)
 
 	return
 }
