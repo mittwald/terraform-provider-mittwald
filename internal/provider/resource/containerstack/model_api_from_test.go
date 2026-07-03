@@ -25,6 +25,8 @@ var apiModel = &containerv2.StackResponse{
 	Services: []containerv2.ServiceResponse{
 		{
 			ServiceName: "nginx",
+			Id:          "service-abc",
+			ShortId:     "s-nginx",
 			PendingState: containerv2.ServiceState{
 				Image: "nginx:latest",
 				Ports: []string{"80:8080/tcp", "443:8443/tcp", "3000/tcp"},
@@ -91,7 +93,11 @@ func TestFromAPIModel(t *testing.T) {
 
 	nginxContainer, ok := containers["nginx"].(types.Object)
 	g.Expect(ok).To(BeTrue())
-	g.Expect(nginxContainer).To(HaveStringAttr("image", "nginx:latest"))
+	g.Expect(nginxContainer).To(And(
+		HaveStringAttr("image", "nginx:latest"),
+		HaveStringAttr("id", "service-abc"),
+		HaveStringAttr("short_id", "s-nginx"),
+	))
 
 	// Validate ports
 	portsSet, ok := nginxContainer.Attributes()["ports"].(types.Set)
