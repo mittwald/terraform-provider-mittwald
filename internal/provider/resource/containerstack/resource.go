@@ -60,6 +60,13 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 								stringplanmodifier.UseNonNullStateForUnknown(),
 							},
 						},
+						"short_id": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The short ID of the container",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseNonNullStateForUnknown(),
+							},
+						},
 						"image": schema.StringAttribute{
 							Required: true,
 							MarkdownDescription: "The image to use for the container. Follows the usual Docker image format, " +

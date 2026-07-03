@@ -144,6 +144,7 @@ Optional:
 Read-Only:
 
 - `id` (String) The generated container ID
+- `short_id` (String) The short ID of the container
 
 <a id="nestedatt--containers--limits"></a>
 ### Nested Schema for `containers.limits`
