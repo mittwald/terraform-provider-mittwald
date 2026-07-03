@@ -20,6 +20,7 @@ type UpdateScheduleModel struct {
 
 type ContainerModel struct {
 	ID                 types.String `tfsdk:"id"`
+	ShortID            types.String `tfsdk:"short_id"`
 	Image              types.String `tfsdk:"image"`
 	Description        types.String `tfsdk:"description"`
 	Command            types.List   `tfsdk:"command"`

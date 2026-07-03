@@ -63,6 +63,7 @@ func fromAPIContainers(ctx context.Context, apiModel *containerv2.StackResponse,
 		state := service.PendingState
 		container := ContainerModel{
 			ID:          types.StringValue(service.Id),
+			ShortID:     types.StringValue(service.ShortId),
 			Image:       types.StringValue(image),
 			Description: types.StringValue(service.Description),
 			Command:     valueutil.ConvertStringSliceToList(state.Command),
@@ -130,6 +131,7 @@ func fromAPIUpdateSchedule(ctx context.Context, apiModel *containerv2.StackRespo
 var containerModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"id":                    types.StringType,
+		"short_id":              types.StringType,
 		"image":                 types.StringType,
 		"description":           types.StringType,
 		"command":               types.ListType{ElemType: types.StringType},
