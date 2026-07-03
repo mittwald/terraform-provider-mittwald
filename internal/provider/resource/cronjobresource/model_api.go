@@ -9,13 +9,17 @@ import (
 	"github.com/google/shlex"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/cronjobclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/cronjobv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/ptrutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
-func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cronjob) (res diag.Diagnostics) {
+func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cronjob, client mittwaldv2.Client) (res diag.Diagnostics) {
 	m.ProjectID = valueutil.StringPtrOrNull(apiModel.ProjectId)
 	m.Description = types.StringValue(apiModel.Description)
 	m.Email = valueutil.StringPtrOrNull(apiModel.Email)
@@ -33,7 +37,11 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cr
 		}
 
 		if svcTarget := apiModel.Target.AlternativeServiceTargetResponse; svcTarget != nil {
-			m.Container = containerObjectFromAPI(ctx, &res, svcTarget.StackId, svcTarget.ServiceShortId)
+			// The API only returns the service's short ID here, but the Terraform
+			// state must always hold the full service ID. Resolve it by looking up
+			// the service, which accepts either the full or the short ID.
+			serviceID := resolveContainerServiceID(ctx, &res, client, svcTarget.StackId, svcTarget.ServiceShortId)
+			m.Container = containerObjectFromAPI(ctx, &res, svcTarget.StackId, serviceID)
 			m.Destination = destinationFromContainerCommand(ctx, &res, svcTarget.Command)
 			return
 		}
@@ -245,6 +253,27 @@ func destinationFromAppTarget(ctx context.Context, d *diag.Diagnostics, destinat
 	}
 
 	return types.ObjectNull(resourceDestinationAttrTypes)
+}
+
+// resolveContainerServiceID resolves the full service ID for a given service
+// short ID within a stack. The cron job API returns only the service's short ID
+// when a cron job targets a container, but the Terraform state must always hold
+// the full service ID (the user may have configured it as a full UUID). The
+// GetService endpoint accepts either the full or the short ID and returns the
+// full ID.
+func resolveContainerServiceID(ctx context.Context, d *diag.Diagnostics, client mittwaldv2.Client, stackID, serviceShortID string) string {
+	service := providerutil.
+		Try[*containerv2.ServiceResponse](d, "API error while fetching container service").
+		DoValResp(client.Container().GetService(ctx, containerclientv2.GetServiceRequest{
+			StackID:   stackID,
+			ServiceID: serviceShortID,
+		}))
+
+	if d.HasError() {
+		return serviceShortID
+	}
+
+	return service.Id
 }
 
 func containerObjectFromAPI(ctx context.Context, d *diag.Diagnostics, stackID, serviceID string) types.Object {

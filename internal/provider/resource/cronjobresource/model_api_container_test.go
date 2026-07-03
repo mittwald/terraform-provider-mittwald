@@ -2,13 +2,18 @@ package cronjobresource
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	generatedv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/cronjobv2"
+	"github.com/mittwald/api-client-go/pkg/httpclient_mock"
 	. "github.com/onsi/gomega"
 )
 
@@ -85,8 +90,10 @@ func TestFromAPIModelReadsContainerTarget(t *testing.T) {
 		},
 	}
 
+	client := mockClientWithService(t, "10184af5-6716-4e82-81d7-4b1cd317d147", "nginx", "8f3e6f9c-8c4f-4a2e-9b1a-9d7c1e2f3a4b")
+
 	var model ResourceModel
-	diags := model.FromAPIModel(ctx, apiModel)
+	diags := model.FromAPIModel(ctx, apiModel, client)
 	g.Expect(diags.HasError()).To(BeFalse())
 	g.Expect(model.AppID.IsNull()).To(BeTrue())
 
@@ -94,7 +101,8 @@ func TestFromAPIModelReadsContainerTarget(t *testing.T) {
 	diags.Append(model.Container.As(ctx, &containerModel, basetypes.ObjectAsOptions{})...)
 	g.Expect(diags.HasError()).To(BeFalse())
 	g.Expect(containerModel.StackID).To(Equal(types.StringValue("10184af5-6716-4e82-81d7-4b1cd317d147")))
-	g.Expect(containerModel.ServiceID).To(Equal(types.StringValue("nginx")))
+	// The API only returns the service's short ID, but the state must hold the full service ID.
+	g.Expect(containerModel.ServiceID).To(Equal(types.StringValue("8f3e6f9c-8c4f-4a2e-9b1a-9d7c1e2f3a4b")))
 
 	dest := model.GetDestination(ctx, &diags)
 	g.Expect(diags.HasError()).To(BeFalse())
@@ -125,7 +133,7 @@ func TestFromAPIModelReadsAppTarget(t *testing.T) {
 	}
 
 	var model ResourceModel
-	diags := model.FromAPIModel(ctx, apiModel)
+	diags := model.FromAPIModel(ctx, apiModel, emptyMockClient())
 	g.Expect(diags.HasError()).To(BeFalse())
 	g.Expect(model.AppID).To(Equal(types.StringValue("79a97ff5-c13e-4d76-a80f-d8f38a499f22")))
 	g.Expect(model.Container.IsNull()).To(BeTrue())
@@ -154,7 +162,7 @@ func TestFromAPIModelDeprecatedFallback(t *testing.T) {
 	}
 
 	var model ResourceModel
-	diags := model.FromAPIModel(ctx, apiModel)
+	diags := model.FromAPIModel(ctx, apiModel, emptyMockClient())
 	g.Expect(diags.HasError()).To(BeFalse())
 	g.Expect(model.AppID).To(Equal(types.StringValue("79a97ff5-c13e-4d76-a80f-d8f38a499f22")))
 	g.Expect(model.Container.IsNull()).To(BeTrue())
@@ -189,11 +197,38 @@ func TestFromAPIModelPrefersTargetOverDeprecatedFallback(t *testing.T) {
 		},
 	}
 
+	client := mockClientWithService(t, "10184af5-6716-4e82-81d7-4b1cd317d147", "nginx", "8f3e6f9c-8c4f-4a2e-9b1a-9d7c1e2f3a4b")
+
 	var model ResourceModel
-	diags := model.FromAPIModel(ctx, apiModel)
+	diags := model.FromAPIModel(ctx, apiModel, client)
 	g.Expect(diags.HasError()).To(BeFalse())
 	g.Expect(model.AppID.IsNull()).To(BeTrue())
 	g.Expect(model.Container.IsNull()).To(BeFalse())
+}
+
+// mockClientWithService returns an API client whose GetService endpoint resolves
+// the given service short ID within the stack to the given full service ID.
+func mockClientWithService(t *testing.T, stackID, serviceShortID, fullServiceID string) generatedv2.Client {
+	t.Helper()
+
+	runner := &httpclient_mock.MockRequestRunner{}
+	runner.ExpectRequest(
+		http.MethodGet,
+		fmt.Sprintf("/v2/stacks/%s/services/%s", stackID, serviceShortID),
+		httpclient_mock.WithJSONResponse(containerv2.ServiceResponse{
+			Id:      fullServiceID,
+			ShortId: serviceShortID,
+			StackId: stackID,
+		}),
+	)
+
+	return generatedv2.NewClient(runner)
+}
+
+// emptyMockClient returns an API client backed by a mock that expects no
+// requests. It is used for cases that never look up a container service.
+func emptyMockClient() generatedv2.Client {
+	return generatedv2.NewClient(&httpclient_mock.MockRequestRunner{})
 }
 
 func mustListValue(t *testing.T, values []string) types.List {
