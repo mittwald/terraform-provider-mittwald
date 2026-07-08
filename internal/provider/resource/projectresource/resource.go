@@ -126,7 +126,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	resp.Diagnostics.Append(r.read(readCtx, &data)...)
@@ -141,10 +141,22 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		IgnoreNotFound().
 		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
 
+	// Wrap GetProjectDefaultIPs to convert ErrNoDefaultIngress to ErrPollShouldRetry
+	// so that the Poll function will retry until the default ingress appears.
+	// This handles the case where Terraform refreshes a recently created project
+	// before the default ingress has been propagated by the API.
+	getIPsWithRetry := func(ctx context.Context, projectID string) ([]string, error) {
+		ips, err := client.GetProjectDefaultIPs(ctx, projectID)
+		if errors.Is(err, apiext.ErrNoDefaultIngress) {
+			return nil, apiutils.ErrPollShouldRetry
+		}
+		return ips, err
+	}
+
 	ips := providerutil.
 		Try[[]string](&res, "error while reading project ips").
 		IgnoreNotFound().
-		DoVal(client.GetProjectDefaultIPs(ctx, data.ID.ValueString()))
+		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, getIPsWithRetry, data.ID.ValueString()))
 
 	if res.HasError() {
 		return
