@@ -14,8 +14,8 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
 	github.com/mittwald/api-client-go v0.2.217
 	github.com/onsi/gomega v1.42.1
-	github.com/pkg/sftp v1.13.10
-	golang.org/x/crypto v0.53.0
+	github.com/pkg/sftp v1.13.11
+	golang.org/x/crypto v0.54.0
 )
 
 require (
@@ -78,12 +78,12 @@ require (
 	go.abhg.dev/goldmark/frontmatter v0.2.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819 // indirect
-	golang.org/x/mod v0.36.0 // indirect
+	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/net v0.56.0 // indirect
-	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
-	golang.org/x/tools v0.45.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/tools v0.47.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/grpc v1.79.3 // indirect
