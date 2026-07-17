@@ -1,3 +1,10 @@
+## [1.10.7](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.6...v1.10.7) (2026-07-17)
+
+
+### Bug Fixes
+
+* **app:** wait for installation readiness around create and update ([#404](https://github.com/mittwald/terraform-provider-mittwald/issues/404)) ([00e0ea8](https://github.com/mittwald/terraform-provider-mittwald/commit/00e0ea830089c16f580cdff8f2f6374cd8ee096c)), closes [#399](https://github.com/mittwald/terraform-provider-mittwald/issues/399) [#402](https://github.com/mittwald/terraform-provider-mittwald/issues/402)
+
 ## [1.10.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.5...v1.10.6) (2026-07-15)
 
 ## [1.10.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.4...v1.10.5) (2026-07-14)
