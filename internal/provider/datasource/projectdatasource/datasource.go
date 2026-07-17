@@ -7,11 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
-	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -56,6 +57,22 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 				MarkdownDescription: "ID of the server this project belongs to. Null for stand-alone projects.",
 				Computed:            true,
 			},
+			"customer_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the customer this project belongs to.",
+				Computed:            true,
+			},
+			"article_id": schema.StringAttribute{
+				MarkdownDescription: "The article ID determining the machine type of a stand-alone project. Null for projects on a server.",
+				Computed:            true,
+			},
+			"contract_id": schema.StringAttribute{
+				MarkdownDescription: "The contract ID associated with a stand-alone project. Null for projects on a server, which are billed via the server's contract.",
+				Computed:            true,
+			},
+			"diskspace_gb": schema.Int64Attribute{
+				MarkdownDescription: "The amount of disk space the project is allotted, in GiB.",
+				Computed:            true,
+			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "The project description.",
 				Computed:            true,
@@ -79,9 +96,7 @@ func (d *DataSource) Configure(_ context.Context, req datasource.ConfigureReques
 }
 
 func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	// Reuse the resource model and its API mapping so the data source and the
-	// mittwald_project resource cannot drift when project attributes change.
-	var data projectresource.ResourceModel
+	var data DataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -115,6 +130,20 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	resp.Diagnostics.Append(data.FromAPIModel(ctx, project, ips)...)
+	// Only a stand-alone project has a contract of its own; a project on a
+	// server is billed via that server's contract.
+	var contract *contractv2.Contract
+	if project.ServerId == nil {
+		contract = providerutil.
+			Try[*contractv2.Contract](&resp.Diagnostics, "error while reading project contract").
+			IgnoreNotFound().
+			DoValResp(d.client.Contract().GetDetailOfContractByProject(ctx, contractclientv2.GetDetailOfContractByProjectRequest{ProjectID: project.Id}))
+
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	resp.Diagnostics.Append(data.fromAPIModel(ctx, project, ips, contract)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

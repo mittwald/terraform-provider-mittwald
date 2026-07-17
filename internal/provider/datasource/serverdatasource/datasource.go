@@ -14,7 +14,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
-	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/serverresource"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -153,7 +153,7 @@ func (d *DataSourceModel) fromAPIModel(server *projectv2.Server, contract *contr
 	d.ClusterName = types.StringValue(server.ClusterName)
 	d.CreatedAt = types.StringValue(server.CreatedAt.Format(time.RFC3339))
 
-	gib, err := serverresource.ParseStorageGiB(server.Storage)
+	gib, err := valueutil.ParseStorageGiB(server.Storage)
 	if err != nil {
 		diags.AddError("error while parsing server storage", err.Error())
 		return

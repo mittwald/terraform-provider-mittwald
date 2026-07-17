@@ -3,16 +3,26 @@
 page_title: "mittwald_project Resource - terraform-provider-mittwald"
 subcategory: ""
 description: |-
-  This resource models a project on the mittwald cloud platform; a project is either provisioned on a server (in which case a server_id is required), or as a stand-alone project (currently not supported).
+  This resource models a project on the mittwald cloud platform.
+  A project is either provisioned on an existing server, in which case a server_id is required, or ordered as a stand-alone project, in which case a customer_id and an article_id are required.
+  Note: Ordering a stand-alone project is a cost-intensive operation and will incur additional costs. Projects placed on a server are billed as part of that server's contract.
 ---
 
 # mittwald_project (Resource)
 
-This resource models a project on the mittwald cloud platform; a project is either provisioned on a server (in which case a `server_id` is required), or as a stand-alone project (currently not supported).
+This resource models a project on the mittwald cloud platform.
+
+A project is either provisioned on an existing server, in which case a `server_id` is required, or ordered as a stand-alone project, in which case a `customer_id` and an `article_id` are required.
+
+**Note:** Ordering a stand-alone project is a cost-intensive operation and will incur additional costs. Projects placed on a server are billed as part of that server's contract.
 
 ## Example Usage
 
 ```terraform
+/**
+ * A project is either provisioned on an existing server, in which case only a
+ * `server_id` is needed...
+ */
 resource "mittwald_project" "foobar" {
   server_id   = var.server_id
   description = "Test project"
@@ -20,6 +30,31 @@ resource "mittwald_project" "foobar" {
 
 output "project_ips" {
   value = mittwald_project.foobar.default_ips
+}
+
+/**
+ * ... or ordered as a stand-alone project, which is billed for a customer. In
+ * this case, the hosting plan is selected by article.
+ */
+data "mittwald_article" "project" {
+  filter = {
+    tags      = ["webhosting"]
+    orderable = ["full"]
+    attributes = {
+      ram  = "1"
+      vcpu = "1"
+    }
+  }
+}
+
+resource "mittwald_project" "standalone" {
+  customer_id = var.customer_id
+  article_id  = data.mittwald_article.project.id
+
+  description  = "Test project"
+  diskspace_gb = 20
+
+  use_free_trial = true
 }
 ```
 
@@ -32,10 +67,17 @@ output "project_ips" {
 
 ### Optional
 
-- `server_id` (String) ID of the server this project belongs to. Must be a full UUID (not a short ID like s-XXXXXX).
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
+- `article_id` (String) The article ID determining the machine type of a stand-alone project. Required together with `customer_id`, and conflicts with `server_id`. This may be used to change the machine type at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).
+- `customer_id` (String) ID of the customer for which the stand-alone project should be ordered. Required together with `article_id`, and conflicts with `server_id`. For a project on a server, this is populated from the server's customer.
+- `diskspace_gb` (Number) The amount of disk space for a stand-alone project, in GiB. Must be at least 20 and a multiple of 20. Required together with `article_id`, and can only be set for stand-alone projects; for a project on a server, this reports the disk space the project is allotted.
+- `server_id` (String) ID of the server this project should be provisioned on. Must be a full UUID (not a short ID like s-XXXXXX). Conflicts with `customer_id` and `article_id`.
+- `use_free_trial` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Use a free trial period for the stand-alone project, when available. Only applicable on creation, not on updates.
 
 ### Read-Only
 
+- `contract_id` (String) The contract ID associated with a stand-alone project. Null for projects on a server, which are billed via the server's contract.
 - `default_ips` (List of String) Contains a list of default IP addresses for the project
 - `directories` (Map of String) Contains a map of data directories within the project
 - `id` (String) The generated project ID

@@ -13,3 +13,7 @@ provider "mittwald" {
 variable "server_id" {
   type = string
 }
+
+variable "customer_id" {
+  type = string
+}
