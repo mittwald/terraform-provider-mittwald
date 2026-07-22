@@ -44,19 +44,19 @@ func (m *ResourceModel) mapConfiguration(ctx context.Context, d *diag.Diagnostic
 	}
 }
 
-func (m *ResourceModel) ToUpdateDescriptionRequest() databaseclientv2.UpdateRedisDatabaseDescriptionRequest {
-	return databaseclientv2.UpdateRedisDatabaseDescriptionRequest{
+func (m *ResourceModel) ToUpdateDescriptionRequest() databaseclientv2.PatchRedisDatabaseRequest {
+	return databaseclientv2.PatchRedisDatabaseRequest{
 		RedisDatabaseID: m.ID.ValueString(),
-		Body: databaseclientv2.UpdateRedisDatabaseDescriptionRequestBody{
-			Description: m.Description.ValueString(),
+		Body: databaseclientv2.PatchRedisDatabaseRequestBody{
+			Description: m.Description.ValueStringPointer(),
 		},
 	}
 }
 
-func (m *ResourceModel) ToUpdateConfigurationRequest(ctx context.Context, d *diag.Diagnostics) databaseclientv2.UpdateRedisDatabaseConfigurationRequest {
-	return databaseclientv2.UpdateRedisDatabaseConfigurationRequest{
+func (m *ResourceModel) ToUpdateConfigurationRequest(ctx context.Context, d *diag.Diagnostics) databaseclientv2.PatchRedisDatabaseRequest {
+	return databaseclientv2.PatchRedisDatabaseRequest{
 		RedisDatabaseID: m.ID.ValueString(),
-		Body: databaseclientv2.UpdateRedisDatabaseConfigurationRequestBody{
+		Body: databaseclientv2.PatchRedisDatabaseRequestBody{
 			Configuration: m.mapConfiguration(ctx, d),
 		},
 	}
