@@ -7,6 +7,7 @@ import (
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 )
 
 // ErrNoDefaultIngress is returned when a project does not have a default ingress yet,
@@ -17,6 +18,7 @@ type ProjectClient interface {
 	projectclientv2.Client
 
 	GetProjectDefaultIPs(context.Context, string) ([]string, error)
+	PollProjectDefaultIPs(context.Context, string) ([]string, error)
 }
 
 type projectClient struct {
@@ -49,4 +51,28 @@ func (c *projectClient) GetProjectDefaultIPs(ctx context.Context, projectID stri
 	}
 
 	return nil, ErrNoDefaultIngress
+}
+
+// PollProjectDefaultIPs polls for the project's default IP addresses until they
+// become available, or until the context is done. Since the default ingress is
+// created asynchronously after a project is created, this may take a while.
+//
+// If the context expires before the default ingress becomes available, this
+// method returns ErrNoDefaultIngress; callers can use this to distinguish "not
+// (yet) available" from an actual API error, and degrade gracefully.
+func (c *projectClient) PollProjectDefaultIPs(ctx context.Context, projectID string) ([]string, error) {
+	pollIPs := func(ctx context.Context, projectID string) ([]string, error) {
+		ips, err := c.GetProjectDefaultIPs(ctx, projectID)
+		if errors.Is(err, ErrNoDefaultIngress) {
+			return nil, apiutils.ErrPollShouldRetry
+		}
+		return ips, err
+	}
+
+	ips, err := apiutils.Poll(ctx, apiutils.PollOpts{}, pollIPs, projectID)
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+		return nil, ErrNoDefaultIngress
+	}
+
+	return ips, err
 }

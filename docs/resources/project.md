@@ -16,6 +16,14 @@ This resource models a project on the mittwald cloud platform; a project is eith
 resource "mittwald_project" "foobar" {
   server_id   = var.server_id
   description = "Test project"
+
+  # A project's default ingress (and with it, the `default_ips` attribute) is
+  # provisioned asynchronously; if this regularly takes longer than the default
+  # timeouts, you can adjust them here.
+  timeouts {
+    create = "10m"
+    read   = "2m"
+  }
 }
 
 output "project_ips" {
@@ -33,6 +41,7 @@ output "project_ips" {
 ### Optional
 
 - `server_id` (String) ID of the server this project belongs to. Must be a full UUID (not a short ID like s-XXXXXX).
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
@@ -40,3 +49,11 @@ output "project_ips" {
 - `directories` (Map of String) Contains a map of data directories within the project
 - `id` (String) The generated project ID
 - `short_id` (String) The short ID of the project
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) Time to wait for the project to be created. This includes waiting for the project's default ingress (and with it, the `default_ips` attribute) to become available; defaults to 10 minutes.
+- `read` (String) Time to wait when reading the project's current state; defaults to 2 minutes.

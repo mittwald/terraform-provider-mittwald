@@ -3,6 +3,7 @@ package projectdatasource
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -29,11 +30,23 @@ type DataSource struct {
 	client mittwaldv2.Client
 }
 
+// dataSourceModel extends the shared project model with the data source's
+// `timeouts` block.
+type dataSourceModel struct {
+	projectresource.ResourceModel
+
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+// readTimeoutHint is appended to diagnostics caused by an exhausted read
+// timeout, to point users at the knob they can turn.
+const readTimeoutHint = "If this happens regularly, increase the `timeouts.read` value on this data source."
+
 func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_project"
 }
 
-func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Selects an existing project on the mittwald cloud platform.\n\n" +
 			"Exactly one of `id` or `short_id` must be set; the other is populated from the API, " +
@@ -71,6 +84,14 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 				ElementType:         types.StringType,
 			},
 		},
+
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.BlockWithOpts(ctx, timeouts.Opts{
+				ReadDescription: "Time to wait when reading the project; this includes waiting for a " +
+					"not-yet-provisioned default ingress (and with it, the `default_ips` attribute) to become " +
+					"available. Defaults to 2 minutes.",
+			}),
+		},
 	}
 }
 
@@ -81,12 +102,22 @@ func (d *DataSource) Configure(_ context.Context, req datasource.ConfigureReques
 func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	// Reuse the resource model and its API mapping so the data source and the
 	// mittwald_project resource cannot drift when project attributes change.
-	var data projectresource.ResourceModel
+	var data dataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	readTimeout, diags := data.Timeouts.Read(ctx, projectresource.DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, readTimeout)
+	defer cancel()
 
 	// The mittwald API resolves both full and short IDs through the same
 	// endpoint, so either value can be passed straight through to GetProject.
@@ -106,10 +137,9 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	ips := providerutil.
-		Try[[]string](&resp.Diagnostics, "error while reading project ips").
-		IgnoreNotFound().
-		DoVal(client.GetProjectDefaultIPs(ctx, project.Id))
+	// A missing default ingress is not an error; the project's IP addresses may
+	// simply not be available yet.
+	ips := projectresource.PollDefaultIPs(ctx, client, project.Id, readTimeoutHint, &resp.Diagnostics)
 
 	if resp.Diagnostics.HasError() {
 		return

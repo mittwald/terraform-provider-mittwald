@@ -3,8 +3,8 @@ package projectresource
 import (
 	"context"
 	"errors"
-	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -41,7 +41,7 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 	resp.TypeName = req.ProviderTypeName + "_project"
 }
 
-func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("project")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a project on the mittwald cloud platform; a project is either provisioned on a server (in which case a `server_id` is required), or as a stand-alone project (currently not supported).",
@@ -80,6 +80,17 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				},
 			},
 		},
+
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.Block(ctx, timeouts.Opts{
+				Create: true,
+				CreateDescription: "Time to wait for the project to be created. This includes waiting for the " +
+					"project's default ingress (and with it, the `default_ips` attribute) to become available; " +
+					"defaults to 10 minutes.",
+				Read:            true,
+				ReadDescription: "Time to wait when reading the project's current state; defaults to 2 minutes.",
+			}),
+		},
 	}
 }
 
@@ -88,7 +99,7 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 }
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data ResourceModel
+	var data ResourceModelWithTimeouts
 
 	client := r.client.Project()
 
@@ -98,6 +109,16 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	createTimeout, diags := data.Timeouts.Create(ctx, DefaultCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
 
 	projectResponse := providerutil.
 		Try[*projectclientv2.CreateProjectResponse](&resp.Diagnostics, "error while creating project").
@@ -112,12 +133,17 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	data.ID = types.StringValue(projectResponse.Id)
 
-	resp.Diagnostics.Append(r.readAfterCreate(ctx, &data)...)
+	resp.Diagnostics.Append(r.readAfterCreate(ctx, &data.ResourceModel)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data ResourceModel
+	var data ResourceModelWithTimeouts
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -126,63 +152,92 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	readTimeout, diags := data.Timeouts.Read(ctx, DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
 	defer cancel()
 
-	resp.Diagnostics.Append(r.read(readCtx, &data)...)
+	found, diags := r.read(readCtx, &data.ResourceModel)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !found {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+// read refreshes the given model from the API. It reports whether the project
+// still exists; if it does not, the model is left untouched and the caller
+// should remove the resource from the state.
+func (r *Resource) read(ctx context.Context, data *ResourceModel) (bool, diag.Diagnostics) {
+	var res diag.Diagnostics
+
 	client := apiext.NewProjectClient(r.client)
 
 	pr := providerutil.
 		Try[*projectv2.Project](&res, "error while reading project").
 		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
+		DoValResp(client.GetProject(ctx, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
 
-	ips := providerutil.
-		Try[[]string](&res, "error while reading project ips").
-		IgnoreNotFound().
-		DoVal(client.GetProjectDefaultIPs(ctx, data.ID.ValueString()))
+	if res.HasError() || pr == nil {
+		return false, res
+	}
+
+	// A missing default ingress is not an error during a refresh; it just means
+	// that the project's IP addresses are not available (yet).
+	ips := PollDefaultIPs(ctx, client, data.ID.ValueString(), readTimeoutHint, &res)
 
 	if res.HasError() {
-		return
+		return false, res
 	}
 
 	res.Append(data.FromAPIModel(ctx, pr, ips)...)
 
-	return
+	return true, res
 }
 
-// readAfterCreate is like read but polls for the default IPs to become available.
-// This is necessary because immediately after project creation, the default ingress
-// may not exist yet.
+// readAfterCreate is like read, but tolerates the project itself not being
+// visible right away, and waits longer for the default IPs to become available.
+// This is necessary because immediately after project creation, neither the
+// project nor its default ingress may be visible yet.
 func (r *Resource) readAfterCreate(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	client := apiext.NewProjectClient(r.client)
 
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
-
-	pr := providerutil.
-		Try[*projectv2.Project](&res, "error while reading project").
-		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
-
-	// Wrap GetProjectDefaultIPs to convert ErrNoDefaultIngress to ErrPollShouldRetry
-	// so that the Poll function will retry until the default ingress appears.
-	getIPsWithRetry := func(ctx context.Context, projectID string) ([]string, error) {
-		ips, err := client.GetProjectDefaultIPs(ctx, projectID)
-		if errors.Is(err, apiext.ErrNoDefaultIngress) {
-			return nil, apiutils.ErrPollShouldRetry
+	pr, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()})
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			res.AddError(
+				"error while reading project",
+				"the project was created, but did not become readable in time. "+createTimeoutHint,
+			)
+		} else {
+			res.AddError("error while reading project", err.Error())
 		}
-		return ips, err
+
+		return
 	}
 
-	ips := providerutil.
-		Try[[]string](&res, "error while reading project ips").
-		IgnoreNotFound().
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, getIPsWithRetry, data.ID.ValueString()))
+	if pr == nil {
+		res.AddError("error while reading project", "the project was created, but could not be read back")
+		return
+	}
+
+	// If the default ingress does not show up in time, continue with an empty
+	// list of IP addresses; the project itself has been created successfully,
+	// and failing here would leave the resource tainted (and all computed
+	// attributes unknown, which Terraform rejects outright).
+	ips := PollDefaultIPs(ctx, client, data.ID.ValueString(), createTimeoutHint, &res)
 
 	if res.HasError() {
 		return
@@ -194,7 +249,7 @@ func (r *Resource) readAfterCreate(ctx context.Context, data *ResourceModel) (re
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var dataPlan, dataState ResourceModel
+	var dataPlan, dataState ResourceModelWithTimeouts
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &dataPlan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &dataState)...)
@@ -224,7 +279,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data ResourceModel
+	var data ResourceModelWithTimeouts
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
