@@ -18,8 +18,9 @@ resource "mittwald_project" "foobar" {
   description = "Test project"
 
   # A project's default ingress (and with it, the `default_ips` attribute) is
-  # provisioned asynchronously; if this regularly takes longer than the default
-  # timeouts, you can adjust them here.
+  # provisioned asynchronously. This usually takes just a few seconds -- the
+  # timeouts below are upper bounds, not waiting times -- but if provisioning
+  # regularly takes longer than the defaults, you can adjust them here.
   timeouts {
     create = "10m"
     read   = "2m"
@@ -55,5 +56,5 @@ output "project_ips" {
 
 Optional:
 
-- `create` (String) Time to wait for the project to be created. This includes waiting for the project's default ingress (and with it, the `default_ips` attribute) to become available; defaults to 10 minutes.
-- `read` (String) Time to wait when reading the project's current state; defaults to 2 minutes.
+- `create` (String) Time to wait for the project to be created. This includes waiting for the project's default ingress (and with it, the `default_ips` attribute) to become available, which usually takes just a few seconds, but can occasionally take several minutes. Defaults to 10 minutes; this is only an upper bound, and creation returns as soon as the project is ready.
+- `read` (String) Time to wait when reading the project's current state. This is an upper bound for the (usually near-instant) API calls involved, including waiting for a not-yet-provisioned default ingress; defaults to 2 minutes.

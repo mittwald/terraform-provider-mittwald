@@ -65,4 +65,4 @@ resource "mittwald_virtualhost" "example" {
 
 Optional:
 
-- `read` (String) Time to wait when reading the project; this includes waiting for a not-yet-provisioned default ingress (and with it, the `default_ips` attribute) to become available. Defaults to 2 minutes.
+- `read` (String) Time to wait when reading the project. This is an upper bound for the (usually near-instant) API calls involved, including waiting for a not-yet-provisioned default ingress (and with it, the `default_ips` attribute) to become available; defaults to 2 minutes.

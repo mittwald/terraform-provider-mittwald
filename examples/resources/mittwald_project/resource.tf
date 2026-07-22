@@ -3,8 +3,9 @@ resource "mittwald_project" "foobar" {
   description = "Test project"
 
   # A project's default ingress (and with it, the `default_ips` attribute) is
-  # provisioned asynchronously; if this regularly takes longer than the default
-  # timeouts, you can adjust them here.
+  # provisioned asynchronously. This usually takes just a few seconds -- the
+  # timeouts below are upper bounds, not waiting times -- but if provisioning
+  # regularly takes longer than the defaults, you can adjust them here.
   timeouts {
     create = "10m"
     read   = "2m"

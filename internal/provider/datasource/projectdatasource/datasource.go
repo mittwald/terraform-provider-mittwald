@@ -87,9 +87,10 @@ func (d *DataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, res
 
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.BlockWithOpts(ctx, timeouts.Opts{
-				ReadDescription: "Time to wait when reading the project; this includes waiting for a " +
-					"not-yet-provisioned default ingress (and with it, the `default_ips` attribute) to become " +
-					"available. Defaults to 2 minutes.",
+				ReadDescription: "Time to wait when reading the project. This is an upper bound for the " +
+					"(usually near-instant) API calls involved, including waiting for a not-yet-provisioned " +
+					"default ingress (and with it, the `default_ips` attribute) to become available; " +
+					"defaults to 2 minutes.",
 			}),
 		},
 	}

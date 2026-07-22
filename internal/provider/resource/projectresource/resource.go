@@ -85,10 +85,14 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{
 				Create: true,
 				CreateDescription: "Time to wait for the project to be created. This includes waiting for the " +
-					"project's default ingress (and with it, the `default_ips` attribute) to become available; " +
-					"defaults to 10 minutes.",
-				Read:            true,
-				ReadDescription: "Time to wait when reading the project's current state; defaults to 2 minutes.",
+					"project's default ingress (and with it, the `default_ips` attribute) to become available, " +
+					"which usually takes just a few seconds, but can occasionally take several minutes. " +
+					"Defaults to 10 minutes; this is only an upper bound, and creation returns as soon as the " +
+					"project is ready.",
+				Read: true,
+				ReadDescription: "Time to wait when reading the project's current state. This is an upper bound " +
+					"for the (usually near-instant) API calls involved, including waiting for a " +
+					"not-yet-provisioned default ingress; defaults to 2 minutes.",
 			}),
 		},
 	}
