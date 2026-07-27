@@ -1,6 +1,5 @@
 name: Bug report
 description: Report unexpected behaviour of the mittwald Terraform provider
-labels: ["bug"]
 type: "Bug"
 body:
   - type: markdown
