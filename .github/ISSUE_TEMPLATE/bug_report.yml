@@ -1,0 +1,155 @@
+name: Bug report
+description: Report unexpected behaviour of the mittwald Terraform provider
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report!
+
+        > [!IMPORTANT]
+        > Please redact any credentials (API tokens, passwords, private keys, certificates)
+        > from configurations and log output before submitting. Debug logs may contain API
+        > request and response bodies.
+
+        If you are just looking for help with your configuration, consider asking in our
+        [community Discord](https://mittwald.chat/terraform) instead.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I have searched the existing issues and did not find a report for this bug.
+          required: true
+        - label: I have reproduced this with the latest version of the provider (or state below why I cannot).
+          required: false
+
+  - type: dropdown
+    id: components
+    attributes:
+      label: Affected resources, data sources, actions or functions
+      description: Select everything that is involved in this bug. Leave empty if the bug is not specific to one of these.
+      multiple: true
+      options:
+        - mittwald_ai (resource)
+        - mittwald_ai_api_key (resource)
+        - mittwald_app (resource)
+        - mittwald_container_registry (resource)
+        - mittwald_container_stack (resource)
+        - mittwald_cronjob (resource)
+        - mittwald_email_outbox (resource)
+        - mittwald_mysql_database (resource)
+        - mittwald_project (resource)
+        - mittwald_redis_database (resource)
+        - mittwald_remote_file (resource)
+        - mittwald_server (resource)
+        - mittwald_ssh_user (resource)
+        - mittwald_tls_certificate (resource)
+        - mittwald_virtualhost (resource)
+        - mittwald_app (data source)
+        - mittwald_article (data source)
+        - mittwald_container_image (data source)
+        - mittwald_project (data source)
+        - mittwald_project_by_shortid (data source)
+        - mittwald_server (data source)
+        - mittwald_systemsoftware (data source)
+        - mittwald_user (data source)
+        - mittwald_mysql_password (ephemeral resource)
+        - mittwald_container_recreate (action)
+        - mittwald_container_restart (action)
+        - provider::mittwald::read_ssh_publickey (function)
+        - provider configuration
+        - documentation
+        - other / not sure
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Terraform configuration
+      description: |
+        A minimal configuration that reproduces the problem. Please remove anything
+        unrelated to the bug, and redact secrets.
+      render: terraform
+      placeholder: |
+        resource "mittwald_..." "example" {
+          # ...
+        }
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. `terraform apply` the configuration above
+        2. ...
+        3. See error
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What did you expect to happen? E.g. "the second plan should be empty".
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: |
+        What happened instead? Include the error message, the unexpected plan diff,
+        or the values that ended up in state.
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug-output
+    attributes:
+      label: Debug output
+      description: |
+        Output of the failing command with `TF_LOG=debug`. Please check it for credentials
+        before posting; for very long output, attach it as a file or link to a Gist instead.
+      render: shell
+
+  - type: textarea
+    id: panic-output
+    attributes:
+      label: Panic output
+      description: If Terraform crashed, paste the contents of `crash.log` here.
+      render: shell
+
+  - type: input
+    id: terraform-version
+    attributes:
+      label: Terraform / OpenTofu version
+      description: Output of `terraform version` or `tofu version`.
+      placeholder: terraform 1.14.2
+    validations:
+      required: true
+
+  - type: input
+    id: provider-version
+    attributes:
+      label: Provider version
+      placeholder: 1.10.9
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: |
+        Anything else that might help: does this happen consistently or only sometimes?
+        Did it work with an earlier provider version? Links to related issues or pull requests.

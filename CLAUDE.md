@@ -82,6 +82,7 @@ When adding a new resource or data source, complete all of these:
 - Register the constructor in `internal/provider/provider.go`.
 - Add an example under `examples/{resources,data-sources}/<name>/`.
 - Add it to the list in `README.md`.
+- Add it to the "Affected resources, data sources, actions or functions" dropdown in `.github/ISSUE_TEMPLATE/bug_report.yml`.
 - Run `go generate ./...` to regenerate the `docs/` pages.
 - Prefer deprecating a superseded resource/data source (via `DeprecationMessage`) over removing it outright, since removal is a breaking change.
 
