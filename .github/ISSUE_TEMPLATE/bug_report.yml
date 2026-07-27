@@ -1,6 +1,7 @@
 name: Bug report
 description: Report unexpected behaviour of the mittwald Terraform provider
 labels: ["bug"]
+type: "Bug"
 body:
   - type: markdown
     attributes:
@@ -8,12 +9,9 @@ body:
         Thanks for taking the time to file a bug report!
 
         > [!IMPORTANT]
-        > Please redact any credentials (API tokens, passwords, private keys, certificates)
-        > from configurations and log output before submitting. Debug logs may contain API
-        > request and response bodies.
+        > Please redact any credentials (API tokens, passwords, private keys, certificates) from configurations and log output before submitting. Debug logs may contain API request and response bodies.
 
-        If you are just looking for help with your configuration, consider asking in our
-        [community Discord](https://mittwald.chat/terraform) instead.
+        If you are just looking for help with your configuration, consider asking in our [community Discord](https://mittwald.chat/terraform) instead.
 
   - type: checkboxes
     id: preflight
