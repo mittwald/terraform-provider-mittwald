@@ -12,6 +12,7 @@ import (
 
 func (m *ResourceModel) Reset() {
 	m.ID = types.StringNull()
+	m.ShortID = types.StringNull()
 	m.ServerID = types.StringNull()
 	m.Description = types.StringNull()
 	m.Directories = types.MapNull(types.StringType)

@@ -51,6 +51,7 @@ resource "mittwald_virtualhost" "example" {
 
 - `id` (String) The project identifier (full UUID). Either `id` or `short_id` must be set.
 - `short_id` (String) The project short ID (for example `p-XXXXXX`). Either `id` or `short_id` must be set.
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
 
@@ -58,3 +59,10 @@ resource "mittwald_virtualhost" "example" {
 - `description` (String) The project description.
 - `directories` (Map of String) Contains a map of data directories within the project.
 - `server_id` (String) ID of the server this project belongs to. Null for stand-alone projects.
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `read` (String) Time to wait when reading the project. This is an upper bound for the (usually near-instant) API calls involved, including waiting for a not-yet-provisioned default ingress (and with it, the `default_ips` attribute) to become available; defaults to 2 minutes.
