@@ -1,3 +1,11 @@
+## [1.10.11](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.10...v1.10.11) (2026-07-30)
+
+
+### Bug Fixes
+
+* **container_stack:** make timeouts configurable ([#454](https://github.com/mittwald/terraform-provider-mittwald/issues/454)) ([7c938bf](https://github.com/mittwald/terraform-provider-mittwald/commit/7c938bf19c71ec6dd2fbc80be76ec7df1285a1ce)), closes [#449](https://github.com/mittwald/terraform-provider-mittwald/issues/449)
+* **project:** honour configurable timeouts and tolerate a missing default ingress ([#449](https://github.com/mittwald/terraform-provider-mittwald/issues/449)) ([cc1f3ad](https://github.com/mittwald/terraform-provider-mittwald/commit/cc1f3ad41d92122719978b28aa7ff881cc781a3c))
+
 ## [1.10.10](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.9...v1.10.10) (2026-07-24)
 
 ## [1.10.9](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.8...v1.10.9) (2026-07-22)
