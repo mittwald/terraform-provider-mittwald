@@ -2,6 +2,7 @@ package articledatasource
 
 import (
 	"context"
+	"net/http"
 	"path"
 	"strings"
 
@@ -15,6 +16,7 @@ import (
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/articleclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/articlev2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -230,8 +232,7 @@ func (d *ArticleDataSource) extractSelectValues(data *DataSourceSelectModel, dia
 
 // fetchAndFilterArticles fetches articles from the API and applies client-side filtering.
 func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters articleFilters, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
-	var articles *[]articlev2.ReadableArticle
-	var err error
+	var articles []articlev2.ReadableArticle
 
 	articleClient := d.client.Article()
 
@@ -243,17 +244,19 @@ func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters 
 			return nil
 		}
 
-		articles = &[]articlev2.ReadableArticle{*article}
+		articles = []articlev2.ReadableArticle{*article}
 	} else {
-		listReq := d.buildListArticlesRequest(filters)
-		articles, _, err = articleClient.ListArticles(ctx, listReq)
+		var err error
+		articles, err = apiutils.FetchAllPages(ctx, 100, func(ctx context.Context, limit, page int64) (*[]articlev2.ReadableArticle, *http.Response, error) {
+			return articleClient.ListArticles(ctx, d.buildListArticlesRequest(filters, limit, page))
+		})
 		if err != nil {
 			diags.AddError("Failed to list articles", err.Error())
 			return nil
 		}
 	}
 
-	if articles == nil || len(*articles) == 0 {
+	if len(articles) == 0 {
 		diags.AddError(
 			"No matching article found",
 			"No article matched the specified filter criteria. Please check your filter values and try again.",
@@ -262,29 +265,32 @@ func (d *ArticleDataSource) fetchAndFilterArticles(ctx context.Context, filters 
 	}
 
 	if len(filters.tags) > 0 {
-		articles = d.applyTagFiltering(*articles, filters.tags, diags)
+		articles = d.applyTagFiltering(articles, filters.tags, diags)
 		if articles == nil {
 			return nil
 		}
 	}
 
 	if len(filters.attributes) > 0 {
-		articles = d.applyAttributeFiltering(*articles, filters.attributes, diags)
+		articles = d.applyAttributeFiltering(articles, filters.attributes, diags)
 		if articles == nil {
 			return nil
 		}
 	}
 
 	if filters.idPattern != "" {
-		articles = d.applyIDPatternFiltering(*articles, filters.idPattern, diags)
+		articles = d.applyIDPatternFiltering(articles, filters.idPattern, diags)
 	}
 
-	return articles
+	return &articles
 }
 
-// buildListArticlesRequest builds the API request from filter values.
-func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) articleclientv2.ListArticlesRequest {
-	listReq := articleclientv2.ListArticlesRequest{}
+// buildListArticlesRequest builds the API request from filter values, page size, and page number.
+func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters, limit, page int64) articleclientv2.ListArticlesRequest {
+	listReq := articleclientv2.ListArticlesRequest{
+		Limit: &limit,
+		Page:  &page,
+	}
 
 	if len(filters.templates) > 0 {
 		listReq.TemplateNames = filters.templates
@@ -302,7 +308,7 @@ func (d *ArticleDataSource) buildListArticlesRequest(filters articleFilters) art
 }
 
 // applyTagFiltering filters articles based on tags using AND logic.
-func (d *ArticleDataSource) applyTagFiltering(articles []articlev2.ReadableArticle, filterTags []string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+func (d *ArticleDataSource) applyTagFiltering(articles []articlev2.ReadableArticle, filterTags []string, diags *diag.Diagnostics) []articlev2.ReadableArticle {
 	filteredArticles := make([]articlev2.ReadableArticle, 0)
 	for _, article := range articles {
 		if matchesTagFilters(article, filterTags) {
@@ -318,11 +324,11 @@ func (d *ArticleDataSource) applyTagFiltering(articles []articlev2.ReadableArtic
 		return nil
 	}
 
-	return &filteredArticles
+	return filteredArticles
 }
 
 // applyAttributeFiltering filters articles based on attribute key-value pairs.
-func (d *ArticleDataSource) applyAttributeFiltering(articles []articlev2.ReadableArticle, filterAttributes map[string]string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+func (d *ArticleDataSource) applyAttributeFiltering(articles []articlev2.ReadableArticle, filterAttributes map[string]string, diags *diag.Diagnostics) []articlev2.ReadableArticle {
 	filteredArticles := make([]articlev2.ReadableArticle, 0)
 	for _, article := range articles {
 		if matchesAttributeFilters(article, filterAttributes) {
@@ -338,11 +344,11 @@ func (d *ArticleDataSource) applyAttributeFiltering(articles []articlev2.Readabl
 		return nil
 	}
 
-	return &filteredArticles
+	return filteredArticles
 }
 
 // applyIDPatternFiltering filters articles based on ID pattern matching.
-func (d *ArticleDataSource) applyIDPatternFiltering(articles []articlev2.ReadableArticle, pattern string, diags *diag.Diagnostics) *[]articlev2.ReadableArticle {
+func (d *ArticleDataSource) applyIDPatternFiltering(articles []articlev2.ReadableArticle, pattern string, diags *diag.Diagnostics) []articlev2.ReadableArticle {
 	filteredArticles := make([]articlev2.ReadableArticle, 0)
 	for _, article := range articles {
 		if matchesIDPattern(article, pattern) {
@@ -358,12 +364,12 @@ func (d *ArticleDataSource) applyIDPatternFiltering(articles []articlev2.Readabl
 		return nil
 	}
 
-	return &filteredArticles
+	return filteredArticles
 }
 
 // selectOrValidateSingleMatch either applies selection criteria or validates that exactly one article matched.
 func (d *ArticleDataSource) selectOrValidateSingleMatch(articles *[]articlev2.ReadableArticle, filters articleFilters, selector articleSelector, diags *diag.Diagnostics) articlev2.ReadableArticle {
-	if articles == nil {
+	if articles == nil || len(*articles) == 0 {
 		return articlev2.ReadableArticle{}
 	}
 
