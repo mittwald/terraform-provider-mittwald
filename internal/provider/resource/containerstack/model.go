@@ -1,16 +1,18 @@
 package containerstackresource
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 type ContainerStackModel struct {
-	ID             types.String `tfsdk:"id"`
-	ProjectID      types.String `tfsdk:"project_id"`
-	DefaultStack   types.Bool   `tfsdk:"default_stack"`
-	Containers     types.Map    `tfsdk:"containers"`
-	Volumes        types.Map    `tfsdk:"volumes"`
-	UpdateSchedule types.Object `tfsdk:"update_schedule"`
+	ID             types.String   `tfsdk:"id"`
+	ProjectID      types.String   `tfsdk:"project_id"`
+	DefaultStack   types.Bool     `tfsdk:"default_stack"`
+	Containers     types.Map      `tfsdk:"containers"`
+	Volumes        types.Map      `tfsdk:"volumes"`
+	UpdateSchedule types.Object   `tfsdk:"update_schedule"`
+	Timeouts       timeouts.Value `tfsdk:"timeouts"`
 }
 
 type UpdateScheduleModel struct {

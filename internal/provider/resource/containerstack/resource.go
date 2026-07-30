@@ -3,6 +3,7 @@ package containerstackresource
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
@@ -31,7 +32,7 @@ type Resource struct {
 func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_container_stack"
 }
-func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("container_stack")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a container stack.\n\n" +
@@ -218,6 +219,26 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					},
 				},
 			},
+		},
+
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.Block(ctx, timeouts.Opts{
+				Create: true,
+				CreateDescription: "Time to wait for the stack to be created. This includes waiting for all of " +
+					"this stack's containers to reach the `running` state, which requires their images to be " +
+					"pulled first; how long that takes depends entirely on the images in question. " +
+					"Defaults to 30 minutes; this is only an upper bound, and creation returns as soon as all " +
+					"containers are running.",
+				Read: true,
+				ReadDescription: "Time to wait when reading the stack's current state. This is an upper bound " +
+					"for the (usually near-instant) API calls involved; defaults to 2 minutes.",
+				Update: true,
+				UpdateDescription: "Time to wait for an update of the stack to complete, including waiting for " +
+					"changed or recreated containers to reach the `running` state again. Defaults to 30 minutes; " +
+					"this is only an upper bound, and the update returns as soon as all containers are running.",
+				Delete:            true,
+				DeleteDescription: "Time to wait for the stack to be deleted; defaults to 10 minutes.",
+			}),
 		},
 	}
 }

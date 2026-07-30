@@ -2,6 +2,7 @@ package containerstackresource
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -32,17 +33,36 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	createTimeout, diags := data.Timeouts.Create(ctx, DefaultCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	readTimeout, diags := data.Timeouts.Read(ctx, DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	createCtx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	if data.DefaultStack.ValueBool() {
-		r.createInDefaultStack(ctx, &data, resp)
+		r.createInDefaultStack(createCtx, &data, resp)
 	} else {
-		r.createAsNewStack(ctx, &data, resp)
+		r.createAsNewStack(createCtx, &data, resp)
 	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data, &data)...)
+	// The read-back gets its own budget, so that an exhausted create timeout
+	// does not also fail the read; that would leave the state unwritten and the
+	// stack we just created untracked.
+	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &data, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -62,10 +82,9 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 		return
 	}
 
-	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
-		Do(client.WaitUntilStackIsReady(ctx, stack.Id, nil))
-
 	data.ID = types.StringValue(stack.Id)
+
+	waitUntilStackIsReady(ctx, client, stack.Id, nil, createTimeoutHint, &resp.Diagnostics)
 
 	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
 		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
@@ -77,11 +96,18 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 
 	client := apiext.NewContainerClient(r.client)
 
-	stack := providerutil.
-		Try[*containerv2.StackResponse](&resp.Diagnostics, "failed to get default stack").
-		DoVal(client.PollDefaultStack(ctx, data.ProjectID.ValueString()))
+	stack, err := client.PollDefaultStack(ctx, data.ProjectID.ValueString())
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			resp.Diagnostics.AddError(
+				"failed to get default stack",
+				"the default stack of project "+data.ProjectID.ValueString()+" did not become available in time. "+
+					createTimeoutHint,
+			)
+		} else {
+			resp.Diagnostics.AddError("failed to get default stack", err.Error())
+		}
 
-	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -100,8 +126,13 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
 		DoValResp(client.UpdateStack(ctx, *updateRequest))
 
-	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
-		Do(client.WaitUntilStackIsReady(ctx, stack.Id, data.ContainerNames()))
+	// Without this, a failed update would still spend the entire create budget
+	// waiting for containers that were never asked to change.
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	waitUntilStackIsReady(ctx, client, stack.Id, data.ContainerNames(), createTimeoutHint, &resp.Diagnostics)
 
 	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
 		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)

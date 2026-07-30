@@ -29,51 +29,76 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
+	updateTimeout, diags := planData.Timeouts.Update(ctx, DefaultUpdateTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	readTimeout, diags := planData.Timeouts.Read(ctx, DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// The timeouts block is part of the configuration, not of the remote object;
+	// carry the planned value over, or Terraform will complain about a changed
+	// value once the state below is written from stateData.
+	stateData.Timeouts = planData.Timeouts
+
 	ctx = tflog.SetField(ctx, "stack_id", stateData.ID.ValueString())
 	client := apiext.NewContainerClient(r.client)
+
+	updateCtx, cancel := context.WithTimeout(ctx, updateTimeout)
+	defer cancel()
 
 	var stack *containerv2.StackResponse
 
 	if stateData.DefaultStack.ValueBool() {
-		req := planData.ToUpdateRequest(ctx, &stateData, &resp.Diagnostics)
+		req := planData.ToUpdateRequest(updateCtx, &stateData, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
 			return
 		}
 
 		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack").
-			DoValResp(client.UpdateStack(ctx, *req))
+			DoValResp(client.UpdateStack(updateCtx, *req))
 	} else {
-		req := planData.ToDeclareRequest(ctx, &resp.Diagnostics)
+		req := planData.ToDeclareRequest(updateCtx, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
 			return
 		}
 
 		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-			DoValResp(client.DeclareStack(ctx, *req))
+			DoValResp(client.DeclareStack(updateCtx, *req))
 	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	r.recreateContainers(ctx, planData, stack, resp)
+	r.recreateContainers(updateCtx, planData, stack, resp)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
-		Do(client.WaitUntilStackIsReady(ctx, stack.Id, planData.ContainerNames()))
+	waitUntilStackIsReady(updateCtx, client, stack.Id, planData.ContainerNames(), updateTimeoutHint, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Only reconcile when the schedule actually changed. An unknown planned
 	// value is not a meaningful change (it gets resolved during apply), and must
 	// not be treated as a removal, which would unset an existing schedule.
 	if !planData.UpdateSchedule.IsUnknown() && !planData.UpdateSchedule.Equal(stateData.UpdateSchedule) {
-		r.reconcileUpdateSchedule(ctx, &planData, &resp.Diagnostics)
+		r.reconcileUpdateSchedule(updateCtx, &planData, &resp.Diagnostics)
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &stateData, &planData)...)
+	// Like on create, the read-back gets its own budget, so that an exhausted
+	// update timeout does not also fail the read and leave a stale state behind.
+	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &stateData, &planData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
