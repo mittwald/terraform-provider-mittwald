@@ -1,3 +1,10 @@
+## [1.10.12](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.11...v1.10.12) (2026-07-31)
+
+
+### Bug Fixes
+
+* **article:** paginate list-articles to fetch all results ([#455](https://github.com/mittwald/terraform-provider-mittwald/issues/455)) ([73701c0](https://github.com/mittwald/terraform-provider-mittwald/commit/73701c0e281e52566088d4c6668c22b2959ddccd))
+
 ## [1.10.11](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.10...v1.10.11) (2026-07-30)
 
 
