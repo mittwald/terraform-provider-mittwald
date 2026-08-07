@@ -43,56 +43,44 @@ func PollRequest[TReq any, TRes any](ctx context.Context, o PollOpts, f func(con
 func Poll[TParam any, TRes any](ctx context.Context, o PollOpts, f func(context.Context, TParam) (TRes, error), param TParam) (TRes, error) {
 	var null TRes
 
-	res := make(chan TRes)
-	err := make(chan error)
-
 	o.applyDefaults()
 
 	d := o.InitialDelay
 	t := time.NewTicker(d)
 
-	defer func() {
-		t.Stop()
-		close(res)
-		close(err)
-	}()
+	defer t.Stop()
 
-	go func() {
-		for {
-			if _, ok := <-t.C; !ok {
-				return
-			}
-
-			d = time.Duration(math.Min(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
-			t.Reset(d)
-
-			r, e := f(ctx, param)
-			if e == nil {
-				res <- r
-				return
-			}
-
-			if errors.Is(e, ErrPollShouldRetry) {
-				continue
-			} else if notFound := new(httperr.ErrNotFound); errors.As(e, &notFound) {
-				continue
-			} else if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(e, &permissionDenied) {
-				continue
-			} else if errors.Is(e, context.DeadlineExceeded) {
-				return
-			} else {
-				err <- e
-				return
-			}
+	for {
+		select {
+		case <-ctx.Done():
+			return null, ctx.Err()
+		case <-t.C:
 		}
-	}()
 
-	select {
-	case <-ctx.Done():
-		return null, ctx.Err()
-	case r := <-res:
-		return r, nil
-	case e := <-err:
+		d = time.Duration(math.Min(float64(d)*o.BackoffFactor, float64(o.MaxDelay)))
+		t.Reset(d)
+
+		r, e := f(ctx, param)
+
+		// The polling function may have been in flight while the context was
+		// cancelled; in that case, the cancellation takes precedence over
+		// whatever it ended up returning.
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return null, ctxErr
+		}
+
+		if e == nil {
+			return r, nil
+		}
+
+		if errors.Is(e, ErrPollShouldRetry) {
+			continue
+		} else if notFound := new(httperr.ErrNotFound); errors.As(e, &notFound) {
+			continue
+		} else if permissionDenied := new(httperr.ErrPermissionDenied); errors.As(e, &permissionDenied) {
+			continue
+		}
+
 		tflog.Debug(ctx, "polling failed", map[string]any{"error": e})
 		return null, e
 	}
