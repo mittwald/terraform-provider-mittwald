@@ -401,9 +401,10 @@ func TestUpdateScheduleRoundTrip(t *testing.T) {
 	diags := model.FromAPIModel(ctx, apiModelWithSchedule, &model, false)
 	g.Expect(diags).To(BeNil())
 
-	req := model.ToUpdateScheduleRequest(ctx, &diags)
+	req, explicitClear := model.ToUpdateScheduleRequest(ctx, &diags)
 	g.Expect(diags).To(BeNil())
 	g.Expect(req).NotTo(BeNil())
+	g.Expect(explicitClear).To(BeFalse())
 	g.Expect(req.StackID).To(Equal("stack-123"))
 	g.Expect(req.Body.UpdateSchedule).NotTo(BeNil())
 	g.Expect(req.Body.UpdateSchedule.Cron).To(Equal("0 3 * * *"))
@@ -421,12 +422,14 @@ func TestUpdateScheduleRequestUnsetsWhenNull(t *testing.T) {
 		UpdateSchedule: types.ObjectNull(updateScheduleAttrTypes),
 	}
 
-	req := model.ToUpdateScheduleRequest(ctx, &diags)
+	req, explicitClear := model.ToUpdateScheduleRequest(ctx, &diags)
 	g.Expect(diags).To(BeNil())
 
-	// A null schedule must produce a request with an empty body so the API
-	// unsets any previously configured schedule.
+	// A null schedule must produce a request with an empty body, plus a flag
+	// telling the caller to force an explicit JSON null onto the wire so the
+	// API unsets any previously configured schedule.
 	g.Expect(req).NotTo(BeNil())
+	g.Expect(explicitClear).To(BeTrue())
 	g.Expect(req.StackID).To(Equal("stack-123"))
 	g.Expect(req.Body.UpdateSchedule).To(BeNil())
 }
@@ -441,12 +444,13 @@ func TestUpdateScheduleRequestSkipsWhenUnknown(t *testing.T) {
 		UpdateSchedule: types.ObjectUnknown(updateScheduleAttrTypes),
 	}
 
-	req := model.ToUpdateScheduleRequest(ctx, &diags)
+	req, explicitClear := model.ToUpdateScheduleRequest(ctx, &diags)
 	g.Expect(diags).To(BeNil())
 
 	// An unknown schedule must be skipped entirely (nil request) so we never
 	// unset an existing schedule while values are still unresolved.
 	g.Expect(req).To(BeNil())
+	g.Expect(explicitClear).To(BeFalse())
 }
 
 func TestParsePortString(t *testing.T) {
