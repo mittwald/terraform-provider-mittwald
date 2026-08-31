@@ -140,7 +140,7 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 	return declareRequest
 }
 
-func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.SetStackUpdateScheduleRequest {
+func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.DeprecatedSetStackUpdateScheduleRequest {
 	// An unknown value can't be reconciled into a request: we neither know the
 	// concrete schedule to set, nor whether the user intends to unset it.
 	// Returning nil signals the caller to skip the API call entirely, so we
@@ -150,7 +150,7 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 		return nil
 	}
 
-	req := &containerclientv2.SetStackUpdateScheduleRequest{
+	req := &containerclientv2.DeprecatedSetStackUpdateScheduleRequest{
 		StackID: m.ID.ValueString(),
 	}
 
@@ -172,7 +172,7 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 		return nil
 	}
 
-	schedule := &containerclientv2.SetStackUpdateScheduleRequestBodyUpdateSchedule{
+	schedule := &containerclientv2.DeprecatedSetStackUpdateScheduleRequestBodyUpdateSchedule{
 		Cron: scheduleModel.Cron.ValueString(),
 	}
 

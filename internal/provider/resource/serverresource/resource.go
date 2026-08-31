@@ -307,11 +307,12 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	dataPlan.ContractID = dataState.ContractID
 
 	if !dataPlan.Description.Equal(dataState.Description) {
+		description := dataPlan.Description.ValueString()
 		providerutil.
 			Try[any](&resp.Diagnostics, "error while updating server description").
-			DoResp(r.client.Project().UpdateServerDescription(ctx, projectclientv2.UpdateServerDescriptionRequest{
+			DoResp(r.client.Project().UpdateServer(ctx, projectclientv2.UpdateServerRequest{
 				ServerID: dataPlan.ID.ValueString(),
-				Body:     projectclientv2.UpdateServerDescriptionRequestBody{Description: dataPlan.Description.ValueString()},
+				Body:     projectclientv2.UpdateServerRequestBody{Description: &description},
 			}))
 	}
 

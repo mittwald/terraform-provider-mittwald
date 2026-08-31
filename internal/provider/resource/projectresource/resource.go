@@ -263,13 +263,14 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	if !dataPlan.Description.Equal(dataState.Description) {
-		updateReq := projectclientv2.UpdateProjectDescriptionRequest{
+		description := dataPlan.Description.ValueString()
+		updateReq := projectclientv2.UpdateProjectRequest{
 			ProjectID: dataState.ID.ValueString(),
-			Body: projectclientv2.UpdateProjectDescriptionRequestBody{
-				Description: dataPlan.Description.ValueString(),
+			Body: projectclientv2.UpdateProjectRequestBody{
+				Description: &description,
 			},
 		}
-		if _, err := r.client.Project().UpdateProjectDescription(ctx, updateReq); err != nil {
+		if _, err := r.client.Project().UpdateProject(ctx, updateReq); err != nil {
 			resp.Diagnostics.AddError("Error while updating project description", err.Error())
 		}
 	}
