@@ -140,39 +140,44 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 	return declareRequest
 }
 
-func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *diag.Diagnostics) *containerclientv2.DeprecatedSetStackUpdateScheduleRequest {
-	// An unknown value can't be reconciled into a request: we neither know the
-	// concrete schedule to set, nor whether the user intends to unset it.
-	// Returning nil signals the caller to skip the API call entirely, so we
-	// don't accidentally clear an existing schedule. Unknown values are expected
-	// to be resolved by the time Create/Update runs during apply.
+// resolveUpdateSchedule interprets m.UpdateSchedule for use in an
+// UpdateStack request body.
+//
+// ok is false when the value is unknown: we then know neither the concrete
+// schedule to set nor whether the user intends to unset it, so the caller
+// must skip touching update_schedule entirely rather than risk clearing an
+// existing schedule. Unknown values are expected to be resolved by the time
+// Create/Update runs during apply.
+//
+// When ok is true and schedule is nil, the model is explicitly null: the
+// caller must clear the existing schedule. Because UpdateStackRequestBody's
+// UpdateSchedule field is `*T` with `omitempty`, a nil pointer marshals to
+// an *omitted* key (meaning "leave unchanged"), not JSON `null` (meaning
+// "clear"). explicitClear signals that the caller needs to force a literal
+// `null` onto the wire, e.g. via withExplicitNullField.
+func (m *ContainerStackModel) resolveUpdateSchedule(ctx context.Context, d *diag.Diagnostics) (schedule *containerclientv2.UpdateStackRequestBodyUpdateSchedule, explicitClear bool, ok bool) {
 	if m.UpdateSchedule.IsUnknown() {
-		return nil
+		return nil, false, false
 	}
 
-	req := &containerclientv2.DeprecatedSetStackUpdateScheduleRequest{
-		StackID: m.ID.ValueString(),
-	}
-
-	// An explicit null means "unset the schedule"; send an empty body.
 	if m.UpdateSchedule.IsNull() {
-		return req
+		return nil, true, true
 	}
 
 	var scheduleModel UpdateScheduleModel
 	diags := m.UpdateSchedule.As(ctx, &scheduleModel, basetypes.ObjectAsOptions{})
 	if diags.HasError() {
 		d.Append(diags...)
-		return nil
+		return nil, false, false
 	}
 
 	// The cron expression is required to build a valid request; if it's still
 	// unknown, skip the call rather than sending an invalid empty schedule.
 	if scheduleModel.Cron.IsUnknown() {
-		return nil
+		return nil, false, false
 	}
 
-	schedule := &containerclientv2.DeprecatedSetStackUpdateScheduleRequestBodyUpdateSchedule{
+	schedule = &containerclientv2.UpdateStackRequestBodyUpdateSchedule{
 		Cron: scheduleModel.Cron.ValueString(),
 	}
 
@@ -181,8 +186,31 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 		schedule.Timezone = &tz
 	}
 
-	req.Body.UpdateSchedule = schedule
-	return req
+	return schedule, false, true
+}
+
+// ToUpdateScheduleRequest builds a standalone UpdateStack request that only
+// touches the update schedule. It's used where the stack's main body update
+// goes through DeclareStack (which has no updateSchedule field of its own),
+// so the schedule must be reconciled via a separate call.
+//
+// The returned bool is true when the caller must additionally force an
+// explicit JSON `null` onto the wire (see resolveUpdateSchedule) to clear an
+// existing schedule.
+func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *diag.Diagnostics) (*containerclientv2.UpdateStackRequest, bool) {
+	schedule, explicitClear, ok := m.resolveUpdateSchedule(ctx, d)
+	if !ok {
+		return nil, false
+	}
+
+	req := &containerclientv2.UpdateStackRequest{
+		StackID: m.ID.ValueString(),
+		Body: containerclientv2.UpdateStackRequestBody{
+			UpdateSchedule: schedule,
+		},
+	}
+
+	return req, explicitClear
 }
 
 func (m *ContainerStackModel) ContainerNames() []string {
