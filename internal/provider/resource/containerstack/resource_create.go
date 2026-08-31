@@ -165,7 +165,7 @@ func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerS
 
 	var opts []func(req *http.Request) error
 	if explicitClear {
-		opts = append(opts, withExplicitNullField("updateSchedule"))
+		opts = append(opts, withExplicitNullUpdateSchedule)
 	}
 
 	providerutil.Try[*containerv2.StackResponse](d, "API error while setting update schedule").

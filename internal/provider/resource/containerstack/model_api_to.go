@@ -154,7 +154,7 @@ func (m *ContainerStackModel) ToDeclareRequest(ctx context.Context, d *diag.Diag
 // UpdateSchedule field is `*T` with `omitempty`, a nil pointer marshals to
 // an *omitted* key (meaning "leave unchanged"), not JSON `null` (meaning
 // "clear"). explicitClear signals that the caller needs to force a literal
-// `null` onto the wire, e.g. via withExplicitNullField.
+// `null` onto the wire, via withExplicitNullUpdateSchedule.
 func (m *ContainerStackModel) resolveUpdateSchedule(ctx context.Context, d *diag.Diagnostics) (schedule *containerclientv2.UpdateStackRequestBodyUpdateSchedule, explicitClear bool, ok bool) {
 	if m.UpdateSchedule.IsUnknown() {
 		return nil, false, false

@@ -77,7 +77,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			if ok {
 				req.Body.UpdateSchedule = schedule
 				if explicitClear {
-					opts = append(opts, withExplicitNullField("updateSchedule"))
+					opts = append(opts, withExplicitNullUpdateSchedule)
 				}
 			}
 		}

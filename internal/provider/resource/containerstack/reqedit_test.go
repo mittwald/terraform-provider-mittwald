@@ -16,7 +16,7 @@ func TestWithExplicitNullFieldOnEmptyBody(t *testing.T) {
 	req, err := http.NewRequest(http.MethodPatch, "https://example.invalid/", io.NopCloser(bytes.NewReader([]byte(`{}`))))
 	g.Expect(err).NotTo(HaveOccurred())
 
-	g.Expect(withExplicitNullField("updateSchedule")(req)).To(Succeed())
+	g.Expect(withExplicitNullUpdateSchedule(req)).To(Succeed())
 
 	body, err := io.ReadAll(req.Body)
 	g.Expect(err).NotTo(HaveOccurred())
@@ -35,7 +35,7 @@ func TestWithExplicitNullFieldPreservesOtherFields(t *testing.T) {
 	req, err := http.NewRequest(http.MethodPatch, "https://example.invalid/", io.NopCloser(bytes.NewReader([]byte(original))))
 	g.Expect(err).NotTo(HaveOccurred())
 
-	g.Expect(withExplicitNullField("updateSchedule")(req)).To(Succeed())
+	g.Expect(withExplicitNullUpdateSchedule(req)).To(Succeed())
 
 	body, err := io.ReadAll(req.Body)
 	g.Expect(err).NotTo(HaveOccurred())
