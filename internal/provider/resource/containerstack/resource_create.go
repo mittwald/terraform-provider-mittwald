@@ -139,9 +139,9 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 	}
 }
 
-// reconcileUpdateSchedule calls SetStackUpdateSchedule to set or unset the
-// update schedule for the stack. When update_schedule is null, an empty body
-// is sent to unset any previously configured schedule.
+// reconcileUpdateSchedule calls DeprecatedSetStackUpdateSchedule to set or
+// unset the update schedule for the stack. When update_schedule is null, an
+// empty body is sent to unset any previously configured schedule.
 func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerStackModel, d *diag.Diagnostics) {
 	scheduleRequest := data.ToUpdateScheduleRequest(ctx, d)
 	if d.HasError() || scheduleRequest == nil {
@@ -149,5 +149,5 @@ func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerS
 	}
 
 	providerutil.Try[any](d, "API error while setting update schedule").
-		DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
+		DoResp(r.client.Container().DeprecatedSetStackUpdateSchedule(ctx, *scheduleRequest))
 }
