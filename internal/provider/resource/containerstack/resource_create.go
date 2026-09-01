@@ -125,22 +125,30 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 		return
 	}
 
-	// The default stack is already updated via UpdateStack, which also carries
-	// an updateSchedule field; fold the schedule into the same call instead of
-	// issuing a second one.
-	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
-		schedule, _, ok := data.resolveUpdateSchedule(ctx, &resp.Diagnostics)
+	// The default stack already exists (and may already carry an update
+	// schedule set outside of this resource), so a config that omits
+	// update_schedule must actively clear it rather than leaving it
+	// untouched — otherwise the created state would drift from the config
+	// until the next Update. UpdateStack already carries an updateSchedule
+	// field, so fold this into the same call instead of issuing a second one.
+	var opts []func(req *http.Request) error
+
+	if !data.UpdateSchedule.IsUnknown() {
+		schedule, explicitClear, ok := data.resolveUpdateSchedule(ctx, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 		if ok {
 			updateRequest.Body.UpdateSchedule = schedule
+			if explicitClear {
+				opts = append(opts, withExplicitNullUpdateSchedule)
+			}
 		}
 	}
 
 	_ = providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-		DoValResp(client.UpdateStack(ctx, *updateRequest))
+		DoValResp(client.UpdateStack(ctx, *updateRequest, opts...))
 
 	// Without this, a failed update would still spend the entire create budget
 	// waiting for containers that were never asked to change.
