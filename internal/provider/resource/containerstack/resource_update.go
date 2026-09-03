@@ -2,6 +2,7 @@ package containerstackresource
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -52,15 +53,38 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	var stack *containerv2.StackResponse
 
+	// Only reconcile the schedule when it actually changed. An unknown planned
+	// value is not a meaningful change (it gets resolved during apply), and must
+	// not be treated as a removal, which would unset an existing schedule.
+	scheduleChanged := !planData.UpdateSchedule.IsUnknown() && !planData.UpdateSchedule.Equal(stateData.UpdateSchedule)
+
 	if stateData.DefaultStack.ValueBool() {
 		req := planData.ToUpdateRequest(updateCtx, &stateData, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
 			return
 		}
 
+		var opts []func(req *http.Request) error
+
+		// The default stack is already updated via UpdateStack, which also
+		// carries an updateSchedule field; fold the schedule into the same
+		// call instead of issuing a second one.
+		if scheduleChanged {
+			schedule, explicitClear, ok := planData.resolveUpdateSchedule(updateCtx, &resp.Diagnostics)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			if ok {
+				req.Body.UpdateSchedule = schedule
+				if explicitClear {
+					opts = append(opts, withExplicitNullUpdateSchedule)
+				}
+			}
+		}
+
 		stack = providerutil.
 			Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack").
-			DoValResp(client.UpdateStack(updateCtx, *req))
+			DoValResp(client.UpdateStack(updateCtx, *req, opts...))
 	} else {
 		req := planData.ToDeclareRequest(updateCtx, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
@@ -86,10 +110,11 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	// Only reconcile when the schedule actually changed. An unknown planned
-	// value is not a meaningful change (it gets resolved during apply), and must
-	// not be treated as a removal, which would unset an existing schedule.
-	if !planData.UpdateSchedule.IsUnknown() && !planData.UpdateSchedule.Equal(stateData.UpdateSchedule) {
+	// For the default stack, the schedule was already folded into the
+	// UpdateStack call above. Declared stacks go through DeclareStack instead,
+	// which has no updateSchedule field, so the schedule still needs its own
+	// UpdateStack call here.
+	if !stateData.DefaultStack.ValueBool() && scheduleChanged {
 		r.reconcileUpdateSchedule(updateCtx, &planData, &resp.Diagnostics)
 	}
 

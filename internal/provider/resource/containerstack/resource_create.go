@@ -3,6 +3,7 @@ package containerstackresource
 import (
 	"context"
 	"errors"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -86,6 +87,8 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 
 	waitUntilStackIsReady(ctx, client, stack.Id, nil, createTimeoutHint, &resp.Diagnostics)
 
+	// DeclareStack has no updateSchedule field, so a schedule set on a brand
+	// new stack still requires a separate UpdateStack call.
 	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
 		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
 	}
@@ -122,9 +125,30 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 		return
 	}
 
+	// The default stack already exists (and may already carry an update
+	// schedule set outside of this resource), so a config that omits
+	// update_schedule must actively clear it rather than leaving it
+	// untouched — otherwise the created state would drift from the config
+	// until the next Update. UpdateStack already carries an updateSchedule
+	// field, so fold this into the same call instead of issuing a second one.
+	var opts []func(req *http.Request) error
+
+	if !data.UpdateSchedule.IsUnknown() {
+		schedule, explicitClear, ok := data.resolveUpdateSchedule(ctx, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if ok {
+			updateRequest.Body.UpdateSchedule = schedule
+			if explicitClear {
+				opts = append(opts, withExplicitNullUpdateSchedule)
+			}
+		}
+	}
+
 	_ = providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-		DoValResp(client.UpdateStack(ctx, *updateRequest))
+		DoValResp(client.UpdateStack(ctx, *updateRequest, opts...))
 
 	// Without this, a failed update would still spend the entire create budget
 	// waiting for containers that were never asked to change.
@@ -133,21 +157,25 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 	}
 
 	waitUntilStackIsReady(ctx, client, stack.Id, data.ContainerNames(), createTimeoutHint, &resp.Diagnostics)
-
-	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
-		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
-	}
 }
 
-// reconcileUpdateSchedule calls DeprecatedSetStackUpdateSchedule to set or
-// unset the update schedule for the stack. When update_schedule is null, an
-// empty body is sent to unset any previously configured schedule.
+// reconcileUpdateSchedule calls UpdateStack to set or unset the update
+// schedule for the stack, for the cases where the stack's main body update
+// went through DeclareStack rather than UpdateStack (which has no
+// updateSchedule field of its own). When update_schedule is null, an
+// explicit JSON null is forced onto the wire to unset any previously
+// configured schedule.
 func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerStackModel, d *diag.Diagnostics) {
-	scheduleRequest := data.ToUpdateScheduleRequest(ctx, d)
+	scheduleRequest, explicitClear := data.ToUpdateScheduleRequest(ctx, d)
 	if d.HasError() || scheduleRequest == nil {
 		return
 	}
 
-	providerutil.Try[any](d, "API error while setting update schedule").
-		DoResp(r.client.Container().DeprecatedSetStackUpdateSchedule(ctx, *scheduleRequest))
+	var opts []func(req *http.Request) error
+	if explicitClear {
+		opts = append(opts, withExplicitNullUpdateSchedule)
+	}
+
+	providerutil.Try[*containerv2.StackResponse](d, "API error while setting update schedule").
+		DoValResp(r.client.Container().UpdateStack(ctx, *scheduleRequest, opts...))
 }
