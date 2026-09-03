@@ -15,10 +15,13 @@ func (m *ResourceModel) Reset() {
 	m.ShortID = types.StringNull()
 	m.ServerID = types.StringNull()
 	m.CustomerID = types.StringNull()
+	m.ArticleID = types.StringNull()
+	m.ContractID = types.StringNull()
 	m.Description = types.StringNull()
 	m.Directories = types.MapNull(types.StringType)
 	m.DefaultIPs = types.ListNull(types.StringType)
 	m.DiskspaceGB = types.Int64Null()
+	m.UseFreeTrial = types.BoolNull()
 }
 
 // FromAPIModel maps an API project into the model.

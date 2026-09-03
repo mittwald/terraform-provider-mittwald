@@ -55,7 +55,7 @@ resource "mittwald_virtualhost" "example" {
 
 ### Read-Only
 
-- `article_id` (String) The article ID determining the machine type of a stand-alone project. Null for projects on a server.
+- `article_id` (String) The article ID determining the tariff of a stand-alone project (for example a hosting plan or a machine type, depending on the article). Null for projects on a server.
 - `contract_id` (String) The contract ID associated with a stand-alone project. Null for projects on a server, which are billed via the server's contract.
 - `customer_id` (String) ID of the customer this project belongs to.
 - `default_ips` (List of String) Contains a list of default IP addresses for the project.

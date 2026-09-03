@@ -56,14 +56,15 @@ func (v projectPlacementValidator) ValidateResource(ctx context.Context, req res
 	customerSet := !customerID.IsNull()
 	articleSet := !articleID.IsNull()
 
-	switch {
-	case serverSet && articleSet:
+	if serverSet && articleSet {
 		const summary = "Conflicting project placement"
 		const detail = "Only one of `server_id` or `article_id` may be configured: a project is either placed on an existing server, or ordered as a stand-alone project."
 
 		resp.Diagnostics.AddAttributeError(path.Root("server_id"), summary, detail)
 		resp.Diagnostics.AddAttributeError(path.Root("article_id"), summary, detail)
-	case !serverSet && !articleSet:
+	}
+
+	if !serverSet && !articleSet {
 		const summary = "Missing project placement"
 		const detail = "Either `server_id` must be configured to place the project on an existing server, or `article_id` must be configured to order a stand-alone project."
 

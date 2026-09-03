@@ -40,7 +40,9 @@ resource "mittwald_project" "foobar" {
 output "project_ips" {
   value = mittwald_project.foobar.default_ips
 }
+```
 
+```terraform
 /**
  * ... or ordered as a stand-alone project, which is billed for a customer. In
  * this case, the hosting plan is selected by article.
@@ -78,7 +80,7 @@ resource "mittwald_project" "standalone" {
 
 > **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
 
-- `article_id` (String) The article ID determining the machine type of a stand-alone project. Required together with `customer_id`, and conflicts with `server_id`. This may be used to change the machine type at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).
+- `article_id` (String) The article ID determining the tariff of a stand-alone project (for example a hosting plan or a machine type, depending on the article). Required together with `customer_id`, and conflicts with `server_id`. This may be used to change the tariff at any time. When changing to a lower tier, the change will only become active after the contract duration (this may result in undefined behavior in the Terraform plan).
 - `customer_id` (String) ID of the customer for which the stand-alone project should be ordered. Required together with `article_id`, and conflicts with `server_id`. For a project on a server, this is populated from the server's customer.
 - `diskspace_gb` (Number) The amount of disk space for a stand-alone project, in GiB. Must be at least 20 and a multiple of 20. Required together with `article_id`, and can only be set for stand-alone projects; for a project on a server, this reports the disk space the project is allotted.
 - `server_id` (String) ID of the server this project should be provisioned on. Must be a full UUID (not a short ID like s-XXXXXX). Conflicts with `customer_id` and `article_id`.

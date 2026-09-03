@@ -83,9 +83,9 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 				},
 			},
 			"article_id": schema.StringAttribute{
-				MarkdownDescription: "The article ID determining the machine type of a stand-alone project. " +
-					"Required together with `customer_id`, and conflicts with `server_id`. " +
-					"This may be used to change the machine type at any time. When changing to a lower tier, the change will " +
+				MarkdownDescription: "The article ID determining the tariff of a stand-alone project (for example a hosting plan " +
+					"or a machine type, depending on the article). Required together with `customer_id`, and conflicts with `server_id`. " +
+					"This may be used to change the tariff at any time. When changing to a lower tier, the change will " +
 					"only become active after the contract duration (this may result in undefined behavior in the Terraform plan).",
 				Optional: true,
 			},
