@@ -58,6 +58,15 @@ resource "mittwald_container_stack" "nginx" {
     cron     = "0 3 * * *"
     timezone = "Europe/Berlin"
   }
+
+  # Creating or updating a stack waits until all of its containers are running,
+  # which includes pulling their images. The timeouts below are upper bounds,
+  # not waiting times -- but if your images are large enough that pulling them
+  # regularly takes longer than the defaults, you can adjust them here.
+  timeouts {
+    create = "30m"
+    update = "30m"
+  }
 }
 
 resource "mittwald_virtualhost" "nginx" {

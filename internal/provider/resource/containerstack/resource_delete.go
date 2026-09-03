@@ -2,6 +2,7 @@ package containerstackresource
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
@@ -27,6 +28,16 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	deleteTimeout, diags := stateData.Timeouts.Delete(ctx, DefaultDeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, deleteTimeout)
+	defer cancel()
 
 	// The "default" stack has a special role, and we will not delete it even if
 	// the user requests it. Instead, we will simply purge all containers and volumes

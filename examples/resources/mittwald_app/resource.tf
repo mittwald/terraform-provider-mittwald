@@ -1,12 +1,16 @@
-variable "admin_password" {
-  description = "The password for the admin user of the wordpress app"
-  type        = string
-  sensitive   = true
-}
+/*
+This example deploys a custom PHP app.
+
+The PHP version is selected dynamically using a semver constraint.
+The app installation is also linked with a MySQL database.
+
+Note that this example will also continuously _update_ your PHP
+environment instance on the 8.* branch.
+*/
 
 data "mittwald_systemsoftware" "php" {
   name     = "php"
-  selector = "^8.2"
+  selector = "^8.5"
 }
 
 data "mittwald_systemsoftware" "composer" {
@@ -17,23 +21,6 @@ data "mittwald_systemsoftware" "composer" {
 data "mittwald_systemsoftware" "mysql" {
   name        = "mysql"
   recommended = true
-}
-
-resource "mittwald_app" "wordpress" {
-  project_id = mittwald_project.foobar.id
-
-  app     = "wordpress"
-  version = "6.3.1"
-
-  description   = "Martins Test-App"
-  update_policy = "patchlevel"
-
-  user_inputs = {
-    "site_title"  = "My awesome site"
-    "admin_user"  = "martin"
-    "admin_pass"  = var.admin_password
-    "admin_email" = "martin@mittwald.example"
-  }
 }
 
 resource "mittwald_app" "custom_php" {

@@ -169,14 +169,14 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	if !dataPlan.Description.Equal(dataState.Description) {
 		updateReq := dataPlan.ToUpdateDescriptionRequest()
-		if _, err := r.client.Database().UpdateRedisDatabaseDescription(ctx, updateReq); err != nil {
+		if _, err := r.client.Database().PatchRedisDatabase(ctx, updateReq); err != nil {
 			resp.Diagnostics.AddError("Error while updating database description", err.Error())
 		}
 	}
 
 	if !dataPlan.Configuration.Equal(dataState.Configuration) {
 		updateReq := dataPlan.ToUpdateConfigurationRequest(ctx, &resp.Diagnostics)
-		if _, err := r.client.Database().UpdateRedisDatabaseConfiguration(ctx, updateReq); err != nil {
+		if _, err := r.client.Database().PatchRedisDatabase(ctx, updateReq); err != nil {
 			resp.Diagnostics.AddError("Error while updating database configuration", err.Error())
 		}
 	}

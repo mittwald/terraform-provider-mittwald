@@ -26,6 +26,15 @@ A project is either provisioned on an existing server, in which case a `server_i
 resource "mittwald_project" "foobar" {
   server_id   = var.server_id
   description = "Test project"
+
+  # A project's default ingress (and with it, the `default_ips` attribute) is
+  # provisioned asynchronously. This usually takes just a few seconds -- the
+  # timeouts below are upper bounds, not waiting times -- but if provisioning
+  # regularly takes longer than the defaults, you can adjust them here.
+  timeouts {
+    create = "10m"
+    read   = "2m"
+  }
 }
 
 output "project_ips" {
@@ -73,6 +82,7 @@ resource "mittwald_project" "standalone" {
 - `customer_id` (String) ID of the customer for which the stand-alone project should be ordered. Required together with `article_id`, and conflicts with `server_id`. For a project on a server, this is populated from the server's customer.
 - `diskspace_gb` (Number) The amount of disk space for a stand-alone project, in GiB. Must be at least 20 and a multiple of 20. Required together with `article_id`, and can only be set for stand-alone projects; for a project on a server, this reports the disk space the project is allotted.
 - `server_id` (String) ID of the server this project should be provisioned on. Must be a full UUID (not a short ID like s-XXXXXX). Conflicts with `customer_id` and `article_id`.
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `use_free_trial` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Use a free trial period for the stand-alone project, when available. Only applicable on creation, not on updates.
 
 ### Read-Only
@@ -82,3 +92,11 @@ resource "mittwald_project" "standalone" {
 - `directories` (Map of String) Contains a map of data directories within the project
 - `id` (String) The generated project ID
 - `short_id` (String) The short ID of the project
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) Time to wait for the project to be created. This includes waiting for the project's default ingress (and with it, the `default_ips` attribute) to become available, which usually takes just a few seconds, but can occasionally take several minutes. Defaults to 10 minutes; this is only an upper bound, and creation returns as soon as the project is ready.
+- `read` (String) Time to wait when reading the project's current state. This is an upper bound for the (usually near-instant) API calls involved, including waiting for a not-yet-provisioned default ingress; defaults to 2 minutes.

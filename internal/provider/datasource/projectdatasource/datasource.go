@@ -3,8 +3,10 @@ package projectdatasource
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
@@ -13,6 +15,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/projectresource"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -30,11 +33,71 @@ type DataSource struct {
 	client mittwaldv2.Client
 }
 
+// dataSourceModel describes the data source data model.
+//
+// It mirrors the mittwald_project resource, except for the resource's write-only
+// `use_free_trial` attribute, which has no meaning outside of an order and
+// cannot be read back from the API. Because of that difference, its fields are
+// populated explicitly in fromAPIModel rather than by embedding
+// projectresource.ResourceModel directly.
+type dataSourceModel struct {
+	ID          types.String `tfsdk:"id"`
+	ShortID     types.String `tfsdk:"short_id"`
+	ServerID    types.String `tfsdk:"server_id"`
+	CustomerID  types.String `tfsdk:"customer_id"`
+	ArticleID   types.String `tfsdk:"article_id"`
+	ContractID  types.String `tfsdk:"contract_id"`
+	Description types.String `tfsdk:"description"`
+	DiskspaceGB types.Int64  `tfsdk:"diskspace_gb"`
+	Directories types.Map    `tfsdk:"directories"`
+	DefaultIPs  types.List   `tfsdk:"default_ips"`
+
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+// fromAPIModel maps an API project into the model, reusing the resource's
+// mapping so that the two cannot drift apart.
+//
+// contract is the project's own contract, and is nil for a project on a server.
+func (d *dataSourceModel) fromAPIModel(ctx context.Context, project *projectv2.Project, ips []string, contract *contractv2.Contract) (res diag.Diagnostics) {
+	var mapped projectresource.ResourceModel
+
+	res.Append(mapped.FromAPIModel(ctx, project, ips)...)
+	if res.HasError() {
+		return
+	}
+
+	d.ID = mapped.ID
+	d.ShortID = mapped.ShortID
+	d.ServerID = mapped.ServerID
+	d.CustomerID = mapped.CustomerID
+	d.Description = mapped.Description
+	d.DiskspaceGB = mapped.DiskspaceGB
+	d.Directories = mapped.Directories
+	d.DefaultIPs = mapped.DefaultIPs
+
+	d.ContractID = types.StringNull()
+	d.ArticleID = types.StringNull()
+
+	if contract != nil {
+		d.ContractID = types.StringValue(contract.ContractId)
+		if len(contract.BaseItem.Articles) > 0 {
+			d.ArticleID = types.StringValue(contract.BaseItem.Articles[0].Id)
+		}
+	}
+
+	return
+}
+
+// readTimeoutHint is appended to diagnostics caused by an exhausted read
+// timeout, to point users at the knob they can turn.
+const readTimeoutHint = "If this happens regularly, increase the `timeouts.read` value on this data source."
+
 func (d *DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_project"
 }
 
-func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Selects an existing project on the mittwald cloud platform.\n\n" +
 			"Exactly one of `id` or `short_id` must be set; the other is populated from the API, " +
@@ -88,6 +151,15 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 				ElementType:         types.StringType,
 			},
 		},
+
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.BlockWithOpts(ctx, timeouts.Opts{
+				ReadDescription: "Time to wait when reading the project. This is an upper bound for the " +
+					"(usually near-instant) API calls involved, including waiting for a not-yet-provisioned " +
+					"default ingress (and with it, the `default_ips` attribute) to become available; " +
+					"defaults to 2 minutes.",
+			}),
+		},
 	}
 }
 
@@ -96,12 +168,24 @@ func (d *DataSource) Configure(_ context.Context, req datasource.ConfigureReques
 }
 
 func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data DataSourceModel
+	// Reuse the resource model and its API mapping so the data source and the
+	// mittwald_project resource cannot drift when project attributes change.
+	var data dataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	readTimeout, diags := data.Timeouts.Read(ctx, projectresource.DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, readTimeout)
+	defer cancel()
 
 	// The mittwald API resolves both full and short IDs through the same
 	// endpoint, so either value can be passed straight through to GetProject.
@@ -121,10 +205,9 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	ips := providerutil.
-		Try[[]string](&resp.Diagnostics, "error while reading project ips").
-		IgnoreNotFound().
-		DoVal(client.GetProjectDefaultIPs(ctx, project.Id))
+	// A missing default ingress is not an error; the project's IP addresses may
+	// simply not be available yet.
+	ips := projectresource.PollDefaultIPs(ctx, client, project.Id, readTimeoutHint, &resp.Diagnostics)
 
 	if resp.Diagnostics.HasError() {
 		return

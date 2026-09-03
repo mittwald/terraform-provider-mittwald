@@ -283,10 +283,10 @@ func (d *Resource) updateCharset(ctx context.Context, databaseID string, planDat
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while updating database").
-		DoResp(client.UpdateMysqlDatabaseDefaultCharset(ctx, databaseclientv2.UpdateMysqlDatabaseDefaultCharsetRequest{
+		DoResp(client.PatchMysqlDatabase(ctx, databaseclientv2.PatchMysqlDatabaseRequest{
 			MysqlDatabaseID: databaseID,
-			Body: databaseclientv2.UpdateMysqlDatabaseDefaultCharsetRequestBody{
-				CharacterSettings: databasev2.CharacterSettings{
+			Body: databaseclientv2.PatchMysqlDatabaseRequestBody{
+				CharacterSettings: &databasev2.CharacterSettings{
 					CharacterSet: planData.Charset.ValueString(),
 					Collation:    planData.Collation.ValueString(),
 				},
@@ -303,10 +303,10 @@ func (d *Resource) updateDescription(ctx context.Context, planData, stateData *R
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while updating database").
-		DoResp(client.UpdateMysqlDatabaseDescription(ctx, databaseclientv2.UpdateMysqlDatabaseDescriptionRequest{
+		DoResp(client.PatchMysqlDatabase(ctx, databaseclientv2.PatchMysqlDatabaseRequest{
 			MysqlDatabaseID: planData.ID.ValueString(),
-			Body: databaseclientv2.UpdateMysqlDatabaseDescriptionRequestBody{
-				Description: planData.Description.ValueString(),
+			Body: databaseclientv2.PatchMysqlDatabaseRequestBody{
+				Description: planData.Description.ValueStringPointer(),
 			},
 		}))
 }
@@ -335,10 +335,10 @@ func (d *Resource) updatePasswordInternal(ctx context.Context, planUser *MySQLDa
 
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while setting database user password").
-		DoResp(client.UpdateMysqlUserPassword(ctx, databaseclientv2.UpdateMysqlUserPasswordRequest{
+		DoResp(client.UpdateMysqlUser(ctx, databaseclientv2.UpdateMysqlUserRequest{
 			MysqlUserID: planUser.ID.ValueString(),
-			Body: databaseclientv2.UpdateMysqlUserPasswordRequestBody{
-				Password: password,
+			Body: databaseclientv2.UpdateMysqlUserRequestBody{
+				Password: &password,
 			},
 		}))
 }

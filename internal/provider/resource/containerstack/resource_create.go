@@ -2,6 +2,8 @@ package containerstackresource
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -32,17 +34,36 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	createTimeout, diags := data.Timeouts.Create(ctx, DefaultCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	readTimeout, diags := data.Timeouts.Read(ctx, DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	createCtx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
 	if data.DefaultStack.ValueBool() {
-		r.createInDefaultStack(ctx, &data, resp)
+		r.createInDefaultStack(createCtx, &data, resp)
 	} else {
-		r.createAsNewStack(ctx, &data, resp)
+		r.createAsNewStack(createCtx, &data, resp)
 	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data, &data)...)
+	// The read-back gets its own budget, so that an exhausted create timeout
+	// does not also fail the read; that would leave the state unwritten and the
+	// stack we just created untracked.
+	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &data, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -62,11 +83,12 @@ func (r *Resource) createAsNewStack(ctx context.Context, data *ContainerStackMod
 		return
 	}
 
-	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
-		Do(client.WaitUntilStackIsReady(ctx, stack.Id, nil))
-
 	data.ID = types.StringValue(stack.Id)
 
+	waitUntilStackIsReady(ctx, client, stack.Id, nil, createTimeoutHint, &resp.Diagnostics)
+
+	// DeclareStack has no updateSchedule field, so a schedule set on a brand
+	// new stack still requires a separate UpdateStack call.
 	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
 		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
 	}
@@ -77,11 +99,18 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 
 	client := apiext.NewContainerClient(r.client)
 
-	stack := providerutil.
-		Try[*containerv2.StackResponse](&resp.Diagnostics, "failed to get default stack").
-		DoVal(client.PollDefaultStack(ctx, data.ProjectID.ValueString()))
+	stack, err := client.PollDefaultStack(ctx, data.ProjectID.ValueString())
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			resp.Diagnostics.AddError(
+				"failed to get default stack",
+				"the default stack of project "+data.ProjectID.ValueString()+" did not become available in time. "+
+					createTimeoutHint,
+			)
+		} else {
+			resp.Diagnostics.AddError("failed to get default stack", err.Error())
+		}
 
-	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -96,27 +125,57 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 		return
 	}
 
+	// The default stack already exists (and may already carry an update
+	// schedule set outside of this resource), so a config that omits
+	// update_schedule must actively clear it rather than leaving it
+	// untouched — otherwise the created state would drift from the config
+	// until the next Update. UpdateStack already carries an updateSchedule
+	// field, so fold this into the same call instead of issuing a second one.
+	var opts []func(req *http.Request) error
+
+	if !data.UpdateSchedule.IsUnknown() {
+		schedule, explicitClear, ok := data.resolveUpdateSchedule(ctx, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if ok {
+			updateRequest.Body.UpdateSchedule = schedule
+			if explicitClear {
+				opts = append(opts, withExplicitNullUpdateSchedule)
+			}
+		}
+	}
+
 	_ = providerutil.
 		Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while declaring stack").
-		DoValResp(client.UpdateStack(ctx, *updateRequest))
+		DoValResp(client.UpdateStack(ctx, *updateRequest, opts...))
 
-	providerutil.Try[any](&resp.Diagnostics, "API error while waiting for stack to be ready").
-		Do(client.WaitUntilStackIsReady(ctx, stack.Id, data.ContainerNames()))
-
-	if !data.UpdateSchedule.IsNull() && !data.UpdateSchedule.IsUnknown() {
-		r.reconcileUpdateSchedule(ctx, data, &resp.Diagnostics)
+	// Without this, a failed update would still spend the entire create budget
+	// waiting for containers that were never asked to change.
+	if resp.Diagnostics.HasError() {
+		return
 	}
+
+	waitUntilStackIsReady(ctx, client, stack.Id, data.ContainerNames(), createTimeoutHint, &resp.Diagnostics)
 }
 
-// reconcileUpdateSchedule calls SetStackUpdateSchedule to set or unset the
-// update schedule for the stack. When update_schedule is null, an empty body
-// is sent to unset any previously configured schedule.
+// reconcileUpdateSchedule calls UpdateStack to set or unset the update
+// schedule for the stack, for the cases where the stack's main body update
+// went through DeclareStack rather than UpdateStack (which has no
+// updateSchedule field of its own). When update_schedule is null, an
+// explicit JSON null is forced onto the wire to unset any previously
+// configured schedule.
 func (r *Resource) reconcileUpdateSchedule(ctx context.Context, data *ContainerStackModel, d *diag.Diagnostics) {
-	scheduleRequest := data.ToUpdateScheduleRequest(ctx, d)
+	scheduleRequest, explicitClear := data.ToUpdateScheduleRequest(ctx, d)
 	if d.HasError() || scheduleRequest == nil {
 		return
 	}
 
-	providerutil.Try[any](d, "API error while setting update schedule").
-		DoResp(r.client.Container().SetStackUpdateSchedule(ctx, *scheduleRequest))
+	var opts []func(req *http.Request) error
+	if explicitClear {
+		opts = append(opts, withExplicitNullUpdateSchedule)
+	}
+
+	providerutil.Try[*containerv2.StackResponse](d, "API error while setting update schedule").
+		DoValResp(r.client.Container().UpdateStack(ctx, *scheduleRequest, opts...))
 }

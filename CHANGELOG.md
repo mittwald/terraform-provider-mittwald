@@ -1,3 +1,35 @@
+## [1.10.14](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.13...v1.10.14) (2026-08-31)
+
+## [1.10.13](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.12...v1.10.13) (2026-08-05)
+
+## [1.10.12](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.11...v1.10.12) (2026-07-31)
+
+
+### Bug Fixes
+
+* **article:** paginate list-articles to fetch all results ([#455](https://github.com/mittwald/terraform-provider-mittwald/issues/455)) ([73701c0](https://github.com/mittwald/terraform-provider-mittwald/commit/73701c0e281e52566088d4c6668c22b2959ddccd))
+
+## [1.10.11](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.10...v1.10.11) (2026-07-30)
+
+
+### Bug Fixes
+
+* **container_stack:** make timeouts configurable ([#454](https://github.com/mittwald/terraform-provider-mittwald/issues/454)) ([7c938bf](https://github.com/mittwald/terraform-provider-mittwald/commit/7c938bf19c71ec6dd2fbc80be76ec7df1285a1ce)), closes [#449](https://github.com/mittwald/terraform-provider-mittwald/issues/449)
+* **project:** honour configurable timeouts and tolerate a missing default ingress ([#449](https://github.com/mittwald/terraform-provider-mittwald/issues/449)) ([cc1f3ad](https://github.com/mittwald/terraform-provider-mittwald/commit/cc1f3ad41d92122719978b28aa7ff881cc781a3c))
+
+## [1.10.10](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.9...v1.10.10) (2026-07-24)
+
+## [1.10.9](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.8...v1.10.9) (2026-07-22)
+
+## [1.10.8](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.7...v1.10.8) (2026-07-20)
+
+## [1.10.7](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.6...v1.10.7) (2026-07-17)
+
+
+### Bug Fixes
+
+* **app:** wait for installation readiness around create and update ([#404](https://github.com/mittwald/terraform-provider-mittwald/issues/404)) ([00e0ea8](https://github.com/mittwald/terraform-provider-mittwald/commit/00e0ea830089c16f580cdff8f2f6374cd8ee096c)), closes [#399](https://github.com/mittwald/terraform-provider-mittwald/issues/399) [#402](https://github.com/mittwald/terraform-provider-mittwald/issues/402)
+
 ## [1.10.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.5...v1.10.6) (2026-07-15)
 
 ## [1.10.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.4...v1.10.5) (2026-07-14)

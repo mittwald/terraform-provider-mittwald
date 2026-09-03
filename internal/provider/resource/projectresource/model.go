@@ -1,10 +1,14 @@
 package projectresource
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// ResourceModel describes the resource data model.
+// ResourceModel describes the resource data model. It is shared with the
+// mittwald_project data source, so that both cannot drift apart; the timeouts
+// configuration is kept out of it, because resources and data sources use
+// distinct types for it.
 type ResourceModel struct {
 	ID          types.String `tfsdk:"id"`
 	ShortID     types.String `tfsdk:"short_id"`
@@ -20,6 +24,14 @@ type ResourceModel struct {
 	ContractID   types.String `tfsdk:"contract_id"`
 	DiskspaceGB  types.Int64  `tfsdk:"diskspace_gb"`
 	UseFreeTrial types.Bool   `tfsdk:"use_free_trial"`
+}
+
+// ResourceModelWithTimeouts is the model actually used by the resource; it
+// extends ResourceModel with the resource's `timeouts` block.
+type ResourceModelWithTimeouts struct {
+	ResourceModel
+
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
 }
 
 // IsStandalone reports whether the configuration describes a stand-alone

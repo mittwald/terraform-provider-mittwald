@@ -82,6 +82,15 @@ resource "mittwald_container_stack" "nginx" {
     cron     = "0 3 * * *"
     timezone = "Europe/Berlin"
   }
+
+  # Creating or updating a stack waits until all of its containers are running,
+  # which includes pulling their images. The timeouts below are upper bounds,
+  # not waiting times -- but if your images are large enough that pulling them
+  # regularly takes longer than the defaults, you can adjust them here.
+  timeouts {
+    create = "30m"
+    update = "30m"
+  }
 }
 
 resource "mittwald_virtualhost" "nginx" {
@@ -110,6 +119,7 @@ resource "mittwald_virtualhost" "nginx" {
 ### Optional
 
 - `default_stack` (Boolean) Set this flag to use the project's default stack. Otherwise, a new stack will be created.
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `update_schedule` (Attributes) An optional schedule for automatically updating the container images in this stack. (see [below for nested schema](#nestedatt--update_schedule))
 - `volumes` (Attributes Map) A map of volumes that should be provisioned for this stack. (see [below for nested schema](#nestedatt--volumes))
 
@@ -184,6 +194,17 @@ Optional:
 
     Either this attribute, or `project_path` must be set.
 
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `create` (String) Time to wait for the stack to be created. This includes waiting for all of this stack's containers to reach the `running` state, which requires their images to be pulled first; how long that takes depends entirely on the images in question. Defaults to 30 minutes; this is only an upper bound, and creation returns as soon as all containers are running.
+- `delete` (String) Time to wait for the stack to be deleted; defaults to 10 minutes.
+- `read` (String) Time to wait when reading the stack's current state. This is an upper bound for the (usually near-instant) API calls involved; defaults to 2 minutes.
+- `update` (String) Time to wait for an update of the stack to complete, including waiting for changed or recreated containers to reach the `running` state again. Defaults to 30 minutes; this is only an upper bound, and the update returns as soon as all containers are running.
 
 
 <a id="nestedatt--update_schedule"></a>

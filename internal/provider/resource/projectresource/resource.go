@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -50,7 +51,7 @@ func (r *Resource) Metadata(_ context.Context, req resource.MetadataRequest, res
 	resp.TypeName = req.ProviderTypeName + "_project"
 }
 
-func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	builder := common.AttributeBuilderFor("project")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a project on the mittwald cloud platform.\n\n" +
@@ -139,6 +140,21 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				},
 			},
 		},
+
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.Block(ctx, timeouts.Opts{
+				Create: true,
+				CreateDescription: "Time to wait for the project to be created. This includes waiting for the " +
+					"project's default ingress (and with it, the `default_ips` attribute) to become available, " +
+					"which usually takes just a few seconds, but can occasionally take several minutes. " +
+					"Defaults to 10 minutes; this is only an upper bound, and creation returns as soon as the " +
+					"project is ready.",
+				Read: true,
+				ReadDescription: "Time to wait when reading the project's current state. This is an upper bound " +
+					"for the (usually near-instant) API calls involved, including waiting for a " +
+					"not-yet-provisioned default ingress; defaults to 2 minutes.",
+			}),
+		},
 	}
 }
 
@@ -153,7 +169,7 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 }
 
 func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data ResourceModel
+	var data ResourceModelWithTimeouts
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -168,16 +184,26 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	}
 
 	if data.IsStandalone() {
-		resp.Diagnostics.Append(r.createStandalone(ctx, &data)...)
+		resp.Diagnostics.Append(r.createStandalone(ctx, &data.ResourceModel)...)
 	} else {
-		resp.Diagnostics.Append(r.createOnServer(ctx, &data)...)
+		resp.Diagnostics.Append(r.createOnServer(ctx, &data.ResourceModel)...)
 	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	resp.Diagnostics.Append(r.readAfterCreate(ctx, &data)...)
+	createTimeout, diags := data.Timeouts.Create(ctx, DefaultCreateTimeout)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.readAfterCreate(ctx, &data.ResourceModel)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -314,7 +340,7 @@ func (r *Resource) waitUntilReady(ctx context.Context, projectID string) (res di
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data ResourceModel
+	var data ResourceModelWithTimeouts
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -323,22 +349,31 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
+	readTimeout, diags := data.Timeouts.Read(ctx, DefaultReadTimeout)
+	resp.Diagnostics.Append(diags...)
 
-	resp.Diagnostics.Append(r.read(readCtx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if data.ID.IsNull() {
+	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
+	defer cancel()
+
+	found, diags := r.read(readCtx, &data.ResourceModel)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !found {
 		resp.State.RemoveResource(ctx)
 		return
 	}
 
 	// The contract lookup gets the outer context, since it is not part of the
 	// polling above and should not be bound by its (short) deadline.
-	resp.Diagnostics.Append(r.readContractAttributes(ctx, &data)...)
+	resp.Diagnostics.Append(r.readContractAttributes(ctx, &data.ResourceModel)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -346,56 +381,67 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+// read refreshes the given model from the API. It reports whether the project
+// still exists; if it does not, the model is left untouched and the caller
+// should remove the resource from the state.
+func (r *Resource) read(ctx context.Context, data *ResourceModel) (bool, diag.Diagnostics) {
+	var res diag.Diagnostics
+
 	client := apiext.NewProjectClient(r.client)
 
 	pr := providerutil.
 		Try[*projectv2.Project](&res, "error while reading project").
 		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
+		DoValResp(client.GetProject(ctx, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
 
-	ips := providerutil.
-		Try[[]string](&res, "error while reading project ips").
-		IgnoreNotFound().
-		DoVal(client.GetProjectDefaultIPs(ctx, data.ID.ValueString()))
+	if res.HasError() || pr == nil {
+		return false, res
+	}
+
+	// A missing default ingress is not an error during a refresh; it just means
+	// that the project's IP addresses are not available (yet).
+	ips := PollDefaultIPs(ctx, client, data.ID.ValueString(), readTimeoutHint, &res)
 
 	if res.HasError() {
-		return
+		return false, res
 	}
 
 	res.Append(data.FromAPIModel(ctx, pr, ips)...)
 
-	return
+	return true, res
 }
 
-// readAfterCreate is like read but polls for the default IPs to become available.
-// This is necessary because immediately after project creation, the default ingress
-// may not exist yet.
+// readAfterCreate is like read, but tolerates the project itself not being
+// visible right away, and waits longer for the default IPs to become available.
+// This is necessary because immediately after project creation, neither the
+// project nor its default ingress may be visible yet.
 func (r *Resource) readAfterCreate(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	client := apiext.NewProjectClient(r.client)
 
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
-
-	pr := providerutil.
-		Try[*projectv2.Project](&res, "error while reading project").
-		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()}))
-
-	// Wrap GetProjectDefaultIPs to convert ErrNoDefaultIngress to ErrPollShouldRetry
-	// so that the Poll function will retry until the default ingress appears.
-	getIPsWithRetry := func(ctx context.Context, projectID string) ([]string, error) {
-		ips, err := client.GetProjectDefaultIPs(ctx, projectID)
-		if errors.Is(err, apiext.ErrNoDefaultIngress) {
-			return nil, apiutils.ErrPollShouldRetry
+	pr, err := apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetProject, projectclientv2.GetProjectRequest{ProjectID: data.ID.ValueString()})
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			res.AddError(
+				"error while reading project",
+				"the project was created, but did not become readable in time. "+createTimeoutHint,
+			)
+		} else {
+			res.AddError("error while reading project", err.Error())
 		}
-		return ips, err
+
+		return
 	}
 
-	ips := providerutil.
-		Try[[]string](&res, "error while reading project ips").
-		IgnoreNotFound().
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, getIPsWithRetry, data.ID.ValueString()))
+	if pr == nil {
+		res.AddError("error while reading project", "the project was created, but could not be read back")
+		return
+	}
+
+	// If the default ingress does not show up in time, continue with an empty
+	// list of IP addresses; the project itself has been created successfully,
+	// and failing here would leave the resource tainted (and all computed
+	// attributes unknown, which Terraform rejects outright).
+	ips := PollDefaultIPs(ctx, client, data.ID.ValueString(), createTimeoutHint, &res)
 
 	if res.HasError() {
 		return
@@ -438,7 +484,7 @@ func (r *Resource) readContractAttributes(ctx context.Context, data *ResourceMod
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var dataPlan, dataState ResourceModel
+	var dataPlan, dataState ResourceModelWithTimeouts
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &dataPlan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &dataState)...)
@@ -448,19 +494,20 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	if !dataPlan.Description.Equal(dataState.Description) {
-		updateReq := projectclientv2.UpdateProjectDescriptionRequest{
+		description := dataPlan.Description.ValueString()
+		updateReq := projectclientv2.UpdateProjectRequest{
 			ProjectID: dataState.ID.ValueString(),
-			Body: projectclientv2.UpdateProjectDescriptionRequestBody{
-				Description: dataPlan.Description.ValueString(),
+			Body: projectclientv2.UpdateProjectRequestBody{
+				Description: &description,
 			},
 		}
-		if _, err := r.client.Project().UpdateProjectDescription(ctx, updateReq); err != nil {
+		if _, err := r.client.Project().UpdateProject(ctx, updateReq); err != nil {
 			resp.Diagnostics.AddError("Error while updating project description", err.Error())
 		}
 	}
 
 	if !dataPlan.ArticleID.Equal(dataState.ArticleID) || !dataPlan.DiskspaceGB.Equal(dataState.DiskspaceGB) {
-		resp.Diagnostics.Append(r.changePlan(ctx, &dataPlan)...)
+		resp.Diagnostics.Append(r.changePlan(ctx, &dataPlan.ResourceModel)...)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -491,7 +538,7 @@ func (r *Resource) changePlan(ctx context.Context, data *ResourceModel) (res dia
 }
 
 func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data ResourceModel
+	var data ResourceModelWithTimeouts
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -503,7 +550,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	// removed by terminating that contract. A project on a server has no
 	// contract of its own and can be deleted directly.
 	if data.IsStandalone() {
-		resp.Diagnostics.Append(r.terminateContract(ctx, &data)...)
+		resp.Diagnostics.Append(r.terminateContract(ctx, &data.ResourceModel)...)
 		return
 	}
 
