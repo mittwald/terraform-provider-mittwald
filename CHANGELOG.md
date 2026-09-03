@@ -1,3 +1,10 @@
+## [1.10.15](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.14...v1.10.15) (2026-09-03)
+
+
+### Bug Fixes
+
+* **container_stack:** drop deprecated schedule endpoint, fold into UpdateStack ([#467](https://github.com/mittwald/terraform-provider-mittwald/issues/467)) ([a4a510a](https://github.com/mittwald/terraform-provider-mittwald/commit/a4a510afd66135134b6023dae91c873145226fb9)), closes [#465](https://github.com/mittwald/terraform-provider-mittwald/issues/465)
+
 ## [1.10.14](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.13...v1.10.14) (2026-08-31)
 
 ## [1.10.13](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.12...v1.10.13) (2026-08-05)
