@@ -38,6 +38,12 @@ var _ resource.ResourceWithConfigValidators = &Resource{}
 // project to be provisioned and become ready.
 const provisioningTimeout = 30 * time.Minute
 
+// aggregateTypeProject is the contract item aggregate reference type that
+// names the actual project, as opposed to "projecthosting", the intermediate
+// placement the platform creates first while provisioning a stand-alone
+// project.
+const aggregateTypeProject = "project"
+
 func New() resource.Resource {
 	return &Resource{}
 }
@@ -253,25 +259,31 @@ func (r *Resource) createStandalone(ctx context.Context, data *ResourceModel) (r
 		return
 	}
 
-	projectID, contractID := r.resolveProjectFromOrder(ctx, orderResponse.OrderId, data.CustomerID.ValueString(), &res)
+	project, contractID := r.resolveAndAwaitProjectFromOrder(ctx, orderResponse.OrderId, data.CustomerID.ValueString(), &res)
 	if res.HasError() {
 		return
 	}
 
-	data.ID = types.StringValue(projectID)
+	data.ID = types.StringValue(project.Id)
 	data.ContractID = types.StringValue(contractID)
-
-	res.Append(r.waitUntilReady(ctx, projectID)...)
 
 	return
 }
 
-// resolveProjectFromOrder waits for an order to be executed and resolves the
-// resulting project ID and contract ID by matching the order's contract item
-// against the customer's contracts.
-func (r *Resource) resolveProjectFromOrder(ctx context.Context, orderID, customerID string, diags *diag.Diagnostics) (projectID string, contractID string) {
+// resolveAndAwaitProjectFromOrder waits for an order to be executed, resolves
+// the resulting project by matching the order's contract item against the
+// customer's contracts, and waits until that project has finished
+// provisioning.
+//
+// Resolution and readiness are polled together, re-fetching the contract on
+// every attempt, because the contract's aggregate reference briefly points at
+// an intermediate "project hosting" placement (aggregate "projecthosting")
+// before the platform creates the actual project and corrects the reference
+// to aggregate "project". Treating that stale reference as final would mean
+// polling a project ID that never becomes ready.
+func (r *Resource) resolveAndAwaitProjectFromOrder(ctx context.Context, orderID, customerID string, diags *diag.Diagnostics) (project *projectv2.Project, contractID string) {
 	type resolved struct {
-		projectID  string
+		project    *projectv2.Project
 		contractID string
 	}
 
@@ -304,7 +316,26 @@ func (r *Resource) resolveProjectFromOrder(ctx context.Context, orderID, custome
 				return resolved{}, apiutils.ErrPollShouldRetry
 			}
 
-			return resolved{projectID: item.AggregateReference.Id, contractID: contract.ContractId}, nil
+			// Skip the intermediate "project hosting" placement the platform
+			// creates before the actual project; only an aggregate reference
+			// of type "project" names the project itself.
+			if item.AggregateReference.Aggregate != aggregateTypeProject {
+				return resolved{}, apiutils.ErrPollShouldRetry
+			}
+
+			// A project that can't (yet) be found by this ID means the
+			// reference hasn't fully propagated; retry from the contract
+			// lookup rather than getting stuck polling this ID.
+			p, _, err := r.client.Project().GetProject(ctx, projectclientv2.GetProjectRequest{ProjectID: item.AggregateReference.Id})
+			if err != nil {
+				return resolved{}, err
+			}
+
+			if !p.IsReady {
+				return resolved{}, apiutils.ErrPollShouldRetry
+			}
+
+			return resolved{project: p, contractID: contract.ContractId}, nil
 		}
 
 		return resolved{}, apiutils.ErrPollShouldRetry
@@ -312,31 +343,10 @@ func (r *Resource) resolveProjectFromOrder(ctx context.Context, orderID, custome
 
 	if err != nil {
 		diags.AddError("error while resolving project from order", err.Error())
-		return "", ""
+		return nil, ""
 	}
 
-	return result.projectID, result.contractID
-}
-
-// waitUntilReady polls a newly ordered project until it has finished
-// provisioning.
-func (r *Resource) waitUntilReady(ctx context.Context, projectID string) (res diag.Diagnostics) {
-	providerutil.
-		Try[*projectv2.Project](&res, "error while waiting for project to become ready").
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, func(ctx context.Context, projectID string) (*projectv2.Project, error) {
-			p, _, err := r.client.Project().GetProject(ctx, projectclientv2.GetProjectRequest{ProjectID: projectID})
-			if err != nil {
-				return nil, err
-			}
-
-			if !p.IsReady {
-				return nil, apiutils.ErrPollShouldRetry
-			}
-
-			return p, nil
-		}, projectID))
-
-	return
+	return result.project, result.contractID
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
