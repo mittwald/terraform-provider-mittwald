@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.15...v1.11.0) (2026-09-04)
+
+
+### Features
+
+* **project:** support ordering stand-alone projects ([#443](https://github.com/mittwald/terraform-provider-mittwald/issues/443)) ([c8e1682](https://github.com/mittwald/terraform-provider-mittwald/commit/c8e168205b72e2decad60f43ced5a79f562badd1))
+
 ## [1.10.15](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.10.14...v1.10.15) (2026-09-03)
 
 
