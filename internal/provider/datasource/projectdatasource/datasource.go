@@ -6,9 +6,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
@@ -30,12 +33,60 @@ type DataSource struct {
 	client mittwaldv2.Client
 }
 
-// dataSourceModel extends the shared project model with the data source's
-// `timeouts` block.
+// dataSourceModel describes the data source data model.
+//
+// It mirrors the mittwald_project resource, except for the resource's write-only
+// `use_free_trial` attribute, which has no meaning outside of an order and
+// cannot be read back from the API. Because of that difference, its fields are
+// populated explicitly in fromAPIModel rather than by embedding
+// projectresource.ResourceModel directly.
 type dataSourceModel struct {
-	projectresource.ResourceModel
+	ID          types.String `tfsdk:"id"`
+	ShortID     types.String `tfsdk:"short_id"`
+	ServerID    types.String `tfsdk:"server_id"`
+	CustomerID  types.String `tfsdk:"customer_id"`
+	ArticleID   types.String `tfsdk:"article_id"`
+	ContractID  types.String `tfsdk:"contract_id"`
+	Description types.String `tfsdk:"description"`
+	DiskspaceGB types.Int64  `tfsdk:"diskspace_gb"`
+	Directories types.Map    `tfsdk:"directories"`
+	DefaultIPs  types.List   `tfsdk:"default_ips"`
 
 	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+// fromAPIModel maps an API project into the model, reusing the resource's
+// mapping so that the two cannot drift apart.
+//
+// contract is the project's own contract, and is nil for a project on a server.
+func (d *dataSourceModel) fromAPIModel(ctx context.Context, project *projectv2.Project, ips []string, contract *contractv2.Contract) (res diag.Diagnostics) {
+	var mapped projectresource.ResourceModel
+
+	res.Append(mapped.FromAPIModel(ctx, project, ips)...)
+	if res.HasError() {
+		return
+	}
+
+	d.ID = mapped.ID
+	d.ShortID = mapped.ShortID
+	d.ServerID = mapped.ServerID
+	d.CustomerID = mapped.CustomerID
+	d.Description = mapped.Description
+	d.DiskspaceGB = mapped.DiskspaceGB
+	d.Directories = mapped.Directories
+	d.DefaultIPs = mapped.DefaultIPs
+
+	d.ContractID = types.StringNull()
+	d.ArticleID = types.StringNull()
+
+	if contract != nil {
+		d.ContractID = types.StringValue(contract.ContractId)
+		if len(contract.BaseItem.Articles) > 0 {
+			d.ArticleID = types.StringValue(contract.BaseItem.Articles[0].Id)
+		}
+	}
+
+	return
 }
 
 // readTimeoutHint is appended to diagnostics caused by an exhausted read
@@ -67,6 +118,23 @@ func (d *DataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, res
 			},
 			"server_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the server this project belongs to. Null for stand-alone projects.",
+				Computed:            true,
+			},
+			"customer_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the customer this project belongs to.",
+				Computed:            true,
+			},
+			"article_id": schema.StringAttribute{
+				MarkdownDescription: "The article ID selecting the plan of a stand-alone project (for example a hosting plan " +
+					"or a machine type, depending on the article). Null for projects on a server.",
+				Computed: true,
+			},
+			"contract_id": schema.StringAttribute{
+				MarkdownDescription: "The contract ID associated with a stand-alone project. Null for projects on a server, which are billed via the server's contract.",
+				Computed:            true,
+			},
+			"diskspace_gb": schema.Int64Attribute{
+				MarkdownDescription: "The amount of disk space the project is allotted, in GiB.",
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
@@ -146,6 +214,20 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 		return
 	}
 
-	resp.Diagnostics.Append(data.FromAPIModel(ctx, project, ips)...)
+	// Only a stand-alone project has a contract of its own; a project on a
+	// server is billed via that server's contract.
+	var contract *contractv2.Contract
+	if project.ServerId == nil {
+		contract = providerutil.
+			Try[*contractv2.Contract](&resp.Diagnostics, "error while reading project contract").
+			IgnoreNotFound().
+			DoValResp(d.client.Contract().GetDetailOfContractByProject(ctx, contractclientv2.GetDetailOfContractByProjectRequest{ProjectID: project.Id}))
+
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	resp.Diagnostics.Append(data.fromAPIModel(ctx, project, ips, contract)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

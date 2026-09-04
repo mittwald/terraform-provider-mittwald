@@ -1,3 +1,7 @@
+/**
+ * A project is either provisioned on an existing server, in which case only a
+ * `server_id` is needed...
+ */
 resource "mittwald_project" "foobar" {
   server_id   = var.server_id
   description = "Test project"
