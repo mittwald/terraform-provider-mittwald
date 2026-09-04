@@ -125,7 +125,7 @@ func (d *DataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, res
 				Computed:            true,
 			},
 			"article_id": schema.StringAttribute{
-				MarkdownDescription: "The article ID determining the tariff of a stand-alone project (for example a hosting plan " +
+				MarkdownDescription: "The article ID selecting the plan of a stand-alone project (for example a hosting plan " +
 					"or a machine type, depending on the article). Null for projects on a server.",
 				Computed: true,
 			},
