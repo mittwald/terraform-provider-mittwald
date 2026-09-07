@@ -1,6 +1,6 @@
 module github.com/mittwald/terraform-provider-mittwald
 
-go 1.25.8
+go 1.26.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
@@ -16,7 +16,7 @@ require (
 	github.com/mittwald/api-client-go v0.2.233
 	github.com/onsi/gomega v1.43.0
 	github.com/pkg/sftp v1.13.11
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 )
 
 require (
