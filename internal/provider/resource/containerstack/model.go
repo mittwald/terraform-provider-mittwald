@@ -31,6 +31,7 @@ type ContainerModel struct {
 	Ports              types.Set    `tfsdk:"ports"`
 	Volumes            types.Set    `tfsdk:"volumes"`
 	Limits             types.Object `tfsdk:"limits"`
+	RestartPolicy      types.String `tfsdk:"restart_policy"`
 	NoRecreateOnChange types.Bool   `tfsdk:"no_recreate_on_change"`
 }
 

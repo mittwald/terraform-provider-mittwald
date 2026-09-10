@@ -186,6 +186,14 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 								},
 							},
 						},
+						"restart_policy": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							MarkdownDescription: "The restart policy of the container; one of `always`, `no`, `on-failure` or `unless-stopped`. When omitted, the platform default applies.",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"no_recreate_on_change": schema.BoolAttribute{
 							Optional:            true,
 							MarkdownDescription: "Set this flag to **not** recreate the container if any of the configuration changes. This includes changes to the image, command, entrypoint, environment variables, and ports. If this is set, you will need to manually recreate the container to apply any changes.",

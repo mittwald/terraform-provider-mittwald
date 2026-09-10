@@ -62,16 +62,17 @@ func fromAPIContainers(ctx context.Context, apiModel *containerv2.StackResponse,
 
 		state := service.PendingState
 		container := ContainerModel{
-			ID:          types.StringValue(service.Id),
-			ShortID:     types.StringValue(service.ShortId),
-			Image:       types.StringValue(image),
-			Description: types.StringValue(service.Description),
-			Command:     valueutil.ConvertStringSliceToList(state.Command),
-			Entrypoint:  valueutil.ConvertStringSliceToList(state.Entrypoint),
-			Environment: convertStringMapToMap(state.Envs),
-			Ports:       convertPortStringsToSet(ctx, state.Ports, &res),
-			Volumes:     convertVolumeStringsToSet(ctx, state.Volumes, &res),
-			Limits:      convertLimitsToObject(ctx, service.Deploy, &res),
+			ID:            types.StringValue(service.Id),
+			ShortID:       types.StringValue(service.ShortId),
+			Image:         types.StringValue(image),
+			Description:   types.StringValue(service.Description),
+			Command:       valueutil.ConvertStringSliceToList(state.Command),
+			Entrypoint:    valueutil.ConvertStringSliceToList(state.Entrypoint),
+			Environment:   convertStringMapToMap(state.Envs),
+			Ports:         convertPortStringsToSet(ctx, state.Ports, &res),
+			Volumes:       convertVolumeStringsToSet(ctx, state.Volumes, &res),
+			Limits:        convertLimitsToObject(ctx, service.Deploy, &res),
+			RestartPolicy: valueutil.StringPtrOrNull(service.RestartPolicy),
 		}
 
 		containerVal, diags := types.ObjectValueFrom(ctx, containerModelType.AttrTypes, container)
@@ -140,6 +141,7 @@ var containerModelType = types.ObjectType{
 		"ports":                 types.SetType{ElemType: containerPortModelType},
 		"volumes":               types.SetType{ElemType: containerVolumeModelType},
 		"limits":                containerLimitsModelType,
+		"restart_policy":        types.StringType,
 		"no_recreate_on_change": types.BoolType,
 	},
 }
