@@ -75,17 +75,6 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"status": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The current status of the database",
-			},
-			"created_at": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The time at which the database was created",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"character_settings": schema.SingleNestedAttribute{
 				Optional: true,
 				Attributes: map[string]schema.Attribute{
@@ -145,14 +134,6 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 					"external_access": schema.BoolAttribute{
 						Required:            true,
 						MarkdownDescription: "Whether the database user should be accessible from outside the cluster",
-					},
-					"access_ip_mask": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "IP mask (CIDR) restricting which client IPs the database user may connect from. When omitted, no IP restriction is applied.",
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
 					},
 				},
 			},
@@ -279,7 +260,6 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	d.updateCharset(ctx, planData.ID.ValueString(), &planCharset, &stateCharset, resp)
 	d.updateDescription(ctx, &planData, &stateData, resp)
-	d.updateAccessIpMask(ctx, &planUser, &stateUser, resp)
 	d.updatePasswordDeprecated(ctx, &planUser, resp)
 	d.updatePassword(ctx, &planUser, &stateUser, password, resp)
 
@@ -366,23 +346,6 @@ func (d *Resource) updatePasswordInternal(ctx context.Context, planUser *MySQLDa
 			MysqlUserID: planUser.ID.ValueString(),
 			Body: databaseclientv2.UpdateMysqlUserRequestBody{
 				Password: &password,
-			},
-		}))
-}
-
-func (d *Resource) updateAccessIpMask(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
-	if planUser.AccessIpMask.Equal(stateUser.AccessIpMask) || planUser.AccessIpMask.IsUnknown() {
-		return
-	}
-
-	mask := planUser.AccessIpMask.ValueString()
-
-	providerutil.
-		Try[any](&resp.Diagnostics, "error while updating database user IP mask").
-		DoResp(d.client.Database().UpdateMysqlUser(ctx, databaseclientv2.UpdateMysqlUserRequest{
-			MysqlUserID: planUser.ID.ValueString(),
-			Body: databaseclientv2.UpdateMysqlUserRequestBody{
-				AccessIpMask: &mask,
 			},
 		}))
 }

@@ -11,3 +11,5 @@ judgment calls, typically volatile/informational fields.
 
 | Resource / data source | Field | API type / operation | Reason | Noted |
 | --- | --- | --- | --- | --- |
+| `mittwald_mysql_database` | `status`, `created_at` | `databasev2.MySqlDatabase` (`GetMysqlDatabase`) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #480). | 2026-09-10 |
+| `mittwald_mysql_database` | `user.access_ip_mask` | `databasev2.CreateMySqlUserWithDatabase` (`CreateMysqlDatabase`) / `databaseclientv2.UpdateMysqlUserRequestBody` (`UpdateMysqlUser`) | Currently only supported half-heartedly by the platform and not advertised widely; put on the back burner and accepted as known drift for now (see #480). | 2026-09-10 |
