@@ -24,8 +24,6 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_project` | `readiness` | `projectv2.Project` (GetProject) | Deprecated type; superseded by `status` | 2026-09-10 |
 | `mittwald_project` | `server_group_id` | `projectv2.Project` (GetProject) | Internal identifier | 2026-09-10 |
 | `mittwald_project` | `statistics_base_domain` | `projectv2.Project` (GetProject) | Informational statistics domain | 2026-09-10 |
-| `mittwald_project` | `status` | `projectv2.Project` (GetProject) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #473) | 2026-09-10 |
-| `mittwald_project` | `created_at` | `projectv2.Project` (GetProject) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #473) | 2026-09-10 |
 | `mittwald_project` | `status_set_at` | `projectv2.Project` (GetProject) | Volatile timestamp (moves with `status`) | 2026-09-10 |
 | `mittwald_server` | `disabled_reason` | `projectv2.Server` (GetServer) | Disabled state not managed by provider | 2026-09-10 |
 | `mittwald_server` | `group_id` | `projectv2.Server` (GetServer) | Internal identifier | 2026-09-10 |
@@ -48,8 +46,6 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_app` | `update_available` | `appv2.AppInstallation` (GetAppinstallation) | Volatile flag | 2026-09-10 |
 | `mittwald_app` | `app_external_version` | `appv2.AppInstallation` (GetAppinstallation) | Ambiguous vs `version`/`version_current` | 2026-09-10 |
 | `mittwald_app` | `app_id`, `app_name` | `appv2.AppInstallation` (GetAppinstallation) | `app` name is the reference key | 2026-09-10 |
-| `mittwald_app` | `phase` | `appv2.AppInstallation` (GetAppinstallation) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #474) | 2026-09-10 |
-| `mittwald_app` | `created_at` | `appv2.AppInstallation` (GetAppinstallation) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #474) | 2026-09-10 |
 | `mittwald_app` (data source) | `id`, `tags`, `action_capabilities` | `appv2.App` (GetApp) | Name identifies the app; catalog/action metadata | 2026-09-10 |
 | `mittwald_app` (data source) | `recommended` (status) | `appv2.AppVersion` (ListAppversions) | Name collision with `recommended` selector flag | 2026-09-10 |
 | `mittwald_app` (data source) | `doc_root`, `databases`, `default_cronjobs`, `system_software_dependencies`, `user_inputs`, `request_handler`, `breaking_note`, `backend_path_template` | `appv2.AppVersion` (ListAppversions) | Nested catalog/dependency schema; resolved by `mittwald_app` resource | 2026-09-10 |
