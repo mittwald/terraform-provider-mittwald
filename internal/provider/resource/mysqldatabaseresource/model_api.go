@@ -2,11 +2,14 @@ package mysqldatabaseresource
 
 import (
 	"context"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/databaseclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/databasev2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics, password types.String) databaseclientv2.CreateMysqlDatabaseRequest {
@@ -33,8 +36,9 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 				},
 			},
 			User: databasev2.CreateMySqlUserWithDatabase{
-				Password:    actualPassword,
-				AccessLevel: databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
+				Password:     actualPassword,
+				AccessLevel:  databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
+				AccessIpMask: dataUser.AccessIpMask.ValueStringPointer(),
 			},
 		},
 	}
@@ -49,6 +53,9 @@ func (m *ResourceModel) ToDeleteRequest() databaseclientv2.DeleteMysqlDatabaseRe
 func (m *ResourceModel) Reset() {
 	m.Name = types.StringNull()
 	m.Hostname = types.StringNull()
+	m.ExternalHostname = types.StringNull()
+	m.Status = types.StringNull()
+	m.CreatedAt = types.StringNull()
 	m.Description = types.StringNull()
 	m.Version = types.StringNull()
 	m.ProjectID = types.StringNull()
@@ -75,6 +82,9 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiDatabase *databasev
 
 	m.Name = types.StringValue(apiDatabase.Name)
 	m.Hostname = types.StringValue(apiDatabase.Hostname)
+	m.ExternalHostname = valueutil.StringOrNull(apiDatabase.ExternalHostname)
+	m.Status = types.StringValue(string(apiDatabase.Status))
+	m.CreatedAt = types.StringValue(apiDatabase.CreatedAt.Format(time.RFC3339))
 	m.Description = types.StringValue(apiDatabase.Description)
 	m.Version = types.StringValue(apiDatabase.Version)
 	m.ProjectID = types.StringValue(apiDatabase.ProjectId)
@@ -102,4 +112,5 @@ func (m *MySQLDatabaseUserModel) FromAPIModel(apiUser *databasev2.MySqlUser) {
 	m.Name = types.StringValue(apiUser.Name)
 	m.AccessLevel = types.StringValue(string(apiUser.AccessLevel))
 	m.ExternalAccess = types.BoolValue(apiUser.ExternalAccess)
+	m.AccessIpMask = valueutil.StringPtrOrNull(apiUser.AccessIpMask)
 }

@@ -20,6 +20,7 @@ var userAttrs = map[string]attr.Type{
 	"password_wo_version": types.Int64Type,
 	"access_level":        types.StringType,
 	"external_access":     types.BoolType,
+	"access_ip_mask":      types.StringType,
 }
 
 func (m *MySQLDatabaseCharsetModel) AsObject(ctx context.Context, diag diag.Diagnostics) types.Object {

@@ -4,12 +4,15 @@ import "github.com/hashicorp/terraform-plugin-framework/types"
 
 // ResourceModel describes the resource data model.
 type ResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	ProjectID   types.String `tfsdk:"project_id"`
-	Version     types.String `tfsdk:"version"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Hostname    types.String `tfsdk:"hostname"`
+	ID               types.String `tfsdk:"id"`
+	ProjectID        types.String `tfsdk:"project_id"`
+	Version          types.String `tfsdk:"version"`
+	Name             types.String `tfsdk:"name"`
+	Description      types.String `tfsdk:"description"`
+	Hostname         types.String `tfsdk:"hostname"`
+	ExternalHostname types.String `tfsdk:"external_hostname"`
+	Status           types.String `tfsdk:"status"`
+	CreatedAt        types.String `tfsdk:"created_at"`
 
 	CharacterSettings types.Object `tfsdk:"character_settings"`
 	User              types.Object `tfsdk:"user"`
@@ -23,6 +26,7 @@ type MySQLDatabaseUserModel struct {
 	PasswordWOVersion types.Int64  `tfsdk:"password_wo_version"`
 	AccessLevel       types.String `tfsdk:"access_level"`
 	ExternalAccess    types.Bool   `tfsdk:"external_access"`
+	AccessIpMask      types.String `tfsdk:"access_ip_mask"`
 }
 
 type MySQLDatabaseCharsetModel struct {

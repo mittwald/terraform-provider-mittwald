@@ -52,9 +52,12 @@ resource "mittwald_mysql_database" "foobar_database" {
 
 ### Read-Only
 
+- `created_at` (String) The time at which the database was created
+- `external_hostname` (String) External hostname of the database; this is the hostname that you should use to connect to the database from outside the platform, if external access is enabled.
 - `hostname` (String) Hostname of the database; this is the hostname that you should use within the platform to connect to the database.
 - `id` (String) The generated database ID
 - `name` (String) Name of the database, e.g. `db-XXXXX`
+- `status` (String) The current status of the database
 
 <a id="nestedatt--user"></a>
 ### Nested Schema for `user`
@@ -66,6 +69,7 @@ Required:
 
 Optional:
 
+- `access_ip_mask` (String) IP mask (CIDR) restricting which client IPs the database user may connect from. When omitted, no IP restriction is applied.
 - `password` (String, Sensitive, Deprecated) Password for the database user
 - `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password for the database user; this field is mutually exclusive with `password` and will be used instead of it. The password is not stored in the database, but only used to create the user. You can use the `mittwald_mysql_password` ephemeral resource to dynamically generate a valid password.
 - `password_wo_version` (Number) Version of the password for the database user; this is required when using `password_wo`.
