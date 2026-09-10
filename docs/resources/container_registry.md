@@ -68,3 +68,7 @@ Required:
 - `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Password or access token for the registry
 - `password_wo_version` (Number) Version of the password for the registry. You will need to change this value whenever the password is changed.
 - `username` (String) Username for the registry
+
+Read-Only:
+
+- `valid` (Boolean) Whether the given credentials are valid for the registry.
