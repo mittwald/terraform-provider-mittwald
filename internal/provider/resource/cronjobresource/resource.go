@@ -91,13 +91,6 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"created_at": schema.StringAttribute{
-				MarkdownDescription: "The time at which the cron job was created",
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 		},
 	}
 }

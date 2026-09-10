@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/alessio/shellescape"
 	"github.com/google/shlex"
@@ -30,7 +29,6 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cr
 	m.Active = types.BoolValue(apiModel.Active)
 	m.ConcurrencyPolicy = valueutil.StringPtrOrNull(apiModel.ConcurrencyPolicy)
 	m.Timeout = types.Int64Value(apiModel.Timeout)
-	m.CreatedAt = types.StringValue(apiModel.CreatedAt.Format(time.RFC3339))
 	m.AppID = types.StringNull()
 	m.Container = types.ObjectNull(resourceContainerAttrTypes)
 	m.Destination = types.ObjectNull(resourceDestinationAttrTypes)

@@ -73,7 +73,6 @@ resource "mittwald_cronjob" "container_demo" {
 
 ### Read-Only
 
-- `created_at` (String) The time at which the cron job was created
 - `id` (String) The generated cronjob ID
 - `short_id` (String) The short ID of the cron job
 

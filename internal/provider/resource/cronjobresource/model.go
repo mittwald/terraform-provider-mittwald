@@ -42,7 +42,6 @@ type ResourceModel struct {
 	Active            types.Bool   `tfsdk:"active"`
 	ConcurrencyPolicy types.String `tfsdk:"concurrency_policy"`
 	Timeout           types.Int64  `tfsdk:"timeout"`
-	CreatedAt         types.String `tfsdk:"created_at"`
 }
 
 type ResourceDestinationModel struct {
