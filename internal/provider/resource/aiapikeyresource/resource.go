@@ -14,8 +14,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/aihostingclientv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/aihostingv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -67,6 +69,15 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				MarkdownDescription: "The ID of the project to create the API key for. Either `customer_id` or `project_id` must be set.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"contract_id": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The contract ID of the AI hosting plan (see `mittwald_ai`'s `contract_id` attribute) that this key should be scoped to. If not set, the customer's only AI hosting plan is used; if the customer has multiple AI hosting plans, this attribute is required.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -157,9 +168,16 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	planID, contractID, diags := r.resolvePlan(ctx, customerID, data.ContractID.ValueString())
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Build the request body
 	body := aihostingclientv2.CustomerCreateKeyRequestBody{
-		Name: data.Name.ValueString(),
+		Name:   data.Name.ValueString(),
+		PlanId: planID,
 	}
 
 	if projectID != "" {
@@ -183,10 +201,96 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 	// Map response to model
 	data.FromAPIModel(key)
+	data.ContractID = types.StringValue(contractID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 	tflog.Trace(ctx, "created AI API key resource")
+}
+
+// resolvePlan determines the AI hosting plan (and its associated contract)
+// that a key should be scoped to. If configuredContractID is empty, the
+// customer's only AI hosting plan is used; if the customer has more than one
+// plan, an error is returned since the plan cannot be determined
+// unambiguously. If configuredContractID is set, the plan whose contract
+// matches it is used.
+func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContractID string) (planID, contractID string, diags diag.Diagnostics) {
+	limit := int64(100)
+	plans := providerutil.
+		Try[*aihostingv2.CustomerPlans](&diags, "Error listing AI hosting plans").
+		DoValResp(r.client.AIHosting().CustomerGetPlans(ctx, aihostingclientv2.CustomerGetPlansRequest{
+			CustomerID: customerID,
+			Limit:      &limit,
+		}))
+
+	if diags.HasError() || plans == nil {
+		return
+	}
+
+	if configuredContractID == "" {
+		switch len(plans.Plans) {
+		case 0:
+			diags.AddAttributeError(
+				path.Root("contract_id"),
+				"No AI hosting plan found",
+				fmt.Sprintf("Customer %s has no AI hosting plan. Create a mittwald_ai resource for this customer first, or set contract_id explicitly.", customerID),
+			)
+			return
+		case 1:
+			planID = plans.Plans[0].PlanId
+		default:
+			diags.AddAttributeError(
+				path.Root("contract_id"),
+				"Ambiguous AI hosting plan",
+				fmt.Sprintf("Customer %s has %d AI hosting plans. Set contract_id to the contract_id of the mittwald_ai resource this key should be scoped to.", customerID, len(plans.Plans)),
+			)
+			return
+		}
+
+		contractID, diags = r.contractIDForPlan(ctx, customerID, planID)
+		return
+	}
+
+	for _, plan := range plans.Plans {
+		var id string
+		id, diags = r.contractIDForPlan(ctx, customerID, plan.PlanId)
+		if diags.HasError() {
+			return
+		}
+
+		if id == configuredContractID {
+			planID = plan.PlanId
+			contractID = id
+			return
+		}
+	}
+
+	diags.AddAttributeError(
+		path.Root("contract_id"),
+		"AI hosting plan not found",
+		fmt.Sprintf("No AI hosting plan found for contract %s on customer %s.", configuredContractID, customerID),
+	)
+
+	return
+}
+
+// contractIDForPlan resolves the contract ID that belongs to the given AI
+// hosting plan.
+func (r *Resource) contractIDForPlan(ctx context.Context, customerID, planID string) (string, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	contract := providerutil.
+		Try[*contractv2.Contract](&diags, "Error reading AI hosting contract").
+		DoValResp(r.client.Contract().GetDetailOfContractByAIHosting(ctx, contractclientv2.GetDetailOfContractByAIHostingRequest{
+			CustomerID:  customerID,
+			AIHostingID: planID,
+		}))
+
+	if diags.HasError() || contract == nil {
+		return "", diags
+	}
+
+	return contract.ContractId, diags
 }
 
 // Read reads the current state of the AI API key.
@@ -235,6 +339,13 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 
 	// Restore the API key from state
 	data.APIKey = apiKey
+
+	contractID, diags := r.contractIDForPlan(ctx, customerID, key.PlanId)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	data.ContractID = types.StringValue(contractID)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
