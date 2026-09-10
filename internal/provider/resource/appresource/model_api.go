@@ -3,6 +3,8 @@ package appresource
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -145,6 +147,9 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, appInstallation *appv2
 		}
 		return types.StringNull()
 	}()
+
+	m.Phase = types.StringValue(string(appInstallation.Phase))
+	m.CreatedAt = types.StringValue(appInstallation.CreatedAt.Format(time.RFC3339))
 
 	m.DocumentRoot = valueutil.StringPtrOrNull(appInstallation.CustomDocumentRoot)
 	m.Description = valueutil.StringOrNull(appInstallation.Description)
