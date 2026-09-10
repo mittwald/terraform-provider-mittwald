@@ -1,8 +1,6 @@
 package tlscertificateresource
 
 import (
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/sslv2"
@@ -79,8 +77,8 @@ func (m *ResourceModel) FromCertificate(cert *sslv2.Certificate) {
 		m.CommonName = types.StringNull()
 	}
 
-	m.ValidFrom = timePtrOrRFC3339Null(cert.ValidFrom)
-	m.ValidTo = timePtrOrRFC3339Null(cert.ValidTo)
+	m.ValidFrom = valueutil.TimePtrToRFC3339OrNull(cert.ValidFrom)
+	m.ValidTo = valueutil.TimePtrToRFC3339OrNull(cert.ValidTo)
 	m.CaBundle = valueutil.StringPtrOrNull(cert.CaBundle)
 	m.Issuer = valueutil.StringPtrOrNull(cert.Issuer)
 
@@ -89,11 +87,4 @@ func (m *ResourceModel) FromCertificate(cert *sslv2.Certificate) {
 	} else {
 		m.DnsNames = valueutil.ConvertStringSliceToList(cert.DnsNames)
 	}
-}
-
-func timePtrOrRFC3339Null(t *time.Time) types.String {
-	if t == nil {
-		return types.StringNull()
-	}
-	return types.StringValue(t.Format(time.RFC3339))
 }
