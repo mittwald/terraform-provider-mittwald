@@ -87,6 +87,11 @@ jobs:
           - After finishing a resource (whether or not it needed a fix),
             check out master again before starting the next one, so unrelated
             resources' changes never mix into the same branch.
+          - Follow the skill's known-drift inventory step: skip fields already
+            recorded there, and if you newly decide a field is deliberately
+            not worth exposing, record it there and include that in one
+            separate documentation-only PR at the end of the run (not mixed
+            into the per-resource fix/issue PRs).
 
           This is a non-interactive, unattended run: never stop to ask a
           clarifying question. If something is genuinely ambiguous, leave it

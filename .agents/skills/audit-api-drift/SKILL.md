@@ -11,8 +11,8 @@ this provider exposes in its schema. Its job is to catch **drift**: fields the A
 gained that the schema never picked up, or fields the schema still carries that the
 API dropped.
 
-It is meant to run unattended (e.g. from the `sync-mittwald-api-drift` GitHub
-Action, monthly). Do not stop to ask clarifying questions — use the judgment rules
+It is meant to run unattended (e.g. from the `audit-api-drift` GitHub Action,
+monthly). Do not stop to ask clarifying questions — use the judgment rules
 below, and when a call is genuinely ambiguous, leave it alone and write it up
 instead of guessing.
 
@@ -98,13 +98,66 @@ these heuristics:
 - Fields that would require a new resource or a major schema redesign to model
   correctly (e.g. a deeply nested polymorphic structure) — these belong in an
   issue, not a quick patch, even though they are "worth exposing" eventually.
+- **Volatile, purely informational/observational fields** — metrics or usage
+  figures that change on their own outside of any Terraform-managed change
+  (e.g. current storage/disk usage, request counts, last-seen timestamps).
+  Mirroring these into resource state causes permanent drift/plan-diff noise
+  on every apply, since Terraform expects state to only change in response to
+  configuration or explicit `Read` reconciliation of user-controlled values —
+  not to reflect a constantly-moving number. Skip these even though they are
+  real API response fields; don't fix, don't file an issue, just record them
+  in the known-drift inventory (§4).
 
 **Sensitive fields** (secrets, passwords, API keys, tokens): if genuinely new and
 worth exposing, they must use the write-only pattern from this repo's
 `CLAUDE.md` — `<attribute>_wo` plus `<attribute>_wo_version` — never a plain
 sensitive attribute.
 
-## 4. Decide: fix directly, or open an issue
+**Short IDs are cosmetic — prefer full IDs.** Several mittwald API types carry
+both a full ID and a "short ID" for the same entity (e.g. a project's
+`id`/`shortId`, a server's `id`/`shortId`). Treat the short ID as purely
+cosmetic for referencing purposes:
+- A resource/data source **is allowed** to expose its *own* short ID as a
+  `Computed` attribute (e.g. `mittwald_project`'s `short_id`, already present),
+  since that's a legitimate generated property of the entity itself.
+- A resource/data source must **not** gain a short-ID attribute for an entity
+  it merely *references* (e.g. don't add `server_short_id` to a resource that
+  already has `server_id`, even if the API's request/response type carries
+  both). Only the full ID is used for cross-resource references in this
+  provider.
+- This is a standing policy, not a case-by-case call — a "missing"
+  `<referenced-entity>_short_id` field is never drift to fix or file; it
+  doesn't need a known-drift inventory entry either, since this section
+  already documents the rule.
+
+## 4. Check and maintain the known-drift inventory
+
+`.agents/skills/audit-api-drift/known-drift.md` lists API fields that a
+previous run deliberately decided *not* to expose (per the §3 heuristics —
+most commonly volatile/informational fields; short-ID-for-a-referenced-entity
+skips don't need an entry, per §3). It exists so this skill doesn't
+re-discover, re-analyze, and re-report the same accepted drift every month.
+
+- **Before** treating anything as drift to fix or file, check this inventory
+  for the resource/field pair. If it's already listed, skip it silently — it's
+  accepted, not a new finding.
+- **When** you apply a §3 "usually not worth exposing" judgment call to a
+  *specific* field (not a blanket policy like the short-ID rule), add a row
+  instead of just letting it drop, so the decision and its reasoning survive
+  to the next run. Use the table format already in the file (resource/data
+  source, field, API type/operation, reason, date).
+- If a field already in the inventory later becomes something that *should*
+  be exposed (e.g. the API changed how it behaves, or a user requests it),
+  that's a judgment call for a human — remove the row as part of whatever
+  issue/PR addresses it, don't do it silently in an audit run.
+- If, over the course of a run, you added any new rows, commit them together
+  in one small documentation-only branch/PR at the end (e.g. branch
+  `audit-api-drift/known-drift-YYYY-MM-DD`, commit message like
+  `chore(audit-api-drift): record accepted API drift`), separate from the
+  per-resource fix/issue PRs from §6–§7. If no new rows were added, skip this
+  — don't open an empty PR.
+
+## 5. Decide: fix directly, or open an issue
 
 **Fix directly** (small, mechanical, low ambiguity) when all of these hold:
 - The field maps cleanly onto an existing Terraform type with no new validators,
@@ -131,7 +184,7 @@ sensitive attribute.
 When unsure between "fix" and "issue," prefer the issue — a wrong automated PR is
 more costly to review than a well-written issue.
 
-## 5. Fixing straightforward drift
+## 6. Fixing straightforward drift
 
 1. Work resource-by-resource: one branch/PR per resource (or per resource+its
    mirrored data source, since those change together), not one giant PR for
@@ -169,7 +222,7 @@ more costly to review than a well-written issue.
    why they were judged safe to add directly. Note in the PR body what
    verification (build/vet/lint/test) was run.
 
-## 6. Filing an issue for judgment-call drift
+## 7. Filing an issue for judgment-call drift
 
 For each such case, open one issue (`gh issue create`) with:
 - The resource/data source affected.
@@ -183,9 +236,11 @@ For each such case, open one issue (`gh issue create`) with:
 Do not open duplicate issues: search existing open issues for the resource name
 and field first (`gh issue list --search "..."`).
 
-## 7. Reporting
+## 8. Reporting
 
 If a run finds no drift at all, don't create branches, commits, PRs, or issues —
 just report that everything is in sync. If it finds drift but every instance was
 already fixed by a prior run (check for existing open PRs/issues covering the
-same field before acting), skip re-filing and say so.
+same field before acting), skip re-filing and say so. Also mention in your
+summary how many fields were newly recorded in the known-drift inventory (§4),
+if any.
