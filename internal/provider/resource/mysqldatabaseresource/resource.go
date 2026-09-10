@@ -68,6 +68,13 @@ func (d *Resource) Schema(_ context.Context, _ resource.SchemaRequest, response 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"external_hostname": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "External hostname of the database; this is the hostname that you should use to connect to the database from outside the platform, if external access is enabled.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"character_settings": schema.SingleNestedAttribute{
 				Optional: true,
 				Attributes: map[string]schema.Attribute{
