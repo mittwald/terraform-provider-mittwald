@@ -41,9 +41,12 @@ resource "mittwald_redis_database" "foobar_database" {
 
 ### Read-Only
 
+- `created_at` (String) The time at which the database was created
 - `hostname` (String) Hostname of the database; this is the hostname that you should use within the platform to connect to the database.
 - `id` (String) The generated redis_database ID
 - `name` (String) Name of the database, e.g. `redis_XXXXX`
+- `port` (Number) Port the database listens on
+- `status` (String) The current status of the database
 
 <a id="nestedatt--configuration"></a>
 ### Nested Schema for `configuration`

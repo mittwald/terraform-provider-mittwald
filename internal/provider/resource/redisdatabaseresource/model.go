@@ -10,6 +10,9 @@ type ResourceModel struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 	Hostname    types.String `tfsdk:"hostname"`
+	Port        types.Int64  `tfsdk:"port"`
+	Status      types.String `tfsdk:"status"`
+	CreatedAt   types.String `tfsdk:"created_at"`
 
 	Configuration types.Object `tfsdk:"configuration"`
 }
