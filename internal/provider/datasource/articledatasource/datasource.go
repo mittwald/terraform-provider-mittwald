@@ -93,6 +93,14 @@ for choosing one article from multiple matches (e.g., selecting the article with
 					},
 				},
 			},
+			"name": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The name of the selected article.",
+			},
+			"description": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The description of the selected article.",
+			},
 			"orderable": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "The orderable status of the selected article.",
@@ -100,6 +108,14 @@ for choosing one article from multiple matches (e.g., selecting the article with
 			"price": schema.Float64Attribute{
 				Computed:            true,
 				MarkdownDescription: "The price of the selected article.",
+			},
+			"contract_duration_in_month": schema.Float64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The contract duration of the selected article in months.",
+			},
+			"machine_type": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The machine type name of the selected article, if it has one.",
 			},
 			"attributes": schema.MapAttribute{
 				ElementType:         types.StringType,

@@ -63,6 +63,37 @@ func (d *ContainerImageDataSource) Schema(_ context.Context, _ datasource.Schema
 				Computed:            true,
 				ElementType:         types.StringType,
 			},
+			"digest": schema.StringAttribute{
+				MarkdownDescription: "The digest of the resolved image manifest.",
+				Computed:            true,
+			},
+			"user": schema.StringAttribute{
+				MarkdownDescription: "The user the container process runs as, as defined by the image.",
+				Computed:            true,
+			},
+			"user_id": schema.Int64Attribute{
+				MarkdownDescription: "The numeric user ID the container process runs as, as defined by the image.",
+				Computed:            true,
+			},
+			"is_user_root": schema.BoolAttribute{
+				MarkdownDescription: "Whether the container process runs as root.",
+				Computed:            true,
+			},
+			"env": schema.ListAttribute{
+				MarkdownDescription: "The environment variables defined by the image.",
+				Computed:            true,
+				ElementType:         types.ObjectType{AttrTypes: envAttrTypes},
+			},
+			"exposed_ports": schema.ListAttribute{
+				MarkdownDescription: "The ports exposed by the image.",
+				Computed:            true,
+				ElementType:         types.ObjectType{AttrTypes: exposedPortAttrTypes},
+			},
+			"volumes": schema.ListAttribute{
+				MarkdownDescription: "The volumes recommended by the image.",
+				Computed:            true,
+				ElementType:         types.ObjectType{AttrTypes: volumeAttrTypes},
+			},
 		},
 	}
 }

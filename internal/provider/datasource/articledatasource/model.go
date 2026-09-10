@@ -9,13 +9,17 @@ import (
 
 // DataSourceModel describes the data source data model.
 type DataSourceModel struct {
-	Filter     types.Object  `tfsdk:"filter"`
-	Select     types.Object  `tfsdk:"select"`
-	ID         types.String  `tfsdk:"id"`
-	Orderable  types.String  `tfsdk:"orderable"`
-	Price      types.Float64 `tfsdk:"price"`
-	Attributes types.Map     `tfsdk:"attributes"`
-	Tags       types.List    `tfsdk:"tags"`
+	Filter                  types.Object  `tfsdk:"filter"`
+	Select                  types.Object  `tfsdk:"select"`
+	ID                      types.String  `tfsdk:"id"`
+	Name                    types.String  `tfsdk:"name"`
+	Description             types.String  `tfsdk:"description"`
+	Orderable               types.String  `tfsdk:"orderable"`
+	Price                   types.Float64 `tfsdk:"price"`
+	ContractDurationInMonth types.Float64 `tfsdk:"contract_duration_in_month"`
+	MachineType             types.String  `tfsdk:"machine_type"`
+	Attributes              types.Map     `tfsdk:"attributes"`
+	Tags                    types.List    `tfsdk:"tags"`
 }
 
 type DataSourceFilterModel struct {
@@ -50,7 +54,21 @@ func (m *DataSourceModel) FromAPIModel(article articlev2.ReadableArticle) diag.D
 // mapBasicFields maps the basic article fields (ID, orderable, price).
 func (m *DataSourceModel) mapBasicFields(article articlev2.ReadableArticle) {
 	m.ID = types.StringValue(article.ArticleId)
+	m.Name = types.StringValue(article.Name)
 	m.Orderable = types.StringValue(string(article.Orderable))
+	m.ContractDurationInMonth = types.Float64Value(article.ContractDurationInMonth)
+
+	if article.Description != nil {
+		m.Description = types.StringValue(*article.Description)
+	} else {
+		m.Description = types.StringNull()
+	}
+
+	if article.MachineType != nil {
+		m.MachineType = types.StringValue(article.MachineType.Name)
+	} else {
+		m.MachineType = types.StringNull()
+	}
 
 	price := 0.0
 	if article.Price != nil {
