@@ -1,0 +1,105 @@
+name: Audit mittwald API drift
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Monthly, 1st of the month at 06:00 UTC.
+    - cron: "0 6 1 * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  audit-api-drift:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'mittwald/terraform-provider-mittwald' }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        with:
+          token: ${{ secrets.MACHINE_USER_TOKEN }}
+
+      - name: Setup Go
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
+            | sh -s -- -b "$(go env GOPATH)/bin" v2.12.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Install opencode
+        run: npm install -g opencode-ai
+
+      - name: Configure git identity
+        run: |
+          git config user.name "mittwald-machine[bot]"
+          git config user.email "opensource@mittwald.de"
+
+      - name: Run API drift audit
+        env:
+          MITTWALD_AI_API_KEY: ${{ secrets.MITTWALD_AI_API_KEY }}
+          GH_TOKEN: ${{ secrets.MACHINE_USER_TOKEN }}
+        run: |
+          PROMPT=$(cat <<'PROMPT_EOF'
+          Run the audit-api-drift skill against this repository.
+
+          For every Terraform resource and data source, compare the mittwald
+          API request/response types it uses (via github.com/mittwald/api-client-go)
+          against its Terraform schema and model, following the skill's
+          instructions for how to inspect the API types (go doc, not grepping
+          the module cache) and how to judge whether a missing or stale field
+          is worth exposing.
+
+          Work through the resources one at a time, each starting from an
+          up-to-date master:
+
+          - Where the skill judges the drift straightforward to fix, make the
+            fix (mirroring the change into the paired data source where one
+            exists), verify it (go build ./..., go vet ./..., golangci-lint
+            run, go test ./... — never `make testacc` / TF_ACC=1, those create
+            real billable resources), commit with a conventional commit
+            scoped to the resource ("fix(<resourcename>): ..." or
+            "feat(<resourcename>): ..." per the skill's guidance on which to
+            use), push the branch, and open a pull request against master
+            with `gh pr create` describing the API field(s) found, where they
+            came from, and what verification ran.
+          - Where the skill judges the drift needs a human judgment call,
+            open a GitHub issue with `gh issue create` describing the field,
+            the API operation/type it came from, and why it needs judgment —
+            after checking there isn't already an open issue or PR covering
+            it.
+          - After finishing a resource (whether or not it needed a fix),
+            check out master again before starting the next one, so unrelated
+            resources' changes never mix into the same branch.
+          - Follow the skill's known-drift inventory step: skip fields already
+            recorded there, and if you newly decide a field is deliberately
+            not worth exposing, record it there and include that in one
+            separate documentation-only PR at the end of the run (not mixed
+            into the per-resource fix/issue PRs).
+
+          This is a non-interactive, unattended run: never stop to ask a
+          clarifying question. If something is genuinely ambiguous, leave it
+          unchanged and either fold it into an issue or, if it doesn't rise
+          to the level of its own issue, just note it in your final summary.
+
+          If the full audit finds no drift anywhere, don't create any
+          branches, commits, PRs, or issues — just say so.
+          PROMPT_EOF
+          )
+          opencode run --print-logs --thinking --auto "$PROMPT"
