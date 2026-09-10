@@ -73,17 +73,6 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"status": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The current status of the database",
-			},
-			"created_at": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The time at which the database was created",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"configuration": schema.SingleNestedAttribute{
 				Optional: true,
 				Attributes: map[string]schema.Attribute{

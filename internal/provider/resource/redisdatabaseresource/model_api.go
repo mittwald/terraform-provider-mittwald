@@ -3,7 +3,6 @@ package redisdatabaseresource
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -75,8 +74,6 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, database *databasev2.R
 	m.Name = types.StringValue(database.Name)
 	m.Hostname = types.StringValue(database.Hostname)
 	m.Port = types.Int64Value(database.Port)
-	m.Status = types.StringValue(string(database.Status))
-	m.CreatedAt = types.StringValue(database.CreatedAt.Format(time.RFC3339))
 	m.Description = types.StringValue(database.Description)
 	m.Version = types.StringValue(database.Version)
 	m.ProjectID = types.StringValue(database.ProjectId)
