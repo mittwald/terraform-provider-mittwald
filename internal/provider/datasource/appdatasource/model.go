@@ -8,8 +8,9 @@ type AppDataSourceModel struct {
 	Recommended types.Bool   `tfsdk:"recommended"`
 	Selector    types.String `tfsdk:"selector"`
 
-	Version   types.String `tfsdk:"version"`
-	VersionID types.String `tfsdk:"version_id"`
+	Version         types.String `tfsdk:"version"`
+	VersionID       types.String `tfsdk:"version_id"`
+	ExternalVersion types.String `tfsdk:"external_version"`
 }
 
 func (m *AppDataSourceModel) SelectorOrDefault() string {

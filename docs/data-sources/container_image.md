@@ -55,4 +55,39 @@ resource "mittwald_container_stack" "nginx" {
 ### Read-Only
 
 - `command` (List of String) The command to run in the container.
+- `digest` (String) The digest of the resolved image manifest.
 - `entrypoint` (List of String) The entrypoint to run in the container.
+- `env` (List of Object) The environment variables defined by the image. (see [below for nested schema](#nestedatt--env))
+- `exposed_ports` (List of Object) The ports exposed by the image. (see [below for nested schema](#nestedatt--exposed_ports))
+- `is_user_root` (Boolean) Whether the container process runs as root.
+- `user` (String) The user the container process runs as, as defined by the image.
+- `user_id` (Number) The numeric user ID the container process runs as, as defined by the image.
+- `volumes` (List of Object) The volumes recommended by the image. (see [below for nested schema](#nestedatt--volumes))
+
+<a id="nestedatt--env"></a>
+### Nested Schema for `env`
+
+Read-Only:
+
+- `description` (String)
+- `is_sensitive` (Boolean)
+- `key` (String)
+- `value` (String)
+
+
+<a id="nestedatt--exposed_ports"></a>
+### Nested Schema for `exposed_ports`
+
+Read-Only:
+
+- `description` (String)
+- `port` (String)
+
+
+<a id="nestedatt--volumes"></a>
+### Nested Schema for `volumes`
+
+Read-Only:
+
+- `description` (String)
+- `volume` (String)

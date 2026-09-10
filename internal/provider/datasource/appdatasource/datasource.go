@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -56,6 +57,10 @@ resource to select the respective versions for the ` + "`version`" + ` attribute
 				MarkdownDescription: "The selected version ID",
 				Computed:            true,
 			},
+			"external_version": schema.StringAttribute{
+				MarkdownDescription: "The external (user-facing) version string of the selected version",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -91,19 +96,22 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
+	var selected *appv2.AppVersion
 	if data.Recommended.ValueBool() {
 		recommended, ok := versions.Recommended()
 		if !ok {
-			resp.Diagnostics.AddError("No recommended system software version found", fmt.Sprintf("No recommended version found for '%s'", data.Name.ValueString()))
+			resp.Diagnostics.AddError("No recommended app version found", fmt.Sprintf("No recommended version found for '%s'", data.Name.ValueString()))
 			return
 		}
 
-		data.Version = types.StringValue(recommended.InternalVersion)
-		data.VersionID = types.StringValue(recommended.Id)
+		selected = recommended
 	} else {
-		data.Version = types.StringValue(versions[len(versions)-1].InternalVersion)
-		data.VersionID = types.StringValue(versions[len(versions)-1].Id)
+		selected = &versions[len(versions)-1]
 	}
+
+	data.Version = types.StringValue(selected.InternalVersion)
+	data.VersionID = types.StringValue(selected.Id)
+	data.ExternalVersion = types.StringValue(selected.ExternalVersion)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

@@ -47,3 +47,7 @@ resource "null_resource" "provisioning" {
 ### Read-Only
 
 - `email` (String) The users email
+- `first_name` (String) The users first name
+- `last_name` (String) The users last name
+- `registered_at` (String) The registration timestamp of the user in RFC3339 format
+- `title` (String) The salutation of the user (`mr`, `ms` or `other`)
