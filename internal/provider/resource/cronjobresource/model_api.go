@@ -20,11 +20,15 @@ import (
 )
 
 func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cronjob, client mittwaldv2.Client) (res diag.Diagnostics) {
+	m.ShortID = types.StringValue(apiModel.ShortId)
 	m.ProjectID = valueutil.StringPtrOrNull(apiModel.ProjectId)
 	m.Description = types.StringValue(apiModel.Description)
 	m.Email = valueutil.StringPtrOrNull(apiModel.Email)
 	m.Interval = types.StringValue(apiModel.Interval)
 	m.Timezone = valueutil.StringPtrOrNull(apiModel.TimeZone)
+	m.Active = types.BoolValue(apiModel.Active)
+	m.ConcurrencyPolicy = valueutil.StringPtrOrNull(apiModel.ConcurrencyPolicy)
+	m.Timeout = types.Int64Value(apiModel.Timeout)
 	m.AppID = types.StringNull()
 	m.Container = types.ObjectNull(resourceContainerAttrTypes)
 	m.Destination = types.ObjectNull(resourceDestinationAttrTypes)
@@ -65,10 +69,21 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *cronjobv2.Cr
 }
 
 func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics) cronjobclientv2.CreateCronjobRequest {
+	active := true
+	if !m.Active.IsNull() && !m.Active.IsUnknown() {
+		active = m.Active.ValueBool()
+	}
+
+	timeout := int64(0)
+	if !m.Timeout.IsNull() && !m.Timeout.IsUnknown() {
+		timeout = m.Timeout.ValueInt64()
+	}
+
 	createCronjobBody := cronjobv2.CronjobRequest{
 		Description: m.Description.ValueString(),
-		Active:      true,
+		Active:      active,
 		Interval:    m.Interval.ValueString(),
+		Timeout:     timeout,
 		Target:      m.toRequestTarget(ctx, d),
 	}
 
@@ -78,6 +93,10 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 
 	if !m.Timezone.IsNull() {
 		createCronjobBody.TimeZone = m.Timezone.ValueStringPointer()
+	}
+
+	if !m.ConcurrencyPolicy.IsNull() && !m.ConcurrencyPolicy.IsUnknown() {
+		createCronjobBody.ConcurrencyPolicy = ptrutil.To(cronjobv2.ConcurrencyPolicy(m.ConcurrencyPolicy.ValueString()))
 	}
 
 	return cronjobclientv2.CreateCronjobRequest{
@@ -103,6 +122,18 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics
 
 	if !m.Timezone.Equal(current.Timezone) && !m.Timezone.IsNull() {
 		body.TimeZone = m.Timezone.ValueStringPointer()
+	}
+
+	if !m.Active.Equal(current.Active) && !m.Active.IsUnknown() {
+		body.Active = m.Active.ValueBoolPointer()
+	}
+
+	if !m.ConcurrencyPolicy.Equal(current.ConcurrencyPolicy) && !m.ConcurrencyPolicy.IsUnknown() {
+		body.ConcurrencyPolicy = ptrutil.To(cronjobv2.ConcurrencyPolicy(m.ConcurrencyPolicy.ValueString()))
+	}
+
+	if !m.Timeout.Equal(current.Timeout) && !m.Timeout.IsUnknown() {
+		body.Timeout = m.Timeout.ValueInt64Pointer()
 	}
 
 	if !m.Destination.Equal(current.Destination) || !m.AppID.Equal(current.AppID) || !m.Container.Equal(current.Container) {

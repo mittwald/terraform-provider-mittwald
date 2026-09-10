@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -40,7 +42,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 		MarkdownDescription: "This resource models a cron job.",
 
 		Attributes: map[string]schema.Attribute{
-			"id":          builder.Id(),
+			"id": builder.Id(),
+			"short_id": schema.StringAttribute{
+				MarkdownDescription: "The short ID of the cron job",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"project_id":  builder.ProjectId(),
 			"app_id":      modelAppIDSchema,
 			"container":   modelContainerSchema,
@@ -57,6 +66,30 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"timezone": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "The timezone to use for the cron job execution schedule (e.g., `Europe/Berlin`, `America/New_York`)",
+			},
+			"active": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Whether the cron job is active; inactive cron jobs are not executed. Defaults to true.",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"concurrency_policy": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "How the cron job should behave when a previous execution is still running; one of `allow`, `forbid` or `replace`.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"timeout": schema.Int64Attribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Maximum execution time of the cron job, in seconds. Defaults to 0 (no timeout).",
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
