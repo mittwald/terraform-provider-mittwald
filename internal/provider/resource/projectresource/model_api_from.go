@@ -2,6 +2,7 @@ package projectresource
 
 import (
 	"context"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -20,6 +21,8 @@ func (m *ResourceModel) Reset() {
 	m.Description = types.StringNull()
 	m.Directories = types.MapNull(types.StringType)
 	m.DefaultIPs = types.ListNull(types.StringType)
+	m.Status = types.StringNull()
+	m.CreatedAt = types.StringNull()
 	m.DiskspaceGB = types.Int64Null()
 	m.UseFreeTrial = types.BoolNull()
 }
@@ -43,6 +46,8 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, project *projectv2.Pro
 	m.ServerID = valueutil.StringPtrOrNull(project.ServerId)
 	m.CustomerID = types.StringValue(project.CustomerId)
 	m.DefaultIPs = providerutil.EmbedDiag(types.ListValueFrom(ctx, types.StringType, ips))(&res)
+	m.Status = types.StringValue(string(project.Status))
+	m.CreatedAt = types.StringValue(project.CreatedAt.Format(time.RFC3339))
 
 	storage, ok := specStorage(project.Spec)
 	if !ok {

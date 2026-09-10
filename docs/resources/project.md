@@ -90,10 +90,12 @@ resource "mittwald_project" "standalone" {
 ### Read-Only
 
 - `contract_id` (String) The contract ID associated with a stand-alone project. Null for projects on a server, which are billed via the server's contract.
+- `created_at` (String) The time at which the project was created
 - `default_ips` (List of String) Contains a list of default IP addresses for the project
 - `directories` (Map of String) Contains a map of data directories within the project
 - `id` (String) The generated project ID
 - `short_id` (String) The short ID of the project
+- `status` (String) The current status of the project
 
 <a id="nestedblock--timeouts"></a>
 ### Nested Schema for `timeouts`

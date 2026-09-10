@@ -16,6 +16,8 @@ type ResourceModel struct {
 	Description types.String `tfsdk:"description"`
 	Directories types.Map    `tfsdk:"directories"`
 	DefaultIPs  types.List   `tfsdk:"default_ips"`
+	Status      types.String `tfsdk:"status"`
+	CreatedAt   types.String `tfsdk:"created_at"`
 
 	// The following attributes only apply to stand-alone projects, which are
 	// ordered for a customer instead of being placed on an existing server.

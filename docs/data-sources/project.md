@@ -57,12 +57,14 @@ resource "mittwald_virtualhost" "example" {
 
 - `article_id` (String) The article ID selecting the plan of a stand-alone project (for example a hosting plan or a machine type, depending on the article). Null for projects on a server.
 - `contract_id` (String) The contract ID associated with a stand-alone project. Null for projects on a server, which are billed via the server's contract.
+- `created_at` (String) The time at which the project was created.
 - `customer_id` (String) ID of the customer this project belongs to.
 - `default_ips` (List of String) Contains a list of default IP addresses for the project.
 - `description` (String) The project description.
 - `directories` (Map of String) Contains a map of data directories within the project.
 - `diskspace_gb` (Number) The amount of disk space the project is allotted, in GiB.
 - `server_id` (String) ID of the server this project belongs to. Null for stand-alone projects.
+- `status` (String) The current status of the project.
 
 <a id="nestedblock--timeouts"></a>
 ### Nested Schema for `timeouts`

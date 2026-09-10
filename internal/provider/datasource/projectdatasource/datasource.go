@@ -51,6 +51,8 @@ type dataSourceModel struct {
 	DiskspaceGB types.Int64  `tfsdk:"diskspace_gb"`
 	Directories types.Map    `tfsdk:"directories"`
 	DefaultIPs  types.List   `tfsdk:"default_ips"`
+	Status      types.String `tfsdk:"status"`
+	CreatedAt   types.String `tfsdk:"created_at"`
 
 	Timeouts timeouts.Value `tfsdk:"timeouts"`
 }
@@ -75,6 +77,8 @@ func (d *dataSourceModel) fromAPIModel(ctx context.Context, project *projectv2.P
 	d.DiskspaceGB = mapped.DiskspaceGB
 	d.Directories = mapped.Directories
 	d.DefaultIPs = mapped.DefaultIPs
+	d.Status = mapped.Status
+	d.CreatedAt = mapped.CreatedAt
 
 	d.ContractID = types.StringNull()
 	d.ArticleID = types.StringNull()
@@ -150,6 +154,14 @@ func (d *DataSource) Schema(ctx context.Context, _ datasource.SchemaRequest, res
 				MarkdownDescription: "Contains a list of default IP addresses for the project.",
 				Computed:            true,
 				ElementType:         types.StringType,
+			},
+			"status": schema.StringAttribute{
+				MarkdownDescription: "The current status of the project.",
+				Computed:            true,
+			},
+			"created_at": schema.StringAttribute{
+				MarkdownDescription: "The time at which the project was created.",
+				Computed:            true,
 			},
 		},
 

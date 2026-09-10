@@ -145,6 +145,17 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 					listplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"status": schema.StringAttribute{
+				MarkdownDescription: "The current status of the project",
+				Computed:            true,
+			},
+			"created_at": schema.StringAttribute{
+				MarkdownDescription: "The time at which the project was created",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 
 		Blocks: map[string]schema.Block{
