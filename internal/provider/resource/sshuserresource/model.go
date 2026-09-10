@@ -20,6 +20,7 @@ type ResourceModel struct {
 	PublicKeys        types.Set    `tfsdk:"public_keys"`
 	PasswordWO        types.String `tfsdk:"password_wo"`
 	PasswordWOVersion types.Int64  `tfsdk:"password_wo_version"`
+	HasPassword       types.Bool   `tfsdk:"has_password"`
 	CreatedAt         types.String `tfsdk:"created_at"`
 }
 

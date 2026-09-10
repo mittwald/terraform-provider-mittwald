@@ -17,6 +17,7 @@ func (m *ResourceModel) FromAPIModel(ctx context.Context, apiModel *sshuserv2.Ss
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.Description = types.StringValue(apiModel.Description)
 	m.Username = types.StringValue(apiModel.UserName)
+	m.HasPassword = types.BoolValue(apiModel.HasPassword)
 	m.CreatedAt = types.StringValue(apiModel.CreatedAt.Format(time.RFC3339))
 
 	if apiModel.Active != nil {
