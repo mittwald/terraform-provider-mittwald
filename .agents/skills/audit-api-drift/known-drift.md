@@ -24,6 +24,8 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_project` | `readiness` | `projectv2.Project` (GetProject) | Deprecated type; superseded by `status` | 2026-09-10 |
 | `mittwald_project` | `server_group_id` | `projectv2.Project` (GetProject) | Internal identifier | 2026-09-10 |
 | `mittwald_project` | `statistics_base_domain` | `projectv2.Project` (GetProject) | Informational statistics domain | 2026-09-10 |
+| `mittwald_project` | `status` | `projectv2.Project` (GetProject) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #473) | 2026-09-10 |
+| `mittwald_project` | `created_at` | `projectv2.Project` (GetProject) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #473) | 2026-09-10 |
 | `mittwald_project` | `status_set_at` | `projectv2.Project` (GetProject) | Volatile timestamp (moves with `status`) | 2026-09-10 |
 | `mittwald_server` | `disabled_reason` | `projectv2.Server` (GetServer) | Disabled state not managed by provider | 2026-09-10 |
 | `mittwald_server` | `group_id` | `projectv2.Server` (GetServer) | Internal identifier | 2026-09-10 |
@@ -46,6 +48,8 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_app` | `update_available` | `appv2.AppInstallation` (GetAppinstallation) | Volatile flag | 2026-09-10 |
 | `mittwald_app` | `app_external_version` | `appv2.AppInstallation` (GetAppinstallation) | Ambiguous vs `version`/`version_current` | 2026-09-10 |
 | `mittwald_app` | `app_id`, `app_name` | `appv2.AppInstallation` (GetAppinstallation) | `app` name is the reference key | 2026-09-10 |
+| `mittwald_app` | `phase` | `appv2.AppInstallation` (GetAppinstallation) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #474) | 2026-09-10 |
+| `mittwald_app` | `created_at` | `appv2.AppInstallation` (GetAppinstallation) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #474) | 2026-09-10 |
 | `mittwald_app` (data source) | `id`, `tags`, `action_capabilities` | `appv2.App` (GetApp) | Name identifies the app; catalog/action metadata | 2026-09-10 |
 | `mittwald_app` (data source) | `recommended` (status) | `appv2.AppVersion` (ListAppversions) | Name collision with `recommended` selector flag | 2026-09-10 |
 | `mittwald_app` (data source) | `doc_root`, `databases`, `default_cronjobs`, `system_software_dependencies`, `user_inputs`, `request_handler`, `breaking_note`, `backend_path_template` | `appv2.AppVersion` (ListAppversions) | Nested catalog/dependency schema; resolved by `mittwald_app` resource | 2026-09-10 |
@@ -63,6 +67,7 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_container_stack` | volume `orphaned` | `containerv2.VolumeResponse` (GetStack) | Transient GC state | 2026-09-10 |
 | `mittwald_container_stack` | volume `stack_id` | `containerv2.VolumeResponse` (GetStack) | Redundant | 2026-09-10 |
 | `mittwald_container_stack` | volume `storage_usage_in_bytes` (+`_set_at`) | `containerv2.VolumeResponse` (GetStack) | Volatile usage metrics | 2026-09-10 |
+| `mittwald_container_stack` | container `restart_policy` | `containerv2.ServiceDeclareRequest`/`ServiceRequest`/`ServiceResponse` (declare/update/GetStack) | Restart policy support is currently flaky at best and not advertised widely; put on the back burner for now (see #477) | 2026-09-10 |
 | `mittwald_mysql_database` | `finalizers` | `databasev2.MySqlDatabase` (GetMysqlDatabase) | Internal k8s finalizers | 2026-09-10 |
 | `mittwald_mysql_database` | `is_ready` | `databasev2.MySqlDatabase` (GetMysqlDatabase) | Transient; `status` already exposed | 2026-09-10 |
 | `mittwald_mysql_database` | `is_shared` | `databasev2.MySqlDatabase` (GetMysqlDatabase) | Platform-managed flag | 2026-09-10 |
@@ -94,6 +99,7 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_virtualhost` | `dns_validation_errors` | `ingressv2.Ingress` (GetIngress) | Volatile validation state | 2026-09-10 |
 | `mittwald_ssh_user` | `auth_updated_at` | `sshuserv2.SshUser` (GetSSHUser) | Volatile timestamp | 2026-09-10 |
 | `mittwald_ssh_user` | `updated_at` | `sshuserv2.SshUser` (GetSSHUser) | Volatile timestamp | 2026-09-10 |
+| `mittwald_ssh_user` | `has_password` | `sshuserv2.SshUser` (GetSSHUser) | A practitioner managing this resource via Terraform already knows whether the SSH user has a password set (see #485) | 2026-09-10 |
 | `mittwald_tls_certificate` | `is_expired` | `sslv2.Certificate` (GetCertificate) | Volatile; derivable from `valid_to` | 2026-09-10 |
 | `mittwald_tls_certificate` | `certificate_type` | `sslv2.Certificate` (GetCertificate) | Derived from creation mode | 2026-09-10 |
 | `mittwald_tls_certificate` | `certificate_order_id` | `sslv2.Certificate` (GetCertificate) | Internal order reference | 2026-09-10 |
@@ -106,7 +112,8 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_ai_api_key` | `plan_id`, `profile_id` | `aihostingv2.Key` (CustomerGetKey) | Opaque references to unmodeled entities | 2026-09-10 |
 | `mittwald_ai_api_key` | `rate_limit` | `aihostingv2.Key` (CustomerGetKey) | Plan-derived; shared across project | 2026-09-10 |
 | `mittwald_ai_api_key` | `token_usage` | `aihostingv2.Key` (CustomerGetKey) | Volatile usage metrics | 2026-09-10 |
-| `mittwald_ai_api_key` | `container_meta` | `aihostingv2.Key` (CustomerGetKey) | WebUI container (see issue #484) | 2026-09-10 |
+| `mittwald_ai_api_key` | `create_webui_container` | `aihostingv2.CustomerCreateKeyRequestBody`/`CustomerUpdateKeyRequestBody` (create/update) | Convenience feature for the GUI only; not included in the Terraform provider on purpose (see #484) | 2026-09-10 |
+| `mittwald_ai_api_key` | `container_meta` | `aihostingv2.Key` (CustomerGetKey) | Convenience feature for the GUI only; not included in the Terraform provider on purpose (see #484) | 2026-09-10 |
 | `mittwald_user` (data source) | `avatar_ref` | `userv2.User` (GetUser) | Media reference | 2026-09-10 |
 | `mittwald_user` (data source) | `customer_memberships`, `project_memberships` | `userv2.User` (GetUser) | Nested maps of referenced entities | 2026-09-10 |
 | `mittwald_user` (data source) | `employee_information`, `is_employee` | `userv2.User` (GetUser) | Platform-internal | 2026-09-10 |
