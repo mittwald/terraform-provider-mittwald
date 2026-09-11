@@ -262,6 +262,7 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	d.updateDescription(ctx, &planData, &stateData, resp)
 	d.updatePasswordDeprecated(ctx, &planUser, resp)
 	d.updatePassword(ctx, &planUser, &stateUser, password, resp)
+	d.updateUserAccess(ctx, &planUser, &stateUser, resp)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -327,6 +328,27 @@ func (d *Resource) updatePassword(ctx context.Context, planUser, stateUser *MySQ
 	}
 
 	d.updatePasswordInternal(ctx, planUser, password.ValueString(), resp)
+}
+
+func (d *Resource) updateUserAccess(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
+	if planUser.AccessLevel.Equal(stateUser.AccessLevel) && planUser.ExternalAccess.Equal(stateUser.ExternalAccess) {
+		return
+	}
+
+	client := d.client.Database()
+
+	accessLevel := databaseclientv2.UpdateMysqlUserRequestBodyAccessLevel(planUser.AccessLevel.ValueString())
+	externalAccess := planUser.ExternalAccess.ValueBool()
+
+	providerutil.
+		Try[any](&resp.Diagnostics, "error while updating database user").
+		DoResp(client.UpdateMysqlUser(ctx, databaseclientv2.UpdateMysqlUserRequest{
+			MysqlUserID: planUser.ID.ValueString(),
+			Body: databaseclientv2.UpdateMysqlUserRequestBody{
+				AccessLevel:    &accessLevel,
+				ExternalAccess: &externalAccess,
+			},
+		}))
 }
 
 func (d *Resource) updatePasswordDeprecated(ctx context.Context, planUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
