@@ -1,3 +1,15 @@
+## [1.11.3](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.2...v1.11.3) (2026-09-11)
+
+
+### Bug Fixes
+
+* **container_registry:** expose credentials.valid ([#479](https://github.com/mittwald/terraform-provider-mittwald/issues/479)) ([a2542d3](https://github.com/mittwald/terraform-provider-mittwald/commit/a2542d3f8eb0a3cd214f089d86d6c31d6e3e5afa))
+* **cronjob:** expose active, concurrency_policy, timeout and short_id ([#483](https://github.com/mittwald/terraform-provider-mittwald/issues/483)) ([ed0fe43](https://github.com/mittwald/terraform-provider-mittwald/commit/ed0fe4329e6ba037ebf755687406feacb5ff5fce))
+* **datasources:** expose missing API fields in user, article, container_image and systemsoftware data sources ([#487](https://github.com/mittwald/terraform-provider-mittwald/issues/487)) ([927b114](https://github.com/mittwald/terraform-provider-mittwald/commit/927b1147564b82b9478ecb40c009b95b98470bbe))
+* **mysql_database:** expose status, created_at, external_hostname and user access_ip_mask ([#480](https://github.com/mittwald/terraform-provider-mittwald/issues/480)) ([86c3fb9](https://github.com/mittwald/terraform-provider-mittwald/commit/86c3fb9bc859bbf657ec24de719ebbe66f1fecfc))
+* **redis_database:** expose port ([#482](https://github.com/mittwald/terraform-provider-mittwald/issues/482)) ([2a5a190](https://github.com/mittwald/terraform-provider-mittwald/commit/2a5a190f14ef7fbc678c9711427306fcd3975dd7))
+* **tls_certificate:** expose certificate validity and metadata fields ([#486](https://github.com/mittwald/terraform-provider-mittwald/issues/486)) ([e4d3edb](https://github.com/mittwald/terraform-provider-mittwald/commit/e4d3edbb3bbd0e9ce034529d530f149011754713))
+
 ## [1.11.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.1...v1.11.2) (2026-09-08)
 
 ## [1.11.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.0...v1.11.1) (2026-09-07)
