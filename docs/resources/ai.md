@@ -5,6 +5,7 @@ subcategory: ""
 description: |-
   This resource models mittwald AI support for a specific mittwald customer.
   Note: AI support is an add-on feature and will incur additional costs.
+  Note: A customer may have several AI hosting plans; each mittwald_ai resource manages exactly one of them. Unlike earlier provider versions, this resource will no longer automatically adopt a pre-existing, unmanaged AI hosting plan into state; use terraform import for that instead.
 ---
 
 # mittwald_ai (Resource)
@@ -12,6 +13,8 @@ description: |-
 This resource models mittwald AI support for a specific mittwald customer.
 
 **Note:** AI support is an add-on feature and will incur additional costs.
+
+**Note:** A customer may have several AI hosting plans; each `mittwald_ai` resource manages exactly one of them. Unlike earlier provider versions, this resource will no longer automatically adopt a pre-existing, unmanaged AI hosting plan into state; use `terraform import` for that instead.
 
 ## Example Usage
 
@@ -28,8 +31,17 @@ data "mittwald_article" "ai_starter" {
 resource "mittwald_ai" "example" {
   customer_id = var.customer_id
   article_id  = data.mittwald_article.ai_starter.id
+  name        = "Example AI hosting plan"
 
   use_free_trial = true
+}
+
+# A customer may have several AI hosting plans; each mittwald_ai resource
+# manages one of them.
+resource "mittwald_ai" "second_plan" {
+  customer_id = var.customer_id
+  article_id  = data.mittwald_article.ai_starter.id
+  name        = "Second AI hosting plan"
 }
 ```
 
@@ -45,6 +57,7 @@ resource "mittwald_ai" "example" {
 
 > **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
 
+- `name` (String) A display name for this AI hosting plan. Useful to tell apart several AI hosting plans booked for the same customer. If not set, a default name will be assigned by the API.
 - `use_free_trial` (Boolean, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Use a free trial period for AI support, when available. Only applicable on creation, not on updates.
 
 ### Read-Only
