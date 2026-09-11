@@ -101,5 +101,10 @@ resource "mittwald_virtualhost" "example" {
 
 ### Read-Only
 
+- `ca_bundle` (String) The PEM-encoded CA bundle associated with the certificate
 - `certificate_request_id` (String) The ID of the certificate request that was used to issue this certificate.
+- `dns_names` (List of String) The list of domain names (SANs) covered by the certificate
 - `id` (String) The generated certificate ID
+- `issuer` (String) The issuer of the certificate, e.g. the name of the certificate authority
+- `valid_from` (String) The start of the certificate's validity period in RFC3339 format
+- `valid_to` (String) The end of the certificate's validity period in RFC3339 format

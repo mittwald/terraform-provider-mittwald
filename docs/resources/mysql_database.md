@@ -52,6 +52,7 @@ resource "mittwald_mysql_database" "foobar_database" {
 
 ### Read-Only
 
+- `external_hostname` (String) External hostname of the database; this is the hostname that you should use to connect to the database from outside the platform, if external access is enabled.
 - `hostname` (String) Hostname of the database; this is the hostname that you should use within the platform to connect to the database.
 - `id` (String) The generated database ID
 - `name` (String) Name of the database, e.g. `db-XXXXX`

@@ -45,5 +45,6 @@ resource "mittwald_app" "example" {
 
 ### Read-Only
 
+- `external_version` (String) The external (user-facing) version string of the selected version
 - `version` (String) The selected version
 - `version_id` (String) The selected version ID

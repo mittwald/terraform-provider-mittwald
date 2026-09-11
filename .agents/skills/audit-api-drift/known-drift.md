@@ -77,6 +77,8 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_mysql_database` | `user.password_updated_at`, `user.updated_at`, `user.status_set_at` | `databasev2.MySqlUser` (GetMysqlDatabase) | Volatile timestamps | 2026-09-10 |
 | `mittwald_mysql_database` | `user.status` | `databasev2.MySqlUser` (GetMysqlDatabase) | Transient user state | 2026-09-10 |
 | `mittwald_mysql_database` | `user.description` | `databasev2.MySqlUser` (GetMysqlDatabase) | Not settable on create; low value | 2026-09-10 |
+| `mittwald_mysql_database` | `user.access_ip_mask` | `databasev2.CreateMySqlUserWithDatabase` (`CreateMysqlDatabase`) / `databaseclientv2.UpdateMysqlUserRequestBody` (`UpdateMysqlUser`) | Currently only supported half-heartedly by the platform and not advertised widely; put on the back burner and accepted as known drift for now (see #480). | 2026-09-10 |
+| `mittwald_mysql_database` | `status`, `created_at` | `databasev2.MySqlDatabase` (`GetMysqlDatabase`) | Status fields (and related metadata like creation+update timestamps) are not exposed as resource state on purpose (see #480). | 2026-09-10 |
 | `mittwald_redis_database` | `finalizers` | `databasev2.RedisDatabase` (GetRedisDatabase) | Internal k8s finalizers | 2026-09-10 |
 | `mittwald_redis_database` | `status_set_at`, `updated_at` | `databasev2.RedisDatabase` (GetRedisDatabase) | Volatile timestamps | 2026-09-10 |
 | `mittwald_redis_database` | `storage_usage_in_bytes` (+`_set_at`) | `databasev2.RedisDatabase` (GetRedisDatabase) | Volatile usage metrics | 2026-09-10 |

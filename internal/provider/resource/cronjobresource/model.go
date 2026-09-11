@@ -29,15 +29,19 @@ var resourceContainerAttrTypes = map[string]attr.Type{
 }
 
 type ResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	ProjectID   types.String `tfsdk:"project_id"`
-	AppID       types.String `tfsdk:"app_id"`
-	Container   types.Object `tfsdk:"container"`
-	Description types.String `tfsdk:"description"`
-	Interval    types.String `tfsdk:"interval"`
-	Destination types.Object `tfsdk:"destination"`
-	Email       types.String `tfsdk:"email"`
-	Timezone    types.String `tfsdk:"timezone"`
+	ID                types.String `tfsdk:"id"`
+	ShortID           types.String `tfsdk:"short_id"`
+	ProjectID         types.String `tfsdk:"project_id"`
+	AppID             types.String `tfsdk:"app_id"`
+	Container         types.Object `tfsdk:"container"`
+	Description       types.String `tfsdk:"description"`
+	Interval          types.String `tfsdk:"interval"`
+	Destination       types.Object `tfsdk:"destination"`
+	Email             types.String `tfsdk:"email"`
+	Timezone          types.String `tfsdk:"timezone"`
+	Active            types.Bool   `tfsdk:"active"`
+	ConcurrencyPolicy types.String `tfsdk:"concurrency_policy"`
+	Timeout           types.Int64  `tfsdk:"timeout"`
 }
 
 type ResourceDestinationModel struct {
