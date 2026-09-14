@@ -1,3 +1,10 @@
+## [1.11.4](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.3...v1.11.4) (2026-09-14)
+
+
+### Bug Fixes
+
+* **project:** customer_id property must be re-used from state when unknown ([#496](https://github.com/mittwald/terraform-provider-mittwald/issues/496)) ([33e17fb](https://github.com/mittwald/terraform-provider-mittwald/commit/33e17fb6270e62a9878b3cc11abe8cb7e8cde266))
+
 ## [1.11.3](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.2...v1.11.3) (2026-09-11)
 
 
