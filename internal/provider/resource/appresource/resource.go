@@ -120,10 +120,13 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional:            true,
 			},
 			"installation_path": schema.StringAttribute{
-				MarkdownDescription: "The installation path of the app, relative to the web root",
-				Computed:            true,
+				MarkdownDescription: "The installation path of the app, relative to the web root. " +
+					"This is set on creation; if omitted, the API assigns a path automatically. " +
+					"The path cannot be changed afterwards; changing it will force recreation of the app.",
+				Optional: true,
+				Computed: true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"installation_path_absolute": schema.StringAttribute{
