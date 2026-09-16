@@ -258,10 +258,8 @@ func (d *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	d.updateCharset(ctx, planData.ID.ValueString(), &planCharset, &stateCharset, resp)
-	d.updateDescription(ctx, &planData, &stateData, resp)
-	d.updatePasswordDeprecated(ctx, &planUser, resp)
-	d.updatePassword(ctx, &planUser, &stateUser, password, resp)
+	d.updateDatabase(ctx, &planData, &stateData, &planCharset, &stateCharset, resp)
+	d.updateUser(ctx, &planUser, &stateUser, password, resp)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -281,72 +279,67 @@ func (d *Resource) unpack(ctx context.Context, planOrState interface {
 	return
 }
 
-func (d *Resource) updateCharset(ctx context.Context, databaseID string, planData, stateData *MySQLDatabaseCharsetModel, resp *resource.UpdateResponse) {
-	if planData.AsObject(ctx, resp.Diagnostics).Equal(stateData.AsObject(ctx, resp.Diagnostics)) {
+// updateDatabase sends all changed database attributes in a single PatchMysqlDatabase request.
+func (d *Resource) updateDatabase(ctx context.Context, planData, stateData *ResourceModel, planCharset, stateCharset *MySQLDatabaseCharsetModel, resp *resource.UpdateResponse) {
+	body := databaseclientv2.PatchMysqlDatabaseRequestBody{}
+	changed := false
+
+	if !planData.Description.Equal(stateData.Description) {
+		body.Description = planData.Description.ValueStringPointer()
+		changed = true
+	}
+
+	if !planCharset.AsObject(ctx, resp.Diagnostics).Equal(stateCharset.AsObject(ctx, resp.Diagnostics)) {
+		body.CharacterSettings = &databasev2.CharacterSettings{
+			CharacterSet: planCharset.Charset.ValueString(),
+			Collation:    planCharset.Collation.ValueString(),
+		}
+		changed = true
+	}
+
+	if !changed {
 		return
 	}
 
-	client := d.client.Database()
-
 	providerutil.
 		Try[any](&resp.Diagnostics, "error while updating database").
-		DoResp(client.PatchMysqlDatabase(ctx, databaseclientv2.PatchMysqlDatabaseRequest{
-			MysqlDatabaseID: databaseID,
-			Body: databaseclientv2.PatchMysqlDatabaseRequestBody{
-				CharacterSettings: &databasev2.CharacterSettings{
-					CharacterSet: planData.Charset.ValueString(),
-					Collation:    planData.Collation.ValueString(),
-				},
-			},
-		}))
-}
-
-func (d *Resource) updateDescription(ctx context.Context, planData, stateData *ResourceModel, resp *resource.UpdateResponse) {
-	if planData.Description.Equal(stateData.Description) {
-		return
-	}
-
-	client := d.client.Database()
-
-	providerutil.
-		Try[any](&resp.Diagnostics, "error while updating database").
-		DoResp(client.PatchMysqlDatabase(ctx, databaseclientv2.PatchMysqlDatabaseRequest{
+		DoResp(d.client.Database().PatchMysqlDatabase(ctx, databaseclientv2.PatchMysqlDatabaseRequest{
 			MysqlDatabaseID: planData.ID.ValueString(),
-			Body: databaseclientv2.PatchMysqlDatabaseRequestBody{
-				Description: planData.Description.ValueStringPointer(),
-			},
+			Body:            body,
 		}))
 }
 
-func (d *Resource) updatePassword(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, password types.String, resp *resource.UpdateResponse) {
-	hasWriteOnlyPassword := !password.IsNull()
-	isChanged := !planUser.PasswordWOVersion.Equal(stateUser.PasswordWOVersion)
+// updateUser sends all changed database user attributes in a single UpdateMysqlUser request.
+func (d *Resource) updateUser(ctx context.Context, planUser, stateUser *MySQLDatabaseUserModel, passwordWO types.String, resp *resource.UpdateResponse) {
+	body := databaseclientv2.UpdateMysqlUserRequestBody{}
+	changed := false
 
-	if !hasWriteOnlyPassword || !isChanged {
-		return
+	if !planUser.Password.IsNull() {
+		body.Password = planUser.Password.ValueStringPointer()
+		changed = true
 	}
 
-	d.updatePasswordInternal(ctx, planUser, password.ValueString(), resp)
-}
-
-func (d *Resource) updatePasswordDeprecated(ctx context.Context, planUser *MySQLDatabaseUserModel, resp *resource.UpdateResponse) {
-	if planUser.Password.IsNull() {
-		return
+	if !passwordWO.IsNull() && !planUser.PasswordWOVersion.Equal(stateUser.PasswordWOVersion) {
+		body.Password = passwordWO.ValueStringPointer()
+		changed = true
 	}
 
-	d.updatePasswordInternal(ctx, planUser, planUser.Password.ValueString(), resp)
-}
+	if !planUser.AccessLevel.Equal(stateUser.AccessLevel) || !planUser.ExternalAccess.Equal(stateUser.ExternalAccess) {
+		accessLevel := databaseclientv2.UpdateMysqlUserRequestBodyAccessLevel(planUser.AccessLevel.ValueString())
+		body.AccessLevel = &accessLevel
+		body.ExternalAccess = planUser.ExternalAccess.ValueBoolPointer()
+		changed = true
+	}
 
-func (d *Resource) updatePasswordInternal(ctx context.Context, planUser *MySQLDatabaseUserModel, password string, resp *resource.UpdateResponse) {
-	client := d.client.Database()
+	if !changed {
+		return
+	}
 
 	providerutil.
-		Try[any](&resp.Diagnostics, "error while setting database user password").
-		DoResp(client.UpdateMysqlUser(ctx, databaseclientv2.UpdateMysqlUserRequest{
+		Try[any](&resp.Diagnostics, "error while updating database user").
+		DoResp(d.client.Database().UpdateMysqlUser(ctx, databaseclientv2.UpdateMysqlUserRequest{
 			MysqlUserID: planUser.ID.ValueString(),
-			Body: databaseclientv2.UpdateMysqlUserRequestBody{
-				Password: &password,
-			},
+			Body:        body,
 		}))
 }
 
