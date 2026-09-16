@@ -10,6 +10,7 @@ type ResourceModel struct {
 	ID         types.String `tfsdk:"id"`
 	CustomerID types.String `tfsdk:"customer_id"`
 	ProjectID  types.String `tfsdk:"project_id"`
+	ContractID types.String `tfsdk:"contract_id"`
 	Name       types.String `tfsdk:"name"`
 	APIKey     types.String `tfsdk:"api_key"`
 }

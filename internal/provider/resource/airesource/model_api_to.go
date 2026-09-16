@@ -24,6 +24,7 @@ func (r *ResourceModel) ToAPICreateOrderRequest(ctx context.Context, client mitt
 					UseFreeTrial:      r.UseFreeTrial.ValueBoolPointer(),
 					MonthlyTokens:     monthlyTokens,
 					RequestsPerMinute: requestsPerMinute,
+					Name:              r.Name.ValueStringPointer(),
 				},
 			},
 		},
