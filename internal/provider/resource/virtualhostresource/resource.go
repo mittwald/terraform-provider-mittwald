@@ -15,6 +15,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
@@ -159,7 +160,7 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	ingress := providerutil.
 		Try[*ingressv2.Ingress](&res, "API error while fetching ingress").
-		DoValResp(r.client.Domain().GetIngress(ctx, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, r.client.Domain().GetIngress, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return
