@@ -2,6 +2,8 @@ package virtualhostresource
 
 import (
 	"context"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,6 +17,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/ingressv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/resource/common"
 )
@@ -140,7 +143,10 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -152,14 +158,17 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	readCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	resp.Diagnostics.Append(r.read(readCtx, &data)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	ingress := providerutil.
 		Try[*ingressv2.Ingress](&res, "API error while fetching ingress").
-		DoValResp(r.client.Domain().GetIngress(ctx, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
+		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, r.client.Domain().GetIngress, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
 
 	if res.HasError() {
 		return
