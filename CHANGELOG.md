@@ -1,3 +1,10 @@
+## [1.11.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.4...v1.11.5) (2026-09-18)
+
+
+### Bug Fixes
+
+* **virtualhost:** retry ingress read on permission-denied to fix race on mass create ([#498](https://github.com/mittwald/terraform-provider-mittwald/issues/498)) ([1a59078](https://github.com/mittwald/terraform-provider-mittwald/commit/1a5907878bf95db80070a65a6a5eca920eabbccc)), closes [#449](https://github.com/mittwald/terraform-provider-mittwald/issues/449) [#497](https://github.com/mittwald/terraform-provider-mittwald/issues/497)
+
 ## [1.11.4](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.3...v1.11.4) (2026-09-14)
 
 
