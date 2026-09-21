@@ -1,3 +1,5 @@
+## [1.11.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.5...v1.11.6) (2026-09-21)
+
 ## [1.11.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.4...v1.11.5) (2026-09-18)
 
 
