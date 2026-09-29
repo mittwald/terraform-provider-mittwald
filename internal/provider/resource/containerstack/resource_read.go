@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
+	"github.com/mittwald/api-client-go/pkg/httperr"
 )
 
 // Read updates the state with the latest data from the API.
@@ -28,13 +29,32 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
 	defer cancel()
 
-	resp.Diagnostics.Append(r.read(readCtx, &data, &data)...)
+	notFound, diags := r.read(readCtx, &data, &data)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// The stack was deleted outside of Terraform; remove it from the state, so
+	// that it will be re-created on the next apply.
+	if notFound {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Resource) read(ctx context.Context, state, plan *ContainerStackModel) (res diag.Diagnostics) {
+// read updates the state with the stack's current data from the API. notFound
+// is true if the stack does not exist (anymore); in this case, the state is
+// left untouched.
+func (r *Resource) read(ctx context.Context, state, plan *ContainerStackModel) (notFound bool, res diag.Diagnostics) {
 	stack, _, err := r.client.Container().GetStack(ctx, containerclientv2.GetStackRequest{StackID: state.ID.ValueString()})
 	if err != nil {
+		if errNotFound := new(httperr.ErrNotFound); errors.As(err, &errNotFound) {
+			return true, res
+		}
+
 		if errors.Is(err, context.DeadlineExceeded) {
 			res.AddError(
 				"API error while fetching stack",
