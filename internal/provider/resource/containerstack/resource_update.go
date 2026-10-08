@@ -15,7 +15,7 @@ import (
 // Update reconciles the current state of the resource with the desired state.
 //
 // Implementation note: There is a difference in implementation between the
-// default stack and additional stacks. The default stack is "updated", and the
+// (legacy) default stack and other stacks. The default stack is "updated", and the
 // implementation respects that there may be containers that are not managed by
 // this resource.
 // The additional stacks are "declared", and the implementation assumes that all
@@ -57,11 +57,18 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	// value is not a meaningful change (it gets resolved during apply), and must
 	// not be treated as a removal, which would unset an existing schedule.
 	scheduleChanged := !planData.UpdateSchedule.IsUnknown() && !planData.UpdateSchedule.Equal(stateData.UpdateSchedule)
+	descriptionChanged := !planData.Description.IsUnknown() && !planData.Description.IsNull() &&
+		!planData.Description.Equal(stateData.Description)
 
 	if stateData.DefaultStack.ValueBool() {
 		req := planData.ToUpdateRequest(updateCtx, &stateData, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
 			return
+		}
+
+		if descriptionChanged {
+			description := planData.Description.ValueString()
+			req.Body.Description = &description
 		}
 
 		var opts []func(req *http.Request) error
@@ -118,12 +125,26 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		r.reconcileUpdateSchedule(updateCtx, &planData, &resp.Diagnostics)
 	}
 
+	// The same applies to the description.
+	if !stateData.DefaultStack.ValueBool() && descriptionChanged {
+		description := planData.Description.ValueString()
+		providerutil.Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack description").
+			DoValResp(client.UpdateStack(updateCtx, containerclientv2.UpdateStackRequest{
+				StackID: stateData.ID.ValueString(),
+				Body:    containerclientv2.UpdateStackRequestBody{Description: &description},
+			}))
+	}
+
 	// Like on create, the read-back gets its own budget, so that an exhausted
 	// update timeout does not also fail the read and leave a stale state behind.
 	readCtx, cancel := context.WithTimeout(ctx, readTimeout)
 	defer cancel()
 
-	resp.Diagnostics.Append(r.read(readCtx, &stateData, &planData)...)
+	notFound, diags := r.read(readCtx, &stateData, &planData)
+	resp.Diagnostics.Append(diags...)
+	if notFound {
+		resp.Diagnostics.AddError("API error while fetching stack", "the stack could not be found after it was written")
+	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)
 }
 
