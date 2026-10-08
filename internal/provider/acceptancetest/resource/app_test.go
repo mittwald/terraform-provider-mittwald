@@ -70,7 +70,55 @@ func TestAccAppResourceInstallationPath(t *testing.T) {
 	})
 }
 
+// TestAccAppResourceInstallationPathServerAssigned verifies that when
+// installation_path is omitted, the server-assigned path is kept in the plan,
+// so that updating an unrelated attribute does not force replacement.
+func TestAccAppResourceInstallationPathServerAssigned(t *testing.T) {
+	serverID := config.StringVariable(os.Getenv("MITTWALD_ACCTEST_SERVER_ID"))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			providertesting.TestAccPreCheck(t)
+		},
+		ProtoV6ProviderFactories: providertesting.TestAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppResourceInstallationPathConfig("Test Static App", ""),
+				ConfigVariables: map[string]config.Variable{
+					"server_id": serverID,
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrWith("mittwald_app.test", "installation_path", func(value string) error {
+						if value == "" {
+							return fmt.Errorf("expected installation_path to be assigned by the server")
+						}
+						return nil
+					}),
+				),
+			},
+			{
+				Config: testAccAppResourceInstallationPathConfig("Test Static App (updated)", ""),
+				ConfigVariables: map[string]config.Variable{
+					"server_id": serverID,
+				},
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("mittwald_app.test", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+		},
+	})
+}
+
+// testAccAppResourceInstallationPathConfig renders an app config; an empty
+// installationPath omits the attribute entirely.
 func testAccAppResourceInstallationPathConfig(appDesc, installationPath string) string {
+	installationPathAttr := ""
+	if installationPath != "" {
+		installationPathAttr = fmt.Sprintf("installation_path  = %q", installationPath)
+	}
+
 	return fmt.Sprintf(`
 variable "server_id" {
   type = string
@@ -87,9 +135,9 @@ resource "mittwald_app" "test" {
 	app                = "static"
 	version            = "1.0.0"
 	update_policy      = "none"
-	installation_path  = "%[2]s"
+	%[2]s
 }
-`, appDesc, installationPath)
+`, appDesc, installationPathAttr)
 }
 
 func testAccAssertAppInstallationPathMatches(resourceName string, out *appv2.AppInstallation, expectedPath string) resource.TestCheckFunc {

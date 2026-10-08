@@ -126,6 +126,9 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional: true,
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
+					// Must run before RequiresReplace; otherwise an omitted (server-assigned)
+					// path becomes unknown on any update and triggers a replacement.
+					stringplanmodifier.UseStateForUnknown(),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
