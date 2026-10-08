@@ -1,3 +1,10 @@
+## [1.11.7](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.6...v1.11.7) (2026-10-08)
+
+
+### Bug Fixes
+
+* **mysql_database:** send user.external_access in the create request ([#504](https://github.com/mittwald/terraform-provider-mittwald/issues/504)) ([9e70762](https://github.com/mittwald/terraform-provider-mittwald/commit/9e70762bbfd14927951faec366e88613f2c08a28)), closes [#481](https://github.com/mittwald/terraform-provider-mittwald/issues/481) [#490](https://github.com/mittwald/terraform-provider-mittwald/issues/490)
+
 ## [1.11.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.5...v1.11.6) (2026-09-21)
 
 ## [1.11.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.4...v1.11.5) (2026-09-18)
