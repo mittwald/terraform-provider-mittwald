@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -40,12 +41,7 @@ func TestAccAppResourceInstallationPath(t *testing.T) {
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("mittwald_app.test", "installation_path", "custom-install-path"),
-					resource.TestCheckResourceAttrWith("mittwald_app.test", "installation_path_absolute", func(value string) error {
-						if value == "" {
-							return fmt.Errorf("expected installation_path_absolute to be set")
-						}
-						return nil
-					}),
+					testAccCheckAppInstallationPathAbsoluteEndsWith("mittwald_app.test", "custom-install-path"),
 					testAccAssertAppInstallationPathMatches("mittwald_app.test", &app, "custom-install-path"),
 				),
 			},
@@ -63,6 +59,7 @@ func TestAccAppResourceInstallationPath(t *testing.T) {
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("mittwald_app.test", "installation_path", "other-install-path"),
+					testAccCheckAppInstallationPathAbsoluteEndsWith("mittwald_app.test", "other-install-path"),
 					testAccAssertAppInstallationPathMatches("mittwald_app.test", &app, "other-install-path"),
 				),
 			},
@@ -138,6 +135,18 @@ resource "mittwald_app" "test" {
 	%[2]s
 }
 `, appDesc, installationPathAttr)
+}
+
+// testAccCheckAppInstallationPathAbsoluteEndsWith asserts that
+// installation_path_absolute (the project's web root followed by the relative
+// installation path) ends with the given relative path.
+func testAccCheckAppInstallationPathAbsoluteEndsWith(resourceName, relativePath string) resource.TestCheckFunc {
+	return resource.TestCheckResourceAttrWith(resourceName, "installation_path_absolute", func(value string) error {
+		if !strings.HasSuffix(value, relativePath) {
+			return fmt.Errorf("expected installation_path_absolute to end with '%s', got '%s'", relativePath, value)
+		}
+		return nil
+	})
 }
 
 func testAccAssertAppInstallationPathMatches(resourceName string, out *appv2.AppInstallation, expectedPath string) resource.TestCheckFunc {
