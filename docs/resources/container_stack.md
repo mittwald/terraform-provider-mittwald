@@ -4,20 +4,14 @@ page_title: "mittwald_container_stack Resource - terraform-provider-mittwald"
 subcategory: ""
 description: |-
   This resource models a container stack.
-  A container stack may consist of multiple containers and volumes.
-  IMPORTANT: Currently, the mStudio API supports one "default" stack per project. In the future, support for multiple stacks within the same project will be added.
-  This resource's API already pre-empts this functionality; however, at the moment, you can only manage containers in a project's default stack. To use the default stack, set the default_stack attribute to true.
+  A container stack may consist of multiple containers and volumes. A project can contain any number of stacks; each resource of this type creates and manages its own stack. Existing stacks can be imported by their ID.
 ---
 
 # mittwald_container_stack (Resource)
 
 This resource models a container stack.
 
-A container stack may consist of multiple containers and volumes.
-
-**IMPORTANT**: Currently, the mStudio API supports one "default" stack per project. In the future, support for multiple stacks within the same project will be added.
-
-This resource's API already pre-empts this functionality; however, at the moment, you can only manage containers in a project's default stack. To use the default stack, set the `default_stack` attribute to `true`.
+A container stack may consist of multiple containers and volumes. A project can contain any number of stacks; each resource of this type creates and manages its own stack. Existing stacks can be imported by their ID.
 
 ## Example Usage
 
@@ -27,8 +21,8 @@ locals {
 }
 
 resource "mittwald_container_stack" "nginx" {
-  project_id    = mittwald_project.example.id
-  default_stack = true
+  project_id  = mittwald_project.example.id
+  description = "nginx"
 
   containers = {
     nginx = {
@@ -118,7 +112,10 @@ resource "mittwald_virtualhost" "nginx" {
 
 ### Optional
 
-- `default_stack` (Boolean) Set this flag to use the project's default stack. Otherwise, a new stack will be created.
+- `default_stack` (Boolean, Deprecated) Indicates whether this resource manages the project's legacy default stack.
+
+    Projects used to come with a pre-defined default stack, which could be used by setting this flag. New projects do not have a default stack anymore; omit this attribute to create a new stack instead. Resources that already manage a default stack keep working as before.
+- `description` (String) A description for the stack. Defaults to `Managed by Terraform` for newly created stacks.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `update_schedule` (Attributes) An optional schedule for automatically updating the container images in this stack. (see [below for nested schema](#nestedatt--update_schedule))
 - `volumes` (Attributes Map) A map of volumes that should be provisioned for this stack. (see [below for nested schema](#nestedatt--volumes))

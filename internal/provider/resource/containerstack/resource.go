@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -36,19 +38,34 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 	builder := common.AttributeBuilderFor("container_stack")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a container stack.\n\n" +
-			"A container stack may consist of multiple containers and volumes.\n\n" +
-			"**IMPORTANT**: Currently, the mStudio API supports one \"default\" stack per project. " +
-			"In the future, support for multiple stacks within the same project will be added.\n\n" +
-			"This resource's API already pre-empts this functionality; however, at the moment, you " +
-			"can only manage containers in a project's default stack. To use the default stack, set " +
-			"the `default_stack` attribute to `true`.",
+			"A container stack may consist of multiple containers and volumes. A project can contain any " +
+			"number of stacks; each resource of this type creates and manages its own stack. Existing stacks " +
+			"can be imported by their ID.",
 
 		Attributes: map[string]schema.Attribute{
 			"id":         builder.Id(),
 			"project_id": builder.ProjectId(),
+			"description": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "A description for the stack. Defaults to `" + DefaultStackDescription + "` " +
+					"for newly created stacks.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"default_stack": schema.BoolAttribute{
-				Optional:            true,
-				MarkdownDescription: "Set this flag to use the project's default stack. Otherwise, a new stack will be created.",
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "Indicates whether this resource manages the project's legacy default stack.\n\n" +
+					"    Projects used to come with a pre-defined default stack, which could be used by setting this " +
+					"flag. New projects do not have a default stack anymore; omit this attribute to create a new stack " +
+					"instead. Resources that already manage a default stack keep working as before.",
+				DeprecationMessage: "Projects no longer come with a default stack. Omit this attribute to create a new " +
+					"stack, or import an existing stack by its ID. This attribute will be removed in a future major release.",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"containers": schema.MapNestedAttribute{
 				Required: true,
@@ -248,5 +265,5 @@ func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, r
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// TODO
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
