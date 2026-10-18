@@ -29,9 +29,10 @@ resource "mittwald_app" "custom_php" {
   app     = "php"
   version = "1.0.0"
 
-  description   = "Martins Test-App"
-  document_root = "/public"
-  update_policy = "none"
+  description       = "Martins Test-App"
+  document_root     = "/public"
+  installation_path = "custom-php-app"
+  update_policy     = "none"
 
   databases = [
     {
