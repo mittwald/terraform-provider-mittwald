@@ -114,7 +114,9 @@ resource "mittwald_virtualhost" "nginx" {
 
 - `default_stack` (Boolean, Deprecated) Set this flag to manage the project's legacy default stack.
 
-    Projects used to come with a pre-defined default stack, which could be used by setting this flag. New projects do not have a default stack anymore; omit this attribute to create a new stack instead. Resources that already manage a default stack keep working as before. Changing this attribute forces a new resource.
+    Projects used to come with a pre-defined default stack, which could be used by setting this flag. New projects do not have a default stack anymore; omit this attribute to create a new stack instead. Resources that already manage a default stack keep working as before.
+
+    Removing this attribute from a resource that manages a default stack makes the resource take over the default stack exclusively: containers and volumes in the stack that are not managed by this resource are removed, and destroying the resource deletes the entire stack. Setting this attribute on an existing resource forces a new resource.
 - `description` (String) A description for the stack. Defaults to `Managed by Terraform` for newly created stacks.
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `update_schedule` (Attributes) An optional schedule for automatically updating the container images in this stack. (see [below for nested schema](#nestedatt--update_schedule))

@@ -19,6 +19,12 @@ import (
 // this resource.
 // The additional stacks are "declared", and the implementation assumes that all
 // containers in the stack are managed by this resource.
+//
+// Which of the two is used depends on the planned value of `default_stack`.
+// When it is removed from a resource that manages the default stack, the
+// default stack is declared from then on; this way, the resource takes over the
+// default stack exclusively, removing all containers and volumes that it does
+// not manage.
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var planData, stateData ContainerStackModel
 
@@ -44,6 +50,13 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	// value once the state below is written from stateData.
 	stateData.Timeouts = planData.Timeouts
 
+	// The same applies to default_stack, which is a client-side attribute that
+	// controls how the stack is managed. Switching it to true forces a
+	// replacement, so the only in-place change is a take-over of the default
+	// stack (true to false or null).
+	stateData.DefaultStack = planData.DefaultStack
+	defaultStack := planData.DefaultStack.ValueBool()
+
 	ctx = tflog.SetField(ctx, "stack_id", stateData.ID.ValueString())
 	client := apiext.NewContainerClient(r.client)
 
@@ -52,7 +65,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	var stack *containerv2.StackResponse
 
-	if stateData.DefaultStack.ValueBool() {
+	if defaultStack {
 		req := planData.ToUpdateRequest(updateCtx, &stateData, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
 			return
@@ -97,7 +110,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	// UpdateStack call above. Declared stacks go through DeclareStack instead,
 	// which has no fields for these settings, so they still need their own
 	// UpdateStack call here.
-	if !stateData.DefaultStack.ValueBool() {
+	if !defaultStack {
 		settingsReq := containerclientv2.UpdateStackRequest{StackID: stateData.ID.ValueString()}
 
 		opts, changed := planData.applyStackSettings(updateCtx, &stateData, &settingsReq.Body, &resp.Diagnostics)

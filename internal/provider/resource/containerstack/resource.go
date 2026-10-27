@@ -59,15 +59,20 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 				MarkdownDescription: "Set this flag to manage the project's legacy default stack.\n\n" +
 					"    Projects used to come with a pre-defined default stack, which could be used by setting this " +
 					"flag. New projects do not have a default stack anymore; omit this attribute to create a new stack " +
-					"instead. Resources that already manage a default stack keep working as before. Changing this " +
-					"attribute forces a new resource.",
+					"instead. Resources that already manage a default stack keep working as before.\n\n" +
+					"    Removing this attribute from a resource that manages a default stack makes the resource take " +
+					"over the default stack exclusively: containers and volumes in the stack that are not managed by " +
+					"this resource are removed, and destroying the resource deletes the entire stack. Setting this " +
+					"attribute on an existing resource forces a new resource.",
 				DeprecationMessage: "Projects no longer come with a default stack. Omit this attribute to create a new " +
-					"stack, or import an existing stack by its ID. This attribute will be removed in a future major release.",
+					"stack, or import an existing stack by its ID. Removing it from a resource that manages a default " +
+					"stack makes the resource take over that stack exclusively, removing all containers and volumes " +
+					"it does not manage. This attribute will be removed in a future major release.",
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplaceIf(
-						requiresReplaceIfDefaultStackChanged,
-						"Changing between the default stack and a separate stack requires a new resource.",
-						"Changing between the default stack and a separate stack requires a new resource.",
+						requiresReplaceIfSwitchedToDefaultStack,
+						"Switching an existing stack to the project's default stack requires a new resource.",
+						"Switching an existing stack to the project's default stack requires a new resource.",
 					),
 				},
 			},
@@ -264,14 +269,17 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 	}
 }
 
-// requiresReplaceIfDefaultStackChanged forces a replacement when the resource
-// switches between managing the (shared) default stack and an exclusively
-// owned stack; the two are created, updated and deleted differently, so this
-// cannot be done in place. Null and false both mean "not the default stack",
-// so switching between them does not require a replacement. An unknown value
-// might resolve to either, so it is treated as a change.
-func requiresReplaceIfDefaultStackChanged(_ context.Context, req planmodifier.BoolRequest, resp *boolplanmodifier.RequiresReplaceIfFuncResponse) {
-	resp.RequiresReplace = req.PlanValue.IsUnknown() || req.PlanValue.ValueBool() != req.StateValue.ValueBool()
+// requiresReplaceIfSwitchedToDefaultStack forces a replacement when a resource
+// that manages its own stack is switched to the (shared) default stack; that
+// requires a different stack, so it cannot be done in place.
+//
+// The opposite direction does not require a replacement: when the flag is
+// removed from a resource that manages the default stack, the resource takes
+// over that stack exclusively (see Update). Null and false both mean "not the
+// default stack". An unknown value might resolve to true, so it is treated as
+// a switch, unless the resource already manages the default stack.
+func requiresReplaceIfSwitchedToDefaultStack(_ context.Context, req planmodifier.BoolRequest, resp *boolplanmodifier.RequiresReplaceIfFuncResponse) {
+	resp.RequiresReplace = !req.StateValue.ValueBool() && (req.PlanValue.IsUnknown() || req.PlanValue.ValueBool())
 }
 
 func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
