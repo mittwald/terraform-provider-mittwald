@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
-	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
@@ -21,7 +20,9 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.Description = types.StringValue(apiModel.Description)
-	m.DefaultStack = types.BoolValue(apiext.IsDefaultStack(apiModel))
+
+	// DefaultStack is a client-side attribute that controls how the stack is
+	// managed; it is not derived from the API, and is left untouched.
 
 	containerMap, diags := fromAPIContainers(ctx, apiModel, plan, m.DefaultStack.ValueBool(), disregardUnknown)
 	res.Append(diags...)

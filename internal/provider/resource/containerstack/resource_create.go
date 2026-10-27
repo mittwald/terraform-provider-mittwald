@@ -170,26 +170,12 @@ func (r *Resource) createInDefaultStack(ctx context.Context, data *ContainerStac
 	// schedule set outside of this resource), so a config that omits
 	// update_schedule must actively clear it rather than leaving it
 	// untouched — otherwise the created state would drift from the config
-	// until the next Update. UpdateStack already carries an updateSchedule
-	// field, so fold this into the same call instead of issuing a second one.
-	if !data.Description.IsNull() && !data.Description.IsUnknown() {
-		description := data.Description.ValueString()
-		updateRequest.Body.Description = &description
-	}
-
-	var opts []func(req *http.Request) error
-
-	if !data.UpdateSchedule.IsUnknown() {
-		schedule, explicitClear, ok := data.resolveUpdateSchedule(ctx, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		if ok {
-			updateRequest.Body.UpdateSchedule = schedule
-			if explicitClear {
-				opts = append(opts, withExplicitNullUpdateSchedule)
-			}
-		}
+	// until the next Update. Passing no current settings applies all known
+	// settings. UpdateStack already carries these settings, so fold them into
+	// the same call instead of issuing a second one.
+	opts, _ := data.applyStackSettings(ctx, nil, &updateRequest.Body, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	_ = providerutil.

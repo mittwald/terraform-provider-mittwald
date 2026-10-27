@@ -55,18 +55,14 @@ func (c *containerClient) GetDefaultStack(ctx context.Context, projectID string)
 		return nil, fmt.Errorf("failed to list stacks: %w", err)
 	}
 
+	// Default stacks share their ID with the project they belong to. They are
+	// also named "default", but that description can be changed by the user and
+	// thus cannot be used to identify them.
 	for _, stack := range *stacks {
-		if IsDefaultStack(&stack) {
+		if stack.Id == projectID {
 			return &stack, nil
 		}
 	}
 
 	return nil, &ErrNoDefaultStack{ProjectID: projectID}
-}
-
-// IsDefaultStack returns true if the given stack is a project's (legacy)
-// default stack. Default stacks share their ID with the project they belong to,
-// and are named "default".
-func IsDefaultStack(stack *containerv2.StackResponse) bool {
-	return stack.Id == stack.ProjectId || stack.Description == "default"
 }

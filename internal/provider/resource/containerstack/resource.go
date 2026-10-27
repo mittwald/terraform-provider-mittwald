@@ -56,15 +56,19 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 			},
 			"default_stack": schema.BoolAttribute{
 				Optional: true,
-				Computed: true,
-				MarkdownDescription: "Indicates whether this resource manages the project's legacy default stack.\n\n" +
+				MarkdownDescription: "Set this flag to manage the project's legacy default stack.\n\n" +
 					"    Projects used to come with a pre-defined default stack, which could be used by setting this " +
 					"flag. New projects do not have a default stack anymore; omit this attribute to create a new stack " +
-					"instead. Resources that already manage a default stack keep working as before.",
+					"instead. Resources that already manage a default stack keep working as before. Changing this " +
+					"attribute forces a new resource.",
 				DeprecationMessage: "Projects no longer come with a default stack. Omit this attribute to create a new " +
 					"stack, or import an existing stack by its ID. This attribute will be removed in a future major release.",
 				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
+					boolplanmodifier.RequiresReplaceIf(
+						requiresReplaceIfDefaultStackChanged,
+						"Changing between the default stack and a separate stack requires a new resource.",
+						"Changing between the default stack and a separate stack requires a new resource.",
+					),
 				},
 			},
 			"containers": schema.MapNestedAttribute{
@@ -258,6 +262,16 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 			}),
 		},
 	}
+}
+
+// requiresReplaceIfDefaultStackChanged forces a replacement when the resource
+// switches between managing the (shared) default stack and an exclusively
+// owned stack; the two are created, updated and deleted differently, so this
+// cannot be done in place. Null and false both mean "not the default stack",
+// so switching between them does not require a replacement. An unknown value
+// might resolve to either, so it is treated as a change.
+func requiresReplaceIfDefaultStackChanged(_ context.Context, req planmodifier.BoolRequest, resp *boolplanmodifier.RequiresReplaceIfFuncResponse) {
+	resp.RequiresReplace = req.PlanValue.IsUnknown() || req.PlanValue.ValueBool() != req.StateValue.ValueBool()
 }
 
 func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

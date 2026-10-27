@@ -2,7 +2,6 @@ package containerstackresource
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -53,40 +52,17 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 
 	var stack *containerv2.StackResponse
 
-	// Only reconcile the schedule when it actually changed. An unknown planned
-	// value is not a meaningful change (it gets resolved during apply), and must
-	// not be treated as a removal, which would unset an existing schedule.
-	scheduleChanged := !planData.UpdateSchedule.IsUnknown() && !planData.UpdateSchedule.Equal(stateData.UpdateSchedule)
-	descriptionChanged := !planData.Description.IsUnknown() && !planData.Description.IsNull() &&
-		!planData.Description.Equal(stateData.Description)
-
 	if stateData.DefaultStack.ValueBool() {
 		req := planData.ToUpdateRequest(updateCtx, &stateData, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() || req == nil {
 			return
 		}
 
-		if descriptionChanged {
-			description := planData.Description.ValueString()
-			req.Body.Description = &description
-		}
-
-		var opts []func(req *http.Request) error
-
-		// The default stack is already updated via UpdateStack, which also
-		// carries an updateSchedule field; fold the schedule into the same
-		// call instead of issuing a second one.
-		if scheduleChanged {
-			schedule, explicitClear, ok := planData.resolveUpdateSchedule(updateCtx, &resp.Diagnostics)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-			if ok {
-				req.Body.UpdateSchedule = schedule
-				if explicitClear {
-					opts = append(opts, withExplicitNullUpdateSchedule)
-				}
-			}
+		// The default stack is already updated via UpdateStack, so its settings
+		// can be folded into the same call instead of issuing a second one.
+		opts, _ := planData.applyStackSettings(updateCtx, &stateData, &req.Body, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
 		}
 
 		stack = providerutil.
@@ -117,22 +93,23 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 		return
 	}
 
-	// For the default stack, the schedule was already folded into the
+	// For the default stack, the settings were already folded into the
 	// UpdateStack call above. Declared stacks go through DeclareStack instead,
-	// which has no updateSchedule field, so the schedule still needs its own
+	// which has no fields for these settings, so they still need their own
 	// UpdateStack call here.
-	if !stateData.DefaultStack.ValueBool() && scheduleChanged {
-		r.reconcileUpdateSchedule(updateCtx, &planData, &resp.Diagnostics)
-	}
+	if !stateData.DefaultStack.ValueBool() {
+		settingsReq := containerclientv2.UpdateStackRequest{StackID: stateData.ID.ValueString()}
 
-	// The same applies to the description.
-	if !stateData.DefaultStack.ValueBool() && descriptionChanged {
-		description := planData.Description.ValueString()
-		providerutil.Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack description").
-			DoValResp(client.UpdateStack(updateCtx, containerclientv2.UpdateStackRequest{
-				StackID: stateData.ID.ValueString(),
-				Body:    containerclientv2.UpdateStackRequestBody{Description: &description},
-			}))
+		opts, changed := planData.applyStackSettings(updateCtx, &stateData, &settingsReq.Body, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		if changed {
+			providerutil.
+				Try[*containerv2.StackResponse](&resp.Diagnostics, "API error while updating stack settings").
+				DoValResp(client.UpdateStack(updateCtx, settingsReq, opts...))
+		}
 	}
 
 	// Like on create, the read-back gets its own budget, so that an exhausted
