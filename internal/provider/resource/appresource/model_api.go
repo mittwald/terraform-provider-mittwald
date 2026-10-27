@@ -51,6 +51,10 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d *diag.Diagnostics
 	b.Description = m.Description.ValueString()
 	b.UpdatePolicy = appv2.AppUpdatePolicy(m.UpdatePolicy.ValueString())
 
+	if !m.InstallationPath.IsNull() && !m.InstallationPath.IsUnknown() {
+		b.InstallationPath = m.InstallationPath.ValueStringPointer()
+	}
+
 	appVersions := providerutil.
 		Try[*[]appv2.AppVersion](d, "error while listing app versions").
 		DoValResp(appClient.ListAppversions(ctx, appclientv2.ListAppversionsRequest{AppID: appID}))
