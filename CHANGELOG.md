@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.15...v1.12.0) (2026-10-28)
+
+
+### Features
+
+* **app:** support the PHP-Worker app as "php-worker" ([#517](https://github.com/mittwald/terraform-provider-mittwald/issues/517)) ([fafed6f](https://github.com/mittwald/terraform-provider-mittwald/commit/fafed6fb4fdee15abacda49e5496a16024ed3745)), closes [#515](https://github.com/mittwald/terraform-provider-mittwald/issues/515)
+
 ## [1.11.15](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.14...v1.11.15) (2026-10-27)
 
 ## [1.11.14](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.13...v1.11.14) (2026-10-26)
