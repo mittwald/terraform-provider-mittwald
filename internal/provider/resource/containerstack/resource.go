@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -36,19 +38,43 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 	builder := common.AttributeBuilderFor("container_stack")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "This resource models a container stack.\n\n" +
-			"A container stack may consist of multiple containers and volumes.\n\n" +
-			"**IMPORTANT**: Currently, the mStudio API supports one \"default\" stack per project. " +
-			"In the future, support for multiple stacks within the same project will be added.\n\n" +
-			"This resource's API already pre-empts this functionality; however, at the moment, you " +
-			"can only manage containers in a project's default stack. To use the default stack, set " +
-			"the `default_stack` attribute to `true`.",
+			"A container stack may consist of multiple containers and volumes. A project can contain any " +
+			"number of stacks; each resource of this type creates and manages its own stack. Existing stacks " +
+			"can be imported by their ID.",
 
 		Attributes: map[string]schema.Attribute{
 			"id":         builder.Id(),
 			"project_id": builder.ProjectId(),
+			"description": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "A description for the stack. Defaults to `" + DefaultStackDescription + "` " +
+					"for newly created stacks.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"default_stack": schema.BoolAttribute{
-				Optional:            true,
-				MarkdownDescription: "Set this flag to use the project's default stack. Otherwise, a new stack will be created.",
+				Optional: true,
+				MarkdownDescription: "Set this flag to manage the project's legacy default stack.\n\n" +
+					"    Projects used to come with a pre-defined default stack, which could be used by setting this " +
+					"flag. New projects do not have a default stack anymore; omit this attribute to create a new stack " +
+					"instead. Resources that already manage a default stack keep working as before.\n\n" +
+					"    Removing this attribute from a resource that manages a default stack makes the resource take " +
+					"over the default stack exclusively: containers and volumes in the stack that are not managed by " +
+					"this resource are removed, and destroying the resource deletes the entire stack. Setting this " +
+					"attribute on an existing resource forces a new resource.",
+				DeprecationMessage: "Projects no longer come with a default stack. Omit this attribute to create a new " +
+					"stack, or import an existing stack by its ID. Removing it from a resource that manages a default " +
+					"stack makes the resource take over that stack exclusively, removing all containers and volumes " +
+					"it does not manage. This attribute will be removed in a future major release.",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplaceIf(
+						requiresReplaceIfSwitchedToDefaultStack,
+						"Switching an existing stack to the project's default stack requires a new resource.",
+						"Switching an existing stack to the project's default stack requires a new resource.",
+					),
+				},
 			},
 			"containers": schema.MapNestedAttribute{
 				Required: true,
@@ -243,10 +269,23 @@ func (r *Resource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *r
 	}
 }
 
+// requiresReplaceIfSwitchedToDefaultStack forces a replacement when a resource
+// that manages its own stack is switched to the (shared) default stack; that
+// requires a different stack, so it cannot be done in place.
+//
+// The opposite direction does not require a replacement: when the flag is
+// removed from a resource that manages the default stack, the resource takes
+// over that stack exclusively (see Update). Null and false both mean "not the
+// default stack". An unknown value might resolve to true, so it is treated as
+// a switch, unless the resource already manages the default stack.
+func requiresReplaceIfSwitchedToDefaultStack(_ context.Context, req planmodifier.BoolRequest, resp *boolplanmodifier.RequiresReplaceIfFuncResponse) {
+	resp.RequiresReplace = !req.StateValue.ValueBool() && (req.PlanValue.IsUnknown() || req.PlanValue.ValueBool())
+}
+
 func (r *Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	r.client = providerutil.ClientFromProviderData(req.ProviderData, &resp.Diagnostics)
 }
 
 func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// TODO
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

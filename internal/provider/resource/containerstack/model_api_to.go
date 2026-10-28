@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/containerclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/containerv2"
+	"net/http"
 	"strconv"
 )
 
@@ -211,6 +212,34 @@ func (m *ContainerStackModel) ToUpdateScheduleRequest(ctx context.Context, d *di
 	}
 
 	return req, explicitClear
+}
+
+// applyStackSettings sets the stack's settings (description and update
+// schedule) on an UpdateStack request body, for every setting that differs
+// from current. A nil current means that all known settings are applied.
+//
+// The returned request editors must be passed along with the request, and
+// changed reports whether any setting was applied at all.
+func (m *ContainerStackModel) applyStackSettings(ctx context.Context, current *ContainerStackModel, body *containerclientv2.UpdateStackRequestBody, d *diag.Diagnostics) (opts []func(req *http.Request) error, changed bool) {
+	if !m.Description.IsUnknown() && !m.Description.IsNull() && (current == nil || !m.Description.Equal(current.Description)) {
+		description := m.Description.ValueString()
+		body.Description = &description
+		changed = true
+	}
+
+	if !m.UpdateSchedule.IsUnknown() && (current == nil || !m.UpdateSchedule.Equal(current.UpdateSchedule)) {
+		schedule, explicitClear, ok := m.resolveUpdateSchedule(ctx, d)
+		if ok {
+			body.UpdateSchedule = schedule
+			changed = true
+
+			if explicitClear {
+				opts = append(opts, withExplicitNullUpdateSchedule)
+			}
+		}
+	}
+
+	return opts, changed
 }
 
 func (m *ContainerStackModel) ContainerNames() []string {
