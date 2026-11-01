@@ -63,7 +63,7 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_container_stack` | volume `orphaned` | `containerv2.VolumeResponse` (GetStack) | Transient GC state | 2026-09-10 |
 | `mittwald_container_stack` | volume `stack_id` | `containerv2.VolumeResponse` (GetStack) | Redundant | 2026-09-10 |
 | `mittwald_container_stack` | volume `storage_usage_in_bytes` (+`_set_at`) | `containerv2.VolumeResponse` (GetStack) | Volatile usage metrics | 2026-09-10 |
-| `mittwald_container_stack` | container `restart_policy` | `containerv2.ServiceDeclareRequest`/`ServiceRequest`/`ServiceResponse` (declare/update/GetStack) | Restart policy support is currently flaky at best and not advertised widely; put on the back burner for now (see #477) | 2026-09-10 |
+| `mittwald_container_stack` | container `restart_policy` | `containerv2.ServiceDeclareRequest`/`ServiceRequest` (request field `restart`; `restartPolicy` deprecated) / `ServiceResponse.RestartPolicy` (declare/update/GetStack) | Restart policy support is currently flaky at best and not advertised widely; put on the back burner for now (see #477). Renamed request field does not change the decision | 2026-09-10 |
 | `mittwald_mysql_database` | `finalizers` | `databasev2.MySqlDatabase` (GetMysqlDatabase) | Internal k8s finalizers | 2026-09-10 |
 | `mittwald_mysql_database` | `is_ready` | `databasev2.MySqlDatabase` (GetMysqlDatabase) | Transient; `status` already exposed | 2026-09-10 |
 | `mittwald_mysql_database` | `is_shared` | `databasev2.MySqlDatabase` (GetMysqlDatabase) | Platform-managed flag | 2026-09-10 |
@@ -138,3 +138,6 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_article` (data source) | tag `description`, tag `hex_color` | `articlev2.ArticleTag` (ListArticles/GetArticle) | Display metadata; tag name/ID are the reference keys | 2026-10-01 |
 | `mittwald_article` (data source) | attribute `customer_editable`, `merge_type`, `readonly`, `required`, `unit` | `articlev2.ArticleAttributes` (ListArticles/GetArticle) | Catalog metadata; attribute values exposed in the `attributes` map | 2026-10-01 |
 | `mittwald_container_image` (data source) | `env`/`exposed_ports`/`volumes` item `is_ai_generated` | `containerv2.ContainerImageConfig` (GetContainerImageConfig) | Platform catalog internals, like `has_ai_generated_data` | 2026-10-01 |
+| `mittwald_app` | `last_auto_update_failed_at` | `appv2.AppInstallation` (GetAppinstallation) | Volatile operational timestamp (when the last auto-update failed); moves on its own | 2026-11-01 |
+| `mittwald_app` (data source) | `description` | `appv2.App` (GetApp) | Localized catalog text (`de`/`en`); language choice ambiguous, `name` identifies the app | 2026-11-01 |
+| `mittwald_ssh_user` | `detailed_public_keys` | `sshuserv2.SshUser` (GetSSHUser) | Derived per-key metadata (`algorithm`/`fingerprint`) alongside `public_keys`; per-key computed values would break set element diffing | 2026-11-01 |
