@@ -1,3 +1,17 @@
+# [1.13.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.12.0...v1.13.0) (2026-11-03)
+
+
+### Bug Fixes
+
+* **container_stack:** send container description via x-description ([#520](https://github.com/mittwald/terraform-provider-mittwald/issues/520)) ([2e3aae0](https://github.com/mittwald/terraform-provider-mittwald/commit/2e3aae02e9f0994c93593710cb70066830b51c9c)), closes [#477](https://github.com/mittwald/terraform-provider-mittwald/issues/477)
+* **mysql_database:** send access_level/external_access changes to the API ([#490](https://github.com/mittwald/terraform-provider-mittwald/issues/490)) ([35ea8c6](https://github.com/mittwald/terraform-provider-mittwald/commit/35ea8c683a61da161e72ff52b78595855c57ac29)), closes [#504](https://github.com/mittwald/terraform-provider-mittwald/issues/504) [#481](https://github.com/mittwald/terraform-provider-mittwald/issues/481)
+
+
+### Features
+
+* **app:** allow setting installation_path on create ([#491](https://github.com/mittwald/terraform-provider-mittwald/issues/491)) ([8b348c4](https://github.com/mittwald/terraform-provider-mittwald/commit/8b348c455a4ab3a350688e5d49046d19c52fb430)), closes [#475](https://github.com/mittwald/terraform-provider-mittwald/issues/475)
+* **app:** expose update_constraint on the mittwald_app data source ([#519](https://github.com/mittwald/terraform-provider-mittwald/issues/519)) ([1be40a9](https://github.com/mittwald/terraform-provider-mittwald/commit/1be40a920f4158ca6b5423ca78cdda6f78d8ff5a))
+
 # [1.12.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.15...v1.12.0) (2026-10-28)
 
 
