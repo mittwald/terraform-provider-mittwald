@@ -63,14 +63,18 @@ resource "mittwald_cronjob" "container_demo" {
 
 ### Optional
 
+- `active` (Boolean) Whether the cron job is active; inactive cron jobs are not executed. Defaults to true.
 - `app_id` (String) The ID of the app the cronjob belongs to. Must be a full UUID (not a short ID like a-XXXXXX). This must be used together with `destination.url` or `destination.command`.
+- `concurrency_policy` (String) How the cron job should behave when a previous execution is still running; one of `allow`, `forbid` or `replace`.
 - `container` (Attributes) Container target for this cronjob. This must be used together with `destination.container_command`. (see [below for nested schema](#nestedatt--container))
 - `email` (String) The email address to send the cron job's output to
+- `timeout` (Number) Maximum execution time of the cron job, in seconds. Defaults to 0 (no timeout).
 - `timezone` (String) The timezone to use for the cron job execution schedule (e.g., `Europe/Berlin`, `America/New_York`)
 
 ### Read-Only
 
 - `id` (String) The generated cronjob ID
+- `short_id` (String) The short ID of the cron job
 
 <a id="nestedatt--destination"></a>
 ### Nested Schema for `destination`

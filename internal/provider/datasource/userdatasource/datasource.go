@@ -2,6 +2,8 @@ package userdatasource
 
 import (
 	"context"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -42,6 +44,22 @@ func (d *DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 				MarkdownDescription: "The users email",
 				Computed:            true,
 			},
+			"first_name": schema.StringAttribute{
+				MarkdownDescription: "The users first name",
+				Computed:            true,
+			},
+			"last_name": schema.StringAttribute{
+				MarkdownDescription: "The users last name",
+				Computed:            true,
+			},
+			"title": schema.StringAttribute{
+				MarkdownDescription: "The salutation of the user (`mr`, `ms` or `other`)",
+				Computed:            true,
+			},
+			"registered_at": schema.StringAttribute{
+				MarkdownDescription: "The registration timestamp of the user in RFC3339 format",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -75,6 +93,14 @@ func (d *DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp 
 
 	data.ID = types.StringValue(user.UserId)
 	data.Email = valueutil.StringPtrOrNull(user.Email)
+	data.FirstName = types.StringValue(user.Person.FirstName)
+	data.LastName = types.StringValue(user.Person.LastName)
+	data.Title = valueutil.StringPtrOrNull(user.Person.Title)
+	if user.RegisteredAt != nil {
+		data.RegisteredAt = types.StringValue(user.RegisteredAt.Format(time.RFC3339))
+	} else {
+		data.RegisteredAt = types.StringNull()
+	}
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

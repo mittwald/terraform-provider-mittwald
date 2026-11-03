@@ -31,5 +31,7 @@ resource to select the respective versions for the `dependencies` attribute.
 
 ### Read-Only
 
+- `expiry_date` (String) The date in RFC3339 format until which the selected version is supported, if any
+- `external_version` (String) The external (user-facing) version string of the selected version
 - `version` (String) The selected version
 - `version_id` (String) The selected version ID

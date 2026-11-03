@@ -79,7 +79,11 @@ output "article_attributes" {
 ### Read-Only
 
 - `attributes` (Map of String) The attributes of the selected article as key-value pairs.
+- `contract_duration_in_month` (Number) The contract duration of the selected article in months.
+- `description` (String) The description of the selected article.
 - `id` (String) The ID of the selected article.
+- `machine_type` (String) The machine type name of the selected article, if it has one.
+- `name` (String) The name of the selected article.
 - `orderable` (String) The orderable status of the selected article.
 - `price` (Number) The price of the selected article.
 - `tags` (List of Object) The tags associated with the selected article. (see [below for nested schema](#nestedatt--tags))
