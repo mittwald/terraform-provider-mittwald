@@ -77,6 +77,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 						Required:            true,
 						MarkdownDescription: "Version of the password for the registry. You will need to change this value whenever the password is changed.",
 					},
+					"valid": schema.BoolAttribute{
+						MarkdownDescription: "Whether the given credentials are valid for the registry.",
+						Computed:            true,
+					},
 				},
 			},
 		},

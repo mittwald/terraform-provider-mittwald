@@ -1,3 +1,61 @@
+# [1.12.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.15...v1.12.0) (2026-10-28)
+
+
+### Features
+
+* **app:** support the PHP-Worker app as "php-worker" ([#517](https://github.com/mittwald/terraform-provider-mittwald/issues/517)) ([fafed6f](https://github.com/mittwald/terraform-provider-mittwald/commit/fafed6fb4fdee15abacda49e5496a16024ed3745)), closes [#515](https://github.com/mittwald/terraform-provider-mittwald/issues/515)
+
+## [1.11.15](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.14...v1.11.15) (2026-10-27)
+
+## [1.11.14](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.13...v1.11.14) (2026-10-26)
+
+## [1.11.13](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.12...v1.11.13) (2026-10-23)
+
+## [1.11.12](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.11...v1.11.12) (2026-10-20)
+
+## [1.11.11](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.10...v1.11.11) (2026-10-19)
+
+## [1.11.10](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.9...v1.11.10) (2026-10-15)
+
+## [1.11.9](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.8...v1.11.9) (2026-10-12)
+
+## [1.11.8](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.7...v1.11.8) (2026-10-09)
+
+## [1.11.7](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.6...v1.11.7) (2026-10-08)
+
+
+### Bug Fixes
+
+* **mysql_database:** send user.external_access in the create request ([#504](https://github.com/mittwald/terraform-provider-mittwald/issues/504)) ([9e70762](https://github.com/mittwald/terraform-provider-mittwald/commit/9e70762bbfd14927951faec366e88613f2c08a28)), closes [#481](https://github.com/mittwald/terraform-provider-mittwald/issues/481) [#490](https://github.com/mittwald/terraform-provider-mittwald/issues/490)
+
+## [1.11.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.5...v1.11.6) (2026-09-21)
+
+## [1.11.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.4...v1.11.5) (2026-09-18)
+
+
+### Bug Fixes
+
+* **virtualhost:** retry ingress read on permission-denied to fix race on mass create ([#498](https://github.com/mittwald/terraform-provider-mittwald/issues/498)) ([1a59078](https://github.com/mittwald/terraform-provider-mittwald/commit/1a5907878bf95db80070a65a6a5eca920eabbccc)), closes [#449](https://github.com/mittwald/terraform-provider-mittwald/issues/449) [#497](https://github.com/mittwald/terraform-provider-mittwald/issues/497)
+
+## [1.11.4](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.3...v1.11.4) (2026-09-14)
+
+
+### Bug Fixes
+
+* **project:** customer_id property must be re-used from state when unknown ([#496](https://github.com/mittwald/terraform-provider-mittwald/issues/496)) ([33e17fb](https://github.com/mittwald/terraform-provider-mittwald/commit/33e17fb6270e62a9878b3cc11abe8cb7e8cde266))
+
+## [1.11.3](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.2...v1.11.3) (2026-09-11)
+
+
+### Bug Fixes
+
+* **container_registry:** expose credentials.valid ([#479](https://github.com/mittwald/terraform-provider-mittwald/issues/479)) ([a2542d3](https://github.com/mittwald/terraform-provider-mittwald/commit/a2542d3f8eb0a3cd214f089d86d6c31d6e3e5afa))
+* **cronjob:** expose active, concurrency_policy, timeout and short_id ([#483](https://github.com/mittwald/terraform-provider-mittwald/issues/483)) ([ed0fe43](https://github.com/mittwald/terraform-provider-mittwald/commit/ed0fe4329e6ba037ebf755687406feacb5ff5fce))
+* **datasources:** expose missing API fields in user, article, container_image and systemsoftware data sources ([#487](https://github.com/mittwald/terraform-provider-mittwald/issues/487)) ([927b114](https://github.com/mittwald/terraform-provider-mittwald/commit/927b1147564b82b9478ecb40c009b95b98470bbe))
+* **mysql_database:** expose status, created_at, external_hostname and user access_ip_mask ([#480](https://github.com/mittwald/terraform-provider-mittwald/issues/480)) ([86c3fb9](https://github.com/mittwald/terraform-provider-mittwald/commit/86c3fb9bc859bbf657ec24de719ebbe66f1fecfc))
+* **redis_database:** expose port ([#482](https://github.com/mittwald/terraform-provider-mittwald/issues/482)) ([2a5a190](https://github.com/mittwald/terraform-provider-mittwald/commit/2a5a190f14ef7fbc678c9711427306fcd3975dd7))
+* **tls_certificate:** expose certificate validity and metadata fields ([#486](https://github.com/mittwald/terraform-provider-mittwald/issues/486)) ([e4d3edb](https://github.com/mittwald/terraform-provider-mittwald/commit/e4d3edbb3bbd0e9ce034529d530f149011754713))
+
 ## [1.11.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.1...v1.11.2) (2026-09-08)
 
 ## [1.11.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.0...v1.11.1) (2026-09-07)

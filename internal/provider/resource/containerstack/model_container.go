@@ -48,14 +48,14 @@ func (m *ContainerModel) Equals(other *ContainerModel) bool {
 
 func (m *ContainerModel) ToDeclareRequest(ctx context.Context, d *diag.Diagnostics) containerv2.ServiceDeclareRequest {
 	return containerv2.ServiceDeclareRequest{
-		Image:       m.Image.ValueString(),
-		Command:     extractStringList(m.Command),
-		Entrypoint:  extractStringList(m.Entrypoint),
-		Environment: extractStringMap(m.Environment),
-		Ports:       extractPortMappings(ctx, m.Ports, d),
-		Volumes:     extractVolumeMappings(ctx, m.Volumes, d),
-		Description: m.Description.ValueStringPointer(),
-		Deploy:      extractDeploy(ctx, m.Limits, d),
+		Image:        m.Image.ValueString(),
+		Command:      extractStringList(m.Command),
+		Entrypoint:   extractStringList(m.Entrypoint),
+		Environment:  extractStringMap(m.Environment),
+		Ports:        extractPortMappings(ctx, m.Ports, d),
+		Volumes:      extractVolumeMappings(ctx, m.Volumes, d),
+		XDescription: m.Description.ValueStringPointer(),
+		Deploy:       extractDeploy(ctx, m.Limits, d),
 	}
 }
 
@@ -87,7 +87,7 @@ func (m *ContainerModel) ToUpdateRequestFromExisting(ctx context.Context, other 
 	}
 
 	if !m.Description.Equal(other.Description) {
-		req.Description = m.Description.ValueStringPointer()
+		req.XDescription = m.Description.ValueStringPointer()
 	}
 
 	if !m.Limits.Equal(other.Limits) {
@@ -99,13 +99,13 @@ func (m *ContainerModel) ToUpdateRequestFromExisting(ctx context.Context, other 
 
 func (m *ContainerModel) ToUpdateRequestFromEmpty(ctx context.Context, d *diag.Diagnostics) containerv2.ServiceRequest {
 	return containerv2.ServiceRequest{
-		Image:       m.Image.ValueStringPointer(),
-		Command:     extractStringList(m.Command),
-		Entrypoint:  extractStringList(m.Entrypoint),
-		Envs:        extractStringMap(m.Environment),
-		Ports:       extractPortMappings(ctx, m.Ports, d),
-		Volumes:     extractVolumeMappings(ctx, m.Volumes, d),
-		Description: m.Description.ValueStringPointer(),
-		Deploy:      extractDeploy(ctx, m.Limits, d),
+		Image:        m.Image.ValueStringPointer(),
+		Command:      extractStringList(m.Command),
+		Entrypoint:   extractStringList(m.Entrypoint),
+		Envs:         extractStringMap(m.Environment),
+		Ports:        extractPortMappings(ctx, m.Ports, d),
+		Volumes:      extractVolumeMappings(ctx, m.Volumes, d),
+		XDescription: m.Description.ValueStringPointer(),
+		Deploy:       extractDeploy(ctx, m.Limits, d),
 	}
 }

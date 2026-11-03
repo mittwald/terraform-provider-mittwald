@@ -4,12 +4,13 @@ import "github.com/hashicorp/terraform-plugin-framework/types"
 
 // ResourceModel describes the resource data model.
 type ResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	ProjectID   types.String `tfsdk:"project_id"`
-	Version     types.String `tfsdk:"version"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Hostname    types.String `tfsdk:"hostname"`
+	ID               types.String `tfsdk:"id"`
+	ProjectID        types.String `tfsdk:"project_id"`
+	Version          types.String `tfsdk:"version"`
+	Name             types.String `tfsdk:"name"`
+	Description      types.String `tfsdk:"description"`
+	Hostname         types.String `tfsdk:"hostname"`
+	ExternalHostname types.String `tfsdk:"external_hostname"`
 
 	CharacterSettings types.Object `tfsdk:"character_settings"`
 	User              types.Object `tfsdk:"user"`

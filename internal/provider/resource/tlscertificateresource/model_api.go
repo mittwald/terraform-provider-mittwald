@@ -5,6 +5,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/domainclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/sslv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/ptrutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 // ToCreateRequest returns the appropriate CreateCertificateRequestRequest based on
@@ -58,6 +59,11 @@ func (m *ResourceModel) FromCertificate(cert *sslv2.Certificate) {
 		m.CertificateRequestID = types.StringNull()
 		m.ProjectID = types.StringNull()
 		m.CommonName = types.StringNull()
+		m.ValidFrom = types.StringNull()
+		m.ValidTo = types.StringNull()
+		m.CaBundle = types.StringNull()
+		m.Issuer = types.StringNull()
+		m.DnsNames = types.ListNull(types.StringType)
 		return
 	}
 
@@ -69,5 +75,16 @@ func (m *ResourceModel) FromCertificate(cert *sslv2.Certificate) {
 		m.CommonName = types.StringValue(*cert.CommonName)
 	} else {
 		m.CommonName = types.StringNull()
+	}
+
+	m.ValidFrom = valueutil.TimePtrToRFC3339OrNull(cert.ValidFrom)
+	m.ValidTo = valueutil.TimePtrToRFC3339OrNull(cert.ValidTo)
+	m.CaBundle = valueutil.StringPtrOrNull(cert.CaBundle)
+	m.Issuer = valueutil.StringPtrOrNull(cert.Issuer)
+
+	if cert.DnsNames == nil {
+		m.DnsNames = types.ListNull(types.StringType)
+	} else {
+		m.DnsNames = valueutil.ConvertStringSliceToList(cert.DnsNames)
 	}
 }

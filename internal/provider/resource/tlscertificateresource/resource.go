@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -110,6 +111,42 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 					"to trigger an in-place update of the certificate's private key.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"valid_from": schema.StringAttribute{
+				MarkdownDescription: "The start of the certificate's validity period in RFC3339 format",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"valid_to": schema.StringAttribute{
+				MarkdownDescription: "The end of the certificate's validity period in RFC3339 format",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"ca_bundle": schema.StringAttribute{
+				MarkdownDescription: "The PEM-encoded CA bundle associated with the certificate",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"issuer": schema.StringAttribute{
+				MarkdownDescription: "The issuer of the certificate, e.g. the name of the certificate authority",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"dns_names": schema.ListAttribute{
+				MarkdownDescription: "The list of domain names (SANs) covered by the certificate",
+				Computed:            true,
+				ElementType:         types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},

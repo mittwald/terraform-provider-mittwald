@@ -26,6 +26,7 @@ func (m *ContainerRegistryModel) FromAPIModelWithCredentials(_ context.Context, 
 				"username":            types.StringValue(registry.Credentials.Username),
 				"password_wo":         password,
 				"password_wo_version": passwordVersion,
+				"valid":               types.BoolValue(registry.Credentials.Valid),
 			})
 
 			diags.Append(d...)
@@ -33,6 +34,7 @@ func (m *ContainerRegistryModel) FromAPIModelWithCredentials(_ context.Context, 
 		} else {
 			attrs := m.Credentials.Attributes()
 			attrs["username"] = types.StringValue(registry.Credentials.Username)
+			attrs["valid"] = types.BoolValue(registry.Credentials.Valid)
 
 			if !password.IsNull() {
 				attrs["password_wo"] = password

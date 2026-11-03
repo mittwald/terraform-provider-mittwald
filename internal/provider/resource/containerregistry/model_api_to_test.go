@@ -15,6 +15,7 @@ var credentialsAttrTypes = map[string]attr.Type{
 	"username":            types.StringType,
 	"password_wo":         types.StringType,
 	"password_wo_version": types.Int64Type,
+	"valid":               types.BoolType,
 }
 
 func TestToCreateRequestWithoutCredentials(t *testing.T) {
@@ -55,6 +56,7 @@ func TestToCreateRequestWithCredentials(t *testing.T) {
 			"username":            types.StringValue("testuser"),
 			"password_wo":         types.StringValue("oldpassword"),
 			"password_wo_version": types.Int64Value(1),
+			"valid":               types.BoolValue(true),
 		},
 	)
 	g.Expect(diagsObj.HasError()).To(BeFalse(), "failed to create credentials object")
@@ -122,6 +124,7 @@ func TestToUpdateRequestWithCredentials(t *testing.T) {
 			"username":            types.StringValue("testuser"),
 			"password_wo":         types.StringValue("oldpassword"),
 			"password_wo_version": types.Int64Value(1),
+			"valid":               types.BoolValue(true),
 		},
 	)
 	g.Expect(diags.HasError()).To(BeFalse(), "failed to create credentials object")
@@ -164,6 +167,7 @@ func TestToUpdateRequestWithCredentialsButNullPassword(t *testing.T) {
 			"username":            types.StringValue("testuser"),
 			"password_wo":         types.StringValue("oldpassword"),
 			"password_wo_version": types.Int64Value(1),
+			"valid":               types.BoolValue(true),
 		},
 	)
 	g.Expect(diagsObj.HasError()).To(BeFalse(), "failed to create credentials object")

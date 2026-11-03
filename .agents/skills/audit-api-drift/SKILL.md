@@ -82,7 +82,9 @@ these heuristics:
 
 **Usually worth exposing:**
 - A field a user would plausibly want to set or read via Terraform (config knobs,
-  identifiers, status/state fields useful for other resources to reference).
+  identifiers). Note the blanket exception for status/state and creation/update
+  timestamp fields below — those are *not* "usually worth exposing" despite
+  otherwise fitting this description.
 - A field that has an obvious, low-risk mapping to an existing Terraform type
   (string, bool, int64, a flat list/map of primitives).
 - A field that mirrors something already exposed on a sibling resource/data
@@ -130,13 +132,33 @@ cosmetic for referencing purposes:
   doesn't need a known-drift inventory entry either, since this section
   already documents the rule.
 
+**Status/state fields and creation/update timestamps are not exposed, as a
+blanket policy.** A field like `status`/`phase` or `createdAt`/`updatedAt`
+looks like an obvious "usually worth exposing" candidate — a low-risk
+string/timestamp mirroring something a sibling resource already has — but
+this provider deliberately does not surface these as resource state:
+- Terraform expects resource state to change only in response to
+  configuration, or explicit `Read` reconciliation of a user-controlled
+  value — not a platform-driven lifecycle status or timestamp that moves on
+  its own outside of any Terraform-managed change.
+- `mittwald_server` already exposes `status` and `created_at`. This is a
+  historical exception, not a precedent — do **not** cite it to justify
+  adding analogous fields to other resources. It predates this policy and is
+  grandfathered as-is (removing it would be a breaking change); it is not a
+  pattern to replicate elsewhere.
+- This is a standing policy, not a case-by-case call, exactly like the
+  short-ID rule above: a "missing" status/state or creation/update timestamp
+  field is never drift to fix or file, and doesn't need a known-drift
+  inventory entry either — skip it silently.
+
 ## 4. Check and maintain the known-drift inventory
 
 `.agents/skills/audit-api-drift/known-drift.md` lists API fields that a
 previous run deliberately decided *not* to expose (per the §3 heuristics —
 most commonly volatile/informational fields; short-ID-for-a-referenced-entity
-skips don't need an entry, per §3). It exists so this skill doesn't
-re-discover, re-analyze, and re-report the same accepted drift every month.
+and status/state/timestamp skips don't need an entry, per §3). It exists so
+this skill doesn't re-discover, re-analyze, and re-report the same accepted
+drift every month.
 
 - **Before** treating anything as drift to fix or file, check this inventory
   for the resource/field pair. If it's already listed, skip it silently — it's
