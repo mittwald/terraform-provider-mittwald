@@ -19,7 +19,10 @@ func (m *ContainerStackModel) FromAPIModel(ctx context.Context, apiModel *contai
 	// Assign top-level attributes
 	m.ID = types.StringValue(apiModel.Id)
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
-	m.DefaultStack = types.BoolValue(apiModel.Description == "default")
+	m.Description = types.StringValue(apiModel.Description)
+
+	// DefaultStack is a client-side attribute that controls how the stack is
+	// managed; it is not derived from the API, and is left untouched.
 
 	containerMap, diags := fromAPIContainers(ctx, apiModel, plan, m.DefaultStack.ValueBool(), disregardUnknown)
 	res.Append(diags...)
