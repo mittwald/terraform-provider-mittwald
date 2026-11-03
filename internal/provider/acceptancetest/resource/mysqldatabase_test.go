@@ -77,6 +77,52 @@ func TestAccMySQLDatabaseResourceCreated(t *testing.T) {
 	})
 }
 
+func TestAccMySQLDatabaseResourceCreatedWithExternalAccess(t *testing.T) {
+	var database databasev2.MySqlDatabase
+	var user databasev2.MySqlUser
+
+	serverID := config.StringVariable(os.Getenv("MITTWALD_ACCTEST_SERVER_ID"))
+	databasePassword := config.StringVariable(providertesting.TestRandomPassword(t))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			providertesting.TestAccPreCheck(t)
+		},
+		ProtoV6ProviderFactories: providertesting.TestAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMySQLDatabaseResourceConfigWithUserAccess("Foobar", "readonly", true),
+				ConfigVariables: map[string]config.Variable{
+					"server_id":         serverID,
+					"database_password": databasePassword,
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("mittwald_mysql_database.test", "user.access_level", "readonly"),
+					resource.TestCheckResourceAttr("mittwald_mysql_database.test", "user.external_access", "true"),
+					testAccAssertMySQLDatabaseIsPresent(&database, &user),
+					testAccAssertMySQLUserAccessLevelMatches(&user, "readonly"),
+					testAccAssertMySQLUserExternalAccessMatches(&user, true),
+				),
+			},
+			{
+				Config: testAccMySQLDatabaseResourceConfigWithUserAccess("Foobar", "full", false),
+				ConfigVariables: map[string]config.Variable{
+					"server_id":         serverID,
+					"database_password": databasePassword,
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("mittwald_mysql_database.test", "user.access_level", "full"),
+					resource.TestCheckResourceAttr("mittwald_mysql_database.test", "user.external_access", "false"),
+					testAccAssertMySQLDatabaseIsPresent(&database, &user),
+					testAccAssertMySQLUserAccessLevelMatches(&user, "full"),
+					testAccAssertMySQLUserExternalAccessMatches(&user, false),
+				),
+			},
+		},
+		CheckDestroy: testAccMySQLDatabaseResourceDestroyed,
+	})
+}
+
 func TestAccMySQLDatabaseResourceCreatedWithGeneratedPassword(t *testing.T) {
 	var database databasev2.MySqlDatabase
 	var user databasev2.MySqlUser

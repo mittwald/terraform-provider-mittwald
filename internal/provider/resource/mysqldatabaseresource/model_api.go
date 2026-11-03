@@ -33,8 +33,9 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 				},
 			},
 			User: databasev2.CreateMySqlUserWithDatabase{
-				Password:    actualPassword,
-				AccessLevel: databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
+				Password:       actualPassword,
+				AccessLevel:    databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
+				ExternalAccess: dataUser.ExternalAccess.ValueBoolPointer(),
 			},
 		},
 	}
