@@ -44,9 +44,10 @@ resource "mittwald_app" "custom_php" {
   app     = "php"
   version = "1.0.0"
 
-  description   = "Martins Test-App"
-  document_root = "/public"
-  update_policy = "none"
+  description       = "Martins Test-App"
+  document_root     = "/public"
+  installation_path = "custom-php-app"
+  update_policy     = "none"
 
   databases = [
     {
@@ -138,12 +139,12 @@ resource "mittwald_app" "wordpress" {
 
     If you specify dependencies, you must specify the exact version of the dependency. To select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source. (see [below for nested schema](#nestedatt--dependencies))
 - `document_root` (String) The document root of the app
+- `installation_path` (String) The installation path of the app, relative to the web root. This is set on creation; if omitted, the API assigns a path automatically. The path cannot be changed afterwards; changing it will force recreation of the app.
 - `user_inputs` (Map of String) The user inputs of the app
 
 ### Read-Only
 
 - `id` (String) The ID of the app
-- `installation_path` (String) The installation path of the app, relative to the web root
 - `installation_path_absolute` (String) The absolute installation path of the app, including the web root
 - `short_id` (String) The short ID of the app
 - `ssh_host` (String) The SSH host of the app; this will be populated after the app has been installed. You can use it for declaring a [provisioner](https://developer.hashicorp.com/terraform/language/resources/provisioners/connection) for your app.

@@ -23,6 +23,8 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 		actualPassword = password.ValueString()
 	}
 
+	externalAccess := dataUser.ExternalAccess.ValueBool()
+
 	return databaseclientv2.CreateMysqlDatabaseRequest{
 		ProjectID: m.ProjectID.ValueString(),
 		Body: databaseclientv2.CreateMysqlDatabaseRequestBody{
@@ -35,8 +37,9 @@ func (m *ResourceModel) ToCreateRequest(ctx context.Context, d diag.Diagnostics,
 				},
 			},
 			User: databasev2.CreateMySqlUserWithDatabase{
-				Password:    actualPassword,
-				AccessLevel: databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
+				Password:       actualPassword,
+				AccessLevel:    databasev2.CreateMySqlUserWithDatabaseAccessLevel(dataUser.AccessLevel.ValueString()),
+				ExternalAccess: &externalAccess,
 			},
 		},
 	}

@@ -126,3 +126,15 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_systemsoftware` (data source) | `system_software_dependencies` | `appv2.SystemSoftwareVersion` (ListSystemsoftwareversions) | Auto-resolved by `mittwald_app.dependencies` | 2026-09-10 |
 | `mittwald_systemsoftware` (data source) | `user_inputs` | `appv2.SystemSoftwareVersion` (ListSystemsoftwareversions) | Managed via `mittwald_app.user_inputs` | 2026-09-10 |
 | `mittwald_systemsoftware` (data source) | `recommended` (status) | `appv2.SystemSoftwareVersion` (ListSystemsoftwareversions) | Name collision with `recommended` selector flag | 2026-09-10 |
+| `mittwald_project` | `spec.visitors`, `spec.hardware cpu/mem/memory` | `projectv2.ProjectSpec` (GetProject) | Plan-derived specs; `diskspace_gb` already exposed (storage) | 2026-10-01 |
+| `mittwald_app` | `staging` | `appv2.AppInstallation` (GetAppinstallation) | Staging workflow; needs a new resource, see #476 | 2026-10-01 |
+| `mittwald_app` | `app_version.last_change_by`, `app_version.previous` | `appv2.VersionStatus` (GetAppinstallation) | Version change history; `version`/`version_current` exposed | 2026-10-01 |
+| `mittwald_app` | `installed_system_software.external_version`, `update_available`, `system_software_version.current/previous/last_change_by/last_changed_at` | `appv2.InstalledSystemSoftware` (GetAppinstallation) | Version convergence state / catalog metadata; desired `version` exposed | 2026-10-01 |
+| `mittwald_app` (data source) | `doc_root_user_editable` | `appv2.AppVersion` (ListAppversions) | Informational catalog flag; `document_root` exposed on the resource, API validates editability | 2026-10-01 |
+| `mittwald_app` (data source) | `app_id` | `appv2.AppVersion` (ListAppversions) | Same app ID as `appv2.App.id`; `name` is the reference key | 2026-10-01 |
+| `mittwald_container_stack` | service `template_id` | `containerv2.ServiceResponse` (GetStack) | Internal template reference; consistent with stack-level `template_id` | 2026-10-01 |
+| `mittwald_container_stack` | `environment` (request field) | `containerv2.ServiceDeclareRequest`/`ServiceRequest` (declare/update) | Duplicate alias of `envs`, which is what the provider maps to Terraform `environment` | 2026-10-01 |
+| `mittwald_article` (data source) | `machine_type.cpu`, `machine_type.memory` | `articlev2.ReadableArticleMachineType` (ListArticles/GetArticle) | Descriptive plan specs; `machine_type` name exposed | 2026-10-01 |
+| `mittwald_article` (data source) | tag `description`, tag `hex_color` | `articlev2.ArticleTag` (ListArticles/GetArticle) | Display metadata; tag name/ID are the reference keys | 2026-10-01 |
+| `mittwald_article` (data source) | attribute `customer_editable`, `merge_type`, `readonly`, `required`, `unit` | `articlev2.ArticleAttributes` (ListArticles/GetArticle) | Catalog metadata; attribute values exposed in the `attributes` map | 2026-10-01 |
+| `mittwald_container_image` (data source) | `env`/`exposed_ports`/`volumes` item `is_ai_generated` | `containerv2.ContainerImageConfig` (GetContainerImageConfig) | Platform catalog internals, like `has_ai_generated_data` | 2026-10-01 |

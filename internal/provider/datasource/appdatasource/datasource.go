@@ -11,6 +11,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/appv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
+	"github.com/mittwald/terraform-provider-mittwald/internal/valueutil"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -59,6 +60,10 @@ resource to select the respective versions for the ` + "`version`" + ` attribute
 			},
 			"external_version": schema.StringAttribute{
 				MarkdownDescription: "The external (user-facing) version string of the selected version",
+				Computed:            true,
+			},
+			"update_constraint": schema.StringAttribute{
+				MarkdownDescription: "The SemVer constraint that newer versions must satisfy to be eligible as automatic update targets for the selected version, if any",
 				Computed:            true,
 			},
 		},
@@ -112,6 +117,7 @@ func (d *AppDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	data.Version = types.StringValue(selected.InternalVersion)
 	data.VersionID = types.StringValue(selected.Id)
 	data.ExternalVersion = types.StringValue(selected.ExternalVersion)
+	data.UpdateConstraint = valueutil.StringPtrOrNull(selected.UpdateConstraint)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

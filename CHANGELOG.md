@@ -1,3 +1,33 @@
+# [1.12.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.15...v1.12.0) (2026-10-28)
+
+
+### Features
+
+* **app:** support the PHP-Worker app as "php-worker" ([#517](https://github.com/mittwald/terraform-provider-mittwald/issues/517)) ([fafed6f](https://github.com/mittwald/terraform-provider-mittwald/commit/fafed6fb4fdee15abacda49e5496a16024ed3745)), closes [#515](https://github.com/mittwald/terraform-provider-mittwald/issues/515)
+
+## [1.11.15](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.14...v1.11.15) (2026-10-27)
+
+## [1.11.14](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.13...v1.11.14) (2026-10-26)
+
+## [1.11.13](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.12...v1.11.13) (2026-10-23)
+
+## [1.11.12](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.11...v1.11.12) (2026-10-20)
+
+## [1.11.11](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.10...v1.11.11) (2026-10-19)
+
+## [1.11.10](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.9...v1.11.10) (2026-10-15)
+
+## [1.11.9](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.8...v1.11.9) (2026-10-12)
+
+## [1.11.8](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.7...v1.11.8) (2026-10-09)
+
+## [1.11.7](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.6...v1.11.7) (2026-10-08)
+
+
+### Bug Fixes
+
+* **mysql_database:** send user.external_access in the create request ([#504](https://github.com/mittwald/terraform-provider-mittwald/issues/504)) ([9e70762](https://github.com/mittwald/terraform-provider-mittwald/commit/9e70762bbfd14927951faec366e88613f2c08a28)), closes [#481](https://github.com/mittwald/terraform-provider-mittwald/issues/481) [#490](https://github.com/mittwald/terraform-provider-mittwald/issues/490)
+
 ## [1.11.6](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.5...v1.11.6) (2026-09-21)
 
 ## [1.11.5](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.11.4...v1.11.5) (2026-09-18)
