@@ -46,7 +46,7 @@ resource "mittwald_app" "custom_php" {
 
   description       = "Martins Test-App"
   document_root     = "/public"
-  installation_path = "custom-php-app"
+  installation_path = "/custom-php-app"
   update_policy     = "none"
 
   databases = [
@@ -139,7 +139,7 @@ resource "mittwald_app" "wordpress" {
 
     If you specify dependencies, you must specify the exact version of the dependency. To select a version using a semantic versioning constraint, use the `mittwald_systemsoftware` data source. (see [below for nested schema](#nestedatt--dependencies))
 - `document_root` (String) The document root of the app
-- `installation_path` (String) The installation path of the app, relative to the web root. This is set on creation; if omitted, the API assigns a path automatically. The path cannot be changed afterwards; changing it will force recreation of the app.
+- `installation_path` (String) The installation path of the app, relative to the web root; must start with a `/` (e.g. `/my-app`). This is set on creation; if omitted, the API assigns a path automatically. The path cannot be changed afterwards; changing it will force recreation of the app.
 - `user_inputs` (Map of String) The user inputs of the app
 
 ### Read-Only

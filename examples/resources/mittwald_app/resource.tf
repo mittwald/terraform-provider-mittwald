@@ -31,7 +31,7 @@ resource "mittwald_app" "custom_php" {
 
   description       = "Martins Test-App"
   document_root     = "/public"
-  installation_path = "custom-php-app"
+  installation_path = "/custom-php-app"
   update_policy     = "none"
 
   databases = [

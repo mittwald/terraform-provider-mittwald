@@ -35,20 +35,20 @@ func TestAccAppResourceInstallationPath(t *testing.T) {
 		ProtoV6ProviderFactories: providertesting.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppResourceInstallationPathConfig("Test Static App", "custom-install-path"),
+				Config: testAccAppResourceInstallationPathConfig("Test Static App", "/custom-install-path"),
 				ConfigVariables: map[string]config.Variable{
 					"server_id": serverID,
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("mittwald_app.test", "installation_path", "custom-install-path"),
-					testAccCheckAppInstallationPathAbsoluteEndsWith("mittwald_app.test", "custom-install-path"),
-					testAccAssertAppInstallationPathMatches("mittwald_app.test", &app, "custom-install-path"),
+					resource.TestCheckResourceAttr("mittwald_app.test", "installation_path", "/custom-install-path"),
+					testAccCheckAppInstallationPathAbsoluteEndsWith("mittwald_app.test", "/custom-install-path"),
+					testAccAssertAppInstallationPathMatches("mittwald_app.test", &app, "/custom-install-path"),
 				),
 			},
 			// Changing installation_path must force replacement, since the API
 			// only accepts it on create.
 			{
-				Config: testAccAppResourceInstallationPathConfig("Test Static App", "other-install-path"),
+				Config: testAccAppResourceInstallationPathConfig("Test Static App", "/other-install-path"),
 				ConfigVariables: map[string]config.Variable{
 					"server_id": serverID,
 				},
@@ -58,9 +58,9 @@ func TestAccAppResourceInstallationPath(t *testing.T) {
 					},
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("mittwald_app.test", "installation_path", "other-install-path"),
-					testAccCheckAppInstallationPathAbsoluteEndsWith("mittwald_app.test", "other-install-path"),
-					testAccAssertAppInstallationPathMatches("mittwald_app.test", &app, "other-install-path"),
+					resource.TestCheckResourceAttr("mittwald_app.test", "installation_path", "/other-install-path"),
+					testAccCheckAppInstallationPathAbsoluteEndsWith("mittwald_app.test", "/other-install-path"),
+					testAccAssertAppInstallationPathMatches("mittwald_app.test", &app, "/other-install-path"),
 				),
 			},
 		},
