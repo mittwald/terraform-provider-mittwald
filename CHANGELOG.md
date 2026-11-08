@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.0...v1.13.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* **app:** require a leading "/" in installation_path ([#523](https://github.com/mittwald/terraform-provider-mittwald/issues/523)) ([2209265](https://github.com/mittwald/terraform-provider-mittwald/commit/22092654c018f9aeb01ebbef5228cf0be77cfd9b))
+
 # [1.13.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.12.0...v1.13.0) (2026-11-03)
 
 
