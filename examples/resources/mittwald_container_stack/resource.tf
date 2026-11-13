@@ -3,8 +3,8 @@ locals {
 }
 
 resource "mittwald_container_stack" "nginx" {
-  project_id    = mittwald_project.example.id
-  default_stack = true
+  project_id  = mittwald_project.example.id
+  description = "nginx"
 
   containers = {
     nginx = {
