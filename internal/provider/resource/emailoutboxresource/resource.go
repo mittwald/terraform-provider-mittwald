@@ -117,13 +117,23 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	found, diags := r.read(ctx, &data)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !found {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+func (r *Resource) read(ctx context.Context, data *ResourceModel) (found bool, res diag.Diagnostics) {
 	// Get mail outbox
 	mailOutbox, httpResp, err := r.client.Mail().GetDeliveryBox(ctx, mailclientv2.GetDeliveryBoxRequest{
 		DeliveryBoxID: data.ID.ValueString(),
@@ -133,14 +143,14 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel) (res diag.Diag
 		IgnoreNotFound().
 		DoValResp(mailOutbox, httpResp, err)
 
-	if res.HasError() {
+	if res.HasError() || mailOutbox == nil {
 		return
 	}
 
 	// Map response body to schema
-	data.FromAPIModel(ctx, mailOutbox)
+	res.Append(data.FromAPIModel(ctx, mailOutbox)...)
 
-	return
+	return true, res
 }
 
 func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -182,7 +192,8 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	}
 
 	// Refresh state
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	_, diags := r.read(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 
 	// Set state to fully populated data
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -206,6 +217,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	httpResp, err := client.DeleteDeliveryBox(ctx, data.ToDeleteRequest())
 	providerutil.
 		Try[any](&resp.Diagnostics, "Error deleting mail outbox").
+		IgnoreNotFound().
 		DoResp(httpResp, err)
 
 	if resp.Diagnostics.HasError() {
