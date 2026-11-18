@@ -141,7 +141,21 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	resp.Diagnostics.Append(r.read(ctx, &data)...)
+	cronjob := providerutil.
+		Try[*cronjobv2.Cronjob](&resp.Diagnostics, "API error while fetching cron job").
+		IgnoreNotFound().
+		DoValResp(r.client.Cronjob().GetCronjob(ctx, cronjobclientv2.GetCronjobRequest{CronjobID: data.ID.ValueString()}))
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if cronjob == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	resp.Diagnostics.Append(data.FromAPIModel(ctx, cronjob, r.client)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -183,6 +197,7 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while deleting cron job").
+		IgnoreNotFound().
 		DoResp(r.client.Cronjob().DeleteCronjob(ctx, data.ToDeleteRequest()))
 }
 
