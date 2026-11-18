@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.1...v1.13.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* **cronjob:** remove resource from state when cron job no longer exists ([#525](https://github.com/mittwald/terraform-provider-mittwald/issues/525)) ([c42fa61](https://github.com/mittwald/terraform-provider-mittwald/commit/c42fa614acb47779203ba8e23195012094498e65))
+
 ## [1.13.1](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.0...v1.13.1) (2026-11-08)
 
 
