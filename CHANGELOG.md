@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.2...v1.13.3) (2026-11-19)
+
+
+### Bug Fixes
+
+* **email-outbox:** remove resource from state when outbox no longer exists ([#526](https://github.com/mittwald/terraform-provider-mittwald/issues/526)) ([12c47b0](https://github.com/mittwald/terraform-provider-mittwald/commit/12c47b0fd4dd230860cd9936f9bc9c649915a943)), closes [#525](https://github.com/mittwald/terraform-provider-mittwald/issues/525)
+
 ## [1.13.2](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.1...v1.13.2) (2026-11-18)
 
 
