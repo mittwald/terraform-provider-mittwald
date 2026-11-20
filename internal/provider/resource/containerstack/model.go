@@ -5,9 +5,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// DefaultStackDescription is used as the description of newly created stacks
+// when no description is configured.
+const DefaultStackDescription = "Managed by Terraform"
+
 type ContainerStackModel struct {
 	ID             types.String   `tfsdk:"id"`
 	ProjectID      types.String   `tfsdk:"project_id"`
+	Description    types.String   `tfsdk:"description"`
 	DefaultStack   types.Bool     `tfsdk:"default_stack"`
 	Containers     types.Map      `tfsdk:"containers"`
 	Volumes        types.Map      `tfsdk:"volumes"`
