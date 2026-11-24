@@ -141,3 +141,4 @@ judgment calls, typically volatile/informational fields.
 | `mittwald_app` | `last_auto_update_failed_at` | `appv2.AppInstallation` (GetAppinstallation) | Volatile operational timestamp (when the last auto-update failed); moves on its own | 2026-11-01 |
 | `mittwald_app` (data source) | `description` | `appv2.App` (GetApp) | Localized catalog text (`de`/`en`); language choice ambiguous, `name` identifies the app | 2026-11-01 |
 | `mittwald_ssh_user` | `detailed_public_keys` | `sshuserv2.SshUser` (GetSSHUser) | Derived per-key metadata (`algorithm`/`fingerprint`) alongside `public_keys`; per-key computed values would break set element diffing | 2026-11-01 |
+| `mittwald_virtualhost` | `sender_login_protection` | `ingressv2.Ingress` (GetIngress/ListIngresses) | No setter in the API client; only set on the project's root ingress (covers all sub-ingresses), so it doesn't fit a per-virtual-host resource. Revisit if a setter becomes available (see #521) | 2026-11-24 |
