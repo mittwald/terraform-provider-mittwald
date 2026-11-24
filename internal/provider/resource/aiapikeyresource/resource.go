@@ -3,6 +3,7 @@ package aiapikeyresource
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -19,6 +20,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/aihostingv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -215,20 +217,24 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 // unambiguously. If configuredContractID is set, the plan whose contract
 // matches it is used.
 func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContractID string) (planID, contractID string, diags diag.Diagnostics) {
-	limit := int64(100)
-	plans := providerutil.
-		Try[*aihostingv2.CustomerPlans](&diags, "Error listing AI hosting plans").
-		DoValResp(r.client.AIHosting().CustomerGetPlans(ctx, aihostingclientv2.CustomerGetPlansRequest{
+	plans, err := apiutils.FetchAllPages(ctx, 100, func(ctx context.Context, limit, page int64) (*[]aihostingv2.CustomerPlan, *http.Response, error) {
+		plans, httpResp, err := r.client.AIHosting().CustomerGetPlans(ctx, aihostingclientv2.CustomerGetPlansRequest{
 			CustomerID: customerID,
 			Limit:      &limit,
-		}))
-
-	if diags.HasError() || plans == nil {
+			Page:       &page,
+		})
+		if plans == nil {
+			return nil, httpResp, err
+		}
+		return &plans.Plans, httpResp, err
+	})
+	if err != nil {
+		diags.AddError("Error listing AI hosting plans", err.Error())
 		return
 	}
 
 	if configuredContractID == "" {
-		switch len(plans.Plans) {
+		switch len(plans) {
 		case 0:
 			diags.AddAttributeError(
 				path.Root("contract_id"),
@@ -237,12 +243,12 @@ func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContra
 			)
 			return
 		case 1:
-			planID = plans.Plans[0].PlanId
+			planID = plans[0].PlanId
 		default:
 			diags.AddAttributeError(
 				path.Root("contract_id"),
 				"Ambiguous AI hosting plan",
-				fmt.Sprintf("Customer %s has %d AI hosting plans. Set contract_id to the contract_id of the mittwald_ai resource this key should be scoped to.", customerID, len(plans.Plans)),
+				fmt.Sprintf("Customer %s has %d AI hosting plans. Set contract_id to the contract_id of the mittwald_ai resource this key should be scoped to.", customerID, len(plans)),
 			)
 			return
 		}
@@ -251,7 +257,7 @@ func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContra
 		return
 	}
 
-	for _, plan := range plans.Plans {
+	for _, plan := range plans {
 		var id string
 		id, diags = r.contractIDForPlan(ctx, customerID, plan.PlanId)
 		if diags.HasError() {
