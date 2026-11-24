@@ -11,6 +11,7 @@ type ResourceModel struct {
 	Hostname  types.String `tfsdk:"hostname"`
 	Paths     types.Map    `tfsdk:"paths"`
 	Default   types.Bool   `tfsdk:"default"`
+	Acme      types.Bool   `tfsdk:"acme"`
 }
 
 type PathModel struct {

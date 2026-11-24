@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -56,6 +57,14 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 			"default": schema.BoolAttribute{
 				MarkdownDescription: "Describes if this vhost is the project's default virtual host. The default virtual host will never be deleted. If you attempt to delete this resource via terraform, it will simply revert to an unmanaged state.",
 				Computed:            true,
+			},
+			"acme": schema.BoolAttribute{
+				MarkdownDescription: "Controls if a TLS certificate should be automatically issued for this virtual host via ACME (Let's Encrypt). Set this to `false` to disable automatic certificate issuance, for example if you want to assign a certificate manually at a later point. If omitted, the virtual host will use ACME when it is created, and this attribute will reflect the current state of the virtual host afterwards. Note that this attribute will also read as `false` when a certificate has been assigned to the virtual host manually.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"paths": schema.MapNestedAttribute{
 				Description: "The desired paths for the virtualhost.",
@@ -143,11 +152,67 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		return
 	}
 
+	desiredAcme := data.Acme
+
 	readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	resp.Diagnostics.Append(r.read(readCtx, &data)...)
+
+	// The create endpoint does not accept TLS settings, so if the configured
+	// ACME setting deviates from what the API created, it needs to be updated
+	// in a separate step.
+	//
+	// Even if any of these steps fail, do not return early: the ingress already
+	// exists at this point, so the state needs to be persisted (with its ID)
+	// for Terraform to keep track of it.
+	if !resp.Diagnostics.HasError() && !desiredAcme.IsNull() && !desiredAcme.IsUnknown() && !desiredAcme.Equal(data.Acme) {
+		data.Acme = desiredAcme
+		resp.Diagnostics.Append(r.updateTLS(ctx, &data)...)
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+// updateTLS updates the TLS settings of the ingress to match the ACME setting
+// of the given model, waits until the change is reflected by the API, and
+// re-reads the ingress into the model afterwards. Waiting for the change is
+// bounded by its own timeout, independent of the caller's context.
+func (r *Resource) updateTLS(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	providerutil.
+		Try[*domainclientv2.UpdateIngressTLSResponse](&res, "API error while updating virtual host TLS settings").
+		DoValResp(r.client.Domain().UpdateIngressTLS(ctx, data.ToUpdateTLSRequest()))
+	if res.HasError() {
+		return
+	}
+
+	desiredAcme := data.Acme.ValueBool()
+	waitForTLSUpdate := func(ctx context.Context, req domainclientv2.GetIngressRequest) (*ingressv2.Ingress, error) {
+		ingress, _, err := r.client.Domain().GetIngress(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		if acmeEnabled(ingress) != desiredAcme {
+			return nil, apiutils.ErrPollShouldRetry
+		}
+
+		return ingress, nil
+	}
+
+	pollCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	ingress := providerutil.
+		Try[*ingressv2.Ingress](&res, "API error while waiting for virtual host TLS settings to be updated").
+		DoVal(apiutils.Poll(pollCtx, apiutils.PollOpts{}, waitForTLSUpdate, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
+	if res.HasError() {
+		return
+	}
+
+	res.Append(data.FromAPIModel(ctx, ingress)...)
+
+	return
 }
 
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -193,6 +258,18 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	providerutil.
 		Try[any](&resp.Diagnostics, "API error while updating virtual host").
 		DoResp(r.client.Domain().UpdateIngressPaths(ctx, body))
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !planData.Acme.IsNull() && !planData.Acme.IsUnknown() && !planData.Acme.Equal(stateData.Acme) {
+		stateData.Acme = planData.Acme
+
+		resp.Diagnostics.Append(r.updateTLS(ctx, &stateData)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	resp.Diagnostics.Append(r.read(ctx, &stateData)...)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &stateData)...)

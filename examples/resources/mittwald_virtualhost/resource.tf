@@ -27,3 +27,17 @@ resource "mittwald_virtualhost" "foobar" {
     }
   }
 }
+
+// Disable automatic certificate issuance via ACME, for example if you want to
+// assign a TLS certificate manually at a later point.
+resource "mittwald_virtualhost" "without_acme" {
+  hostname   = "manual-tls.example"
+  project_id = mittwald_project.foobar.id
+  acme       = false
+
+  paths = {
+    "/" = {
+      app = mittwald_app.foobar.id
+    }
+  }
+}
