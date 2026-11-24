@@ -75,6 +75,7 @@ The provider supports these resources:
 - A resource and a data source with the same name (e.g. `mittwald_project`) should mirror each other: the data source should expose the same attributes as the resource and reuse the same model-mapping helpers. When you add or change attributes on a resource, check whether a same-named data source exists and keep it in sync (and vice versa).
 - Prefer looking up a single object by a server-resolvable identifier over listing and filtering client-side. Several mittwald endpoints (e.g. `GetProject`) accept both the full ID and the short ID and resolve either for you.
 - In Terraform models and validators, do not conflate unknown values with null values. Unknown values can be valid at plan time and must not be rejected as if they were unset.
+- In a resource's `Create`, once the remote object exists (i.e. its ID is known), always persist the state via `resp.State.Set` before returning, even if a later step fails (reading the object back, polling for readiness, follow-up requests for settings the create endpoint does not accept). Do not `return` early on errors between obtaining the ID and setting the state; otherwise Terraform loses track of the created object, and the next apply tries to create it again. This is safe because Terraform marks the resource as tainted and replaces any remaining unknown values with null when `Create` returns an error.
 
 ### Adding a resource or data source
 
