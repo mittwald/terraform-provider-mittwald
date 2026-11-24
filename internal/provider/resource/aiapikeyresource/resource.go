@@ -141,9 +141,6 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		data.CustomerID = types.StringValue(project.CustomerId)
 
 		resp.Diagnostics.Append(resp.Plan.Set(ctx, data)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
 	}
 }
 
@@ -189,10 +186,9 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 		Body:       body,
 	}
 
-	key, httpResp, err := r.client.AIHosting().CustomerCreateKey(ctx, createReq)
-	key = providerutil.
+	key := providerutil.
 		Try[*aihostingv2.Key](&resp.Diagnostics, "Error creating AI API key").
-		DoValResp(key, httpResp, err)
+		DoValResp(r.client.AIHosting().CustomerCreateKey(ctx, createReq))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -217,6 +213,10 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	customerID, _ := r.resolveCustomerAndProjectID(ctx, &data, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	if customerID == "" {
 		resp.Diagnostics.AddError(
 			"Unable to determine customer ID",
@@ -231,11 +231,10 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 		KeyID:      data.ID.ValueString(),
 	}
 
-	key, httpResp, err := r.client.AIHosting().CustomerGetKey(ctx, getReq)
-	key = providerutil.
+	key := providerutil.
 		Try[*aihostingv2.Key](&resp.Diagnostics, "Error reading AI API key").
 		IgnoreNotFound().
-		DoValResp(key, httpResp, err)
+		DoValResp(r.client.AIHosting().CustomerGetKey(ctx, getReq))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -290,10 +289,9 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 			},
 		}
 
-		key, httpResp, err := r.client.AIHosting().CustomerUpdateKey(ctx, updateReq)
-		key = providerutil.
+		key := providerutil.
 			Try[*aihostingv2.Key](&resp.Diagnostics, "Error updating AI API key").
-			DoValResp(key, httpResp, err)
+			DoValResp(r.client.AIHosting().CustomerUpdateKey(ctx, updateReq))
 
 		if resp.Diagnostics.HasError() {
 			return
@@ -339,10 +337,9 @@ func (r *Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp 
 		KeyID:      data.ID.ValueString(),
 	}
 
-	httpResp, err := r.client.AIHosting().CustomerDeleteKey(ctx, deleteReq)
 	providerutil.
 		Try[any](&resp.Diagnostics, "Error deleting AI API key").
-		DoResp(httpResp, err)
+		DoResp(r.client.AIHosting().CustomerDeleteKey(ctx, deleteReq))
 
 	if resp.Diagnostics.HasError() {
 		return
