@@ -168,7 +168,7 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	// for Terraform to keep track of it.
 	if !resp.Diagnostics.HasError() && !desiredAcme.IsNull() && !desiredAcme.IsUnknown() && !desiredAcme.Equal(data.Acme) {
 		data.Acme = desiredAcme
-		resp.Diagnostics.Append(r.updateTLS(readCtx, &data)...)
+		resp.Diagnostics.Append(r.updateTLS(ctx, &data)...)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -176,7 +176,8 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 
 // updateTLS updates the TLS settings of the ingress to match the ACME setting
 // of the given model, waits until the change is reflected by the API, and
-// re-reads the ingress into the model afterwards.
+// re-reads the ingress into the model afterwards. Waiting for the change is
+// bounded by its own timeout, independent of the caller's context.
 func (r *Resource) updateTLS(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	providerutil.
 		Try[*domainclientv2.UpdateIngressTLSResponse](&res, "API error while updating virtual host TLS settings").
@@ -199,9 +200,12 @@ func (r *Resource) updateTLS(ctx context.Context, data *ResourceModel) (res diag
 		return ingress, nil
 	}
 
+	pollCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
 	ingress := providerutil.
 		Try[*ingressv2.Ingress](&res, "API error while waiting for virtual host TLS settings to be updated").
-		DoVal(apiutils.Poll(ctx, apiutils.PollOpts{}, waitForTLSUpdate, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
+		DoVal(apiutils.Poll(pollCtx, apiutils.PollOpts{}, waitForTLSUpdate, domainclientv2.GetIngressRequest{IngressID: data.ID.ValueString()}))
 	if res.HasError() {
 		return
 	}
@@ -261,10 +265,7 @@ func (r *Resource) Update(ctx context.Context, req resource.UpdateRequest, resp 
 	if !planData.Acme.IsNull() && !planData.Acme.IsUnknown() && !planData.Acme.Equal(stateData.Acme) {
 		stateData.Acme = planData.Acme
 
-		tlsCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		defer cancel()
-
-		resp.Diagnostics.Append(r.updateTLS(tlsCtx, &stateData)...)
+		resp.Diagnostics.Append(r.updateTLS(ctx, &stateData)...)
 		if resp.Diagnostics.HasError() {
 			return
 		}
