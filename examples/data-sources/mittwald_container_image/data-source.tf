@@ -3,8 +3,8 @@ data "mittwald_container_image" "nginx" {
 }
 
 resource "mittwald_container_stack" "nginx" {
-  project_id    = mittwald_project.test.id
-  default_stack = true
+  project_id  = mittwald_project.test.id
+  description = "nginx"
 
   containers = {
     nginx = {

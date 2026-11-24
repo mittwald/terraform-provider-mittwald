@@ -12,8 +12,8 @@ variable "project_id" {
 }
 
 resource "mittwald_container_stack" "nginx" {
-  project_id    = var.project_id
-  default_stack = true
+  project_id  = var.project_id
+  description = "nginx"
 
   containers = {
     nginx = {
