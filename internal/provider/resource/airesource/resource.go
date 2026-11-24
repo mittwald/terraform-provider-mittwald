@@ -19,6 +19,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/aihostingv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/orderv2"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -114,63 +115,18 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// listAIHostingPlanIDs returns the IDs of all AI hosting plans currently
-// booked for the given customer.
-func (r *Resource) listAIHostingPlanIDs(ctx context.Context, customerID string) ([]string, error) {
-	plans, err := apiutils.FetchAllPages(ctx, 100, func(ctx context.Context, limit, page int64) (*[]aihostingv2.CustomerPlan, *http.Response, error) {
-		plans, httpResp, err := r.client.AIHosting().CustomerGetPlans(ctx, aihostingclientv2.CustomerGetPlansRequest{
-			CustomerID: customerID,
-			Limit:      &limit,
-			Page:       &page,
-		})
-		if plans == nil {
-			return nil, httpResp, err
-		}
-		return &plans.Plans, httpResp, err
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	ids := make([]string, 0, len(plans))
-	for _, plan := range plans {
-		ids = append(ids, plan.PlanId)
-	}
-
-	return ids, nil
-}
-
 // resolvePlanID finds the AI hosting plan ID that belongs to the given
 // contract, by scanning all AI hosting plans booked for the customer. It
 // returns an empty string (without error) if no matching plan was found.
-func (r *Resource) resolvePlanID(ctx context.Context, customerID, contractID string) (string, diag.Diagnostics) {
-	var diags diag.Diagnostics
+func (r *Resource) resolvePlanID(ctx context.Context, customerID, contractID string) (string, error) {
+	client := apiext.NewAIHostingClient(r.client)
 
-	planIDs, err := r.listAIHostingPlanIDs(ctx, customerID)
+	plans, err := client.ListAllCustomerPlans(ctx, customerID)
 	if err != nil {
-		diags.AddError("error while listing AI hosting plans", err.Error())
-		return "", diags
+		return "", err
 	}
 
-	for _, planID := range planIDs {
-		contract := providerutil.
-			Try[*contractv2.Contract](&diags, "error while checking AI hosting contract").
-			IgnoreNotFound().
-			DoValResp(r.client.Contract().GetDetailOfContractByAIHosting(ctx, contractclientv2.GetDetailOfContractByAIHostingRequest{
-				CustomerID:  customerID,
-				AIHostingID: planID,
-			}))
-
-		if diags.HasError() {
-			return "", diags
-		}
-
-		if contract != nil && contract.ContractId == contractID {
-			return planID, diags
-		}
-	}
-
-	return "", diags
+	return client.FindPlanIDByContractID(ctx, customerID, contractID, plans)
 }
 
 // applyPlanName reads the display name (description) of the given AI hosting
@@ -259,10 +215,9 @@ func (r *Resource) resolvePlanFromOrder(ctx context.Context, customerID, orderID
 			return resolved{}, apiutils.ErrPollShouldRetry
 		}
 
-		planID, diags := r.resolvePlanID(ctx, customerID, contract.ContractId)
-		if diags.HasError() {
-			e := diags.Errors()[0]
-			return resolved{}, fmt.Errorf("%s: %s", e.Summary(), e.Detail())
+		planID, err := r.resolvePlanID(ctx, customerID, contract.ContractId)
+		if err != nil {
+			return resolved{}, err
 		}
 
 		if planID == "" {
@@ -362,9 +317,9 @@ func (r *Resource) changePlan(ctx context.Context, data *ResourceModel) (res dia
 }
 
 func (r *Resource) renamePlan(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
-	planID, diags := r.resolvePlanID(ctx, data.CustomerID.ValueString(), data.ContractID.ValueString())
-	res.Append(diags...)
-	if res.HasError() {
+	planID, err := r.resolvePlanID(ctx, data.CustomerID.ValueString(), data.ContractID.ValueString())
+	if err != nil {
+		res.AddError("error while resolving AI hosting plan", err.Error())
 		return
 	}
 
@@ -411,9 +366,9 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel, considerTermin
 		return
 	}
 
-	planID, diags := r.resolvePlanID(ctx, data.CustomerID.ValueString(), contract.ContractId)
-	res.Append(diags...)
-	if res.HasError() {
+	planID, err := r.resolvePlanID(ctx, data.CustomerID.ValueString(), contract.ContractId)
+	if err != nil {
+		res.AddError("error while resolving AI hosting plan", err.Error())
 		return
 	}
 
@@ -496,9 +451,9 @@ func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequ
 		return
 	}
 
-	planID, diags := r.resolvePlanID(ctx, data.CustomerID.ValueString(), data.ContractID.ValueString())
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	planID, err := r.resolvePlanID(ctx, data.CustomerID.ValueString(), data.ContractID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("error while resolving AI hosting plan", err.Error())
 		return
 	}
 
