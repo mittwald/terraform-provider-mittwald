@@ -158,14 +158,15 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	defer cancel()
 
 	resp.Diagnostics.Append(r.read(readCtx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	// The create endpoint does not accept TLS settings, so if the configured
 	// ACME setting deviates from what the API created, it needs to be updated
 	// in a separate step.
-	if !desiredAcme.IsNull() && !desiredAcme.IsUnknown() && !desiredAcme.Equal(data.Acme) {
+	//
+	// Even if any of these steps fail, do not return early: the ingress already
+	// exists at this point, so the state needs to be persisted (with its ID)
+	// for Terraform to keep track of it.
+	if !resp.Diagnostics.HasError() && !desiredAcme.IsNull() && !desiredAcme.IsUnknown() && !desiredAcme.Equal(data.Acme) {
 		data.Acme = desiredAcme
 		resp.Diagnostics.Append(r.updateTLS(readCtx, &data)...)
 	}
