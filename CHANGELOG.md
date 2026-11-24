@@ -1,3 +1,12 @@
+# [1.14.0](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.3...v1.14.0) (2026-11-24)
+
+
+### Features
+
+* **ai:** support multiple AI hosting plans per customer ([#471](https://github.com/mittwald/terraform-provider-mittwald/issues/471)) ([b4fd351](https://github.com/mittwald/terraform-provider-mittwald/commit/b4fd3519c742164a7f35fae952afd22fcef867eb))
+* **container_stack:** manage stacks without relying on a default stack ([#502](https://github.com/mittwald/terraform-provider-mittwald/issues/502)) ([519f4f9](https://github.com/mittwald/terraform-provider-mittwald/commit/519f4f9af54f66392cb200d1943fc4431dd6bae9)), closes [mittwald/cli#2146](https://github.com/mittwald/cli/issues/2146)
+* **virtualhost:** allow disabling ACME certificate issuance ([#528](https://github.com/mittwald/terraform-provider-mittwald/issues/528)) ([fed073e](https://github.com/mittwald/terraform-provider-mittwald/commit/fed073e7751a6c4524f14ccff24a45e80c6f7cf8))
+
 ## [1.13.3](https://github.com/mittwald/terraform-provider-mittwald/compare/v1.13.2...v1.13.3) (2026-11-19)
 
 
