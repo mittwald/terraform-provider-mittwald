@@ -15,6 +15,7 @@ func (m *ResourceModel) FromAPIModel(_ context.Context, apiModel *ingressv2.Ingr
 	m.ProjectID = types.StringValue(apiModel.ProjectId)
 	m.Hostname = types.StringValue(apiModel.Hostname)
 	m.Default = types.BoolValue(apiModel.IsDefault)
+	m.Acme = types.BoolValue(acmeEnabled(apiModel))
 
 	pathObjs := make(map[string]attr.Value)
 	for _, ingressPath := range apiModel.Paths {
@@ -71,6 +72,24 @@ func (m *ResourceModel) ToUpdateRequest(ctx context.Context, d *diag.Diagnostics
 		IngressID: m.ID.ValueString(),
 		Body:      m.pathsAsAPIModel(ctx, d),
 	}
+}
+
+func (m *ResourceModel) ToUpdateTLSRequest() domainclientv2.UpdateIngressTLSRequest {
+	return domainclientv2.UpdateIngressTLSRequest{
+		IngressID: m.ID.ValueString(),
+		Body: domainclientv2.UpdateIngressTLSRequestBody{
+			AlternativeUpdateIngressTLSRequestBodyAlternative1: &domainclientv2.UpdateIngressTLSRequestBodyAlternative1{
+				Acme: m.Acme.ValueBool(),
+			},
+		},
+	}
+}
+
+// acmeEnabled returns true if the ingress has its TLS certificate managed via
+// ACME. Ingresses that use a manually assigned certificate, or that have ACME
+// explicitly disabled, are reported as false.
+func acmeEnabled(apiModel *ingressv2.Ingress) bool {
+	return apiModel.Tls.AlternativeTlsAcme != nil && apiModel.Tls.AlternativeTlsAcme.Acme
 }
 
 func (m *ResourceModel) ToDeleteRequest() domainclientv2.DeleteIngressRequest {
