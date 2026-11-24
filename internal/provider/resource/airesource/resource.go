@@ -129,6 +129,24 @@ func (r *Resource) resolvePlanID(ctx context.Context, customerID, contractID str
 	return client.FindPlanIDByContractID(ctx, customerID, contractID, plans)
 }
 
+// readPlanName resolves the AI hosting plan that belongs to data's contract
+// and stores its display name in data.Name, or null if no matching plan was
+// found.
+func (r *Resource) readPlanName(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
+	planID, err := r.resolvePlanID(ctx, data.CustomerID.ValueString(), data.ContractID.ValueString())
+	if err != nil {
+		res.AddError("error while resolving AI hosting plan", err.Error())
+		return
+	}
+
+	if planID == "" {
+		data.Name = types.StringNull()
+		return
+	}
+
+	return r.applyPlanName(ctx, data, planID)
+}
+
 // applyPlanName reads the display name (description) of the given AI hosting
 // plan and stores it in data.Name.
 func (r *Resource) applyPlanName(ctx context.Context, data *ResourceModel, planID string) (res diag.Diagnostics) {
@@ -366,17 +384,7 @@ func (r *Resource) read(ctx context.Context, data *ResourceModel, considerTermin
 		return
 	}
 
-	planID, err := r.resolvePlanID(ctx, data.CustomerID.ValueString(), contract.ContractId)
-	if err != nil {
-		res.AddError("error while resolving AI hosting plan", err.Error())
-		return
-	}
-
-	if planID != "" {
-		res.Append(r.applyPlanName(ctx, data, planID)...)
-	} else {
-		data.Name = types.StringNull()
-	}
+	res.Append(r.readPlanName(ctx, data)...)
 
 	return
 }
@@ -451,17 +459,9 @@ func (r *Resource) ImportState(ctx context.Context, req resource.ImportStateRequ
 		return
 	}
 
-	planID, err := r.resolvePlanID(ctx, data.CustomerID.ValueString(), data.ContractID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("error while resolving AI hosting plan", err.Error())
+	resp.Diagnostics.Append(r.readPlanName(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
 		return
-	}
-
-	if planID != "" {
-		resp.Diagnostics.Append(r.applyPlanName(ctx, &data, planID)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
 	}
 
 	// Set the state
