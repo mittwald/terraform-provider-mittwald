@@ -12,6 +12,7 @@ func (r *ResourceModel) FromAPIModel(ctx context.Context, apiModel *contractv2.C
 	if apiModel == nil {
 		r.ContractID = types.StringNull()
 		r.ArticleID = types.StringNull()
+		r.Name = types.StringNull()
 		r.UseFreeTrial = types.BoolUnknown()
 		return nil
 	}
