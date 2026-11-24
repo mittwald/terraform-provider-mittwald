@@ -74,10 +74,10 @@ func (r *Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *res
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "The contract ID of the AI hosting plan (see `mittwald_ai`'s `contract_id` attribute) that this key should be scoped to. If not set, the customer's only AI hosting plan is used; if the customer has multiple AI hosting plans, this attribute is required.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				// Both keeping the prior value and requiring replacement are
+				// handled in ModifyPlan: the prior contract ID may only be kept
+				// when the customer stays the same (see keepInferredContractID),
+				// and replacement must be decided on that final planned value.
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -122,26 +122,70 @@ func (r *Resource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReques
 		return
 	}
 
-	var data ResourceModel
+	var plan, config ResourceModel
 
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	customerIDIsNullOrUnknown := data.CustomerID.IsNull() || data.CustomerID.IsUnknown()
-	projectIDIsNullOrUnknown := data.ProjectID.IsNull() || data.ProjectID.IsUnknown()
-	if customerIDIsNullOrUnknown && !projectIDIsNullOrUnknown {
-		project, err := r.getProject(ctx, data.ProjectID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddAttributeError(path.Root("project_id"), "Error retrieving project", fmt.Sprintf("Error retrieving project with ID %s: %s", data.ProjectID.ValueString(), err.Error()))
+	r.inferCustomerIDFromProject(ctx, &plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !req.State.Raw.IsNull() {
+		var state ResourceModel
+
+		resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+		if resp.Diagnostics.HasError() {
 			return
 		}
 
-		data.CustomerID = types.StringValue(project.CustomerId)
+		keepInferredContractID(&plan, &config, &state)
 
-		resp.Diagnostics.Append(resp.Plan.Set(ctx, data)...)
+		if !plan.ContractID.Equal(state.ContractID) {
+			resp.RequiresReplace = append(resp.RequiresReplace, path.Root("contract_id"))
+		}
 	}
+
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, plan)...)
+}
+
+// inferCustomerIDFromProject sets the planned customer ID from the planned
+// project, if only the latter is known.
+func (r *Resource) inferCustomerIDFromProject(ctx context.Context, plan *ResourceModel, d *diag.Diagnostics) {
+	customerIDIsNullOrUnknown := plan.CustomerID.IsNull() || plan.CustomerID.IsUnknown()
+	projectIDIsNullOrUnknown := plan.ProjectID.IsNull() || plan.ProjectID.IsUnknown()
+	if !customerIDIsNullOrUnknown || projectIDIsNullOrUnknown {
+		return
+	}
+
+	project, err := r.getProject(ctx, plan.ProjectID.ValueString())
+	if err != nil {
+		d.AddAttributeError(path.Root("project_id"), "Error retrieving project", fmt.Sprintf("Error retrieving project with ID %s: %s", plan.ProjectID.ValueString(), err.Error()))
+		return
+	}
+
+	plan.CustomerID = types.StringValue(project.CustomerId)
+}
+
+// keepInferredContractID keeps the contract ID that was automatically selected
+// for an existing key, as long as contract_id is not configured and the key
+// stays with the same customer. If the customer changes, the key is replaced
+// and its plan must be selected again for the new customer, so the planned
+// contract ID is left unknown.
+func keepInferredContractID(plan, config, state *ResourceModel) {
+	if !config.ContractID.IsNull() || !plan.ContractID.IsUnknown() {
+		return
+	}
+
+	if plan.CustomerID.IsUnknown() || !plan.CustomerID.Equal(state.CustomerID) {
+		return
+	}
+
+	plan.ContractID = state.ContractID
 }
 
 // Configure sets up the resource with the provider client.
