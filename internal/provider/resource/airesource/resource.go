@@ -388,12 +388,14 @@ func (r *Resource) renamePlan(ctx context.Context, data *ResourceModel) (res dia
 }
 
 func (r *Resource) read(ctx context.Context, data *ResourceModel, considerTerminatedAsDeleted bool) (res diag.Diagnostics) {
-	client := r.client.Contract()
-
+	// This is deliberately a single request instead of a polled one: polling
+	// would retry on 404 until the context deadline, so a contract that was
+	// deleted outside of Terraform would surface as a timeout error instead
+	// of being removed from state.
 	contract := providerutil.
 		Try[*contractv2.Contract](&res, "error while reading AI hosting contract").
 		IgnoreNotFound().
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, client.GetDetailOfContract, contractclientv2.GetDetailOfContractRequest{ContractID: data.ContractID.ValueString()}))
+		DoValResp(r.client.Contract().GetDetailOfContract(ctx, contractclientv2.GetDetailOfContractRequest{ContractID: data.ContractID.ValueString()}))
 
 	// Consider contract as deleted if it has a termination date
 	if contract != nil && contract.Termination != nil && considerTerminatedAsDeleted {
