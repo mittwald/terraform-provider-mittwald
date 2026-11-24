@@ -2,6 +2,7 @@ package airesource
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/aihostingv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
+	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/orderv2"
 	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
@@ -195,19 +197,90 @@ func (r *Resource) applyPlanName(ctx context.Context, data *ResourceModel, planI
 	return
 }
 
+// findContractByOrderID returns the customer's contract whose base item was
+// created by the given order, or nil if no such contract exists (yet).
+func (r *Resource) findContractByOrderID(ctx context.Context, customerID, orderID string) (*contractv2.Contract, error) {
+	contracts, err := apiutils.FetchAllPages(ctx, 100, func(ctx context.Context, limit, page int64) (*[]contractv2.Contract, *http.Response, error) {
+		return r.client.Contract().ListContracts(ctx, contractclientv2.ListContractsRequest{
+			CustomerID: customerID,
+			Limit:      &limit,
+			Page:       &page,
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range contracts {
+		orderIDOfItem := contracts[i].BaseItem.OrderId
+		if orderIDOfItem != nil && *orderIDOfItem == orderID {
+			return &contracts[i], nil
+		}
+	}
+
+	return nil, nil
+}
+
+// resolvePlanFromOrder waits for the given AI hosting order to be executed,
+// and then determines the resulting contract and AI hosting plan. The
+// contract is matched by the order ID of its base item, so this stays
+// unambiguous even when several plans are ordered for the same customer at
+// the same time.
+func (r *Resource) resolvePlanFromOrder(ctx context.Context, customerID, orderID string) (*contractv2.Contract, string, error) {
+	type resolved struct {
+		contract *contractv2.Contract
+		planID   string
+	}
+
+	result, err := apiutils.Poll(ctx, apiutils.PollOpts{}, func(ctx context.Context, orderID string) (resolved, error) {
+		order, _, err := r.client.Contract().GetOrder(ctx, contractclientv2.GetOrderRequest{OrderID: orderID})
+		if err != nil {
+			return resolved{}, err
+		}
+
+		if order == nil {
+			return resolved{}, apiutils.ErrPollShouldRetry
+		}
+
+		switch order.Status {
+		case orderv2.OrderStatusABORTED, orderv2.OrderStatusREJECTED:
+			return resolved{}, fmt.Errorf("AI hosting order %s has status %s", orderID, order.Status)
+		case orderv2.OrderStatusEXECUTED:
+		default:
+			return resolved{}, apiutils.ErrPollShouldRetry
+		}
+
+		contract, err := r.findContractByOrderID(ctx, customerID, orderID)
+		if err != nil {
+			return resolved{}, err
+		}
+
+		if contract == nil {
+			return resolved{}, apiutils.ErrPollShouldRetry
+		}
+
+		planID, diags := r.resolvePlanID(ctx, customerID, contract.ContractId)
+		if diags.HasError() {
+			e := diags.Errors()[0]
+			return resolved{}, fmt.Errorf("%s: %s", e.Summary(), e.Detail())
+		}
+
+		if planID == "" {
+			return resolved{}, apiutils.ErrPollShouldRetry
+		}
+
+		return resolved{contract: contract, planID: planID}, nil
+	}, orderID)
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	return result.contract, result.planID, nil
+}
+
 func (r *Resource) createNewContract(ctx context.Context, data *ResourceModel) (res diag.Diagnostics) {
 	customerID := data.CustomerID.ValueString()
-
-	existingPlanIDs, err := r.listAIHostingPlanIDs(ctx, customerID)
-	if err != nil {
-		res.AddError("error while listing existing AI hosting plans", err.Error())
-		return
-	}
-
-	existing := make(map[string]bool, len(existingPlanIDs))
-	for _, id := range existingPlanIDs {
-		existing[id] = true
-	}
 
 	orderRequest := providerutil.
 		Try[*contractclientv2.CreateOrderRequest](&res, "error while building AI hosting order").
@@ -217,7 +290,7 @@ func (r *Resource) createNewContract(ctx context.Context, data *ResourceModel) (
 		return
 	}
 
-	providerutil.
+	orderResponse := providerutil.
 		Try[*contractclientv2.CreateOrderResponse](&res, "error while creating AI hosting order").
 		DoValResp(r.client.Contract().CreateOrder(ctx, *orderRequest))
 
@@ -226,36 +299,10 @@ func (r *Resource) createNewContract(ctx context.Context, data *ResourceModel) (
 	}
 
 	// The order API does not return the ID of the resulting AI hosting plan
-	// directly, so we determine it by polling the customer's AI hosting
-	// plans until a plan appears that wasn't there before.
-	newPlanID, err := apiutils.Poll(ctx, apiutils.PollOpts{}, func(ctx context.Context, _ struct{}) (string, error) {
-		planIDs, err := r.listAIHostingPlanIDs(ctx, customerID)
-		if err != nil {
-			return "", err
-		}
-
-		for _, id := range planIDs {
-			if !existing[id] {
-				return id, nil
-			}
-		}
-
-		return "", apiutils.ErrPollShouldRetry
-	}, struct{}{})
-
+	// directly, so we determine it via the contract that the order created.
+	contract, newPlanID, err := r.resolvePlanFromOrder(ctx, customerID, orderResponse.OrderId)
 	if err != nil {
 		res.AddError("error while waiting for the new AI hosting plan to become available", err.Error())
-		return
-	}
-
-	contract := providerutil.
-		Try[*contractv2.Contract](&res, "error while reading AI hosting contract").
-		DoVal(apiutils.PollRequest(ctx, apiutils.PollOpts{}, r.client.Contract().GetDetailOfContractByAIHosting, contractclientv2.GetDetailOfContractByAIHostingRequest{
-			CustomerID:  customerID,
-			AIHostingID: newPlanID,
-		}))
-
-	if res.HasError() {
 		return
 	}
 
