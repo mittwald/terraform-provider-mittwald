@@ -233,6 +233,8 @@ func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContra
 		return
 	}
 
+	plans = activePlans(plans)
+
 	if configuredContractID == "" {
 		switch len(plans) {
 		case 0:
@@ -278,6 +280,21 @@ func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContra
 	)
 
 	return
+}
+
+// activePlans filters out AI hosting plans that have already been deleted.
+// New keys can't be scoped to a deleted plan, so these must neither count
+// towards an ambiguous automatic plan selection nor be matched against a
+// configured contract ID.
+func activePlans(plans []aihostingv2.CustomerPlan) []aihostingv2.CustomerPlan {
+	active := make([]aihostingv2.CustomerPlan, 0, len(plans))
+	for _, plan := range plans {
+		if plan.DeletedAt == nil {
+			active = append(active, plan)
+		}
+	}
+
+	return active
 }
 
 // contractIDForPlan resolves the contract ID that belongs to the given AI
