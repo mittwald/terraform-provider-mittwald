@@ -3,7 +3,6 @@ package aiapikeyresource
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -15,12 +14,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	mittwaldv2 "github.com/mittwald/api-client-go/mittwaldv2/generated/clients"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/aihostingclientv2"
-	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/contractclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/clients/projectclientv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/aihostingv2"
-	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/contractv2"
 	"github.com/mittwald/api-client-go/mittwaldv2/generated/schemas/projectv2"
-	"github.com/mittwald/terraform-provider-mittwald/internal/apiutils"
+	"github.com/mittwald/terraform-provider-mittwald/internal/apiext"
 	"github.com/mittwald/terraform-provider-mittwald/internal/provider/providerutil"
 )
 
@@ -210,112 +207,6 @@ func (r *Resource) Create(ctx context.Context, req resource.CreateRequest, resp 
 	tflog.Trace(ctx, "created AI API key resource")
 }
 
-// resolvePlan determines the AI hosting plan (and its associated contract)
-// that a key should be scoped to. If configuredContractID is empty, the
-// customer's only AI hosting plan is used; if the customer has more than one
-// plan, an error is returned since the plan cannot be determined
-// unambiguously. If configuredContractID is set, the plan whose contract
-// matches it is used.
-func (r *Resource) resolvePlan(ctx context.Context, customerID, configuredContractID string) (planID, contractID string, diags diag.Diagnostics) {
-	plans, err := apiutils.FetchAllPages(ctx, 100, func(ctx context.Context, limit, page int64) (*[]aihostingv2.CustomerPlan, *http.Response, error) {
-		plans, httpResp, err := r.client.AIHosting().CustomerGetPlans(ctx, aihostingclientv2.CustomerGetPlansRequest{
-			CustomerID: customerID,
-			Limit:      &limit,
-			Page:       &page,
-		})
-		if plans == nil {
-			return nil, httpResp, err
-		}
-		return &plans.Plans, httpResp, err
-	})
-	if err != nil {
-		diags.AddError("Error listing AI hosting plans", err.Error())
-		return
-	}
-
-	plans = activePlans(plans)
-
-	if configuredContractID == "" {
-		switch len(plans) {
-		case 0:
-			diags.AddAttributeError(
-				path.Root("contract_id"),
-				"No AI hosting plan found",
-				fmt.Sprintf("Customer %s has no AI hosting plan. Create a mittwald_ai resource for this customer first, or set contract_id explicitly.", customerID),
-			)
-			return
-		case 1:
-			planID = plans[0].PlanId
-		default:
-			diags.AddAttributeError(
-				path.Root("contract_id"),
-				"Ambiguous AI hosting plan",
-				fmt.Sprintf("Customer %s has %d AI hosting plans. Set contract_id to the contract_id of the mittwald_ai resource this key should be scoped to.", customerID, len(plans)),
-			)
-			return
-		}
-
-		contractID, diags = r.contractIDForPlan(ctx, customerID, planID)
-		return
-	}
-
-	for _, plan := range plans {
-		var id string
-		id, diags = r.contractIDForPlan(ctx, customerID, plan.PlanId)
-		if diags.HasError() {
-			return
-		}
-
-		if id == configuredContractID {
-			planID = plan.PlanId
-			contractID = id
-			return
-		}
-	}
-
-	diags.AddAttributeError(
-		path.Root("contract_id"),
-		"AI hosting plan not found",
-		fmt.Sprintf("No AI hosting plan found for contract %s on customer %s.", configuredContractID, customerID),
-	)
-
-	return
-}
-
-// activePlans filters out AI hosting plans that have already been deleted.
-// New keys can't be scoped to a deleted plan, so these must neither count
-// towards an ambiguous automatic plan selection nor be matched against a
-// configured contract ID.
-func activePlans(plans []aihostingv2.CustomerPlan) []aihostingv2.CustomerPlan {
-	active := make([]aihostingv2.CustomerPlan, 0, len(plans))
-	for _, plan := range plans {
-		if plan.DeletedAt == nil {
-			active = append(active, plan)
-		}
-	}
-
-	return active
-}
-
-// contractIDForPlan resolves the contract ID that belongs to the given AI
-// hosting plan.
-func (r *Resource) contractIDForPlan(ctx context.Context, customerID, planID string) (string, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	contract := providerutil.
-		Try[*contractv2.Contract](&diags, "Error reading AI hosting contract").
-		DoValResp(r.client.Contract().GetDetailOfContractByAIHosting(ctx, contractclientv2.GetDetailOfContractByAIHostingRequest{
-			CustomerID:  customerID,
-			AIHostingID: planID,
-		}))
-
-	if diags.HasError() || contract == nil {
-		return "", diags
-	}
-
-	return contract.ContractId, diags
-}
-
 // Read reads the current state of the AI API key.
 func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data ResourceModel
@@ -363,9 +254,9 @@ func (r *Resource) Read(ctx context.Context, req resource.ReadRequest, resp *res
 	// Restore the API key from state
 	data.APIKey = apiKey
 
-	contractID, diags := r.contractIDForPlan(ctx, customerID, key.PlanId)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	contractID, err := apiext.NewAIHostingClient(r.client).GetPlanContractID(ctx, customerID, key.PlanId)
+	if err != nil {
+		resp.Diagnostics.AddError("Error reading AI hosting contract", err.Error())
 		return
 	}
 	data.ContractID = types.StringValue(contractID)
